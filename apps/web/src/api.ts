@@ -1,0 +1,95 @@
+import type {
+  CategorySlug,
+  Condition,
+  CurrencyCode,
+  EvaluatedComparable,
+  FeePresetId,
+  InsufficientData,
+  Valuation,
+} from '@fliplens/core';
+import type { IdentificationResult } from '@fliplens/recognition';
+
+/** JSON turns Dates into strings; the UI only displays them. */
+type Jsonify<T> = T extends Date
+  ? string
+  : T extends readonly (infer U)[]
+    ? Jsonify<U>[]
+    : T extends object
+      ? { [K in keyof T]: Jsonify<T[K]> }
+      : T;
+
+export type ValuationJson = Jsonify<Valuation>;
+export type InsufficientJson = Jsonify<InsufficientData>;
+export type ComparableJson = Jsonify<EvaluatedComparable>;
+export type { IdentificationResult };
+
+export interface ValuationRequest {
+  product: {
+    category: CategorySlug;
+    brand: string;
+    model: string;
+    capacity?: string;
+    mount?: string;
+    gtin?: string;
+    excludeModels?: string[];
+  };
+  condition: Condition;
+  purchasePrice: number;
+  currency: CurrencyCode;
+  preset: FeePresetId;
+  shippingCost: number;
+  targetRoiPct?: number;
+  source: 'ebay' | 'demo';
+  identificationConfidence?: number;
+  recognitionModelVersion?: string;
+}
+
+export interface ValuationResponse {
+  source: 'ebay' | 'demo';
+  demo: boolean;
+  dataFetchedAt: string | null;
+  sourceWarnings: { source: string; site?: string; message: string }[];
+  fx: { rateDate: string; source: string };
+  feePreset: { id: FeePresetId; verified: boolean };
+  result: ValuationJson | InsufficientJson;
+}
+
+export interface Health {
+  ok: boolean;
+  pricingAlgorithmVersion: string;
+  sources: { ebay: boolean; demo: boolean };
+  vision: { configured: boolean; provider: string };
+}
+
+export class ApiError extends Error {}
+
+async function call<T>(path: string, init?: RequestInit): Promise<T> {
+  let res: Response;
+  try {
+    res = await fetch(path, init);
+  } catch {
+    throw new ApiError('API unreachable. Is `pnpm dev` running?');
+  }
+  const body: unknown = await res.json().catch(() => null);
+  if (!res.ok) {
+    const b = body as { message?: string; error?: string } | null;
+    throw new ApiError(b?.message ?? b?.error ?? `HTTP ${res.status}`);
+  }
+  return body as T;
+}
+
+export const api = {
+  health: () => call<Health>('/api/health'),
+  identify: (images: string[]) =>
+    call<IdentificationResult>('/api/identify', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ images }),
+    }),
+  valuation: (req: ValuationRequest) =>
+    call<ValuationResponse>('/api/valuation', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(req),
+    }),
+};

@@ -26,10 +26,11 @@ Validation: Zod схемы, общие для API и клиента.
 Статус: принято.
 Почему: MVP укладывается в синхронный запрос + кэш в PostgreSQL. Если понадобится фоновая работа (liquidity re-fetch), сначала `pg-boss` (очередь поверх Postgres), Redis только при реальной нагрузке.
 
-## ADR-006: Vision через LLM со structured output
-Статус: принято для Phase 0-2, пересмотр по результатам eval.
-Почему: мультимодальная модель читает текст на корпусе/коробке (model numbers, EAN), понимает поколения. Structured JSON output с confidence и top-N кандидатами. Модель не используется для оценки цены: цена только из рыночных данных.
-Выбор конкретной модели (Claude Sonnet vs Opus) по accuracy/cost на eval.
+## ADR-006: Vision через OpenAI (Responses API) со structured output
+Статус: принято 2026-09-23 (решение пользователя: OpenAI вместо Anthropic). Пересмотр по результатам eval.
+Почему: мультимодальная модель читает текст на корпусе/коробке (model numbers, EAN), понимает поколения. Strict Structured Outputs (`text.format: json_schema`) дают top-3 кандидата с confidence, confusable models, condition guess. Модель не используется для оценки цены: цена только из рыночных данных.
+Реализация: `packages/recognition`, интерфейс `VisionProvider`, провайдер `OpenAIVisionProvider`. `store: false`. Модель через `OPENAI_VISION_MODEL`, default `gpt-6-sol` ($2/$10 за 1M tokens). Кандидат на снижение стоимости: `gpt-6-luna` ($0.1/$0.5), сравнить на benchmark.
+Первый замер (синтетическая этикетка WH-1000XM4): верно, confidence 0.99, 1206 input + 220 output tokens, ~$0.005, 4.1 s.
 
 ## ADR-007: Деньги как integer minor units
 Статус: принято.

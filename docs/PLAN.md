@@ -62,7 +62,7 @@ DATA > VALUATION > RECOGNITION > PROFIT > MOBILE > BETA > PAYMENT > INVENTORY > 
 | DB | PostgreSQL | локально Homebrew 14, prod managed |
 | Queue | нет; позже pg-boss; Redis/BullMQ только при нагрузке | ADR-005 |
 | Images | Cloudflare R2 (S3 API, без egress fees) | retention policy |
-| Vision | LLM со structured output за интерфейсом `VisionProvider` | ADR-006 |
+| Vision | OpenAI Responses API (`gpt-6-sol`), strict structured output, за интерфейсом `VisionProvider` | ADR-006 |
 | Mobile | Expo + React Native + TS, expo-camera | Phase 5 |
 | Tests | Vitest | быстрый, TS native |
 | Logging | pino (встроен в Fastify), JSON | structured |
@@ -118,7 +118,7 @@ interface MarketplaceAdapter {
 }
 
 interface VisionProvider {
-  readonly id: string;             // 'anthropic:claude-sonnet-5'
+  readonly id: string;             // 'openai:gpt-6-sol'
   identify(images: ImageInput[]): Promise<IdentificationResult>; // top-N candidates + confidence + usage/cost
 }
 
@@ -292,7 +292,7 @@ inventory_items (Phase 8), transactions (Phase 10), subscriptions (Phase 7)
 
 ## 10. Versioning
 
-Каждая valuation хранит `pricing_algorithm_version` (semver, например `pricing-1.0.0`) и `recognition_model_version` (`anthropic:claude-sonnet-5@prompt-v3`). История не пересчитывается задним числом. Любое изменение pricing проходит benchmark regression до merge.
+Каждая valuation хранит `pricing_algorithm_version` (semver, например `pricing-1.0.0`) и `recognition_model_version` (`openai:gpt-6-sol@prompt-v1`). История не пересчитывается задним числом. Любое изменение pricing проходит benchmark regression до merge.
 
 ## 11. Observability
 

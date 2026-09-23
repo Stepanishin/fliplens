@@ -77,10 +77,10 @@ eBay API License Agreement (V, ключевые пункты):
 
 | Статья | Стоимость | На scan |
 |---|---|---|
-| Vision, Claude Haiku 4.5 (2 фото ~1MP) | $1 / $5 за 1M tokens | ~$0.0055 |
-| Vision, Claude Sonnet 5 | $2 / $10 | ~$0.011 |
-| Vision, Claude Opus 5.5 (fallback) | $4 / $20 | ~$0.022+ |
-| Full-res фото без resize | ~3x tokens | ~$0.025 на Sonnet |
+| Vision, OpenAI gpt-6-sol (выбран, ADR-006) | $2 / $10 за 1M tokens | ~$0.005 за 1 фото (замер), ~$0.01 за 2 |
+| Vision, OpenAI gpt-6-luna (кандидат) | $0.1 / $0.5 | ~$0.0005 |
+| Vision, OpenAI gpt-6-astra (fallback) | $10 / $50 | ~$0.03 |
+| Full-res фото без resize | ~3x tokens | resize до 1280px на устройстве |
 | eBay Browse, Catalog | бесплатно, ~5k calls/day default (U), расширение через Growth Check | ~0 |
 | Barcode: EAN-Search.org | €19/мес за 5k, €39 за 50k | < €0.004 |
 | Barcode: opengtindb (DE) | бесплатно, GNU FDL | 0 |
@@ -91,7 +91,7 @@ eBay API License Agreement (V, ключевые пункты):
 
 Оценка variable cost на успешную valuation: **€0.01-0.03** (vision + cached market snapshot). Pro пользователь со 100 scans/мес: ~€1-3 variable cost при €9.99. Heavy reseller с 1000 scans: €10-30, поэтому unlimited на €19.99 требует fair use лимита или barcode-first + cache hit rate > 50%.
 
-Обязательно: resize до ~1MP на устройстве, barcode перед vision, Haiku/Sonnet по умолчанию, Opus только при низком confidence.
+Обязательно: resize до ~1MP на устройстве, barcode перед vision, gpt-6-sol по умолчанию (или luna после benchmark), astra только при низком confidence.
 
 ## 6. Categories easiest to support
 
@@ -130,7 +130,7 @@ eBay API License Agreement (V, ключевые пункты):
 ## 9. Recommended MVP data stack
 
 **Strategy A (рекомендуется для Phase 1): eBay asking + anchors + own data**
-- Identity: barcode (EAN-Search / opengtindb) + eBay Catalog по GTIN, vision (Claude Haiku/Sonnet) для фото.
+- Identity: barcode (EAN-Search / opengtindb) + eBay Catalog по GTIN, vision (OpenAI gpt-6-sol) для фото.
 - Price: eBay Browse (все EU сайты), в UI отдельный eBay блок, live fetch с TTL <= 6 часов.
 - Anchors: Rebuy / Back Market affiliate feeds (refurb ceiling), idealo (new price).
 - Own data: purchase и actual sale в приложении, импорт собственных продаж пользователя через eBay Sell APIs (OAuth пользователя).
@@ -172,7 +172,7 @@ eBay API License Agreement (V, ключевые пункты):
 | B1 | Зарегистрировать eBay developer account, получить production keyset | пользователь | Phase 1 fetch |
 | B2 | Подать заявку в eBay Partner Network и Application Growth Check | пользователь | Production Buy API |
 | B3 | Письмо в eBay developer relations/BD: описание продукта, запрос consent на pricing display и Marketplace Insights | пользователь (черновик готовит агент) | Public launch |
-| B4 | Anthropic API key | пользователь | Recognition spike |
+| B4 | OpenAI API key (готово 2026-09-23) | пользователь | Recognition spike |
 | B5 | Собрать 100 товаров с фото (реальные условия) и ручными sold ranges | пользователь + агент (шаблон готов) | Все gate метрики |
 | B6 | Юридическая проверка: eBay License, Awin программы, Tradera API Terms, Icecat license | юрист | Production |
 | B7 | Регистрация в Awin, запрос feeds Rebuy, Back Market, MPB | пользователь | Anchors |
@@ -214,8 +214,8 @@ Legal:
 - Leboncoin scraping: https://cms.law/fr/fra/news-information/arret-leboncoin-web-scraping-droit-sui-generis-sur-les-bases-de-donnees
 
 Costs:
-- Claude pricing: https://platform.claude.com/docs/en/about-claude/pricing
-- Claude vision tokens: https://platform.claude.com/docs/en/build-with-claude/vision
+- OpenAI models и pricing: https://developers.openai.com/api/docs/models
+- OpenAI vision: https://developers.openai.com/api/docs/guides/images-vision
 - EAN-Search API: https://www.ean-search.org/ean-database-api.html
 - opengtindb: https://opengtindb.org/
 - ECB rates: https://www.ecb.europa.eu/stats/eurofxref/eurofxref-daily.xml

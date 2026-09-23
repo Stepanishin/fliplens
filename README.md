@@ -32,11 +32,36 @@ resale-copilot/
     core/               чистый TS: normalization, pricing, profit, decision (без I/O)
     db/                 Drizzle schema + migrations
     sources/            адаптеры источников данных (eBay и т.д.)
-    recognition/        vision + barcode lookup
+    recognition/        VisionProvider + OpenAI provider (barcode lookup позже)
   apps/
-    api/                Fastify backend (POST /valuation и т.д.)
+    api/                Fastify backend (POST /api/valuation)
+    web/                internal test PWA (Vite + React)
     mobile/             Expo app (только после Phase 3)
   eval/
     dataset/            100 тестовых товаров (Phase 0)
     scripts/            repeatable evaluation
 ```
+
+## Запуск (internal test app)
+
+```bash
+pnpm install
+pnpm dev            # API на :8787, web на http://localhost:5173
+```
+
+- Источник **Demo**: синтетические цены для проверки UI (WH-1000XM4, Switch OLED, iPhone 13 128GB, EOS R6). Не реальные данные.
+- Источник **eBay**: включается, когда в `.env` есть `EBAY_CLIENT_ID` и `EBAY_CLIENT_SECRET`.
+- Проверка ключей eBay: `scripts/ebay-smoke.sh "Sony WH-1000XM4"`.
+- **Фото**: кнопки Scan item (камера) / Upload photo, до 3 фото, resize до 1280px на устройстве, распознавание через OpenAI (`OPENAI_API_KEY`, `OPENAI_VISION_MODEL`). Фото не сохраняются.
+
+### PWA на телефоне
+
+Service worker и установка работают только по HTTPS (или на localhost).
+
+```bash
+pnpm --filter @fliplens/api dev          # в одном терминале
+pnpm --filter @fliplens/web dev:https    # в другом: self-signed HTTPS в локальной сети
+```
+
+Открыть `https://<IP ноутбука>:5173` на телефоне в той же Wi-Fi, принять сертификат, затем «Add to Home Screen».
+Production build: `pnpm --filter @fliplens/web build` (результат в `apps/web/dist`, с `sw.js` и manifest).

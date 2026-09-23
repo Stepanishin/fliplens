@@ -1,0 +1,21 @@
+{
+  "name": "@fliplens/api",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch --env-file=../../.env src/server.ts",
+    "start": "tsx --env-file=../../.env src/server.ts",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@fliplens/core": "workspace:*",
+    "@fliplens/sources": "workspace:*",
+    "fastify": "^5.0.0",
+    "zod": "^3.24.0",
+    "@fliplens/recognition": "workspace:*"
+  },
+  "devDependencies": {
+    "tsx": "^4.19.0"
+  }
+}

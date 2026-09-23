@@ -39,7 +39,7 @@ Phase 9  Listing generator           после inventory
 - Измерить: сколько relevant comparables на товар, precision фильтра (ручная разметка выборки).
 
 ### 0.4 Spike: identification
-- Прогнать фото через vision model (Claude) со structured output.
+- Прогнать фото через vision model (OpenAI) со structured output.
 - Прогнать EAN через eBay Browse `gtin` + 1-2 barcode DB.
 - Измерить exact / near-exact / wrong по категориям.
 
