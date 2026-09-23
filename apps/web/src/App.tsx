@@ -4,6 +4,8 @@ import { api, ApiError, type ComparableJson, type Health, type ValuationRequest,
 import { ago, CONDITION_LABEL, DECISION_LABEL, FACTOR_LABEL, fmt, REASON_LABEL } from './format.js';
 import { loadHistory, loadSettings, saveHistory, saveSettings, type HistoryEntry } from './storage.js';
 import { PhotoScan } from './PhotoScan.js';
+import { MarketLinks } from './MarketLinks.js';
+import { LINK_COUNTRIES } from './marketSearch.js';
 import type { IdentificationCandidate } from '@fliplens/recognition';
 
 const CAPACITY_CATEGORIES: readonly CategorySlug[] = ['smartphones', 'tablets', 'laptops', 'consoles', 'handhelds'];
@@ -185,6 +187,14 @@ export function App() {
             </div>
           </label>
           <label className="field">
+            <span>Your country</span>
+            <select value={settings.country} onChange={(e) => setSettings({ ...settings, country: e.target.value })}>
+              {LINK_COUNTRIES.map((c) => (
+                <option key={c} value={c}>{c}</option>
+              ))}
+            </select>
+          </label>
+          <label className="field">
             <span>Sell on</span>
             <select value={settings.preset} onChange={(e) => setSettings({ ...settings, preset: e.target.value as FeePresetId })}>
               {Object.entries(FEE_PRESETS).map(([id, p]) => (
@@ -300,6 +310,11 @@ export function App() {
       </form>
 
       {resp && <Result resp={resp} />}
+
+      <MarketLinks
+        query={[form.brand, form.model, CAPACITY_CATEGORIES.includes(form.category) ? form.capacity : ''].filter((x) => x.trim()).join(' ')}
+        country={settings.country}
+      />
 
       {history.length > 0 && (
         <section className="card">

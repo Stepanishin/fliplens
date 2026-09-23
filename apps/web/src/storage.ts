@@ -8,6 +8,8 @@ export interface Settings {
   preset: FeePresetId;
   shippingCost: number;
   targetRoiPct: number;
+  /** ISO country for marketplace links. */
+  country: string;
 }
 
 export interface HistoryEntry {
@@ -18,7 +20,7 @@ export interface HistoryEntry {
 
 const SETTINGS_KEY = 'fliplens.settings.v1';
 const HISTORY_KEY = 'fliplens.history.v1';
-const DEFAULT_SETTINGS: Settings = { source: 'demo', preset: 'ebay_de_private', shippingCost: 6, targetRoiPct: 40 };
+const DEFAULT_SETTINGS: Settings = { source: 'demo', preset: 'ebay_de_private', shippingCost: 6, targetRoiPct: 40, country: 'DE' };
 
 function read<T>(key: string, fallback: T): T {
   try {

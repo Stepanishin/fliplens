@@ -214,3 +214,7 @@ code { font-size: 13px; }
 .candidate { display: flex; justify-content: space-between; align-items: center; gap: 8px; text-align: left; padding: 12px; border-radius: 12px; border: 1px solid var(--line); background: var(--field); color: var(--text); min-height: 52px; }
 .candidate.on { border-color: var(--accent); outline: 2px solid var(--accent); }
 .conf { font-weight: 700; font-variant-numeric: tabular-nums; }
+
+.links { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+.link-btn { display: inline-flex; align-items: center; min-height: 44px; padding: 8px 14px; border-radius: 12px; border: 1px solid var(--line); background: var(--field); color: var(--text); text-decoration: none; font-weight: 600; font-size: 15px; }
+.link-btn.featured { background: var(--accent); color: var(--accent-text); border-color: var(--accent); }
