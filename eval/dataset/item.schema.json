@@ -1,0 +1,45 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "BenchmarkItem",
+  "type": "object",
+  "required": ["id", "category", "truth", "condition", "images", "hypothetical_purchase_price_eur", "market_range_eur"],
+  "additionalProperties": false,
+  "properties": {
+    "id": { "type": "string", "pattern": "^(el|gm|cm|tl)-[0-9]{3}$" },
+    "category": { "type": "string" },
+    "truth": {
+      "type": "object",
+      "required": ["brand", "model"],
+      "additionalProperties": false,
+      "properties": {
+        "brand": { "type": "string" },
+        "family": { "type": ["string", "null"] },
+        "model": { "type": "string" },
+        "generation": { "type": ["string", "null"] },
+        "variant": { "type": ["string", "null"] },
+        "capacity": { "type": ["string", "null"] },
+        "colour": { "type": ["string", "null"] },
+        "mount": { "type": ["string", "null"] },
+        "gtin": { "type": ["string", "null"], "pattern": "^[0-9]{8,14}$" }
+      }
+    },
+    "condition": { "enum": ["new", "like_new", "very_good", "good", "fair", "poor", "for_parts"] },
+    "images": { "type": "array", "items": { "type": "string" }, "minItems": 1, "maxItems": 3 },
+    "photo_context": { "enum": ["in_hand_shop_light", "on_table", "boxed", "label_visible", "poor_light"] },
+    "hypothetical_purchase_price_eur": { "type": "number", "minimum": 0 },
+    "market_range_eur": {
+      "type": "object",
+      "required": ["low", "high", "kind", "captured_at"],
+      "additionalProperties": false,
+      "properties": {
+        "low": { "type": "number" },
+        "high": { "type": "number" },
+        "kind": { "enum": ["sold", "asking", "mixed"] },
+        "captured_at": { "type": "string", "format": "date" }
+      }
+    },
+    "reference_urls": { "type": "array", "items": { "type": "string", "format": "uri" } },
+    "difficulty": { "enum": ["easy", "medium", "hard_pair"] },
+    "notes": { "type": "string" }
+  }
+}
