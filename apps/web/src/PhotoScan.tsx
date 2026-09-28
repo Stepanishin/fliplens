@@ -1,7 +1,8 @@
-import { useEffect, useRef, useState, type ChangeEvent } from 'react';
+import { useCallback, useEffect, useRef, useState, type ChangeEvent } from 'react';
 import type { IdentificationCandidate } from '@fliplens/recognition';
-import { api, ApiError, type IdentificationResult } from './api.js';
-import { CONDITION_LABEL } from './format.js';
+import { api, ApiError, type BarcodeResult, type IdentificationResult } from './api.js';
+import { BarcodeScanner } from './BarcodeScanner.js';
+import { Candidates } from './Candidates.js';
 import { resizeToJpegDataUrl } from './image.js';
 
 const MAX_PHOTOS = 3;
@@ -19,7 +20,8 @@ export function PhotoScan({ enabled, onPick, onPhotosChange }: Props) {
   const [photos, setPhotos] = useState<string[]>([]);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [result, setResult] = useState<IdentificationResult | null>(null);
+  const [result, setResult] = useState<(IdentificationResult & Partial<Pick<BarcodeResult, 'gtin' | 'listingCount'>>) | null>(null);
+  const [scanning, setScanning] = useState(false);
   const [picked, setPicked] = useState<number | null>(null);
 
   useEffect(() => onPhotosChange?.(photos), [photos, onPhotosChange]);
@@ -55,6 +57,27 @@ export function PhotoScan({ enabled, onPick, onPhotosChange }: Props) {
     }
   }
 
+  const closeScanner = useCallback(() => setScanning(false), []);
+  const onBarcode = useCallback(async (code: string) => {
+    setScanning(false);
+    setBusy(true);
+    setError(null);
+    setResult(null);
+    setPicked(null);
+    try {
+      const r = await api.identifyBarcode(code);
+      setResult(r);
+      if (r.candidates.length === 1 && r.candidates[0]!.confidence >= 0.85) {
+        setPicked(0);
+        onPick(r.candidates[0]!, r);
+      }
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : 'Barcode lookup failed');
+    } finally {
+      setBusy(false);
+    }
+  }, [onPick]);
+
   function choose(i: number, r: IdentificationResult) {
     const c = r.candidates[i];
     if (!c) return;
@@ -74,10 +97,13 @@ export function PhotoScan({ enabled, onPick, onPhotosChange }: Props) {
         <button type="button" className="primary" onClick={() => cameraRef.current?.click()} disabled={photos.length >= MAX_PHOTOS}>
           Scan item
         </button>
-        <button type="button" className="ghost" onClick={() => uploadRef.current?.click()} disabled={photos.length >= MAX_PHOTOS}>
-          Upload photo
+        <button type="button" className="ghost" onClick={() => setScanning(true)} disabled={!enabled}>
+          Barcode
         </button>
       </div>
+      <button type="button" className="link" onClick={() => uploadRef.current?.click()} disabled={photos.length >= MAX_PHOTOS}>
+        Upload photo from gallery
+      </button>
       <input ref={cameraRef} type="file" accept="image/*" capture="environment" hidden onChange={onFiles} />
       <input ref={uploadRef} type="file" accept="image/*" multiple hidden onChange={onFiles} />
 
@@ -103,41 +129,17 @@ export function PhotoScan({ enabled, onPick, onPhotosChange }: Props) {
       {busy && <p className="muted">Identifying…</p>}
       {error && <div className="banner bad">{error}</div>}
 
+      {scanning && <BarcodeScanner onCode={onBarcode} onClose={closeScanner} />}
+
       {result && (
-        <div className="candidates">
-          {result.candidates.length === 0 ? (
-            <div className="banner warn">No product recognised. Try another angle, the label with the model number, or enter it manually.</div>
-          ) : (
-            <>
-              <p className="muted small">{result.candidates.length > 1 ? 'Is this:' : 'Detected:'}</p>
-              {result.candidates.map((c, i) => (
-                <button key={i} type="button" className={`candidate ${picked === i ? 'on' : ''}`} onClick={() => choose(i, result)}>
-                  <span>
-                    <strong>{c.brand} {c.model}</strong>
-                    <span className="muted small">
-                      {' '}
-                      {[c.capacity, c.mount && `${c.mount} mount`, c.colour, c.category.replace(/_/g, ' ')].filter(Boolean).join(' · ')}
-                    </span>
-                  </span>
-                  <span className={`conf ${c.confidence >= 0.85 ? 'c-high' : c.confidence >= 0.6 ? 'c-medium' : 'c-low'}`}>
-                    {Math.round(c.confidence * 100)}%
-                  </span>
-                </button>
-              ))}
-            </>
-          )}
-          {result.conditionGuess && (
-            <p className="muted small">
-              Condition guess: {CONDITION_LABEL[result.conditionGuess]}
-              {result.conditionNotes ? ` (${result.conditionNotes})` : ''}. Please confirm below.
-            </p>
-          )}
-          {result.identifyingText.length > 0 && <p className="muted small">Read on item: {result.identifyingText.join(' · ')}</p>}
-          <p className="muted small">
-            {result.modelVersion} · {(result.latencyMs / 1000).toFixed(1)}s
-            {result.costUsd !== undefined ? ` · ~$${result.costUsd.toFixed(4)}` : ''}
-          </p>
-        </div>
+        <Candidates
+          result={result}
+          picked={picked}
+          onChoose={(i) => choose(i, result)}
+          evidenceLabel={result.gtin ? 'Matching listings' : 'Read on item'}
+          emptyText={result.gtin ? 'Barcode found, but the product is unclear. Try a photo or enter the model.' : 'No product recognised. Try another angle, the label with the model number, or enter it manually.'}
+          {...(result.gtin && { extra: `EAN ${result.gtin} · ${result.listingCount} eBay listings` })}
+        />
       )}
     </div>
   );

@@ -12,7 +12,7 @@ import {
   type NormalizedProduct,
 } from '@fliplens/core';
 import { EbayAdapter, EcbFxService } from '@fliplens/sources';
-import { OpenAIVisionProvider, RecognitionError } from '@fliplens/recognition';
+import { OpenAIVisionProvider, RecognitionError, gtinSearchVariants, normalizeGtin } from '@fliplens/recognition';
 import { registerBenchmarkRoutes } from './benchmark.js';
 
 // Up to 3 photos resized to ~1MP on the client: a few MB of base64 at most.
@@ -27,6 +27,11 @@ const fx = new EcbFxService();
 const vision = new OpenAIVisionProvider({
   apiKey: process.env.OPENAI_API_KEY ?? '',
   ...(process.env.OPENAI_VISION_MODEL && { model: process.env.OPENAI_VISION_MODEL }),
+});
+/** Barcode flow only reads listing titles: a cheap text model is enough. */
+const titleIdentifier = new OpenAIVisionProvider({
+  apiKey: process.env.OPENAI_API_KEY ?? '',
+  model: process.env.OPENAI_TEXT_MODEL ?? 'gpt-6-luna',
 });
 
 registerBenchmarkRoutes(app);
@@ -98,6 +103,38 @@ app.post('/api/identify', async (req, reply) => {
     if (e instanceof RecognitionError) {
       req.log.error({ event: 'recognition_failed', kind: e.kind }, e.message);
       return reply.code(e.kind === 'not_configured' ? 409 : 502).send({ error: 'recognition_failed', kind: e.kind, message: e.message });
+    }
+    throw e;
+  }
+});
+
+const BarcodeBody = z.object({ gtin: z.string().trim().min(8).max(20) });
+
+app.post('/api/identify/barcode', async (req, reply) => {
+  const parsed = BarcodeBody.safeParse(req.body);
+  if (!parsed.success) return reply.code(400).send({ error: 'invalid_request', message: 'gtin required' });
+  const gtin = normalizeGtin(parsed.data.gtin);
+  if (!gtin) return reply.code(400).send({ error: 'invalid_gtin', message: `"${parsed.data.gtin}" is not a valid EAN/UPC (check digit or length)` });
+  if (!ebay.isConfigured()) return reply.code(409).send({ error: 'source_not_configured', message: 'eBay keys are not configured' });
+  if (!titleIdentifier.isConfigured()) return reply.code(409).send({ error: 'vision_not_configured', message: 'Set OPENAI_API_KEY in .env' });
+
+  const found = await ebay.titlesForGtin(gtinSearchVariants(gtin));
+  for (const w of found.warnings) req.log.warn({ event: 'source_fetch_failed', site: w.site }, w.message);
+  if (found.titles.length === 0) {
+    req.log.info({ event: 'barcode_not_found', gtin }, 'barcode');
+    return reply.code(404).send({ error: 'gtin_not_found', gtin, message: 'No eBay listings carry this barcode. Try a photo or enter the model.' });
+  }
+  try {
+    const result = await titleIdentifier.identifyFromListingTitles(gtin, found.titles);
+    req.log.info(
+      { event: 'barcode_scanned', gtin, titles: found.titles.length, top: result.candidates[0] ? `${result.candidates[0].brand} ${result.candidates[0].model}` : null, costUsd: result.costUsd ?? null },
+      'barcode',
+    );
+    return { ...result, gtin, listingCount: found.titles.length, sites: found.sites };
+  } catch (e) {
+    if (e instanceof RecognitionError) {
+      req.log.error({ event: 'recognition_failed', kind: e.kind }, e.message);
+      return reply.code(502).send({ error: 'recognition_failed', kind: e.kind, message: e.message });
     }
     throw e;
   }

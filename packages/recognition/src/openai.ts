@@ -45,6 +45,17 @@ Rules:
 - identifying_text: every relevant piece of text you read on the item or box.
 - If the photo shows no identifiable product, return an empty candidates list.`;
 
+const TITLES_PROMPT = `You normalise product identity for European resellers from marketplace listing titles that all belong to ONE barcode (GTIN).
+Titles are in several languages and contain noise (condition, shipping, "OVP", seller words). Ignore the noise.
+- Return the product the barcode stands for. Most titles agree; ignore outliers.
+- Brand and model the way marketplace titles write them (e.g. "Sony" + "WH-1000XM4", "Nintendo" + "Switch OLED", "Apple" + "iPhone 13").
+- capacity only if the titles clearly agree on it (a barcode usually fixes storage and colour).
+- Lenses: focal length and aperture as model, mount separately.
+- confidence: how sure you are about the exact model and variant given the titles.
+- confusable_models: sibling models that are easy to confuse. condition_guess: null. condition_notes: null.
+- identifying_text: the 1-3 titles that best support your answer.
+- If the titles disagree about what the product is, give several candidates.`;
+
 const nullableString = { type: ['string', 'null'] } as const;
 
 const RESPONSE_SCHEMA = {
@@ -124,6 +135,24 @@ export class OpenAIVisionProvider implements VisionProvider {
   }
 
   async identify(images: readonly ImageInput[], _opts?: { readonly requestId?: string }): Promise<IdentificationResult> {
+    return this.run(SYSTEM_PROMPT, [
+      { type: 'input_text', text: `Identify the product in ${images.length === 1 ? 'this photo' : `these ${images.length} photos (same item)`}.` },
+      ...images.map((img) => ({ type: 'input_image', image_url: img.dataUrl, detail: 'high' })),
+    ]);
+  }
+
+  /**
+   * Barcode flow: marketplace listing titles found for one GTIN > normalized product identity.
+   * Text only, so a cheap model is enough.
+   */
+  async identifyFromListingTitles(gtin: string, titles: readonly string[]): Promise<IdentificationResult> {
+    const list = titles.slice(0, 30).map((t, i) => `${i + 1}. ${t}`).join('\n');
+    return this.run(TITLES_PROMPT, [
+      { type: 'input_text', text: `Barcode (GTIN): ${gtin}\nListing titles found for this barcode on eBay:\n${list}` },
+    ]);
+  }
+
+  private async run(system: string, userContent: readonly Record<string, unknown>[]): Promise<IdentificationResult> {
     if (!this.isConfigured()) throw new RecognitionError('OPENAI_API_KEY is not set', 'not_configured');
     const started = Date.now();
 
@@ -131,14 +160,8 @@ export class OpenAIVisionProvider implements VisionProvider {
       model: this.model,
       store: false,
       input: [
-        { role: 'system', content: SYSTEM_PROMPT },
-        {
-          role: 'user',
-          content: [
-            { type: 'input_text', text: `Identify the product in ${images.length === 1 ? 'this photo' : `these ${images.length} photos (same item)`}.` },
-            ...images.map((img) => ({ type: 'input_image', image_url: img.dataUrl, detail: 'high' })),
-          ],
-        },
+        { role: 'system', content: system },
+        { role: 'user', content: userContent },
       ],
       text: { format: { type: 'json_schema', name: 'product_identification', schema: RESPONSE_SCHEMA, strict: true } },
     };

@@ -51,6 +51,7 @@ pnpm dev            # API на :8787, web на http://localhost:5173
 
 - Цены: eBay Browse API (active listings, DE/FR/IT/ES/NL). Нужны `EBAY_CLIENT_ID` и `EBAY_CLIENT_SECRET` в `.env`.
 - Проверка ключей eBay: `scripts/ebay-smoke.sh "Sony WH-1000XM4"`.
+- **Barcode**: кнопка Barcode (камера: нативный BarcodeDetector, иначе ZXing) или ввод номера. EAN ищется в eBay listings (UPC-12 и EAN-13), titles нормализует `gpt-6-luna` (`OPENAI_TEXT_MODEL`), ~$0.0003 за скан.
 - **Фото**: кнопки Scan item (камера) / Upload photo, до 3 фото, resize до 1280px на устройстве, распознавание через OpenAI (`OPENAI_API_KEY`, `OPENAI_VISION_MODEL`). Фото не сохраняются.
 
 ### PWA на телефоне

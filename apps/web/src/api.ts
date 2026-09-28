@@ -88,6 +88,8 @@ export interface BenchmarkAddRequest {
   notes?: string;
 }
 
+export type BarcodeResult = IdentificationResult & { gtin: string; listingCount: number; sites: Record<string, number> };
+
 export const api = {
   benchmarkCount: () => call<{ count: number; byPrefix: Record<string, number> }>('/api/benchmark/items'),
   benchmarkAdd: (req: BenchmarkAddRequest) =>
@@ -102,6 +104,12 @@ export const api = {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ images }),
+    }),
+  identifyBarcode: (gtin: string) =>
+    call<BarcodeResult>('/api/identify/barcode', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ gtin }),
     }),
   valuation: (req: ValuationRequest) =>
     call<ValuationResponse>('/api/valuation', {

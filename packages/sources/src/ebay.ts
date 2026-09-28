@@ -150,14 +150,45 @@ export class EbayAdapter implements MarketplaceAdapter {
     return { source: this.id, items, warnings, ...(oldest && { oldestFetchedAt: oldest }), calls, cacheHits };
   }
 
-  private async searchSite(site: string, product: NormalizedProduct, limit: number): Promise<MarketplaceItem[]> {
-    const params = new URLSearchParams({
-      limit: String(limit),
-      filter: `buyingOptions:{FIXED_PRICE|BEST_OFFER},conditionIds:{${QUERY_CONDITION_IDS.join('|')}}`,
-    });
+  /**
+   * Barcode lookup: titles of listings that carry this GTIN, across sites and GTIN spellings (UPC-12 / EAN-13).
+   * Used only to identify the product; valuation then searches by model name for a wider market.
+   */
+  async titlesForGtin(gtins: readonly string[], opts: { sites?: readonly string[] } = {}): Promise<{ titles: string[]; sites: Record<string, number>; warnings: SourceWarning[] }> {
+    const sites = opts.sites ?? this.cfg.defaultSites ?? DEFAULT_SITES;
+    const warnings: SourceWarning[] = [];
+    const bySite: Record<string, number> = {};
+    const titles: string[] = [];
+    await Promise.all(
+      sites.flatMap((site) =>
+        gtins.map(async (gtin) => {
+          const key = `gtin-titles|${site}|${gtin}`;
+          const hit = this.cache.get(key);
+          let items: MarketplaceItem[];
+          if (hit && Date.now() - hit.at < CACHE_TTL_MS) items = hit.items;
+          else {
+            try {
+              items = await this.searchSite(site, { category: 'other', brand: '', model: '', gtin }, 20, false);
+              this.cache.set(key, { at: Date.now(), items });
+            } catch (e) {
+              warnings.push({ source: this.id, site, message: e instanceof Error ? e.message : String(e) });
+              return;
+            }
+          }
+          bySite[site] = (bySite[site] ?? 0) + items.length;
+          titles.push(...items.map((i) => i.title));
+        }),
+      ),
+    );
+    return { titles: [...new Set(titles)], sites: bySite, warnings };
+  }
+
+  private async searchSite(site: string, product: NormalizedProduct, limit: number, filtered = true): Promise<MarketplaceItem[]> {
+    const params = new URLSearchParams({ limit: String(limit) });
+    if (filtered) params.set('filter', `buyingOptions:{FIXED_PRICE|BEST_OFFER},conditionIds:{${QUERY_CONDITION_IDS.join('|')}}`);
     if (product.gtin) params.set('gtin', product.gtin);
     else params.set('q', searchQuery(product));
-    const categoryId = ebayCategoryFor(product);
+    const categoryId = filtered ? ebayCategoryFor(product) : undefined;
     if (categoryId) params.set('category_ids', categoryId);
 
     const res = await this.fetchImpl(`${this.base}/buy/browse/v1/item_summary/search?${params}`, {

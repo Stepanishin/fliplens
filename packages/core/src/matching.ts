@@ -105,10 +105,15 @@ export function detectMounts(normalizedTitle: string): Set<string> {
   return found;
 }
 
-/** Capacities in GB found in a title ("128GB", "1 TB"). */
+/** Memory cards / extra storage next to a capacity: "128GB SD-Karte", "micro SD 256 GB". Not the device's own storage. */
+const MEMORY_CARD = /(?:micro\s?sd|sd|speicherkarte|karte|card|carte|scheda|tarjeta|memory|ssd|hdd|festplatte)/;
+
+/** Device capacities in GB found in a title ("128GB", "1 TB"), ignoring memory cards and external drives. */
 export function parseCapacitiesGb(normalizedTitle: string): number[] {
   const out: number[] = [];
   for (const m of normalizedTitle.matchAll(/(?<![0-9])(\d{1,4})\s?(gb|tb)(?![a-z])/g)) {
+    const around = normalizedTitle.slice(Math.max(0, m.index - 12), m.index + m[0].length + 14);
+    if (MEMORY_CARD.test(around)) continue;
     const n = Number(m[1]);
     out.push(m[2] === 'tb' ? n * 1024 : n);
   }

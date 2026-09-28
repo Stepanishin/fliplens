@@ -13,9 +13,10 @@
   },
   "dependencies": {
     "@fliplens/core": "workspace:*",
+    "@fliplens/recognition": "workspace:*",
+    "@zxing/browser": "^0.2.1",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0",
-    "@fliplens/recognition": "workspace:*"
+    "react-dom": "^19.0.0"
   },
   "devDependencies": {
     "@types/react": "^19.0.0",
