@@ -11,13 +11,6 @@ import type { IdentificationCandidate } from '@fliplens/recognition';
 const CAPACITY_CATEGORIES: readonly CategorySlug[] = ['smartphones', 'tablets', 'laptops', 'consoles', 'handhelds'];
 const MOUNT_CATEGORIES: readonly CategorySlug[] = ['lenses', 'camera_bodies'];
 
-const DEMO_PRESETS: readonly { label: string; product: ValuationRequest['product']; price: number }[] = [
-  { label: 'WH-1000XM4', product: { category: 'headphones', brand: 'Sony', model: 'WH-1000XM4' }, price: 55 },
-  { label: 'Switch OLED', product: { category: 'consoles', brand: 'Nintendo', model: 'Switch OLED' }, price: 150 },
-  { label: 'iPhone 13 128GB', product: { category: 'smartphones', brand: 'Apple', model: 'iPhone 13', capacity: '128GB' }, price: 290 },
-  { label: 'EOS R6', product: { category: 'camera_bodies', brand: 'Canon', model: 'EOS R6' }, price: 900 },
-];
-
 interface FormState {
   category: CategorySlug;
   brand: string;
@@ -95,7 +88,6 @@ export function App() {
       preset: settings.preset,
       shippingCost: settings.shippingCost,
       targetRoiPct: settings.targetRoiPct,
-      source: settings.source,
       ...(recognition && { identificationConfidence: recognition.confidence, recognitionModelVersion: recognition.modelVersion }),
     };
   }
@@ -166,26 +158,11 @@ export function App() {
       </header>
 
       {health === null && <div className="banner warn">API not reachable. Run <code>pnpm dev</code> in the repo root.</div>}
+      {health && !ebayReady && <div className="banner warn">eBay keys are missing in <code>.env</code>: valuations will fail.</div>}
 
       {showSettings && (
         <section className="card">
           <h2>Settings</h2>
-          <label className="field">
-            <span>Data source</span>
-            <div className="seg">
-              <button type="button" className={settings.source === 'demo' ? 'on' : ''} onClick={() => setSettings({ ...settings, source: 'demo' })}>
-                Demo
-              </button>
-              <button
-                type="button"
-                className={settings.source === 'ebay' ? 'on' : ''}
-                disabled={!ebayReady}
-                onClick={() => setSettings({ ...settings, source: 'ebay' })}
-              >
-                eBay {ebayReady ? '' : '(no keys)'}
-              </button>
-            </div>
-          </label>
           <label className="field">
             <span>Your country</span>
             <select value={settings.country} onChange={(e) => setSettings({ ...settings, country: e.target.value })}>
@@ -228,21 +205,6 @@ export function App() {
             Recognised with {Math.round(recognition.confidence * 100)}% confidence. Edit any field to correct it.
           </p>
         )}
-        {settings.source === 'demo' && (
-          <div className="chips">
-            {DEMO_PRESETS.map((d) => (
-              <button
-                key={d.label}
-                type="button"
-                className="chip"
-                onClick={() => fillFrom({ ...buildRequest(form), product: d.product, purchasePrice: d.price, condition: 'good' })}
-              >
-                {d.label}
-              </button>
-            ))}
-          </div>
-        )}
-
         <div className="row2">
           <label className="field">
             <span>Brand</span>
@@ -266,7 +228,8 @@ export function App() {
         {CAPACITY_CATEGORIES.includes(form.category) && (
           <label className="field">
             <span>Storage / capacity</span>
-            <input value={form.capacity} onChange={(e) => set('capacity', e.target.value)} placeholder="128GB" />
+            <input value={form.capacity} onChange={(e) => set('capacity', e.target.value)} placeholder="e.g. 128GB, leave empty if unsure" />
+            <span className="muted small">Listings with a different capacity are excluded, so a wrong value hides most of the market.</span>
           </label>
         )}
         {MOUNT_CATEGORIES.includes(form.category) && (
@@ -346,7 +309,6 @@ function Result({ resp }: { resp: ValuationResponse }) {
   const r = resp.result;
   return (
     <section id="result" className="card result">
-      {resp.demo && <div className="banner warn">DEMO DATA: synthetic prices for UI testing, not real market data.</div>}
       {resp.sourceWarnings.map((w, i) => (
         <div key={i} className="banner warn small">
           {w.source}

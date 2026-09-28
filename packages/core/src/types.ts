@@ -29,7 +29,7 @@ export interface NormalizedProduct {
   readonly excludeModels?: readonly string[];
 }
 
-export type SourceId = 'ebay' | 'tradera' | 'rebuy' | 'backmarket' | 'manual' | 'user_sale' | 'demo';
+export type SourceId = 'ebay' | 'tradera' | 'rebuy' | 'backmarket' | 'manual' | 'user_sale';
 export type PriceKind = 'asking' | 'sold' | 'buyback' | 'refurbished_retail';
 export type BuyingFormat = 'fixed_price' | 'auction' | 'best_offer' | 'unknown';
 export type CountryCode = string; // ISO 3166-1 alpha-2

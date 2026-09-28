@@ -39,14 +39,12 @@ export interface ValuationRequest {
   preset: FeePresetId;
   shippingCost: number;
   targetRoiPct?: number;
-  source: 'ebay' | 'demo';
   identificationConfidence?: number;
   recognitionModelVersion?: string;
 }
 
 export interface ValuationResponse {
-  source: 'ebay' | 'demo';
-  demo: boolean;
+  source: 'ebay';
   dataFetchedAt: string | null;
   sourceWarnings: { source: string; site?: string; message: string }[];
   fx: { rateDate: string; source: string };
@@ -57,7 +55,7 @@ export interface ValuationResponse {
 export interface Health {
   ok: boolean;
   pricingAlgorithmVersion: string;
-  sources: { ebay: boolean; demo: boolean };
+  sources: { ebay: boolean };
   vision: { configured: boolean; provider: string };
 }
 

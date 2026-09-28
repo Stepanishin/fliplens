@@ -49,8 +49,7 @@ pnpm install
 pnpm dev            # API на :8787, web на http://localhost:5173
 ```
 
-- Источник **Demo**: синтетические цены для проверки UI (WH-1000XM4, Switch OLED, iPhone 13 128GB, EOS R6). Не реальные данные.
-- Источник **eBay**: включается, когда в `.env` есть `EBAY_CLIENT_ID` и `EBAY_CLIENT_SECRET`.
+- Цены: eBay Browse API (active listings, DE/FR/IT/ES/NL). Нужны `EBAY_CLIENT_ID` и `EBAY_CLIENT_SECRET` в `.env`.
 - Проверка ключей eBay: `scripts/ebay-smoke.sh "Sony WH-1000XM4"`.
 - **Фото**: кнопки Scan item (камера) / Upload photo, до 3 фото, resize до 1280px на устройстве, распознавание через OpenAI (`OPENAI_API_KEY`, `OPENAI_VISION_MODEL`). Фото не сохраняются.
 

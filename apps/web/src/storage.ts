@@ -4,7 +4,6 @@ import type { ValuationRequest } from './api.js';
 /** Per-device conveniences only. Real scan history moves to the API/DB in Phase 3. */
 
 export interface Settings {
-  source: 'ebay' | 'demo';
   preset: FeePresetId;
   shippingCost: number;
   targetRoiPct: number;
@@ -19,8 +18,8 @@ export interface HistoryEntry {
 }
 
 const SETTINGS_KEY = 'fliplens.settings.v1';
-const HISTORY_KEY = 'fliplens.history.v1';
-const DEFAULT_SETTINGS: Settings = { source: 'demo', preset: 'ebay_de_private', shippingCost: 6, targetRoiPct: 40, country: 'DE' };
+const HISTORY_KEY = 'fliplens.history.v2'; // v1 held demo-data results
+const DEFAULT_SETTINGS: Settings = { preset: 'ebay_de_private', shippingCost: 6, targetRoiPct: 40, country: 'DE' };
 
 function read<T>(key: string, fallback: T): T {
   try {
@@ -39,7 +38,11 @@ function write(key: string, value: unknown): void {
   }
 }
 
-export const loadSettings = (): Settings => ({ ...DEFAULT_SETTINGS, ...read<Partial<Settings>>(SETTINGS_KEY, {}) });
+export const loadSettings = (): Settings => {
+  // Drop keys from older versions (e.g. the removed demo `source` switch).
+  const { preset, shippingCost, targetRoiPct, country } = { ...DEFAULT_SETTINGS, ...read<Partial<Settings>>(SETTINGS_KEY, {}) };
+  return { preset, shippingCost, targetRoiPct, country };
+};
 export const saveSettings = (s: Settings): void => write(SETTINGS_KEY, s);
 export const loadHistory = (): HistoryEntry[] => read<HistoryEntry[]>(HISTORY_KEY, []);
 export const saveHistory = (h: HistoryEntry[]): void => write(HISTORY_KEY, h);

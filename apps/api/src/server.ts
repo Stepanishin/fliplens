@@ -11,7 +11,7 @@ import {
   type FeePresetId,
   type NormalizedProduct,
 } from '@fliplens/core';
-import { DemoAdapter, EbayAdapter, EcbFxService, type MarketplaceAdapter } from '@fliplens/sources';
+import { EbayAdapter, EcbFxService } from '@fliplens/sources';
 import { OpenAIVisionProvider, RecognitionError } from '@fliplens/recognition';
 
 // Up to 3 photos resized to ~1MP on the client: a few MB of base64 at most.
@@ -22,7 +22,6 @@ const ebay = new EbayAdapter({
   clientSecret: process.env.EBAY_CLIENT_SECRET ?? '',
   env: process.env.EBAY_ENV === 'sandbox' ? 'sandbox' : 'production',
 });
-const adapters: Record<'ebay' | 'demo', MarketplaceAdapter> = { ebay, demo: new DemoAdapter() };
 const fx = new EcbFxService();
 const vision = new OpenAIVisionProvider({
   apiKey: process.env.OPENAI_API_KEY ?? '',
@@ -48,7 +47,6 @@ const ValuationBody = z.object({
   shippingCost: z.number().min(0).max(1000).default(6),
   packagingCost: z.number().min(0).max(100).optional(),
   targetRoiPct: z.number().min(0).max(1000).optional(),
-  source: z.enum(['ebay', 'demo']).default('demo'),
   /** 1 for manually entered products; the chosen candidate's confidence for photo recognition. */
   identificationConfidence: z.number().min(0).max(1).default(1),
   recognitionModelVersion: z.string().max(200).optional(),
@@ -57,7 +55,7 @@ const ValuationBody = z.object({
 app.get('/api/health', async () => ({
   ok: true,
   pricingAlgorithmVersion: PRICING_ALGORITHM_VERSION,
-  sources: { ebay: ebay.isConfigured(), demo: true },
+  sources: { ebay: ebay.isConfigured() },
   vision: { configured: vision.isConfigured(), provider: vision.id },
 }));
 
@@ -119,12 +117,11 @@ app.post('/api/valuation', async (req, reply) => {
   const b = parsed.data;
 
   const product: NormalizedProduct = stripUndefined(b.product);
-  const adapter = adapters[b.source];
-  if (!adapter.isConfigured()) {
-    return reply.code(409).send({ error: 'source_not_configured', message: `${b.source} is not configured on the server` });
+  if (!ebay.isConfigured()) {
+    return reply.code(409).send({ error: 'source_not_configured', message: 'eBay keys are not configured on the server (.env)' });
   }
 
-  const [search, rates] = await Promise.all([adapter.searchProduct(product, { requestId: req.id }), fx.latest()]);
+  const [search, rates] = await Promise.all([ebay.searchProduct(product, { requestId: req.id }), fx.latest()]);
   for (const w of search.warnings) req.log.warn({ source: w.source, site: w.site, event: 'source_fetch_failed' }, w.message);
   if (rates.source !== 'ecb') req.log.warn({ event: 'fx_fallback' }, 'ECB unreachable, using static FX rates');
 
@@ -147,7 +144,7 @@ app.post('/api/valuation', async (req, reply) => {
   req.log.info(
     {
       event: result.status === 'ok' ? 'valuation_completed' : 'valuation_insufficient_data',
-      source: b.source,
+      source: 'ebay',
       items: search.items.length,
       calls: search.calls,
       cacheHits: search.cacheHits,
@@ -157,8 +154,7 @@ app.post('/api/valuation', async (req, reply) => {
   );
 
   return {
-    source: b.source,
-    demo: b.source === 'demo',
+    source: 'ebay',
     dataFetchedAt: search.oldestFetchedAt?.toISOString() ?? null,
     sourceWarnings: search.warnings,
     fx: { rateDate: rates.rateDate, source: rates.source },
