@@ -142,15 +142,17 @@ export function Profile({ billing, onOpenPlans, account, googleClientId, onGoogl
         <button type="button" className="ghost wide" onClick={onOpenAdmin}>Admin: costs and usage</button>
       )}
 
-      <section className="card">
-        <label className="toggle">
-          <span>
-            <strong>Developer tools</strong>
-            <span className="muted small">Benchmark recording on the result screen.</span>
-          </span>
-          <input type="checkbox" checked={devTools} onChange={(e) => onDevTools(e.target.checked)} />
-        </label>
-      </section>
+      {isAdmin && (
+        <section className="card">
+          <label className="toggle">
+            <span>
+              <strong>Developer tools</strong>
+              <span className="muted small">Benchmark recording on the result screen.</span>
+            </span>
+            <input type="checkbox" checked={devTools} onChange={(e) => onDevTools(e.target.checked)} />
+          </label>
+        </section>
+      )}
 
       <p className="muted small center">
         <button type="button" className="link" onClick={onOpenWelcome}>About FlipLens</button> · <a href="/privacy">Privacy Policy</a> · <a href="/terms">Terms of Service</a>

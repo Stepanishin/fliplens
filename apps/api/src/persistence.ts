@@ -75,6 +75,8 @@ export interface Persistence {
    * at IDENTIFY_FACTOR x the plan's monthly checks. Returns false after sending the error response.
    */
   requireAccount(req: FastifyRequest, reply: FastifyReply, kind: 'valuation' | 'identification'): Promise<boolean>;
+  /** Signed-in admin (ADMIN_EMAILS). Returns false after sending the error response. */
+  requireAdmin(req: FastifyRequest, reply: FastifyReply): Promise<boolean>;
 }
 
 /** Recognition calls allowed per plan check: a few photos or retries per item are normal. */
@@ -156,6 +158,7 @@ function disabled(status: DbStatus): Persistence {
     quota: async () => undefined,
     // Without a database there are no accounts: local development only.
     requireAccount: async () => true,
+    requireAdmin: async () => true,
   };
 }
 
@@ -217,6 +220,8 @@ function enabled(db: Db, log: FastifyBaseLogger, auth: AuthConfig): Persistence 
 
   return {
     status: 'connected',
+
+    requireAdmin,
 
     async requireAccount(req, reply, kind) {
       const uid = await requireSignedIn(req, reply);
@@ -358,6 +363,15 @@ function enabled(db: Db, log: FastifyBaseLogger, auth: AuthConfig): Persistence 
       app.delete('/api/me', async (req, reply) => {
         const uid = await requireUser(req, reply);
         if (!uid) return;
+        // Stop billing first: deleting the account must never leave a running subscription behind.
+        if (billing) {
+          try {
+            await billing.cancelForDeletion(uid);
+          } catch (e) {
+            req.log.error({ event: 'subscription_cancel_failed', err: e instanceof Error ? e.message : String(e) }, 'could not cancel subscription');
+            return reply.code(502).send({ error: 'cancel_failed', message: 'Could not cancel your subscription. Nothing was deleted; please try again.' });
+          }
+        }
         await deleteUserData(db, uid);
         for (const [k, v] of userCache) if (v === uid) userCache.delete(k);
         log.info({ event: 'user_data_deleted' }, 'user data deleted');

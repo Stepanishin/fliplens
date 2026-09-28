@@ -18,9 +18,17 @@ import { compact } from '@fliplens/core';
 import { registerBenchmarkRoutes } from './benchmark.js';
 import { initPersistence, type Persistence } from './persistence.js';
 import { billingConfigFromEnv } from './billing.js';
+import { registerSecurity, registerWebApp } from './web.js';
+import { fileURLToPath } from 'node:url';
 
 // Up to 3 photos resized to ~1MP on the client: a few MB of base64 at most.
-const app = Fastify({ logger: { level: process.env.LOG_LEVEL ?? 'info' }, bodyLimit: 15 * 1024 * 1024 });
+const app = Fastify({
+  logger: { level: process.env.LOG_LEVEL ?? 'info' },
+  bodyLimit: 15 * 1024 * 1024,
+  // Behind the hosting proxy (Fly/Render/...) the client IP is in X-Forwarded-For.
+  trustProxy: process.env.TRUST_PROXY === '1',
+});
+await registerSecurity(app);
 
 const ebay = new EbayAdapter({
   clientId: process.env.EBAY_CLIENT_ID ?? '',
@@ -44,13 +52,14 @@ const titleIdentifier = new OpenAIVisionProvider({
   model: process.env.OPENAI_TEXT_MODEL ?? 'gpt-6-luna',
 });
 
-registerBenchmarkRoutes(app);
 const store: Persistence = await initPersistence(process.env.DATABASE_URL, app.log, {
   googleClientId: process.env.GOOGLE_CLIENT_ID,
   adminEmails: (process.env.ADMIN_EMAILS ?? '').split(','),
   billing: billingConfigFromEnv(process.env),
 });
 store.registerRoutes(app);
+// Developer tool: writes photos to disk, so it is off unless explicitly enabled, and admin-only.
+if (process.env.ENABLE_BENCHMARK === '1') registerBenchmarkRoutes(app, (req, reply) => store.requireAdmin(req, reply));
 
 const presetIds = Object.keys(FEE_PRESETS) as [FeePresetId, ...FeePresetId[]];
 
@@ -321,8 +330,13 @@ function stripUndefined<T extends object>(o: T): { [K in keyof T]: Exclude<T[K],
   return Object.fromEntries(Object.entries(o).filter(([, v]) => v !== undefined)) as { [K in keyof T]: Exclude<T[K], undefined> };
 }
 
-const port = Number(process.env.API_PORT ?? 8787);
-app.listen({ port, host: '127.0.0.1' }).catch((err: unknown) => {
+// Production: the API also serves the built PWA (one origin). Dev: Vite serves the app and proxies /api.
+const webDist = process.env.WEB_DIST || fileURLToPath(new URL('../../web/dist', import.meta.url));
+if (process.env.SERVE_WEB !== '0' && (await registerWebApp(app, webDist))) app.log.info({ event: 'serving_web', webDist }, 'serving the web app');
+
+const port = Number(process.env.PORT || process.env.API_PORT || 8787);
+const host = process.env.HOST || '127.0.0.1';
+app.listen({ port, host }).catch((err: unknown) => {
   app.log.error(err);
   process.exit(1);
 });

@@ -1,4 +1,4 @@
-import type { FastifyInstance } from 'fastify';
+import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import { z } from 'zod';
 import { CATEGORIES, CONDITIONS } from '@fliplens/core';
 import { addItem, loadItems } from '@fliplens/eval';
@@ -34,8 +34,9 @@ const AddItemBody = z.object({
   notes: z.string().max(2000).optional(),
 });
 
-export function registerBenchmarkRoutes(app: FastifyInstance): void {
-  app.get('/api/benchmark/items', async () => {
+export function registerBenchmarkRoutes(app: FastifyInstance, guard: (req: FastifyRequest, reply: FastifyReply) => Promise<boolean>): void {
+  app.get('/api/benchmark/items', async (req, reply) => {
+    if (!(await guard(req, reply))) return reply;
     const items = await loadItems();
     const byPrefix: Record<string, number> = {};
     for (const i of items) {
@@ -46,6 +47,7 @@ export function registerBenchmarkRoutes(app: FastifyInstance): void {
   });
 
   app.post('/api/benchmark/items', async (req, reply) => {
+    if (!(await guard(req, reply))) return reply;
     const parsed = AddItemBody.safeParse(req.body);
     if (!parsed.success) return reply.code(400).send({ error: 'invalid_request', issues: parsed.error.issues.map((i) => i.message) });
     const b = parsed.data;

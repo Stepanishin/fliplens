@@ -61,6 +61,15 @@ pnpm dev            # API на :8787, web на http://localhost:5173
 - Webhooks локально: `pnpm --filter @fliplens/api stripe:listen` (секрет в `STRIPE_WEBHOOK_SECRET_TEST`).
 - Тестовая карта: `4242 4242 4242 4242`, любая будущая дата и CVC.
 
+### Production-режим (один сервис)
+
+```bash
+pnpm --filter @fliplens/web build
+cd apps/api && HOST=0.0.0.0 PORT=8080 TRUST_PROXY=1 npx tsx src/server.ts
+```
+
+API сам раздаёт собранный PWA из `apps/web/dist` (SPA-fallback, кэш ассетов), поэтому приложение и `/api` на одном домене. Включены security-заголовки (CSP, HSTS, COOP для Google Sign-In) и rate limits. Benchmark выключен, пока не задан `ENABLE_BENCHMARK=1`. Переменные для production см. в `.env.example`.
+
 ### PWA на телефоне
 
 Service worker и установка работают только по HTTPS (или на localhost).

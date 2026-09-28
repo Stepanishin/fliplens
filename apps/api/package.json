@@ -11,6 +11,9 @@
     "stripe:listen": "sh -c 'set -a; . ../../.env; stripe listen --api-key \"$STRIPE_SECRET_KEY_TEST\" --forward-to localhost:8787/api/stripe/webhook'"
   },
   "dependencies": {
+    "@fastify/helmet": "^13.1.1",
+    "@fastify/rate-limit": "^11.2.0",
+    "@fastify/static": "^10.1.5",
     "@fliplens/core": "workspace:*",
     "@fliplens/db": "workspace:*",
     "@fliplens/eval": "workspace:*",

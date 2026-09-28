@@ -20,6 +20,10 @@ import {
 
 export interface BillingConfig {
   secretKey?: string | undefined;
+  /** Require ticking "I agree to the Terms" in Checkout (needs the Terms URL set in Stripe > Settings > Public details). */
+  requireTermsConsent: boolean;
+  /** Stripe Tax: VAT by the buyer's country (needs Stripe Tax set up with your origin address). */
+  automaticTax: boolean;
   webhookSecret?: string | undefined;
   appUrl: string;
   allowLive: boolean;
@@ -32,6 +36,8 @@ export function billingConfigFromEnv(env: NodeJS.ProcessEnv): BillingConfig {
     webhookSecret: env.STRIPE_WEBHOOK_SECRET_TEST || env.STRIPE_WEBHOOK_SECRET || undefined,
     appUrl: env.APP_URL || 'http://localhost:5173',
     allowLive: env.STRIPE_ALLOW_LIVE === '1',
+    requireTermsConsent: env.STRIPE_REQUIRE_TERMS === '1',
+    automaticTax: env.STRIPE_AUTOMATIC_TAX === '1',
   };
 }
 
@@ -45,6 +51,8 @@ export interface Quota {
 export interface Billing {
   readonly enabled: boolean;
   quota(userId: string): Promise<Quota>;
+  /** Cancels any running subscription immediately (account deletion). Throws if Stripe cannot be reached. */
+  cancelForDeletion(userId: string): Promise<void>;
   registerRoutes(app: FastifyInstance, deps: { requireUser: (req: FastifyRequest, reply: FastifyReply) => Promise<string | undefined> }): void;
 }
 
@@ -87,9 +95,18 @@ export function createBilling(db: Db, cfg: BillingConfig, log: FastifyBaseLogger
     log.info({ event: 'subscription_synced', plan, status: sub.status }, 'subscription synced');
   }
 
+  async function cancelForDeletion(userId: string): Promise<void> {
+    const sub = await getSubscription(db, userId);
+    if (!sub || ['canceled', 'incomplete_expired'].includes(sub.status)) return;
+    if (!stripe) throw new Error('Stripe is not configured but the user has a subscription');
+    await stripe.subscriptions.cancel(sub.stripeSubscriptionId, { invoice_now: false, prorate: false });
+    log.info({ event: 'subscription_cancelled_for_deletion' }, 'subscription cancelled before account deletion');
+  }
+
   return {
     enabled: stripe !== undefined,
     quota,
+    cancelForDeletion,
 
     registerRoutes(app, { requireUser }) {
       app.get('/api/billing', async (req, reply) => {
@@ -136,6 +153,11 @@ export function createBilling(db: Db, cfg: BillingConfig, log: FastifyBaseLogger
           line_items: [{ price: price.id, quantity: 1 }],
           subscription_data: { metadata: { userId: uid, plan: body.data.plan } },
           allow_promotion_codes: true,
+          custom_text: {
+            submit: { message: `By subscribing you agree to the FlipLens Terms (${cfg.appUrl}/terms). EU consumers have a 14-day right of withdrawal.` },
+          },
+          ...(cfg.requireTermsConsent && { consent_collection: { terms_of_service: 'required' as const } }),
+          ...(cfg.automaticTax && { automatic_tax: { enabled: true }, customer_update: { address: 'auto' as const }, billing_address_collection: 'required' as const }),
           success_url: `${cfg.appUrl}/?billing=success`,
           cancel_url: `${cfg.appUrl}/?billing=cancel`,
         });

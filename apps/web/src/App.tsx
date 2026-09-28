@@ -467,7 +467,7 @@ export function App() {
             onNewScan={newScan}
             onEdit={() => go({ name: 'confirm' })}
           >
-            {devTools && draft.photos.length > 0 && <BenchmarkAdd photos={draft.photos} request={buildRequest(draft, settings)} />}
+            {devTools && isAdmin && draft.photos.length > 0 && <BenchmarkAdd photos={draft.photos} request={buildRequest(draft, settings)} />}
           </Result>
         )}
         {route.name === 'plans' && <Plans billing={billing} account={account} notice={plansNotice} onSignIn={() => tab({ name: 'profile' })} />}
