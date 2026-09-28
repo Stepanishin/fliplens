@@ -1,6 +1,7 @@
 import { FEE_PRESETS, type FeePresetId } from '@fliplens/core';
 import { api, type Account, type BillingInfo } from '../api.js';
 import { GoogleButton } from '../ui/GoogleButton.js';
+import { InstallApp } from '../ui/InstallApp.js';
 import { LINK_COUNTRIES } from '../marketSearch.js';
 import type { Settings } from '../storage.js';
 
@@ -84,6 +85,8 @@ export function Profile({ billing, onOpenPlans, account, googleClientId, onGoogl
           <button type="button" className="ghost wide" onClick={onOpenPlans}>{billing.quota.plan === 'free' ? 'See plans' : 'Manage plan'}</button>
         </section>
       )}
+
+      <InstallApp variant="row" />
 
       <section className="card">
         <h2>Selling</h2>

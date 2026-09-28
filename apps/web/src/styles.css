@@ -536,3 +536,19 @@ button:focus-visible, a:focus-visible, summary:focus-visible { outline: 2.5px so
 .gsi-compact { display: flex; align-items: center; min-height: 40px; }
 .gsi-compact .gsi-button { min-height: 0; }
 .lp-open { max-width: 320px; }
+
+/* ---------- install app ---------- */
+.install-card { position: relative; display: flex; align-items: center; gap: 12px; padding: 14px 40px 14px 14px; border-radius: var(--radius); background: var(--surface); border: 1px solid var(--line); box-shadow: var(--shadow); }
+.install-card img { border-radius: 12px; flex: 0 0 auto; }
+.install-text { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.install-btn { flex: 0 0 auto; min-height: 40px; padding: 8px 16px; border: 0; border-radius: 999px; background: var(--text); color: var(--surface); font-weight: 650; font-size: 14px; }
+.install-close { position: absolute; top: 6px; right: 6px; width: 30px; height: 30px; border: 0; border-radius: 50%; background: none; color: var(--muted); font-size: 20px; line-height: 1; }
+.sheet-backdrop { position: fixed; inset: 0; z-index: 60; background: rgba(0, 0, 0, 0.45); display: flex; align-items: flex-end; justify-content: center; animation: fade 0.2s ease; }
+.sheet { width: 100%; max-width: 560px; background: var(--surface); border-radius: 26px 26px 0 0; padding: 22px 20px calc(20px + env(safe-area-inset-bottom)); animation: rise 0.25s var(--ease); }
+.sheet > * + * { margin-top: 14px; }
+.ios-steps { margin: 0; padding-left: 22px; color: var(--text-2); }
+.ios-steps li + li { margin-top: 10px; }
+.ios-steps svg { vertical-align: -4px; margin: 0 4px; color: var(--accent-2); }
+@keyframes fade { from { opacity: 0; } }
+@keyframes rise { from { transform: translateY(24px); opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .sheet, .sheet-backdrop { animation: none; } }

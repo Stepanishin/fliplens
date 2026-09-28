@@ -4,6 +4,7 @@ import { ago, DECISION_LABEL } from '../format.js';
 import { resizeToJpegDataUrl } from '../image.js';
 import { IconBarcode, IconCamera, IconChevron, IconEdit, IconImage } from '../ui/icons.js';
 import { eur } from '../ui/verdict.js';
+import { InstallApp } from '../ui/InstallApp.js';
 
 interface Props {
   account: Account | null;
@@ -74,6 +75,8 @@ export function Home({ account, visionEnabled, recent, onPhotos, onCamera, onBar
           <span className="link">Upgrade</span>
         </button>
       )}
+
+      <InstallApp variant="banner" />
 
       <section className="section">
         <div className="section-head">

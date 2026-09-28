@@ -5,6 +5,8 @@ import { App } from './App.js';
 import { PrivacyPolicy, TermsOfService } from './screens/Legal.js';
 import '@fontsource-variable/inter';
 import './styles.css';
+// Registers install listeners before React mounts: beforeinstallprompt can fire very early.
+import './pwa.js';
 
 registerSW({ immediate: true });
 
