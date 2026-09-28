@@ -40,11 +40,17 @@ export interface IdentificationResult {
   readonly escalatedFrom?: string;
 }
 
+export interface IdentifyOptions {
+  readonly requestId?: string;
+  /** Over the user's AI budget: never escalate to an expensive model. */
+  readonly cheapOnly?: boolean;
+}
+
 /** Vision/LLM provider abstraction: model costs and capabilities change, the rest of the system must not care. */
 export interface VisionProvider {
   readonly id: string;
   isConfigured(): boolean;
-  identify(images: readonly ImageInput[], opts?: { readonly requestId?: string }): Promise<IdentificationResult>;
+  identify(images: readonly ImageInput[], opts?: IdentifyOptions): Promise<IdentificationResult>;
 }
 
 export class RecognitionError extends Error {

@@ -4,6 +4,10 @@ import { api, ApiError, type Account, type BillingInfo, type Health, type Server
 import { Plans } from './screens/Plans.js';
 import { Landing } from './screens/Landing.js';
 import { Admin } from './screens/Admin.js';
+import { Inventory } from './screens/Inventory.js';
+import { BoughtSheet } from './ui/BoughtSheet.js';
+import { ListingSheet } from './ui/ListingSheet.js';
+import type { InventoryItem } from './api.js';
 import { signOutGoogle } from './ui/GoogleButton.js';
 import { BarcodeScanner } from './BarcodeScanner.js';
 import { BenchmarkAdd } from './BenchmarkAdd.js';
@@ -18,8 +22,14 @@ import {
   type ProductDraft,
 } from './flow.js';
 import { loadSettings, resetDeviceId, saveSettings, type Settings } from './storage.js';
+
+function pushSettings(s: Settings): Promise<unknown> {
+  return api
+    .saveSettings({ country: s.country, currency: 'EUR', feePreset: s.preset, shippingCostMinor: Math.round(s.shippingCost * 100), targetRoiPct: Math.round(s.targetRoiPct) })
+    .catch(() => undefined);
+}
 import { track } from './track.js';
-import { IconBack, IconCamera, IconClock, IconHome, IconSpark, IconUser } from './ui/icons.js';
+import { IconBack, IconBox, IconCamera, IconClock, IconHome, IconUser } from './ui/icons.js';
 import { resizeToJpegDataUrl } from './image.js';
 import { Confirm } from './screens/Confirm.js';
 import { History, ScanDetail } from './screens/History.js';
@@ -37,7 +47,8 @@ type Route =
   | { name: 'scan'; scan: ServerScan }
   | { name: 'profile' }
   | { name: 'plans' }
-  | { name: 'admin' };
+  | { name: 'admin' }
+  | { name: 'inventory' };
 
 const TITLES: Partial<Record<Route['name'], string>> = { confirm: 'Identify', price: 'Price', result: 'Verdict', scan: 'Saved scan', profile: 'Profile', admin: 'Admin' };
 const DEV_KEY = 'fliplens.devtools.v1';
@@ -46,11 +57,15 @@ const STEP: Partial<Record<Route['name'], number>> = { confirm: 0, price: 1, res
 const STEP_LABELS = ['Identify', 'Price', 'Verdict'] as const;
 
 const AUTO_PICK_CONFIDENCE = 0.6;
+/** Confident enough to skip the confirm screen (the user can still go back and edit). */
+const AUTO_ADVANCE_CONFIDENCE = 0.9;
 
 export function App() {
   const [health, setHealth] = useState<Health | null | undefined>(undefined);
   const [stack, setStack] = useState<Route[]>([{ name: 'home' }]);
   const route = stack[stack.length - 1]!;
+  const routeRef = useRef(route.name);
+  routeRef.current = route.name;
   const [draft, setDraft] = useState<Draft>(() => newDraft('manual'));
   const [identifying, setIdentifying] = useState(false);
   const [flowError, setFlowError] = useState<string | null>(null);
@@ -69,6 +84,8 @@ export function App() {
   const [account, setAccount] = useState<Account | null>(null);
   const [meLoaded, setMeLoaded] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [boughtPriceMinor, setBoughtPriceMinor] = useState<number | null>(null);
+  const [listingFor, setListingFor] = useState<InventoryItem | null>(null);
   /** The public start page, also reachable when signed in (/welcome, "About FlipLens"). */
   const [welcome, setWelcome] = useState(() => window.location.pathname === '/welcome');
   const [authError, setAuthError] = useState<string | null>(null);
@@ -126,6 +143,11 @@ export function App() {
     refreshScans();
     api.settings().then(
       (s) => {
+        // No settings in the account yet: store this device's (or the default) ones. Users change them in Profile.
+        if (s === null) {
+          void pushSettings(loadSettings());
+          return;
+        }
         if (s && s.feePreset in FEE_PRESETS) {
           const merged: Settings = {
             country: s.country,
@@ -227,13 +249,22 @@ export function App() {
     return top && top.confidence >= AUTO_PICK_CONFIDENCE ? applyCandidate(next, top, 0, r) : next;
   };
 
-  async function identifyPhotos(photos: string[]) {
+  /** Skip the confirm step when recognition is very sure (first recognition of a scan only). */
+  function maybeAdvance(r: { candidates: readonly { confidence: number }[] }) {
+    if ((r.candidates[0]?.confidence ?? 0) >= AUTO_ADVANCE_CONFIDENCE && routeRef.current === 'confirm') {
+      track('confirm_skipped', {});
+      go({ name: 'price' });
+    }
+  }
+
+  async function identifyPhotos(photos: string[], autoAdvance = false) {
     setIdentifying(true);
     setFlowError(null);
     try {
       const r = await api.identify(photos);
       track('product_detected', { method: 'photo', found: r.candidates.length > 0, confidence: r.candidates[0]?.confidence ?? null });
       setDraft((d) => withIdentification({ ...d, photos }, r));
+      if (autoAdvance) maybeAdvance(r);
     } catch (e) {
       setFlowError(e instanceof ApiError ? e.message : 'Recognition failed. Type the model instead.');
     } finally {
@@ -248,7 +279,7 @@ export function App() {
     setDraft({ ...newDraft('photo'), photos });
     setResp(null);
     go({ name: 'confirm' });
-    void identifyPhotos(photos);
+    void identifyPhotos(photos, true);
   }
 
   const onBarcode = useCallback(
@@ -266,6 +297,7 @@ export function App() {
         const r = await api.identifyBarcode(code);
         track('product_detected', { method: 'barcode', found: r.candidates.length > 0, confidence: r.candidates[0]?.confidence ?? null });
         setDraft((d) => withIdentification(d, r));
+        maybeAdvance(r);
       } catch (e) {
         setFlowError(e instanceof ApiError ? e.message : 'Barcode lookup failed. Type the model instead.');
       } finally {
@@ -345,7 +377,7 @@ export function App() {
     .join(' ');
   const visionOn = health?.vision.configured ?? false;
   const inFlow = ['confirm', 'price', 'result', 'scan', 'admin'].includes(route.name) || (route.name === 'plans' && stack.length > 2) || (route.name === 'profile' && stack.length > 2);
-  const activeTab = route.name === 'history' || route.name === 'scan' ? 'history' : route.name === 'profile' ? 'profile' : route.name === 'plans' ? 'plans' : 'home';
+  const activeTab = route.name === 'history' || route.name === 'scan' ? 'history' : route.name === 'profile' ? 'profile' : route.name === 'plans' ? 'plans' : route.name === 'inventory' ? 'inventory' : 'home';
 
   // Signed-in only: without an account the start page is all there is (with a database; local dev without one stays open).
   const showLanding = (dbOn && meLoaded && !account) || welcome;
@@ -456,6 +488,7 @@ export function App() {
             onChangePrice={(price) => setDraft((d) => ({ ...d, price }))}
             onSubmit={() => void runValuation(draft)}
             onEditSettings={() => go({ name: 'profile' })}
+            onEditItem={back}
           />
         )}
         {route.name === 'result' && resp && (
@@ -466,12 +499,14 @@ export function App() {
             targetRoiPct={settings.targetRoiPct}
             onNewScan={newScan}
             onEdit={() => go({ name: 'confirm' })}
+            {...(resp.scanId && { onBought: (m: number) => setBoughtPriceMinor(m) })}
           >
             {devTools && isAdmin && draft.photos.length > 0 && <BenchmarkAdd photos={draft.photos} request={buildRequest(draft, settings)} />}
           </Result>
         )}
         {route.name === 'plans' && <Plans billing={billing} account={account} notice={plansNotice} onSignIn={() => tab({ name: 'profile' })} />}
         {route.name === 'admin' && isAdmin && <Admin />}
+        {route.name === 'inventory' && <Inventory settings={settings} onCreateListing={setListingFor} />}
         {route.name === 'history' && <History scans={scans} dbOn={dbOn} onOpen={(s) => go({ name: 'scan', scan: s })} />}
         {route.name === 'scan' && (
           <ScanDetail
@@ -528,6 +563,29 @@ export function App() {
       </main>
 
       {scanning && <BarcodeScanner onCode={onBarcode} onClose={closeScanner} />}
+      {listingFor && (
+        <ListingSheet
+          item={listingFor}
+          country={settings.country}
+          onClose={() => setListingFor(null)}
+          onUpgrade={() => {
+            setListingFor(null);
+            openPlans();
+          }}
+        />
+      )}
+      {boughtPriceMinor !== null && resp?.scanId && (
+        <BoughtSheet
+          scanId={resp.scanId}
+          name={`${draft.product.brand} ${draft.product.model}`}
+          defaultPriceMinor={boughtPriceMinor}
+          onClose={() => setBoughtPriceMinor(null)}
+          onAdded={() => {
+            setBoughtPriceMinor(null);
+            tab({ name: 'inventory' });
+          }}
+        />
+      )}
       <input
         ref={cameraRef}
         type="file"
@@ -554,9 +612,9 @@ export function App() {
           <button type="button" className="fab" onClick={() => cameraRef.current?.click()} disabled={!visionOn} aria-label="Scan item with the camera">
             <IconCamera size={26} />
           </button>
-          <button type="button" className={activeTab === 'plans' ? 'on' : ''} onClick={() => openPlans(null, true)}>
-            <IconSpark />
-            <span>Plans</span>
+          <button type="button" className={activeTab === 'inventory' ? 'on' : ''} onClick={() => tab({ name: 'inventory' })}>
+            <IconBox />
+            <span>Stock</span>
           </button>
           <button type="button" className={activeTab === 'profile' ? 'on' : ''} onClick={() => tab({ name: 'profile' })}>
             <IconUser />

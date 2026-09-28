@@ -13,6 +13,11 @@ export interface Plan {
   /** Valuations per calendar month. */
   readonly monthlyValuations: number;
   readonly features: readonly string[];
+  /**
+   * AI spend per user per month (USD millionths) before recognition drops to the cheap model only. At 2x the budget
+   * AI features stop until next month. Keeps the worst case user profitable (see docs/DECISIONS.md ADR-015).
+   */
+  readonly aiBudgetMicroUsd: number;
   /** Stripe price lookup key (created by apps/api/scripts/stripe-setup.ts). */
   readonly stripeLookupKey?: string;
 }
@@ -23,14 +28,16 @@ export const PLANS: Readonly<Record<PlanId, Plan>> = {
     name: 'Free',
     priceMonthlyMinor: 0,
     monthlyValuations: 10,
-    features: ['10 checks per month', 'Photo and barcode recognition', 'Resale range, profit and ROI'],
+    aiBudgetMicroUsd: 300_000,
+    features: ['10 checks per month', 'Photo and barcode recognition', 'Resale range, profit, ROI and stock tracking'],
   },
   pro: {
     id: 'pro',
     name: 'Pro',
     priceMonthlyMinor: 999,
     monthlyValuations: 100,
-    features: ['100 checks per month', 'Scan history on all devices', 'Comparables and market data'],
+    aiBudgetMicroUsd: 3_000_000,
+    features: ['100 checks per month', 'Stock tracking with real profit', 'Listing generator for eBay, Vinted, Kleinanzeigen'],
     stripeLookupKey: 'fliplens_pro_monthly_v1',
   },
   reseller: {
@@ -39,7 +46,8 @@ export const PLANS: Readonly<Record<PlanId, Plan>> = {
     priceMonthlyMinor: 1999,
     // "Unlimited" with a fair-use cap: variable cost per check must stay far below the price (spec section 63).
     monthlyValuations: 1000,
-    features: ['Unlimited checks (fair use 1,000/month)', 'Everything in Pro', 'Priority on new features: inventory, listing generator'],
+    aiBudgetMicroUsd: 6_000_000,
+    features: ['Unlimited checks (fair use 1,000/month)', 'Everything in Pro', 'Priority support and new features first'],
     stripeLookupKey: 'fliplens_reseller_monthly_v1',
   },
 };

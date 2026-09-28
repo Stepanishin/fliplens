@@ -13,7 +13,7 @@ import {
   type NormalizedProduct,
 } from '@fliplens/core';
 import { EbayAdapter, EcbFxService } from '@fliplens/sources';
-import { CascadeVisionProvider, OpenAIVisionProvider, RecognitionError, gtinSearchVariants, isPlaceholderGtin, normalizeGtin } from '@fliplens/recognition';
+import { CascadeVisionProvider, OpenAIListingWriter, OpenAIVisionProvider, RecognitionError, gtinSearchVariants, isPlaceholderGtin, normalizeGtin } from '@fliplens/recognition';
 import { compact } from '@fliplens/core';
 import { registerBenchmarkRoutes } from './benchmark.js';
 import { initPersistence, type Persistence } from './persistence.js';
@@ -56,6 +56,7 @@ const store: Persistence = await initPersistence(process.env.DATABASE_URL, app.l
   googleClientId: process.env.GOOGLE_CLIENT_ID,
   adminEmails: (process.env.ADMIN_EMAILS ?? '').split(','),
   billing: billingConfigFromEnv(process.env),
+  listingWriter: new OpenAIListingWriter(openaiKey, process.env.OPENAI_TEXT_MODEL || 'gpt-6-luna'),
 });
 store.registerRoutes(app);
 // Developer tool: writes photos to disk, so it is off unless explicitly enabled, and admin-only.
@@ -116,7 +117,8 @@ app.post('/api/identify', async (req, reply) => {
   }
   try {
     // Images are forwarded to the provider and never stored by the API.
-    const result = await vision.identify(parsed.data.images.map((dataUrl) => ({ dataUrl })), { requestId: req.id });
+    const cheapOnly = (await store.aiMode(req)) === 'cheap';
+    const result = await vision.identify(parsed.data.images.map((dataUrl) => ({ dataUrl })), { requestId: req.id, cheapOnly });
     req.log.info(
       {
         event: result.candidates.length > 0 ? 'product_detected' : 'product_not_detected',

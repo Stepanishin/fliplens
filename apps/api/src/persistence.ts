@@ -11,6 +11,7 @@ import {
   getScan,
   getSettings,
   getUser,
+  aiCostThisMonth,
   identificationsThisMonth,
   linkGoogle,
   unlinkDevice,
@@ -24,11 +25,14 @@ import {
   type Db,
   type NewValuation,
 } from '@fliplens/db';
-import { money, type FxRateTable, type InsufficientData, type NormalizedProduct, type Valuation } from '@fliplens/core';
+import { money, PLANS, type FxRateTable, type InsufficientData, type NormalizedProduct, type Valuation } from '@fliplens/core';
 import type { IdentificationResult } from '@fliplens/recognition';
 import type { SearchResult } from '@fliplens/sources';
 import { verifyGoogleIdToken } from './google.js';
 import { createBilling, type BillingConfig, type Quota } from './billing.js';
+import { registerInventoryRoutes } from './inventory.js';
+import { registerListingRoutes } from './listing.js';
+import type { OpenAIListingWriter } from '@fliplens/recognition';
 
 /**
  * Optional persistence: with DATABASE_URL the API stores scans, valuations, recognition results (+ user corrections)
@@ -75,6 +79,8 @@ export interface Persistence {
    * at IDENTIFY_FACTOR x the plan's monthly checks. Returns false after sending the error response.
    */
   requireAccount(req: FastifyRequest, reply: FastifyReply, kind: 'valuation' | 'identification'): Promise<boolean>;
+  /** 'cheap' once the caller spent the plan's AI budget this month: recognition must not escalate. */
+  aiMode(req: FastifyRequest): Promise<'full' | 'cheap'>;
   /** Signed-in admin (ADMIN_EMAILS). Returns false after sending the error response. */
   requireAdmin(req: FastifyRequest, reply: FastifyReply): Promise<boolean>;
 }
@@ -94,7 +100,8 @@ const SettingsBody = z.object({
 const EVENT_NAMES = [
   'scan_started', 'image_uploaded', 'barcode_scanned', 'product_detected', 'product_corrected',
   'valuation_started', 'valuation_completed', 'valuation_failed', 'comparables_opened', 'item_marked_bought',
-  'subscription_viewed', 'subscription_started', 'inventory_added', 'item_sold', 'market_link_opened', 'signed_in', 'app_installed', 'app_install_prompt',
+  'subscription_viewed', 'subscription_started', 'inventory_added', 'item_sold', 'market_link_opened', 'signed_in', 'app_installed', 'app_install_prompt', 'whatif_used', 'confirm_skipped',
+  'item_status_changed', 'listing_generated', 'listing_copied',
 ] as const;
 const EventsBody = z.object({
   events: z
@@ -113,6 +120,7 @@ export interface AuthConfig {
   /** Lower-case emails of signed-in users who can see /admin and the stats endpoints. */
   adminEmails?: readonly string[];
   billing?: BillingConfig;
+  listingWriter?: OpenAIListingWriter;
 }
 
 export async function initPersistence(url: string | undefined, log: FastifyBaseLogger, auth: AuthConfig = {}): Promise<Persistence> {
@@ -146,6 +154,11 @@ function disabled(status: DbStatus): Persistence {
       app.get('/api/me/export', unavailable);
       app.delete('/api/me', unavailable);
       app.get('/api/admin/overview', unavailable);
+      app.get('/api/inventory', unavailable);
+      app.post('/api/inventory', unavailable);
+      app.patch('/api/inventory/:id', unavailable);
+      app.delete('/api/inventory/:id', unavailable);
+      app.post('/api/listing', unavailable);
       app.get('/api/me', async () => ({ account: null, authAvailable: false, isAdmin: false }));
       app.post('/api/auth/google', unavailable);
       app.post('/api/auth/logout', unavailable);
@@ -158,6 +171,7 @@ function disabled(status: DbStatus): Persistence {
     quota: async () => undefined,
     // Without a database there are no accounts: local development only.
     requireAccount: async () => true,
+    aiMode: async () => 'full',
     requireAdmin: async () => true,
   };
 }
@@ -234,8 +248,25 @@ function enabled(db: Db, log: FastifyBaseLogger, auth: AuthConfig): Persistence 
           void reply.code(402).send({ error: 'identify_limit', message: `You reached this month's recognition limit of your ${q.plan} plan.`, quota: q });
           return false;
         }
+        // Hard stop for AI spend (abuse, bugs): 2x the plan budget. Barcode and typing still work.
+        if ((await aiCostThisMonth(db, uid)) >= PLANS[q.plan].aiBudgetMicroUsd * 2) {
+          req.log.warn({ event: 'ai_budget_exhausted', plan: q.plan }, 'AI budget exhausted');
+          void reply.code(402).send({ error: 'ai_budget', message: 'Photo recognition is paused for this month. You can still scan barcodes or type the item.', quota: q });
+          return false;
+        }
       }
       return true;
+    },
+
+    async aiMode(req) {
+      if (!billing) return 'full';
+      const uid = await userId(req);
+      if (!uid) return 'full';
+      const q = await billing.quota(uid);
+      const spent = await aiCostThisMonth(db, uid);
+      if (spent < PLANS[q.plan].aiBudgetMicroUsd) return 'full';
+      req.log.info({ event: 'ai_cheap_mode', plan: q.plan, spentMicroUsd: spent }, 'AI budget reached: cheap model only');
+      return 'cheap';
     },
 
     async quota(req) {
@@ -246,6 +277,10 @@ function enabled(db: Db, log: FastifyBaseLogger, auth: AuthConfig): Persistence 
 
     registerRoutes(app) {
       billing?.registerRoutes(app, { requireUser: requireSignedIn });
+      registerInventoryRoutes(app, db, requireSignedIn);
+      if (auth.listingWriter) {
+        registerListingRoutes(app, { db, writer: auth.listingWriter, requireSignedIn, ...(billing && { quota: (uid: string) => billing.quota(uid) }) });
+      }
 
       // ---------- account ----------
       app.get('/api/me', async (req, reply) => {

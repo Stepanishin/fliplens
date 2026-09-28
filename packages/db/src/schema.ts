@@ -126,6 +126,43 @@ export const valuations = pgTable(
   (t) => [index('valuations_scan_idx').on(t.scanId)],
 );
 
+/**
+ * Things the user actually bought (spec Phase 8/10). Together with the valuation at purchase time this is the
+ * own dataset of real resale outcomes: purchase price, predicted and actual sale price, days to sell.
+ */
+export const inventoryItems = pgTable(
+  'inventory_items',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+    scanId: uuid('scan_id').references(() => scans.id, { onDelete: 'set null' }),
+    category: text('category').notNull(),
+    brand: text('brand').notNull(),
+    model: text('model').notNull(),
+    capacity: text('capacity'),
+    condition: text('condition').notNull(),
+    currency: text('currency').notNull().default('EUR'),
+    purchasePriceMinor: integer('purchase_price_minor').notNull(),
+    purchasedAt: timestamp('purchased_at', { withTimezone: true }).notNull().defaultNow(),
+    /** Where it was bought: flea market, charity shop, ... (free text, optional). */
+    source: text('source'),
+    expectedSaleMinor: integer('expected_sale_minor'),
+    expectedProfitMinor: integer('expected_profit_minor'),
+    status: text('status').$type<'bought' | 'ready_to_list' | 'listed' | 'sold' | 'returned' | 'discarded'>().notNull().default('bought'),
+    listedOn: text('listed_on'),
+    listedPriceMinor: integer('listed_price_minor'),
+    listedAt: timestamp('listed_at', { withTimezone: true }),
+    soldPriceMinor: integer('sold_price_minor'),
+    saleFeesMinor: integer('sale_fees_minor'),
+    saleShippingMinor: integer('sale_shipping_minor'),
+    soldAt: timestamp('sold_at', { withTimezone: true }),
+    notes: text('notes'),
+    createdAt: createdAt(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index('inventory_user_idx').on(t.userId, t.status)],
+);
+
 /** Current subscription per user, mirrored from Stripe webhooks (Stripe is the source of truth). */
 export const subscriptions = pgTable('subscriptions', {
   userId: uuid('user_id').primaryKey().references(() => users.id, { onDelete: 'cascade' }),

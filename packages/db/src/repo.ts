@@ -1,6 +1,6 @@
 import { and, desc, eq, gte, sql } from 'drizzle-orm';
 import type { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
-import { events, productIdentifications, scans, subscriptions, usageCosts, userDevices, userSettings, users, valuations } from './schema.js';
+import { events, inventoryItems, productIdentifications, scans, subscriptions, usageCosts, userDevices, userSettings, users, valuations } from './schema.js';
 import type * as schema from './schema.js';
 
 type Db = PostgresJsDatabase<typeof schema>;
@@ -277,6 +277,7 @@ export async function exportUserData(db: Db, userId: string): Promise<unknown> {
     identifications: await db.select().from(productIdentifications).where(eq(productIdentifications.userId, userId)),
     settings: await getSettings(db, userId),
     events: await db.select().from(events).where(eq(events.userId, userId)),
+    inventory: await db.select().from(inventoryItems).where(eq(inventoryItems.userId, userId)),
   };
 }
 
@@ -366,6 +367,31 @@ export async function valuationsThisMonth(db: Db, userId: string): Promise<numbe
 }
 
 /** Recognition calls this calendar month: capped separately because each one costs an AI request. */
+/** AI spend this calendar month (UTC), USD millionths. */
+export async function aiCostThisMonth(db: Db, userId: string): Promise<number> {
+  const [row] = await db
+    .select({ n: sql<number>`coalesce(sum(${usageCosts.costMicroUsd}), 0)::int` })
+    .from(usageCosts)
+    .where(and(eq(usageCosts.userId, userId), gte(usageCosts.createdAt, sql`date_trunc('month', now())`)));
+  return row?.n ?? 0;
+}
+
+/** Generated listings this calendar month (UTC). */
+export async function listingsThisMonth(db: Db, userId: string): Promise<number> {
+  const [row] = await db
+    .select({ n: sql<number>`count(*)::int` })
+    .from(usageCosts)
+    .where(
+      and(
+        eq(usageCosts.userId, userId),
+        eq(usageCosts.kind, 'text_llm'),
+        sql`${usageCosts.model} like '%@listing-%'`,
+        gte(usageCosts.createdAt, sql`date_trunc('month', now())`),
+      ),
+    );
+  return row?.n ?? 0;
+}
+
 export async function identificationsThisMonth(db: Db, userId: string): Promise<number> {
   const [row] = await db
     .select({ n: sql<number>`count(*)::int` })
@@ -461,4 +487,43 @@ export async function adminOverview(db: Db, days = 30): Promise<AdminOverview> {
 export async function findUserByDevice(db: Db, deviceKey: string): Promise<string | undefined> {
   const [dev] = await db.select({ userId: userDevices.userId }).from(userDevices).where(eq(userDevices.deviceKey, deviceKey));
   return dev?.userId;
+}
+
+// ---------- inventory ----------
+
+export type InventoryRow = typeof inventoryItems.$inferSelect;
+export type NewInventory = Omit<typeof inventoryItems.$inferInsert, 'id' | 'userId' | 'createdAt' | 'updatedAt'>;
+export type InventoryPatch = Partial<Omit<NewInventory, 'scanId'>>;
+
+export async function addInventory(db: Db, userId: string, item: NewInventory): Promise<InventoryRow> {
+  const [row] = await db.insert(inventoryItems).values({ ...item, userId }).returning();
+  return row!;
+}
+
+export async function listInventory(db: Db, userId: string): Promise<InventoryRow[]> {
+  return db.select().from(inventoryItems).where(eq(inventoryItems.userId, userId)).orderBy(desc(inventoryItems.purchasedAt)).limit(500);
+}
+
+export async function updateInventory(db: Db, userId: string, id: string, patch: InventoryPatch): Promise<InventoryRow | undefined> {
+  const [row] = await db
+    .update(inventoryItems)
+    .set({ ...patch, updatedAt: sql`now()` })
+    .where(and(eq(inventoryItems.id, id), eq(inventoryItems.userId, userId)))
+    .returning();
+  return row;
+}
+
+export async function deleteInventory(db: Db, userId: string, id: string): Promise<boolean> {
+  const rows = await db.delete(inventoryItems).where(and(eq(inventoryItems.id, id), eq(inventoryItems.userId, userId))).returning({ id: inventoryItems.id });
+  return rows.length > 0;
+}
+
+/** Scan to prefill "I bought it" (the user's own scan only). */
+export async function scanForInventory(db: Db, userId: string, scanId: string): Promise<{ scan: ScanRow; valuation: ValuationRow | null } | undefined> {
+  return getScan(db, userId, scanId);
+}
+
+export async function getInventory(db: Db, userId: string, id: string): Promise<InventoryRow | undefined> {
+  const [row] = await db.select().from(inventoryItems).where(and(eq(inventoryItems.id, id), eq(inventoryItems.userId, userId)));
+  return row;
 }

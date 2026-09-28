@@ -39,6 +39,8 @@ export interface MarketplaceItem {
   readonly marketplaceSite: string;
   readonly externalId: string;
   readonly url: string;
+  /** Listing photo (shown next to the comparable; never stored). */
+  readonly imageUrl?: string;
   readonly title: string;
   readonly price: Money;
   readonly shipping?: Money;

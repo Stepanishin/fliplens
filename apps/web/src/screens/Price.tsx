@@ -12,9 +12,11 @@ interface Props {
   onChangePrice: (price: string) => void;
   onSubmit: () => void;
   onEditSettings: () => void;
+  /** Back to the identify step (shown when that step was skipped automatically). */
+  onEditItem?: () => void;
 }
 
-export function Price({ draft, settings, busy, error, onChangePrice, onSubmit, onEditSettings }: Props) {
+export function Price({ draft, settings, busy, error, onChangePrice, onSubmit, onEditSettings, onEditItem }: Props) {
   const inputRef = useRef<HTMLInputElement>(null);
   useEffect(() => inputRef.current?.focus(), []);
   const p = draft.product;
@@ -29,7 +31,13 @@ export function Price({ draft, settings, busy, error, onChangePrice, onSubmit, o
     <form className="screen" onSubmit={submit}>
       <div className="summary-chip">
         <strong>{p.brand} {p.model}{p.capacity ? ` ${p.capacity}` : ''}</strong>
-        <span className="muted small">{CONDITION_LABEL[draft.condition]}</span>
+        <span className="muted small">
+          {CONDITION_LABEL[draft.condition]}
+          {draft.chosenIndex !== null && draft.identification?.candidates[draft.chosenIndex] && !draft.edited
+            ? ` · recognised ${Math.round(draft.identification.candidates[draft.chosenIndex]!.confidence * 100)}%`
+            : ''}
+        </span>
+        {onEditItem && <button type="button" className="link summary-edit" onClick={onEditItem}>Not right? Edit</button>}
       </div>
 
       <label className="price-field">

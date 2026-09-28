@@ -62,3 +62,9 @@ export const IconX = (p: P) => (
 export const IconSpark = (p: P) => (
   <Svg {...p}><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8L12 3Z" /><path d="M19 16l.7 1.8L21.5 18.5l-1.8.7L19 21l-.7-1.8-1.8-.7 1.8-.7L19 16Z" /></Svg>
 );
+export const IconBox = (p: P) => (
+  <Svg {...p}><path d="M4 8 12 4l8 4v8l-8 4-8-4V8Z" /><path d="M4 8l8 4 8-4M12 12v8" /></Svg>
+);
+export const IconBag = (p: P) => (
+  <Svg {...p}><path d="M6 8h12l-1 12H7L6 8Z" /><path d="M9 8V6a3 3 0 0 1 6 0v2" /></Svg>
+);

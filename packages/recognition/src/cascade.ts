@@ -1,4 +1,4 @@
-import type { IdentificationResult, ImageInput, VisionProvider } from './types.js';
+import type { IdentificationResult, IdentifyOptions, ImageInput, VisionProvider } from './types.js';
 
 /**
  * Cost control: a cheap model answers first; only when it is unsure (top confidence below `threshold`, or nothing
@@ -19,10 +19,10 @@ export class CascadeVisionProvider implements VisionProvider {
     return this.fast.isConfigured() && this.strong.isConfigured();
   }
 
-  async identify(images: readonly ImageInput[], opts?: { readonly requestId?: string }): Promise<IdentificationResult> {
+  async identify(images: readonly ImageInput[], opts?: IdentifyOptions): Promise<IdentificationResult> {
     const first = await this.fast.identify(images, opts);
     const top = first.candidates[0]?.confidence ?? 0;
-    if (top >= this.threshold) return first;
+    if (top >= this.threshold || opts?.cheapOnly) return first;
 
     const second = await this.strong.identify(images, opts);
     return {

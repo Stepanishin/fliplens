@@ -45,7 +45,13 @@ export function Comparables({ items }: { items: ComparableJson[] }) {
       </div>
       <ul className="list-card comps">
         {shown.map((c) => (
-          <li key={`${c.item.source}:${c.item.externalId}`} className="comp">
+          <li key={`${c.item.source}:${c.item.externalId}`} className="comp with-thumb">
+            {c.item.imageUrl ? (
+              <img className="comp-thumb" src={c.item.imageUrl} alt="" loading="lazy" referrerPolicy="no-referrer" />
+            ) : (
+              <span className="comp-thumb empty" aria-hidden="true" />
+            )}
+            <div className="comp-body">
             <div className="comp-price">
               <strong>{c.priceTarget ? fmt(c.priceTarget) : '?'}</strong>
               {c.adjustedPrice && c.priceTarget && c.adjustedPrice.amountMinor !== c.priceTarget.amountMinor && (
@@ -57,6 +63,7 @@ export function Comparables({ items }: { items: ComparableJson[] }) {
             </div>
             <div className="muted small">
               {c.item.country ?? c.item.marketplaceSite} · {c.item.condition ? CONDITION_LABEL[c.item.condition] : 'condition n/a'} · listed {ago(c.item.listedAt ?? null)} · match {Math.round(c.similarity * 100)}%
+            </div>
             </div>
           </li>
         ))}

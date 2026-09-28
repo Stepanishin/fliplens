@@ -164,6 +164,54 @@ export interface AdminOverview {
   events: { days: number; activeUsers: number; byName: Record<string, number> };
 }
 
+export type InventoryStatus = 'bought' | 'ready_to_list' | 'listed' | 'sold' | 'returned' | 'discarded';
+
+export interface InventoryItem {
+  id: string;
+  scanId: string | null;
+  category: CategorySlug;
+  brand: string;
+  model: string;
+  capacity: string | null;
+  condition: Condition;
+  purchasePriceMinor: number;
+  purchasedAt: string;
+  source: string | null;
+  expectedSaleMinor: number | null;
+  expectedProfitMinor: number | null;
+  status: InventoryStatus;
+  listedOn: string | null;
+  listedPriceMinor: number | null;
+  listedAt: string | null;
+  soldPriceMinor: number | null;
+  saleFeesMinor: number | null;
+  saleShippingMinor: number | null;
+  soldAt: string | null;
+  notes: string | null;
+  actualProfitMinor: number | null;
+  actualRoiPct: number | null;
+  daysToSell: number | null;
+}
+
+export interface InventorySummary {
+  counts: Record<InventoryStatus, number>;
+  active: { items: number; investedMinor: number; expectedRevenueMinor: number; expectedProfitMinor: number };
+  sold: { items: number; revenueMinor: number; profitMinor: number; avgDaysToSell: number | null; avgPredictionErrorPct: number | null };
+}
+
+export interface InventoryPatch {
+  status?: InventoryStatus;
+  purchasePrice?: number;
+  source?: string | null;
+  listedOn?: string | null;
+  listedPrice?: number | null;
+  soldPrice?: number | null;
+  saleFees?: number | null;
+  saleShipping?: number | null;
+  soldAt?: string | null;
+  notes?: string | null;
+}
+
 export class ApiError extends Error {
   constructor(message: string, readonly code?: string, readonly status?: number) {
     super(message);
@@ -212,6 +260,17 @@ export const api = {
     }),
   health: () => call<Health>('/api/health'),
   billing: () => call<BillingInfo>('/api/billing'),
+  inventory: () => call<{ items: InventoryItem[]; summary: InventorySummary }>('/api/inventory'),
+  addInventory: (body: { scanId?: string; brand?: string; model?: string; category?: CategorySlug; condition?: Condition; purchasePrice: number; source?: string }) =>
+    call<InventoryItem>('/api/inventory', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }),
+  patchInventory: (id: string, patch: InventoryPatch) =>
+    call<InventoryItem>(`/api/inventory/${id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(patch) }),
+  generateListing: (body: { inventoryId: string; marketplace: 'ebay' | 'vinted' | 'kleinanzeigen'; language: string; notes?: string }) =>
+    call<{ title: string; description: string; conditionText: string; keywords: string[]; suggestedPriceMinor: number | null; marketplace: string; sellUrl: string }>(
+      '/api/listing',
+      { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) },
+    ),
+  deleteInventory: (id: string) => call<{ deleted: boolean }>(`/api/inventory/${id}`, { method: 'DELETE' }),
   detectCategory: (brand: string, model: string) =>
     call<{ category: CategorySlug | null }>(`/api/category?${new URLSearchParams({ brand, model })}`),
   checkout: (plan: 'pro' | 'reseller') =>

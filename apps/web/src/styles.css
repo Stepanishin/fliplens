@@ -580,3 +580,51 @@ button:focus-visible, a:focus-visible, summary:focus-visible { outline: 2.5px so
 .admin-grid .stat strong { font-size: 24px; font-weight: 800; font-variant-numeric: tabular-nums; }
 .admin-grid .stat small { font-size: 12px; color: var(--muted); }
 .admin-table td:first-child { overflow-wrap: anywhere; }
+
+.comp.with-thumb { display: flex; gap: 12px; align-items: flex-start; }
+.comp-thumb { flex: 0 0 auto; width: 64px; height: 64px; border-radius: 12px; object-fit: cover; background: var(--surface-2); border: 1px solid var(--line); }
+.comp-thumb.empty { display: block; }
+.comp-body { flex: 1; min-width: 0; }
+
+/* ---------- what-if price slider ---------- */
+.whatif-price { font-size: 26px; font-weight: 800; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+.whatif input[type=range] { -webkit-appearance: none; appearance: none; width: 100%; height: 10px; min-height: 0; padding: 0; border: 0; border-radius: 999px; background: linear-gradient(90deg, var(--accent) var(--pos), var(--surface-3) var(--pos)); box-shadow: none; }
+.whatif input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 30px; height: 30px; border-radius: 50%; background: var(--surface); border: 6px solid var(--accent-2); box-shadow: 0 2px 8px rgba(16, 24, 40, 0.25); cursor: pointer; }
+.whatif input[type=range]::-moz-range-thumb { width: 22px; height: 22px; border-radius: 50%; background: var(--surface); border: 6px solid var(--accent-2); cursor: pointer; }
+.whatif input[type=range]:focus { box-shadow: none; }
+.whatif-scale { display: flex; justify-content: space-between; gap: 8px; }
+
+.preset-list { display: flex; flex-direction: column; gap: 8px; }
+.cond-opt.preset { align-items: flex-start; padding: 12px 14px; }
+.cond-opt.preset > span:last-child { display: flex; flex-direction: column; gap: 2px; }
+.cond-opt.preset .cond-dot { margin-top: 2px; }
+.summary-chip { position: relative; }
+.summary-edit { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); }
+
+/* ---------- stock ---------- */
+.stock-summary { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.stat-card { display: flex; flex-direction: column; padding: 14px; border-radius: var(--radius-sm); background: var(--surface); border: 1px solid var(--line); box-shadow: var(--shadow-sm); min-width: 0; }
+.stat-card span { font-size: 12px; color: var(--muted); font-weight: 600; }
+.stat-card strong { font-size: 22px; font-weight: 800; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+.stat-card small { font-size: 12px; color: var(--muted); }
+.filter-row { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 2px; }
+.filter-row .chip-btn { flex: 0 0 auto; }
+.recent-row.st-bought::before, .recent-row.st-ready_to_list::before { background: var(--accent); }
+.recent-row.st-listed::before { background: var(--borderline); }
+.recent-row.st-sold::before { background: var(--strong-buy); }
+.recent-row.st-returned::before, .recent-row.st-discarded::before { background: var(--none); }
+.sheet { max-height: 88dvh; overflow-y: auto; }
+.sheet-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.sheet-actions > * { flex: 1 1 140px; }
+.sheet-minor { display: flex; flex-wrap: wrap; gap: 4px 16px; }
+.danger-link { color: var(--skip); }
+.sale-preview { margin: 0; font-size: 20px; font-weight: 800; }
+.bought-btn { display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; min-height: 58px; border: 0; border-radius: 18px; background: var(--text); color: var(--surface); font-size: 17px; font-weight: 700; box-shadow: var(--shadow); }
+.bought-btn:active { transform: scale(0.985); }
+
+/* ---------- listing generator ---------- */
+.listing-out > * + * { margin-top: 12px; }
+.listing-field { padding: 12px 14px; border-radius: var(--radius-sm); background: var(--surface-2); }
+.listing-field p { margin: 6px 0 0; color: var(--text); }
+.listing-desc { white-space: pre-wrap; font-size: 14.5px; }
+.sheet-actions a.primary { text-decoration: none; }

@@ -1,9 +1,11 @@
-import type { ReactNode } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
+import { computeProfit, decide, DEFAULT_PRICING_CONFIG, maxBuyPrice, type Confidence, type FeeProfile } from '@fliplens/core';
+import { track } from '../track.js';
 import type { ValuationResponse } from '../api.js';
 import { ago, FACTOR_LABEL } from '../format.js';
 import { MarketLinks } from '../MarketLinks.js';
 import { ConfidencePill, DecisionHero, eur, MarketActivity, RangeBar } from '../ui/verdict.js';
-import { IconEdit, IconScan } from '../ui/icons.js';
+import { IconBag, IconEdit, IconScan } from '../ui/icons.js';
 import { Comparables } from './Comparables.js';
 
 interface Props {
@@ -13,11 +15,18 @@ interface Props {
   onNewScan: () => void;
   onEdit: () => void;
   targetRoiPct: number;
+  /** "I bought it" with the price currently selected on the slider (cents). */
+  onBought?: (priceMinor: number) => void;
   children?: ReactNode;
 }
 
-export function Result({ resp, query, country, onNewScan, onEdit, targetRoiPct, children }: Props) {
+export function Result({ resp, query, country, onNewScan, onEdit, targetRoiPct, onBought, children }: Props) {
   const r = resp.result;
+  const askedMinor = r.status === 'ok' ? r.profit.expected.purchasePrice.amountMinor : 0;
+  // "What if I pay X?": recomputed locally with the same core logic, no new check, no quota.
+  const [buyMinor, setBuyMinor] = useState(askedMinor);
+  const [tried, setTried] = useState(false);
+  useEffect(() => setBuyMinor(askedMinor), [askedMinor, resp.scanId]);
 
   if (r.status === 'insufficient_data') {
     return (
@@ -47,12 +56,43 @@ export function Result({ resp, query, country, onNewScan, onEdit, targetRoiPct, 
   }
 
   const e = r.estimate;
-  const p = r.profit.expected;
   const d = e.distribution;
   const fee = resp.feePreset;
+  const feeProfile: FeeProfile = {
+    id: fee.profileId,
+    marketplace: fee.id,
+    sellerType: 'private',
+    percentageFeeBp: fee.percentageFeeBp,
+    fixedFeeMinor: fee.fixedFeeMinor,
+    paymentFeeBp: 0,
+    paymentFixedFeeMinor: 0,
+    currency: 'EUR',
+    sellerPaysShipping: fee.sellerPaysShipping,
+    effectiveFrom: '',
+  };
+  const base = r.profit.expected;
+  const p =
+    buyMinor === askedMinor
+      ? base
+      : computeProfit({
+          salePrice: e.expected,
+          purchasePrice: { amountMinor: buyMinor, currency: 'EUR' },
+          fees: feeProfile,
+          shippingCost: base.shipping,
+          packagingCost: base.packaging,
+        });
+  const decision =
+    buyMinor === askedMinor
+      ? r.decision
+      : decide(
+          { profit: p.profit, roiPct: p.roiPct, confidence: e.confidence as unknown as Confidence, includedCount: d.count, dataKind: e.dataKind },
+          DEFAULT_PRICING_CONFIG,
+        );
+  const maxBuy = r.maxBuyPrice ?? maxBuyPrice(base.net, targetRoiPct);
   const shipping = p.shipping.amountMinor;
   // Sale price where profit hits 0: S - (S * fee% + fixed) - shipping = purchase.
   const breakEven = Math.round((p.purchasePrice.amountMinor + fee.fixedFeeMinor + shipping + p.packaging.amountMinor) / (1 - fee.percentageFeeBp / 10_000));
+  const sliderMax = Math.max(Math.round(e.high.amountMinor / 100) * 100, askedMinor + 1000);
 
   return (
     <div className="screen">
@@ -60,7 +100,38 @@ export function Result({ resp, query, country, onNewScan, onEdit, targetRoiPct, 
         <div key={i} className="banner warn small">{w.site ? `${w.site}: ` : ''}{w.message}</div>
       ))}
 
-      <DecisionHero decision={r.decision.decision} profitMinor={p.profit.amountMinor} roiPct={p.roiPct} expectedMinor={e.expected.amountMinor} {...(r.maxBuyPrice && { maxBuyMinor: r.maxBuyPrice.amountMinor })} />
+      <DecisionHero decision={decision.decision} profitMinor={p.profit.amountMinor} roiPct={p.roiPct} expectedMinor={e.expected.amountMinor} maxBuyMinor={maxBuy.amountMinor} />
+
+      <section className="card whatif">
+        <div className="card-head">
+          <h2>What if you pay</h2>
+          <strong className="whatif-price">{eur(buyMinor)}</strong>
+        </div>
+        <input
+          type="range"
+          min={0}
+          max={sliderMax}
+          step={100}
+          value={buyMinor}
+          aria-label="Purchase price"
+          onChange={(ev) => {
+            setBuyMinor(Number(ev.target.value));
+            if (!tried) {
+              setTried(true);
+              track('whatif_used', {});
+            }
+          }}
+          style={{ ['--pos' as string]: `${(buyMinor / sliderMax) * 100}%` }}
+        />
+        <div className="whatif-scale muted small">
+          <span>€0</span>
+          <span>max for {targetRoiPct}% ROI: {eur(maxBuy.amountMinor)}</span>
+          <span>{eur(sliderMax)}</span>
+        </div>
+        {buyMinor !== askedMinor && (
+          <button type="button" className="link" onClick={() => setBuyMinor(askedMinor)}>Back to asking price {eur(askedMinor)}</button>
+        )}
+      </section>
 
       <section className="card">
         <div className="card-head">
@@ -77,12 +148,6 @@ export function Result({ resp, query, country, onNewScan, onEdit, targetRoiPct, 
           high={e.high.amountMinor}
           breakEven={breakEven}
         />
-        {r.maxBuyPrice && (
-          <div className="maxbuy">
-            <span>Max buy price for {targetRoiPct}% ROI</span>
-            <strong>{eur(r.maxBuyPrice.amountMinor)}</strong>
-          </div>
-        )}
         <p className="muted small">
           Based on {d.count} {e.dataKind === 'sold' ? 'sold items' : 'active eBay listings (asking prices, adjusted down)'} · data {ago(resp.dataFetchedAt)}
         </p>
@@ -90,11 +155,11 @@ export function Result({ resp, query, country, onNewScan, onEdit, targetRoiPct, 
 
       <section className="card">
         <h2>Why</h2>
-        <ul className="list">{r.decision.factors.map((f) => <li key={f}>{f}</li>)}</ul>
-        {r.decision.risks.length > 0 && (
+        <ul className="list">{decision.factors.map((f) => <li key={f}>{f}</li>)}</ul>
+        {decision.risks.length > 0 && (
           <>
             <h3>Risks</h3>
-            <ul className="list risks">{r.decision.risks.map((f) => <li key={f}>{f}</li>)}</ul>
+            <ul className="list risks">{decision.risks.map((f) => <li key={f}>{f}</li>)}</ul>
           </>
         )}
       </section>
@@ -143,6 +208,11 @@ export function Result({ resp, query, country, onNewScan, onEdit, targetRoiPct, 
         </details>
       </section>
 
+      {onBought && (
+        <button type="button" className="bought-btn" onClick={() => onBought(buyMinor)}>
+          <IconBag size={20} /> I bought it for {eur(buyMinor)}
+        </button>
+      )}
       <Comparables items={e.comparables} />
       <MarketLinks query={query} country={country} />
       <Actions onNewScan={onNewScan} onEdit={onEdit} />

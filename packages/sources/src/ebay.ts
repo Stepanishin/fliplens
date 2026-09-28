@@ -99,6 +99,8 @@ interface EbayItemSummary {
   itemWebUrl?: string;
   buyingOptions?: string[];
   seller?: { username?: string };
+  image?: { imageUrl?: string };
+  thumbnailImages?: { imageUrl?: string }[];
 }
 interface EbaySearchResponse {
   total?: number;
@@ -296,6 +298,7 @@ function toItem(s: EbayItemSummary, site: string, fetchedAt: Date): MarketplaceI
     marketplaceSite: site,
     externalId: s.itemId,
     url: s.itemWebUrl ?? '',
+    ...((s.thumbnailImages?.[0]?.imageUrl ?? s.image?.imageUrl) && { imageUrl: (s.thumbnailImages?.[0]?.imageUrl ?? s.image?.imageUrl)! }),
     title: s.title,
     price: money(price, s.price.currency),
     ...(shipping && { shipping }),
