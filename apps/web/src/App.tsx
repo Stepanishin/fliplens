@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { FEE_PRESETS, type FeePresetId } from '@fliplens/core';
+import { FEE_PRESETS, type CategorySlug, type FeePresetId } from '@fliplens/core';
 import { api, ApiError, type Account, type BillingInfo, type Health, type ServerScan, type ValuationResponse } from './api.js';
 import { Plans } from './screens/Plans.js';
 import { Landing } from './screens/Landing.js';
@@ -9,7 +9,7 @@ import { BenchmarkAdd } from './BenchmarkAdd.js';
 import {
   applyCandidate,
   buildRequest,
-  CAPACITY_CATEGORIES,
+  showsCapacity,
   draftFromScan,
   newDraft,
   type Draft,
@@ -39,6 +39,9 @@ type Route =
 
 const TITLES: Partial<Record<Route['name'], string>> = { confirm: 'Identify', price: 'Price', result: 'Verdict', scan: 'Saved scan', profile: 'Profile' };
 const DEV_KEY = 'fliplens.devtools.v1';
+/** Position of the scan-flow screens in the stepper. */
+const STEP: Partial<Record<Route['name'], number>> = { confirm: 0, price: 1, result: 2 };
+const STEP_LABELS = ['Identify', 'Price', 'Verdict'] as const;
 
 const AUTO_PICK_CONFIDENCE = 0.6;
 
@@ -269,6 +272,10 @@ export function App() {
   );
   const closeScanner = useCallback(() => setScanning(false), []);
 
+  const onDetectedCategory = useCallback((c: CategorySlug) => {
+    setDraft((d) => (d.product.category === '' ? { ...d, product: { ...d.product, category: c, categoryAuto: true } } : d));
+  }, []);
+
   function startManual() {
     correctedOnce.current = false;
     track('scan_started', { method: 'manual' });
@@ -285,7 +292,10 @@ export function App() {
         correctedOnce.current = true;
         track('product_corrected', { method: d.method, field: Object.keys(p)[0] ?? null });
       }
-      return { ...d, product: { ...d.product, ...p }, edited: d.edited || edited };
+      let product = { ...d.product, ...p };
+      // A detected category belongs to the old name: typing a new brand/model re-detects it.
+      if (d.product.categoryAuto && (p.brand !== undefined || p.model !== undefined)) product = { ...product, category: '', categoryAuto: false };
+      return { ...d, product, edited: d.edited || edited };
     });
   }
 
@@ -296,6 +306,8 @@ export function App() {
     try {
       const r = await api.valuation(buildRequest(d, settings));
       setResp(r);
+      // Keep the category the server detected, so "Edit" shows it and the next check uses it.
+      if (r.categoryDetected) setDraft((x) => ({ ...x, product: { ...x.product, category: r.category, categoryAuto: true } }));
       track(r.result.status === 'ok' ? 'valuation_completed' : 'valuation_failed', {
         category: d.product.category,
         ...(r.result.status === 'ok'
@@ -324,7 +336,7 @@ export function App() {
     tab({ name: 'home' });
   }
 
-  const query = [draft.product.brand, draft.product.model, CAPACITY_CATEGORIES.includes(draft.product.category) ? draft.product.capacity : '']
+  const query = [draft.product.brand, draft.product.model, showsCapacity(draft.product.category) ? draft.product.capacity : '']
     .filter((x) => x.trim())
     .join(' ');
   const visionOn = health?.vision.configured ?? false;
@@ -354,13 +366,24 @@ export function App() {
 
   return (
     <div className="shell">
-      <header className="appbar">
+      <header className={`appbar ${STEP[route.name] !== undefined ? 'with-progress' : ''}`}>
         {inFlow ? (
-          <button type="button" className="icon-btn plain" onClick={back} aria-label="Back"><IconBack /></button>
+          <button type="button" className="back-btn" onClick={back} aria-label="Back"><IconBack size={20} /></button>
         ) : (
           <div className="logo"><img src="/icons/icon.svg" alt="" width={26} height={26} /> FlipLens</div>
         )}
-        <div className="appbar-title">{inFlow ? TITLES[route.name] : ''}</div>
+        <div className="appbar-title">
+          {STEP[route.name] !== undefined ? (
+            <div className="flow-head">
+              <span className="flow-step">Step {STEP[route.name]! + 1} of 3</span>
+              <span className="flow-name">{STEP_LABELS[STEP[route.name]!]}</span>
+            </div>
+          ) : inFlow ? (
+            TITLES[route.name]
+          ) : (
+            ''
+          )}
+        </div>
         <div className="appbar-end">
           {!inFlow && (
             <button type="button" className="avatar-btn" onClick={() => tab({ name: 'profile' })} aria-label="Profile">
@@ -368,6 +391,11 @@ export function App() {
             </button>
           )}
         </div>
+        {STEP[route.name] !== undefined && (
+          <div className="flow-progress" role="progressbar" aria-valuemin={1} aria-valuemax={3} aria-valuenow={STEP[route.name]! + 1}>
+            {STEP_LABELS.map((l, n) => <span key={l} className={n <= STEP[route.name]! ? 'on' : ''} />)}
+          </div>
+        )}
       </header>
 
       {health === null && <div className="banner warn inset">Server not reachable. Run <code>pnpm dev</code>.</div>}
@@ -395,6 +423,7 @@ export function App() {
             identifying={identifying}
             error={flowError}
             onChangeProduct={changeProduct}
+            onDetectedCategory={onDetectedCategory}
             onChangeCondition={(c) => setDraft((d) => ({ ...d, condition: c }))}
             onPickCandidate={(i) =>
               setDraft((d) => {
@@ -505,7 +534,7 @@ export function App() {
         }}
       />
 
-      {!inFlow && (
+      {
         <nav className="tabbar" aria-label="Main">
           <button type="button" className={activeTab === 'home' ? 'on' : ''} onClick={() => tab({ name: 'home' })}>
             <IconHome />
@@ -527,7 +556,7 @@ export function App() {
             <span>Profile</span>
           </button>
         </nav>
-      )}
+      }
     </div>
   );
 }

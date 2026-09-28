@@ -49,7 +49,8 @@ const presetIds = Object.keys(FEE_PRESETS) as [FeePresetId, ...FeePresetId[]];
 
 const ValuationBody = z.object({
   product: z.object({
-    category: z.enum(CATEGORIES),
+    /** Omit to auto-detect from brand + model. */
+    category: z.enum(CATEGORIES).optional(),
     brand: z.string().trim().min(1),
     model: z.string().trim().min(1),
     capacity: z.string().trim().min(1).optional(),
@@ -128,6 +129,20 @@ app.post('/api/identify', async (req, reply) => {
       return reply.code(e.kind === 'not_configured' ? 409 : 502).send({ error: 'recognition_failed', kind: e.kind, message: e.message });
     }
     throw e;
+  }
+});
+
+/** Category auto-detect while the user types brand + model (eBay taxonomy metadata, cached, no quota). */
+app.get('/api/category', async (req, reply) => {
+  const q = z.object({ brand: z.string().trim().min(1).max(100), model: z.string().trim().min(1).max(200) }).safeParse(req.query);
+  if (!q.success) return reply.code(400).send({ error: 'invalid_request' });
+  if (!(await store.requireAccount(req, reply, 'valuation'))) return reply;
+  if (!ebay.isConfigured()) return reply.code(409).send({ error: 'source_not_configured' });
+  try {
+    return { category: await ebay.suggestCategory(`${q.data.brand} ${q.data.model}`) };
+  } catch (e) {
+    req.log.warn({ event: 'category_detect_failed', err: e instanceof Error ? e.message : String(e) }, 'category auto-detect failed');
+    return { category: null };
   }
 });
 
@@ -212,11 +227,18 @@ app.post('/api/valuation', async (req, reply) => {
   if (!parsed.success) return reply.code(400).send({ error: 'invalid_request', issues: parsed.error.issues });
   const b = parsed.data;
 
-  const product: NormalizedProduct = stripUndefined(b.product);
   if (!(await store.requireAccount(req, reply, 'valuation'))) return reply;
   if (!ebay.isConfigured()) {
     return reply.code(409).send({ error: 'source_not_configured', message: 'eBay keys are not configured on the server (.env)' });
   }
+  let category = b.product.category;
+  if (!category) {
+    category = await ebay.suggestCategory(`${b.product.brand} ${b.product.model}`).catch((e: unknown) => {
+      req.log.warn({ event: 'category_detect_failed', err: e instanceof Error ? e.message : String(e) }, 'category auto-detect failed');
+      return 'other' as const;
+    });
+  }
+  const product: NormalizedProduct = stripUndefined({ ...b.product, category });
   const quota = await store.quota(req);
   if (quota && quota.remaining <= 0) {
     req.log.info({ event: 'quota_exceeded', plan: quota.plan }, 'quota exceeded');
@@ -267,6 +289,8 @@ app.post('/api/valuation', async (req, reply) => {
 
   return {
     scanId,
+    category,
+    categoryDetected: !b.product.category,
     source: 'ebay',
     dataFetchedAt: search.oldestFetchedAt?.toISOString() ?? null,
     sourceWarnings: search.warnings,

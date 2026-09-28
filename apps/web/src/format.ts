@@ -28,6 +28,23 @@ export const CONDITION_LABEL = {
   for_parts: 'For parts',
 } as const;
 
+export const CATEGORY_NAME: Record<string, string> = {
+  headphones: 'Headphones', smartphones: 'Smartphones', tablets: 'Tablets', laptops: 'Laptops', smartwatches: 'Smartwatches',
+  speakers: 'Speakers', routers: 'Routers', streaming: 'Streaming devices', consoles: 'Game consoles', handhelds: 'Handheld consoles',
+  controllers: 'Controllers', games: 'Video games', camera_bodies: 'Cameras', lenses: 'Lenses', action_cameras: 'Action cameras',
+  compact_cameras: 'Compact cameras', power_tools: 'Power tools', other: 'Other',
+};
+
+export const CONDITION_HINT = {
+  new: 'Sealed or unused, in the original packaging.',
+  like_new: 'Opened, no visible signs of use.',
+  very_good: 'Minimal signs of use, fully working.',
+  good: 'Normal signs of use, fully working.',
+  fair: 'Clear wear or cosmetic damage, still working.',
+  poor: 'Heavy wear or missing parts, still working.',
+  for_parts: 'Not working, for repair or parts.',
+} as const;
+
 export const DECISION_LABEL = {
   strong_buy: 'STRONG BUY',
   buy: 'BUY',

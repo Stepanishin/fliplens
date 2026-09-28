@@ -1,8 +1,9 @@
-import { useRef, type ChangeEvent } from 'react';
+import { useEffect, useRef, useState, type ChangeEvent } from 'react';
 import { CATEGORIES, CONDITIONS, type CategorySlug } from '@fliplens/core';
 import { Candidates } from '../Candidates.js';
-import { CAPACITY_CATEGORIES, hasIdentity, MOUNT_CATEGORIES, type Draft, type ProductDraft } from '../flow.js';
-import { CONDITION_LABEL } from '../format.js';
+import { api } from '../api.js';
+import { CAPACITY_OPTIONS, hasIdentity, MOUNT_CATEGORIES, showsCapacity, type Draft, type ProductDraft } from '../flow.js';
+import { CATEGORY_NAME, CONDITION_HINT, CONDITION_LABEL } from '../format.js';
 import { resizeToJpegDataUrl } from '../image.js';
 import { IconCamera } from '../ui/icons.js';
 
@@ -11,6 +12,7 @@ interface Props {
   identifying: boolean;
   error: string | null;
   onChangeProduct: (p: Partial<ProductDraft>) => void;
+  onDetectedCategory: (c: CategorySlug) => void;
   onChangeCondition: (c: Draft['condition']) => void;
   onPickCandidate: (index: number) => void;
   onAddPhotos: (photos: string[]) => void;
@@ -18,12 +20,38 @@ interface Props {
   onContinue: () => void;
 }
 
-const CATEGORY_LABEL = (c: CategorySlug): string => c.replace(/_/g, ' ');
+const CATEGORY_LABEL = (c: CategorySlug): string => CATEGORY_NAME[c] ?? c;
 
-export function Confirm({ draft, identifying, error, onChangeProduct, onChangeCondition, onPickCandidate, onAddPhotos, onRemovePhoto, onContinue }: Props) {
+export function Confirm({ draft, identifying, error, onChangeProduct, onDetectedCategory, onChangeCondition, onPickCandidate, onAddPhotos, onRemovePhoto, onContinue }: Props) {
   const addRef = useRef<HTMLInputElement>(null);
   const p = draft.product;
   const r = draft.identification;
+  const [detecting, setDetecting] = useState(false);
+  const [otherCapacity, setOtherCapacity] = useState(false);
+
+  // Detect the category as soon as brand + model are typed (debounced), so storage/mount fields fit the item.
+  useEffect(() => {
+    if (p.category !== '' || !hasIdentity(p)) return;
+    let cancelled = false;
+    const t = window.setTimeout(() => {
+      setDetecting(true);
+      api.detectCategory(p.brand.trim(), p.model.trim()).then(
+        (res) => {
+          if (!cancelled && res.category) onDetectedCategory(res.category);
+        },
+        () => undefined,
+      ).finally(() => {
+        if (!cancelled) setDetecting(false);
+      });
+    }, 600);
+    return () => {
+      cancelled = true;
+      window.clearTimeout(t);
+    };
+  }, [p.brand, p.model, p.category, onDetectedCategory]);
+
+  const capacityOptions = p.category ? CAPACITY_OPTIONS[p.category] ?? [] : [];
+  const capacityIsOther = p.capacity !== '' && !capacityOptions.includes(p.capacity.toUpperCase().replace(/\s/g, ''));
 
   async function onFiles(e: ChangeEvent<HTMLInputElement>) {
     const files = [...(e.target.files ?? [])].slice(0, 3 - draft.photos.length);
@@ -85,7 +113,8 @@ export function Confirm({ draft, identifying, error, onChangeProduct, onChangeCo
           </label>
           <label className="field">
             <span>Category</span>
-            <select value={p.category} onChange={(e) => onChangeProduct({ category: e.target.value as CategorySlug })}>
+            <select value={p.category} onChange={(e) => onChangeProduct({ category: e.target.value as CategorySlug | '', categoryAuto: false })}>
+              <option value="">Auto-detect</option>
               {CATEGORIES.map((c) => <option key={c} value={c}>{CATEGORY_LABEL(c)}</option>)}
             </select>
           </label>
@@ -94,14 +123,31 @@ export function Confirm({ draft, identifying, error, onChangeProduct, onChangeCo
           <span>Model</span>
           <input value={p.model} onChange={(e) => onChangeProduct({ model: e.target.value })} placeholder="WH-1000XM4" />
         </label>
-        {CAPACITY_CATEGORIES.includes(p.category) && (
-          <label className="field">
-            <span>Storage</span>
-            <input value={p.capacity} onChange={(e) => onChangeProduct({ capacity: e.target.value })} placeholder="e.g. 128GB, empty if unsure" />
-            <span className="hint">A wrong value hides most of the market.</span>
-          </label>
+        {detecting && <p className="hint">Detecting category…</p>}
+        {!detecting && p.categoryAuto && <p className="hint">Category detected automatically. Change it if it's wrong.</p>}
+        {showsCapacity(p.category) && (
+          <div className="field">
+            <span id="cap-label">Storage</span>
+            <div className="chips-row" role="radiogroup" aria-labelledby="cap-label">
+              <button type="button" role="radio" aria-checked={p.capacity === '' && !otherCapacity} className={`chip-btn ${p.capacity === '' && !otherCapacity ? 'on' : ''}`} onClick={() => { setOtherCapacity(false); onChangeProduct({ capacity: '' }); }}>
+                Not sure
+              </button>
+              {capacityOptions.map((c) => (
+                <button key={c} type="button" role="radio" aria-checked={p.capacity === c} className={`chip-btn ${p.capacity === c ? 'on' : ''}`} onClick={() => { setOtherCapacity(false); onChangeProduct({ capacity: c }); }}>
+                  {c.replace(/(\d)(GB|TB)/, '$1 $2')}
+                </button>
+              ))}
+              <button type="button" role="radio" aria-checked={otherCapacity || capacityIsOther} className={`chip-btn ${otherCapacity || capacityIsOther ? 'on' : ''}`} onClick={() => setOtherCapacity(true)}>
+                Other
+              </button>
+            </div>
+            {(otherCapacity || capacityIsOther) && (
+              <input value={p.capacity} onChange={(e) => onChangeProduct({ capacity: e.target.value })} placeholder="e.g. 32GB" aria-label="Other storage size" />
+            )}
+            <span className="hint">{p.capacity ? 'Only listings with this storage are compared.' : 'All storage versions are compared. Pick one if you know it for a more precise price.'}</span>
+          </div>
         )}
-        {MOUNT_CATEGORIES.includes(p.category) && (
+        {p.category !== '' && MOUNT_CATEGORIES.includes(p.category) && (
           <label className="field">
             <span>Mount</span>
             <input value={p.mount} onChange={(e) => onChangeProduct({ mount: e.target.value })} placeholder="RF, EF, EF-S, FE" />
@@ -116,14 +162,23 @@ export function Confirm({ draft, identifying, error, onChangeProduct, onChangeCo
         </details>
 
         <div className="field">
-          <span>Condition{r?.conditionGuess ? ` (suggested: ${CONDITION_LABEL[r.conditionGuess]})` : ''}</span>
-          <div className="chips-row">
+          <span id="cond-label">Condition{r?.conditionGuess ? ` (suggested: ${CONDITION_LABEL[r.conditionGuess]})` : ''}</span>
+          <div className="condition-scale" role="radiogroup" aria-labelledby="cond-label">
             {CONDITIONS.map((c) => (
-              <button key={c} type="button" className={`chip-btn ${draft.condition === c ? 'on' : ''}`} onClick={() => onChangeCondition(c)}>
+              <button
+                key={c}
+                type="button"
+                role="radio"
+                aria-checked={draft.condition === c}
+                className={`cond-opt ${draft.condition === c ? 'on' : ''}`}
+                onClick={() => onChangeCondition(c)}
+              >
+                <span className="cond-dot" aria-hidden="true" />
                 {CONDITION_LABEL[c]}
               </button>
             ))}
           </div>
+          <span className="hint">{CONDITION_LABEL[draft.condition]}: {CONDITION_HINT[draft.condition]}</span>
         </div>
       </section>
 

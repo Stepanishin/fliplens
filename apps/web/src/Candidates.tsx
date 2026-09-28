@@ -1,5 +1,5 @@
 import type { IdentificationResult } from './api.js';
-import { CONDITION_LABEL } from './format.js';
+import { CATEGORY_NAME, CONDITION_LABEL } from './format.js';
 
 interface Props {
   result: IdentificationResult;
@@ -25,7 +25,7 @@ export function Candidates({ result, picked, onChoose, evidenceLabel, emptyText,
                 <strong>{c.brand} {c.model}</strong>
                 <span className="muted small">
                   {' '}
-                  {[c.capacity, c.mount && `${c.mount} mount`, c.colour, c.category.replace(/_/g, ' ')].filter(Boolean).join(' · ')}
+                  {[c.capacity, c.mount && `${c.mount} mount`, c.colour, CATEGORY_NAME[c.category] ?? c.category].filter(Boolean).join(' · ')}
                 </span>
               </span>
               <span className={`conf ${c.confidence >= 0.85 ? 'c-high' : c.confidence >= 0.6 ? 'c-medium' : 'c-low'}`}>

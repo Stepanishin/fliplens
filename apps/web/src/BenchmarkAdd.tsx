@@ -49,7 +49,7 @@ export function BenchmarkAdd({ photos, request }: Props) {
       const p = request.product;
       const r = await api.benchmarkAdd({
         images: photos,
-        category: p.category,
+        category: p.category ?? 'other',
         truth: { brand: p.brand, model: p.model, ...(p.capacity && { capacity: p.capacity }), ...(p.mount && { mount: p.mount }) },
         condition: request.condition,
         purchasePriceEur: request.purchasePrice,

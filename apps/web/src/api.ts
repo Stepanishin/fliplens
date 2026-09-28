@@ -27,7 +27,7 @@ export type IdentificationResult = BaseIdentification & { identificationId?: str
 
 export interface ValuationRequest {
   product: {
-    category: CategorySlug;
+    category?: CategorySlug;
     brand: string;
     model: string;
     capacity?: string;
@@ -51,6 +51,9 @@ export interface ValuationRequest {
 
 export interface ValuationResponse {
   scanId?: string;
+  /** Category used for the search (auto-detected when the request had none). */
+  category: CategorySlug;
+  categoryDetected: boolean;
   source: 'ebay';
   dataFetchedAt: string | null;
   sourceWarnings: { source: string; site?: string; message: string }[];
@@ -197,6 +200,8 @@ export const api = {
     }),
   health: () => call<Health>('/api/health'),
   billing: () => call<BillingInfo>('/api/billing'),
+  detectCategory: (brand: string, model: string) =>
+    call<{ category: CategorySlug | null }>(`/api/category?${new URLSearchParams({ brand, model })}`),
   checkout: (plan: 'pro' | 'reseller') =>
     call<{ url: string }>('/api/billing/checkout', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ plan }) }),
   portal: () => call<{ url: string }>('/api/billing/portal', { method: 'POST' }),

@@ -66,6 +66,18 @@ const EBAY_CATEGORY: Partial<Record<CategorySlug, string>> = {
   lenses: '3323',
 };
 
+/** eBay leaf category > our category (for auto-detect). First slug wins where several share an eBay category. */
+const CATEGORY_BY_EBAY: Record<string, CategorySlug> = {
+  ...Object.fromEntries(Object.entries(EBAY_CATEGORY).reverse().map(([slug, id]) => [id, slug as CategorySlug])),
+  '111422': 'laptops', // Apple Notebooks
+  '139971': 'consoles',
+  '31388': 'camera_bodies',
+  '111694': 'speakers', // Audio-Docks & Mini-Lautsprecher
+  '11724': 'action_cameras', // Camcorder (GoPro and similar land here)
+  '101270': 'routers',
+  '184655': 'power_tools',
+};
+
 export function ebayCategoryFor(p: NormalizedProduct): string | undefined {
   if (p.category === 'laptops' && p.brand.trim().toLowerCase() === 'apple') return '111422'; // Apple Notebooks
   return EBAY_CATEGORY[p.category];
@@ -101,6 +113,8 @@ export class EbayAdapter implements MarketplaceAdapter {
 
   private token?: { value: string; expiresAt: number };
   private readonly cache = new Map<string, { at: number; items: MarketplaceItem[] }>();
+  /** Category suggestions are eBay taxonomy metadata, not listing content: safe to keep for the process lifetime. */
+  private readonly categoryCache = new Map<string, CategorySlug>();
   private readonly fetchImpl: typeof fetch;
   private readonly base: string;
 
@@ -154,6 +168,26 @@ export class EbayAdapter implements MarketplaceAdapter {
    * Barcode lookup: titles of listings that carry this GTIN, across sites and GTIN spellings (UPC-12 / EAN-13).
    * Used only to identify the product; valuation then searches by model name for a wider market.
    */
+  /**
+   * Auto-detect our category from a free-text product name via the eBay Taxonomy API (German tree, IDs are shared
+   * across the EU sites). Falls back to 'other' when eBay suggests nothing we support.
+   */
+  async suggestCategory(query: string): Promise<CategorySlug> {
+    const key = `cat-suggest|${query.toLowerCase()}`;
+    const hit = this.categoryCache.get(key);
+    if (hit) return hit;
+    const res = await this.fetchImpl(
+      `${this.base}/commerce/taxonomy/v1/category_tree/77/get_category_suggestions?q=${encodeURIComponent(query)}`,
+      { headers: { Authorization: `Bearer ${await this.accessToken()}`, Accept: 'application/json' } },
+    );
+    if (!res.ok) throw new Error(`eBay taxonomy HTTP ${res.status}`);
+    const body = (await res.json()) as { categorySuggestions?: { category: { categoryId: string } }[] };
+    const found = (body.categorySuggestions ?? []).map((s) => CATEGORY_BY_EBAY[s.category.categoryId]).find((c) => c !== undefined);
+    const slug = found ?? 'other';
+    this.categoryCache.set(key, slug);
+    return slug;
+  }
+
   async titlesForGtin(gtins: readonly string[], opts: { sites?: readonly string[] } = {}): Promise<{ titles: string[]; sites: Record<string, number>; warnings: SourceWarning[] }> {
     const sites = opts.sites ?? this.cfg.defaultSites ?? DEFAULT_SITES;
     const warnings: SourceWarning[] = [];
