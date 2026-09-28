@@ -54,6 +54,13 @@ pnpm dev            # API на :8787, web на http://localhost:5173
 - **Barcode**: кнопка Barcode (камера: нативный BarcodeDetector, иначе ZXing) или ввод номера. EAN ищется в eBay listings (UPC-12 и EAN-13), titles нормализует `gpt-6-luna` (`OPENAI_TEXT_MODEL`), ~$0.0003 за скан.
 - **Фото**: кнопки Scan item (камера) / Upload photo, до 3 фото, resize до 1280px на устройстве, распознавание через OpenAI (`OPENAI_API_KEY`, `OPENAI_VISION_MODEL`). Фото не сохраняются.
 
+### Аккаунты и оплата
+
+- Вход через Google: `GOOGLE_CLIENT_ID` (OAuth client, тип Web, origin `http://localhost:5173`).
+- Stripe (test mode): `STRIPE_SECRET_KEY_TEST`, цены: `pnpm --filter @fliplens/api stripe:setup`.
+- Webhooks локально: `pnpm --filter @fliplens/api stripe:listen` (секрет в `STRIPE_WEBHOOK_SECRET_TEST`).
+- Тестовая карта: `4242 4242 4242 4242`, любая будущая дата и CVC.
+
 ### PWA на телефоне
 
 Service worker и установка работают только по HTTPS (или на localhost).

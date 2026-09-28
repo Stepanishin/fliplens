@@ -74,6 +74,13 @@ export interface Health {
   sources: { ebay: boolean };
   vision: { configured: boolean; provider: string };
   db: 'connected' | 'disabled' | 'error';
+  auth: { google: string | null };
+}
+
+export interface Account {
+  email: string | null;
+  name: string | null;
+  picture: string | null;
 }
 
 export interface ServerScan {
@@ -135,7 +142,18 @@ export interface StoredValuation {
   createdAt: string;
 }
 
-export class ApiError extends Error {}
+export interface BillingInfo {
+  enabled: boolean;
+  quota: { plan: 'free' | 'pro' | 'reseller'; used: number; limit: number; remaining: number };
+  subscription: { plan: 'pro' | 'reseller'; status: string; currentPeriodEnd: string | null; cancelAtPeriodEnd: boolean } | null;
+  plans: { id: 'free' | 'pro' | 'reseller'; name: string; priceMonthlyMinor: number; monthlyValuations: number; features: string[] }[];
+}
+
+export class ApiError extends Error {
+  constructor(message: string, readonly code?: string, readonly status?: number) {
+    super(message);
+  }
+}
 
 async function call<T>(path: string, init?: RequestInit): Promise<T> {
   let res: Response;
@@ -149,7 +167,7 @@ async function call<T>(path: string, init?: RequestInit): Promise<T> {
   const body: unknown = await res.json().catch(() => null);
   if (!res.ok) {
     const b = body as { message?: string; error?: string } | null;
-    throw new ApiError(b?.message ?? b?.error ?? `HTTP ${res.status}`);
+    throw new ApiError(b?.message ?? b?.error ?? `HTTP ${res.status}`, b?.error, res.status);
   }
   return body as T;
 }
@@ -177,6 +195,14 @@ export const api = {
       body: JSON.stringify(req),
     }),
   health: () => call<Health>('/api/health'),
+  billing: () => call<BillingInfo>('/api/billing'),
+  checkout: (plan: 'pro' | 'reseller') =>
+    call<{ url: string }>('/api/billing/checkout', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ plan }) }),
+  portal: () => call<{ url: string }>('/api/billing/portal', { method: 'POST' }),
+  me: () => call<{ account: Account | null; authAvailable: boolean }>('/api/me'),
+  googleLogin: (credential: string) =>
+    call<{ account: Account }>('/api/auth/google', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ credential }) }),
+  logout: () => call<{ signedOut: boolean }>('/api/auth/logout', { method: 'POST' }),
   scans: () => call<ServerScan[]>('/api/scans'),
   scan: (id: string) => call<{ scan: { id: string; createdAt: string }; valuation: StoredValuation | null }>(`/api/scans/${id}`),
   settings: () => call<ServerSettings | null>('/api/me/settings'),

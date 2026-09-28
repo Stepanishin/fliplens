@@ -15,6 +15,34 @@
       "when": 1790587705463,
       "tag": "0001_market_settings_events",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1790597167313,
+      "tag": "0002_accounts_devices",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1790597167632,
+      "tag": "0003_move_device_keys",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1790597177971,
+      "tag": "0004_drop_users_device_key",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1790597368987,
+      "tag": "0005_subscriptions",
+      "breakpoints": true
     }
   ]
 }

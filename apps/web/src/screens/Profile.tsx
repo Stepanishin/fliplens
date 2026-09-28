@@ -1,9 +1,17 @@
 import { FEE_PRESETS, type FeePresetId } from '@fliplens/core';
-import { api } from '../api.js';
+import { api, type Account, type BillingInfo } from '../api.js';
+import { GoogleButton } from '../ui/GoogleButton.js';
 import { LINK_COUNTRIES } from '../marketSearch.js';
 import type { Settings } from '../storage.js';
 
 interface Props {
+  billing: BillingInfo | null;
+  onOpenPlans: () => void;
+  account: Account | null;
+  googleClientId: string | null;
+  onGoogleCredential: (credential: string) => void;
+  onSignOut: () => void;
+  authError: string | null;
   settings: Settings;
   onChange: (s: Settings) => void;
   dbOn: boolean;
@@ -19,7 +27,7 @@ const COUNTRY_NAMES: Record<string, string> = {
   PL: 'Poland', PT: 'Portugal', RO: 'Romania', SE: 'Sweden', SI: 'Slovenia', SK: 'Slovakia', GB: 'United Kingdom',
 };
 
-export function Profile({ settings, onChange, dbOn, version, devTools, onDevTools, onDataDeleted }: Props) {
+export function Profile({ billing, onOpenPlans, account, googleClientId, onGoogleCredential, onSignOut, authError, settings, onChange, dbOn, version, devTools, onDevTools, onDataDeleted }: Props) {
   const preset = FEE_PRESETS[settings.preset];
 
   async function exportData() {
@@ -41,6 +49,39 @@ export function Profile({ settings, onChange, dbOn, version, devTools, onDevTool
   return (
     <div className="screen">
       <h1 className="screen-title">Profile</h1>
+
+      {dbOn && (
+        <section className="card account">
+          {account ? (
+            <div className="account-row">
+              {account.picture ? <img src={account.picture} alt="" width={48} height={48} referrerPolicy="no-referrer" /> : <span className="avatar">{(account.name ?? account.email ?? '?').slice(0, 1)}</span>}
+              <span className="account-main">
+                <strong>{account.name ?? account.email}</strong>
+                <span className="muted small">{account.email}</span>
+              </span>
+              <button type="button" className="ghost" onClick={onSignOut}>Sign out</button>
+            </div>
+          ) : (
+            <>
+              <h2>Sign in</h2>
+              <p className="muted small">Keep your scans and settings across devices. Your current scans move into your account.</p>
+              {googleClientId ? <GoogleButton clientId={googleClientId} onCredential={onGoogleCredential} /> : <p className="muted small">Sign-in is not configured on the server.</p>}
+            </>
+          )}
+          {authError && <div className="banner bad">{authError}</div>}
+        </section>
+      )}
+
+      {billing && (
+        <section className="card">
+          <div className="card-head">
+            <h2>Plan</h2>
+            <span className="pill soft">{billing.plans.find((p) => p.id === billing.quota.plan)?.name}</span>
+          </div>
+          <p className="muted small">{billing.quota.used} of {billing.quota.limit} checks used this month.</p>
+          <button type="button" className="ghost wide" onClick={onOpenPlans}>{billing.quota.plan === 'free' ? 'See plans' : 'Manage plan'}</button>
+        </section>
+      )}
 
       <section className="card">
         <h2>Selling</h2>

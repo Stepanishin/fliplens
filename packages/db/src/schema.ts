@@ -8,13 +8,32 @@ import { boolean, index, integer, jsonb, pgTable, real, text, timestamp, uuid } 
 
 const createdAt = () => timestamp('created_at', { withTimezone: true }).notNull().defaultNow();
 
-/** No accounts yet: one row per installation (random device key from the app). Replaced by real auth later. */
+/** An account. Anonymous until the user signs in with Google; then the Google identity is attached. */
 export const users = pgTable('users', {
   id: uuid('id').primaryKey().defaultRandom(),
-  deviceKey: text('device_key').notNull().unique(),
+  googleSub: text('google_sub').unique(),
+  email: text('email'),
+  name: text('name'),
+  picture: text('picture'),
+  stripeCustomerId: text('stripe_customer_id').unique(),
   createdAt: createdAt(),
   lastSeenAt: timestamp('last_seen_at', { withTimezone: true }).notNull().defaultNow(),
 });
+
+/**
+ * Installations of the app. The random device key (x-device-id) is the credential of that installation;
+ * several devices can point at one signed-in account. Signing out deletes the row.
+ */
+export const userDevices = pgTable(
+  'user_devices',
+  {
+    deviceKey: text('device_key').primaryKey(),
+    userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+    createdAt: createdAt(),
+    lastSeenAt: timestamp('last_seen_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index('user_devices_user_idx').on(t.userId)],
+);
 
 export const productIdentifications = pgTable(
   'product_identifications',
@@ -106,6 +125,18 @@ export const valuations = pgTable(
   },
   (t) => [index('valuations_scan_idx').on(t.scanId)],
 );
+
+/** Current subscription per user, mirrored from Stripe webhooks (Stripe is the source of truth). */
+export const subscriptions = pgTable('subscriptions', {
+  userId: uuid('user_id').primaryKey().references(() => users.id, { onDelete: 'cascade' }),
+  stripeSubscriptionId: text('stripe_subscription_id').notNull().unique(),
+  plan: text('plan').$type<'pro' | 'reseller'>().notNull(),
+  /** Stripe status: active, trialing, past_due, canceled, unpaid, incomplete, ... */
+  status: text('status').notNull(),
+  currentPeriodEnd: timestamp('current_period_end', { withTimezone: true }),
+  cancelAtPeriodEnd: boolean('cancel_at_period_end').notNull().default(false),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+});
 
 /** Profile screen: per-user defaults used for valuations. */
 export const userSettings = pgTable('user_settings', {

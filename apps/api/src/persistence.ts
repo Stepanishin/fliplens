@@ -9,6 +9,9 @@ import {
   exportUserData,
   getScan,
   getSettings,
+  getUser,
+  linkGoogle,
+  unlinkDevice,
   recordEvents,
   saveSettings,
   listScans,
@@ -22,6 +25,8 @@ import {
 import { money, type FxRateTable, type InsufficientData, type NormalizedProduct, type Valuation } from '@fliplens/core';
 import type { IdentificationResult } from '@fliplens/recognition';
 import type { SearchResult } from '@fliplens/sources';
+import { verifyGoogleIdToken } from './google.js';
+import { createBilling, type BillingConfig, type Quota } from './billing.js';
 
 /**
  * Optional persistence: with DATABASE_URL the API stores scans, valuations, recognition results (+ user corrections)
@@ -61,6 +66,8 @@ export interface Persistence {
     x: { method: 'photo' | 'barcode'; gtin?: string; imageCount: number; result: IdentificationResult; provider: string; model: string },
   ): Promise<string | undefined>;
   recordValuation(req: FastifyRequest, x: ValuationRecord): Promise<string | undefined>;
+  /** Plan usage for the caller; undefined when there is no database (no metering). */
+  quota(req: FastifyRequest): Promise<Quota | undefined>;
 }
 
 const SettingsBody = z.object({
@@ -75,7 +82,7 @@ const SettingsBody = z.object({
 const EVENT_NAMES = [
   'scan_started', 'image_uploaded', 'barcode_scanned', 'product_detected', 'product_corrected',
   'valuation_started', 'valuation_completed', 'valuation_failed', 'comparables_opened', 'item_marked_bought',
-  'subscription_viewed', 'subscription_started', 'inventory_added', 'item_sold', 'market_link_opened',
+  'subscription_viewed', 'subscription_started', 'inventory_added', 'item_sold', 'market_link_opened', 'signed_in',
 ] as const;
 const EventsBody = z.object({
   events: z
@@ -89,7 +96,12 @@ const EventsBody = z.object({
     .max(50),
 });
 
-export async function initPersistence(url: string | undefined, log: FastifyBaseLogger): Promise<Persistence> {
+export interface AuthConfig {
+  googleClientId?: string | undefined;
+  billing?: BillingConfig;
+}
+
+export async function initPersistence(url: string | undefined, log: FastifyBaseLogger, auth: AuthConfig = {}): Promise<Persistence> {
   if (!url) {
     log.warn({ event: 'db_disabled' }, 'DATABASE_URL not set: scans are not stored');
     return disabled('disabled');
@@ -98,7 +110,7 @@ export async function initPersistence(url: string | undefined, log: FastifyBaseL
     const { db } = connect(url);
     await runMigrations(db);
     log.info({ event: 'db_connected' }, 'database connected, migrations applied');
-    return enabled(db, log);
+    return enabled(db, log, auth);
   } catch (e) {
     log.error({ event: 'db_error', err: e instanceof Error ? e.message : String(e) }, 'database unavailable: scans are not stored');
     return disabled('error');
@@ -121,13 +133,20 @@ function disabled(status: DbStatus): Persistence {
       app.get('/api/me/export', unavailable);
       app.delete('/api/me', unavailable);
       app.get('/api/stats/costs', unavailable);
+      app.get('/api/me', async () => ({ account: null, authAvailable: false }));
+      app.post('/api/auth/google', unavailable);
+      app.post('/api/auth/logout', unavailable);
+      app.get('/api/billing', unavailable);
+      app.post('/api/billing/checkout', unavailable);
+      app.post('/api/billing/portal', unavailable);
     },
     recordIdentification: async () => undefined,
     recordValuation: async () => undefined,
+    quota: async () => undefined,
   };
 }
 
-function enabled(db: Db, log: FastifyBaseLogger): Persistence {
+function enabled(db: Db, log: FastifyBaseLogger, auth: AuthConfig): Persistence {
   const userCache = new Map<string, string>();
 
   async function userId(req: FastifyRequest): Promise<string | undefined> {
@@ -155,10 +174,58 @@ function enabled(db: Db, log: FastifyBaseLogger): Persistence {
     return id;
   };
 
+  const billing = auth.billing ? createBilling(db, auth.billing, log) : undefined;
+
   return {
     status: 'connected',
 
+    async quota(req) {
+      if (!billing) return undefined;
+      const uid = await userId(req);
+      return uid ? billing.quota(uid) : undefined;
+    },
+
     registerRoutes(app) {
+      billing?.registerRoutes(app, { requireUser });
+
+      // ---------- account ----------
+      app.get('/api/me', async (req, reply) => {
+        const uid = await requireUser(req, reply);
+        if (!uid) return;
+        const u = await getUser(db, uid);
+        return {
+          authAvailable: Boolean(auth.googleClientId),
+          account: u?.googleSub ? { email: u.email, name: u.name, picture: u.picture } : null,
+        };
+      });
+
+      app.post('/api/auth/google', async (req, reply) => {
+        const key = req.headers[DEVICE_HEADER];
+        if (typeof key !== 'string' || !DEVICE_KEY.test(key)) return reply.code(400).send({ error: 'device_id_required' });
+        if (!auth.googleClientId) return reply.code(409).send({ error: 'auth_not_configured', message: 'GOOGLE_CLIENT_ID is not set' });
+        const body = z.object({ credential: z.string().min(20).max(5000) }).safeParse(req.body);
+        if (!body.success) return reply.code(400).send({ error: 'invalid_request' });
+        let profile;
+        try {
+          profile = await verifyGoogleIdToken(body.data.credential, auth.googleClientId);
+        } catch (e) {
+          req.log.warn({ event: 'google_login_rejected', err: e instanceof Error ? e.message : String(e) }, 'google login rejected');
+          return reply.code(401).send({ error: 'invalid_google_token', message: 'Google sign-in could not be verified. Try again.' });
+        }
+        const u = await linkGoogle(db, key, profile);
+        userCache.delete(key);
+        req.log.info({ event: 'user_signed_in', provider: 'google' }, 'signed in');
+        return { account: { email: u.email, name: u.name, picture: u.picture } };
+      });
+
+      app.post('/api/auth/logout', async (req, reply) => {
+        const key = req.headers[DEVICE_HEADER];
+        if (typeof key !== 'string' || !DEVICE_KEY.test(key)) return reply.code(400).send({ error: 'device_id_required' });
+        await unlinkDevice(db, key);
+        userCache.delete(key);
+        return { signedOut: true };
+      });
+
       app.get('/api/scans', async (req, reply) => {
         const uid = await requireUser(req, reply);
         if (!uid) return;

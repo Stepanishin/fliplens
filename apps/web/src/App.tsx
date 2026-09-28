@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { FEE_PRESETS, type FeePresetId } from '@fliplens/core';
-import { api, ApiError, type Health, type ServerScan, type ValuationResponse } from './api.js';
+import { api, ApiError, type Account, type BillingInfo, type Health, type ServerScan, type ValuationResponse } from './api.js';
+import { Plans } from './screens/Plans.js';
+import { signOutGoogle } from './ui/GoogleButton.js';
 import { BarcodeScanner } from './BarcodeScanner.js';
 import { BenchmarkAdd } from './BenchmarkAdd.js';
 import {
@@ -13,7 +15,7 @@ import {
   type Identification,
   type ProductDraft,
 } from './flow.js';
-import { loadSettings, saveSettings, type Settings } from './storage.js';
+import { loadSettings, resetDeviceId, saveSettings, type Settings } from './storage.js';
 import { track } from './track.js';
 import { IconBack, IconClock, IconScan, IconUser } from './ui/icons.js';
 import { Confirm } from './screens/Confirm.js';
@@ -30,9 +32,10 @@ type Route =
   | { name: 'result' }
   | { name: 'history' }
   | { name: 'scan'; scan: ServerScan }
-  | { name: 'profile' };
+  | { name: 'profile' }
+  | { name: 'plans' };
 
-const TITLES: Partial<Record<Route['name'], string>> = { confirm: 'Identify', price: 'Price', result: 'Verdict', scan: 'Saved scan', profile: 'Profile' };
+const TITLES: Partial<Record<Route['name'], string>> = { confirm: 'Identify', price: 'Price', result: 'Verdict', scan: 'Saved scan', profile: 'Profile', plans: 'Plans' };
 const DEV_KEY = 'fliplens.devtools.v1';
 const AUTO_PICK_CONFIDENCE = 0.6;
 
@@ -55,6 +58,10 @@ export function App() {
       return false;
     }
   });
+  const [account, setAccount] = useState<Account | null>(null);
+  const [authError, setAuthError] = useState<string | null>(null);
+  const [billing, setBilling] = useState<BillingInfo | null>(null);
+  const [plansNotice, setPlansNotice] = useState<string | null>(null);
   const dbOn = health?.db === 'connected';
   const correctedOnce = useRef(false);
 
@@ -84,8 +91,12 @@ export function App() {
   const refreshScans = useCallback(() => {
     api.scans().then(setScans, () => setScans(null));
   }, []);
-  useEffect(() => {
-    if (!dbOn) return;
+  const refreshBilling = useCallback(() => {
+    api.billing().then(setBilling, () => setBilling(null));
+  }, []);
+  const loadAccountState = useCallback(() => {
+    api.me().then((m) => setAccount(m.account), () => setAccount(null));
+    refreshBilling();
     refreshScans();
     api.settings().then(
       (s) => {
@@ -102,7 +113,55 @@ export function App() {
       },
       () => undefined,
     );
-  }, [dbOn, refreshScans]);
+  }, [refreshScans, refreshBilling]);
+  useEffect(() => {
+    if (dbOn) loadAccountState();
+  }, [dbOn, loadAccountState]);
+
+  // Back from Stripe Checkout: the webhook may land a moment later, so poll billing briefly.
+  useEffect(() => {
+    const status = new URLSearchParams(window.location.search).get('billing');
+    if (!status) return;
+    window.history.replaceState(null, '', window.location.pathname);
+    if (status === 'success') {
+      setPlansNotice('Thanks! Your subscription is being activated.');
+      track('subscription_started', { step: 'returned' });
+      let n = 0;
+      const t = window.setInterval(() => {
+        refreshBilling();
+        if (++n >= 5) window.clearInterval(t);
+      }, 1500);
+    } else setPlansNotice('Checkout cancelled. Nothing was charged.');
+    go({ name: 'plans' });
+  }, [go, refreshBilling]);
+
+  function openPlans(notice: string | null = null) {
+    setPlansNotice(notice);
+    track('subscription_viewed', { plan: billing?.quota.plan ?? null });
+    refreshBilling();
+    go({ name: 'plans' });
+  }
+
+  async function signIn(credential: string) {
+    setAuthError(null);
+    try {
+      const r = await api.googleLogin(credential);
+      setAccount(r.account);
+      track('signed_in', { provider: 'google' });
+      loadAccountState();
+    } catch (e) {
+      setAuthError(e instanceof ApiError ? e.message : 'Sign-in failed');
+    }
+  }
+
+  async function signOut() {
+    await api.logout().catch(() => undefined);
+    signOutGoogle();
+    resetDeviceId();
+    setAccount(null);
+    setScans([]);
+    loadAccountState();
+  }
 
   const saveTimer = useRef<number | undefined>(undefined);
   const setSettings = (s: Settings) => {
@@ -213,8 +272,14 @@ export function App() {
           : { reason: r.result.reason }),
       });
       if (r.scanId) refreshScans();
+      refreshBilling();
       go({ name: 'result' });
     } catch (e) {
+      if (e instanceof ApiError && e.code === 'quota_exceeded') {
+        track('valuation_failed', { reason: 'quota' });
+        openPlans(e.message);
+        return;
+      }
       track('valuation_failed', { reason: 'error' });
       setFlowError(e instanceof ApiError ? e.message : 'Valuation failed.');
     } finally {
@@ -232,7 +297,7 @@ export function App() {
     .filter((x) => x.trim())
     .join(' ');
   const visionOn = health?.vision.configured ?? false;
-  const inFlow = ['confirm', 'price', 'result', 'scan'].includes(route.name) || (route.name === 'profile' && stack.length > 2);
+  const inFlow = ['confirm', 'price', 'result', 'scan', 'plans'].includes(route.name) || (route.name === 'profile' && stack.length > 2);
   const activeTab = route.name === 'history' || route.name === 'scan' ? 'history' : route.name === 'profile' ? 'profile' : 'home';
 
   return (
@@ -260,6 +325,8 @@ export function App() {
             onManual={startManual}
             onOpenScan={(s) => go({ name: 'scan', scan: s })}
             onSeeHistory={() => tab({ name: 'history' })}
+            quota={billing?.quota ?? null}
+            onOpenPlans={() => openPlans()}
           />
         )}
         {route.name === 'confirm' && (
@@ -310,6 +377,7 @@ export function App() {
             {devTools && draft.photos.length > 0 && <BenchmarkAdd photos={draft.photos} request={buildRequest(draft, settings)} />}
           </Result>
         )}
+        {route.name === 'plans' && <Plans billing={billing} account={account} notice={plansNotice} onSignIn={() => tab({ name: 'profile' })} />}
         {route.name === 'history' && <History scans={scans} dbOn={dbOn} onOpen={(s) => go({ name: 'scan', scan: s })} />}
         {route.name === 'scan' && (
           <ScanDetail
@@ -330,6 +398,13 @@ export function App() {
         )}
         {route.name === 'profile' && (
           <Profile
+            billing={billing}
+            onOpenPlans={() => openPlans()}
+            account={account}
+            googleClientId={health?.auth.google ?? null}
+            onGoogleCredential={(c) => void signIn(c)}
+            onSignOut={() => void signOut()}
+            authError={authError}
             settings={settings}
             onChange={setSettings}
             dbOn={dbOn}

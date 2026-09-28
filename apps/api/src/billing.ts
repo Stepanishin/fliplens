@@ -1,0 +1,189 @@
+import type { FastifyBaseLogger, FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
+import Stripe from 'stripe';
+import { z } from 'zod';
+import { PLANS, planByLookupKey, type PlanId } from '@fliplens/core';
+import {
+  effectivePlan,
+  getSubscription,
+  getUser,
+  setStripeCustomer,
+  upsertSubscription,
+  userIdByStripeCustomer,
+  valuationsThisMonth,
+  type Db,
+} from '@fliplens/db';
+
+/**
+ * Stripe billing: Checkout for new subscriptions, Customer Portal for changes/cancellation, webhooks as the only
+ * writer of the local subscription mirror. Test keys by default; a live key is refused unless STRIPE_ALLOW_LIVE=1.
+ */
+
+export interface BillingConfig {
+  secretKey?: string | undefined;
+  webhookSecret?: string | undefined;
+  appUrl: string;
+  allowLive: boolean;
+}
+
+export function billingConfigFromEnv(env: NodeJS.ProcessEnv): BillingConfig {
+  return {
+    // Local development uses the test key even if a live key is also present in .env.
+    secretKey: env.STRIPE_SECRET_KEY_TEST || env.STRIPE_SECRET_KEY || undefined,
+    webhookSecret: env.STRIPE_WEBHOOK_SECRET_TEST || env.STRIPE_WEBHOOK_SECRET || undefined,
+    appUrl: env.APP_URL || 'http://localhost:5173',
+    allowLive: env.STRIPE_ALLOW_LIVE === '1',
+  };
+}
+
+export interface Quota {
+  plan: PlanId;
+  used: number;
+  limit: number;
+  remaining: number;
+}
+
+export interface Billing {
+  readonly enabled: boolean;
+  quota(userId: string): Promise<Quota>;
+  registerRoutes(app: FastifyInstance, deps: { requireUser: (req: FastifyRequest, reply: FastifyReply) => Promise<string | undefined> }): void;
+}
+
+export function createBilling(db: Db, cfg: BillingConfig, log: FastifyBaseLogger): Billing {
+  let stripe: Stripe | undefined;
+  if (!cfg.secretKey) log.warn({ event: 'billing_disabled' }, 'no Stripe key: billing disabled');
+  else if (cfg.secretKey.startsWith('sk_live_') && !cfg.allowLive) {
+    log.error({ event: 'billing_disabled' }, 'refusing a LIVE Stripe key without STRIPE_ALLOW_LIVE=1');
+  } else stripe = new Stripe(cfg.secretKey);
+
+  async function quota(userId: string): Promise<Quota> {
+    const plan = effectivePlan(await getSubscription(db, userId));
+    const used = await valuationsThisMonth(db, userId);
+    const limit = PLANS[plan].monthlyValuations;
+    return { plan, used, limit, remaining: Math.max(0, limit - used) };
+  }
+
+  async function syncSubscription(sub: Stripe.Subscription): Promise<void> {
+    const customerId = typeof sub.customer === 'string' ? sub.customer : sub.customer.id;
+    const userId = sub.metadata.userId || (await userIdByStripeCustomer(db, customerId));
+    if (!userId) {
+      log.error({ event: 'billing_unknown_customer', customerId }, 'subscription for unknown customer');
+      return;
+    }
+    const item = sub.items.data[0];
+    const plan = planByLookupKey(item?.price.lookup_key) ?? (sub.metadata.plan as 'pro' | 'reseller' | undefined);
+    if (!plan) {
+      log.error({ event: 'billing_unknown_price', price: item?.price.id }, 'subscription with unknown price');
+      return;
+    }
+    const periodEnd = item?.current_period_end;
+    await upsertSubscription(db, {
+      userId,
+      stripeSubscriptionId: sub.id,
+      plan,
+      status: sub.status,
+      currentPeriodEnd: periodEnd ? new Date(periodEnd * 1000) : null,
+      cancelAtPeriodEnd: sub.cancel_at_period_end,
+    });
+    log.info({ event: 'subscription_synced', plan, status: sub.status }, 'subscription synced');
+  }
+
+  return {
+    enabled: stripe !== undefined,
+    quota,
+
+    registerRoutes(app, { requireUser }) {
+      app.get('/api/billing', async (req, reply) => {
+        const uid = await requireUser(req, reply);
+        if (!uid) return;
+        const sub = await getSubscription(db, uid);
+        return {
+          enabled: stripe !== undefined,
+          quota: await quota(uid),
+          subscription: sub && {
+            plan: sub.plan,
+            status: sub.status,
+            currentPeriodEnd: sub.currentPeriodEnd?.toISOString() ?? null,
+            cancelAtPeriodEnd: sub.cancelAtPeriodEnd,
+          },
+          plans: Object.values(PLANS).map((p) => ({ id: p.id, name: p.name, priceMonthlyMinor: p.priceMonthlyMinor, monthlyValuations: p.monthlyValuations, features: p.features })),
+        };
+      });
+
+      app.post('/api/billing/checkout', async (req, reply) => {
+        const uid = await requireUser(req, reply);
+        if (!uid) return;
+        if (!stripe) return reply.code(503).send({ error: 'billing_disabled', message: 'Payments are not configured' });
+        const body = z.object({ plan: z.enum(['pro', 'reseller']) }).safeParse(req.body);
+        if (!body.success) return reply.code(400).send({ error: 'invalid_plan' });
+        const user = await getUser(db, uid);
+        if (!user?.googleSub) return reply.code(401).send({ error: 'sign_in_required', message: 'Sign in with Google to subscribe' });
+
+        const lookupKey = PLANS[body.data.plan].stripeLookupKey!;
+        const prices = await stripe.prices.list({ lookup_keys: [lookupKey], active: true, limit: 1 });
+        const price = prices.data[0];
+        if (!price) return reply.code(500).send({ error: 'price_missing', message: `Run the Stripe setup script (missing ${lookupKey})` });
+
+        let customerId = user.stripeCustomerId;
+        if (!customerId) {
+          const c = await stripe.customers.create({ ...(user.email && { email: user.email }), ...(user.name && { name: user.name }), metadata: { userId: uid } });
+          customerId = c.id;
+          await setStripeCustomer(db, uid, customerId);
+        }
+        const session = await stripe.checkout.sessions.create({
+          mode: 'subscription',
+          customer: customerId,
+          client_reference_id: uid,
+          line_items: [{ price: price.id, quantity: 1 }],
+          subscription_data: { metadata: { userId: uid, plan: body.data.plan } },
+          allow_promotion_codes: true,
+          success_url: `${cfg.appUrl}/?billing=success`,
+          cancel_url: `${cfg.appUrl}/?billing=cancel`,
+        });
+        req.log.info({ event: 'checkout_started', plan: body.data.plan }, 'checkout started');
+        return { url: session.url };
+      });
+
+      app.post('/api/billing/portal', async (req, reply) => {
+        const uid = await requireUser(req, reply);
+        if (!uid) return;
+        if (!stripe) return reply.code(503).send({ error: 'billing_disabled' });
+        const user = await getUser(db, uid);
+        if (!user?.stripeCustomerId) return reply.code(400).send({ error: 'no_customer', message: 'No subscription yet' });
+        const session = await stripe.billingPortal.sessions.create({ customer: user.stripeCustomerId, return_url: `${cfg.appUrl}/` });
+        return { url: session.url };
+      });
+
+      // Webhook needs the raw body for signature verification: own JSON parser in an encapsulated scope.
+      void app.register(async (scope) => {
+        scope.removeContentTypeParser('application/json');
+        scope.addContentTypeParser('application/json', { parseAs: 'buffer' }, (_req, body, done) => done(null, body));
+        scope.post('/api/stripe/webhook', async (req, reply) => {
+          if (!stripe || !cfg.webhookSecret) return reply.code(503).send({ error: 'webhook_not_configured' });
+          const sig = req.headers['stripe-signature'];
+          let event: Stripe.Event;
+          try {
+            event = stripe.webhooks.constructEvent(req.body as Buffer, typeof sig === 'string' ? sig : '', cfg.webhookSecret);
+          } catch (e) {
+            req.log.warn({ event: 'stripe_webhook_rejected', err: e instanceof Error ? e.message : String(e) }, 'bad webhook signature');
+            return reply.code(400).send({ error: 'bad_signature' });
+          }
+          switch (event.type) {
+            case 'checkout.session.completed': {
+              const s = event.data.object;
+              if (typeof s.subscription === 'string') await syncSubscription(await stripe.subscriptions.retrieve(s.subscription));
+              break;
+            }
+            case 'customer.subscription.created':
+            case 'customer.subscription.updated':
+            case 'customer.subscription.deleted':
+              await syncSubscription(event.data.object);
+              break;
+            default:
+              break;
+          }
+          return { received: true };
+        });
+      });
+    },
+  };
+}

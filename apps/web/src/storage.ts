@@ -57,6 +57,16 @@ export function deviceId(): string {
   return id;
 }
 
+/** After sign-out the device starts over as a new anonymous installation. */
+export function resetDeviceId(): void {
+  memoryDeviceId = randomId();
+  try {
+    localStorage.setItem(DEVICE_KEY, memoryDeviceId);
+  } catch {
+    // ignore
+  }
+}
+
 function randomId(): string {
   // crypto.randomUUID needs a secure context; getRandomValues works on plain http (LAN testing) too.
   const b = crypto.getRandomValues(new Uint8Array(16));

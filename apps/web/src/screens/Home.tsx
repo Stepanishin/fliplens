@@ -1,5 +1,5 @@
 import { useRef, useState, type ChangeEvent } from 'react';
-import type { ServerScan } from '../api.js';
+import type { BillingInfo, ServerScan } from '../api.js';
 import { ago, DECISION_LABEL } from '../format.js';
 import { resizeToJpegDataUrl } from '../image.js';
 import { IconBarcode, IconCamera, IconChevron, IconEdit, IconImage } from '../ui/icons.js';
@@ -12,9 +12,11 @@ interface Props {
   onManual: () => void;
   onOpenScan: (s: ServerScan) => void;
   onSeeHistory: () => void;
+  quota: BillingInfo['quota'] | null;
+  onOpenPlans: () => void;
 }
 
-export function Home({ visionEnabled, recent, onPhotos, onBarcode, onManual, onOpenScan, onSeeHistory }: Props) {
+export function Home({ visionEnabled, recent, onPhotos, onBarcode, onManual, onOpenScan, onSeeHistory, quota, onOpenPlans }: Props) {
   const cameraRef = useRef<HTMLInputElement>(null);
   const galleryRef = useRef<HTMLInputElement>(null);
   const [error, setError] = useState<string | null>(null);
@@ -60,6 +62,12 @@ export function Home({ visionEnabled, recent, onPhotos, onBarcode, onManual, onO
           <span>Type model</span>
         </button>
       </div>
+      {quota && quota.plan === 'free' && (
+        <button type="button" className="usage-chip" onClick={onOpenPlans}>
+          <span><strong>{quota.remaining}</strong> of {quota.limit} free checks left this month</span>
+          <span className="link">Upgrade</span>
+        </button>
+      )}
       {!visionEnabled && <p className="muted small center">Photo and barcode recognition are off on the server.</p>}
       {error && <div className="banner bad">{error}</div>}
 

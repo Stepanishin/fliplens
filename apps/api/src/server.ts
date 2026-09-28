@@ -16,6 +16,7 @@ import { EbayAdapter, EcbFxService } from '@fliplens/sources';
 import { OpenAIVisionProvider, RecognitionError, gtinSearchVariants, normalizeGtin } from '@fliplens/recognition';
 import { registerBenchmarkRoutes } from './benchmark.js';
 import { initPersistence, type Persistence } from './persistence.js';
+import { billingConfigFromEnv } from './billing.js';
 
 // Up to 3 photos resized to ~1MP on the client: a few MB of base64 at most.
 const app = Fastify({ logger: { level: process.env.LOG_LEVEL ?? 'info' }, bodyLimit: 15 * 1024 * 1024 });
@@ -37,7 +38,10 @@ const titleIdentifier = new OpenAIVisionProvider({
 });
 
 registerBenchmarkRoutes(app);
-const store: Persistence = await initPersistence(process.env.DATABASE_URL, app.log);
+const store: Persistence = await initPersistence(process.env.DATABASE_URL, app.log, {
+  googleClientId: process.env.GOOGLE_CLIENT_ID,
+  billing: billingConfigFromEnv(process.env),
+});
 store.registerRoutes(app);
 
 const presetIds = Object.keys(FEE_PRESETS) as [FeePresetId, ...FeePresetId[]];
@@ -74,6 +78,7 @@ app.get('/api/health', async () => ({
   sources: { ebay: ebay.isConfigured() },
   vision: { configured: vision.isConfigured(), provider: vision.id },
   db: store.status,
+  auth: { google: process.env.GOOGLE_CLIENT_ID ?? null },
 }));
 
 const MAX_IMAGE_CHARS = 5 * 1024 * 1024;
@@ -176,6 +181,11 @@ app.post('/api/valuation', async (req, reply) => {
   const product: NormalizedProduct = stripUndefined(b.product);
   if (!ebay.isConfigured()) {
     return reply.code(409).send({ error: 'source_not_configured', message: 'eBay keys are not configured on the server (.env)' });
+  }
+  const quota = await store.quota(req);
+  if (quota && quota.remaining <= 0) {
+    req.log.info({ event: 'quota_exceeded', plan: quota.plan }, 'quota exceeded');
+    return reply.code(402).send({ error: 'quota_exceeded', message: `You used all ${quota.limit} checks of your ${quota.plan} plan this month.`, quota });
   }
 
   const [search, rates] = await Promise.all([ebay.searchProduct(product, { requestId: req.id }), fx.latest()]);

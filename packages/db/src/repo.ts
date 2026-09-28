@@ -1,6 +1,6 @@
 import { and, desc, eq, gte, sql } from 'drizzle-orm';
 import type { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
-import { events, productIdentifications, scans, usageCosts, userSettings, users, valuations } from './schema.js';
+import { events, productIdentifications, scans, subscriptions, usageCosts, userDevices, userSettings, users, valuations } from './schema.js';
 import type * as schema from './schema.js';
 
 type Db = PostgresJsDatabase<typeof schema>;
@@ -10,13 +10,66 @@ export type NewScan = Omit<typeof scans.$inferInsert, 'id' | 'userId' | 'created
 export type ScanRow = typeof scans.$inferSelect;
 export type ValuationRow = typeof valuations.$inferSelect;
 
+/** Resolves an installation to its user, creating an anonymous user on first contact. */
 export async function touchUser(db: Db, deviceKey: string): Promise<string> {
-  const [row] = await db
-    .insert(users)
-    .values({ deviceKey })
-    .onConflictDoUpdate({ target: users.deviceKey, set: { lastSeenAt: sql`now()` } })
-    .returning({ id: users.id });
-  return row!.id;
+  const [dev] = await db
+    .update(userDevices)
+    .set({ lastSeenAt: sql`now()` })
+    .where(eq(userDevices.deviceKey, deviceKey))
+    .returning({ userId: userDevices.userId });
+  if (dev) return dev.userId;
+  return db.transaction(async (tx) => {
+    const [u] = await tx.insert(users).values({}).returning({ id: users.id });
+    await tx.insert(userDevices).values({ deviceKey, userId: u!.id }).onConflictDoNothing();
+    const [again] = await tx.select({ userId: userDevices.userId }).from(userDevices).where(eq(userDevices.deviceKey, deviceKey));
+    return again!.userId;
+  });
+}
+
+export type UserRow = typeof users.$inferSelect;
+
+export async function getUser(db: Db, userId: string): Promise<UserRow | undefined> {
+  const [u] = await db.select().from(users).where(eq(users.id, userId));
+  return u;
+}
+
+export interface GoogleProfile {
+  sub: string;
+  email: string;
+  name?: string;
+  picture?: string;
+}
+
+/**
+ * Signs this device in with Google. If the Google account already exists (signed in on another device),
+ * this device's anonymous data is merged into it; otherwise the anonymous user becomes the account.
+ */
+export async function linkGoogle(db: Db, deviceKey: string, profile: GoogleProfile): Promise<UserRow> {
+  const currentId = await touchUser(db, deviceKey);
+  return db.transaction(async (tx) => {
+    const identity = { email: profile.email, name: profile.name ?? null, picture: profile.picture ?? null, lastSeenAt: sql`now()` };
+    const [existing] = await tx.select().from(users).where(eq(users.googleSub, profile.sub));
+    if (!existing || existing.id === currentId) {
+      const [u] = await tx.update(users).set({ googleSub: profile.sub, ...identity }).where(eq(users.id, currentId)).returning();
+      return u!;
+    }
+    const target = existing.id;
+    await tx.update(userDevices).set({ userId: target }).where(eq(userDevices.userId, currentId));
+    await tx.update(scans).set({ userId: target }).where(eq(scans.userId, currentId));
+    await tx.update(productIdentifications).set({ userId: target }).where(eq(productIdentifications.userId, currentId));
+    await tx.update(usageCosts).set({ userId: target }).where(eq(usageCosts.userId, currentId));
+    await tx.update(events).set({ userId: target }).where(eq(events.userId, currentId));
+    const [targetSettings] = await tx.select({ userId: userSettings.userId }).from(userSettings).where(eq(userSettings.userId, target));
+    if (!targetSettings) await tx.update(userSettings).set({ userId: target }).where(eq(userSettings.userId, currentId));
+    await tx.delete(users).where(eq(users.id, currentId));
+    const [u] = await tx.update(users).set(identity).where(eq(users.id, target)).returning();
+    return u!;
+  });
+}
+
+/** Sign out this installation. Its data stays with the account. */
+export async function unlinkDevice(db: Db, deviceKey: string): Promise<void> {
+  await db.delete(userDevices).where(eq(userDevices.deviceKey, deviceKey));
 }
 
 export interface UsageInput {
@@ -219,6 +272,7 @@ export async function exportUserData(db: Db, userId: string): Promise<unknown> {
   const [user] = await db.select().from(users).where(eq(users.id, userId));
   return {
     user,
+    devices: await db.select({ createdAt: userDevices.createdAt, lastSeenAt: userDevices.lastSeenAt }).from(userDevices).where(eq(userDevices.userId, userId)),
     scans: await listScans(db, userId, 10_000),
     identifications: await db.select().from(productIdentifications).where(eq(productIdentifications.userId, userId)),
     settings: await getSettings(db, userId),
@@ -267,4 +321,46 @@ export async function costSummary(db: Db, days = 30): Promise<CostSummary> {
     identifications: ids?.n ?? 0,
     correctionRate: ids && ids.used > 0 ? ids.corrected / ids.used : null,
   };
+}
+
+// ---------- billing ----------
+
+export type SubscriptionRow = typeof subscriptions.$inferSelect;
+
+/** Stripe statuses that still grant the paid plan (past_due: grace while Stripe retries the card). */
+const ACTIVE_STATUSES = new Set(['active', 'trialing', 'past_due']);
+
+export async function getSubscription(db: Db, userId: string): Promise<SubscriptionRow | undefined> {
+  const [row] = await db.select().from(subscriptions).where(eq(subscriptions.userId, userId));
+  return row;
+}
+
+export function effectivePlan(sub: SubscriptionRow | undefined): 'free' | 'pro' | 'reseller' {
+  return sub && ACTIVE_STATUSES.has(sub.status) ? sub.plan : 'free';
+}
+
+export async function upsertSubscription(db: Db, s: Omit<typeof subscriptions.$inferInsert, 'updatedAt'>): Promise<void> {
+  const { userId, ...rest } = s;
+  await db
+    .insert(subscriptions)
+    .values(s)
+    .onConflictDoUpdate({ target: subscriptions.userId, set: { ...rest, updatedAt: sql`now()` } });
+}
+
+export async function setStripeCustomer(db: Db, userId: string, customerId: string): Promise<void> {
+  await db.update(users).set({ stripeCustomerId: customerId }).where(eq(users.id, userId));
+}
+
+export async function userIdByStripeCustomer(db: Db, customerId: string): Promise<string | undefined> {
+  const [u] = await db.select({ id: users.id }).from(users).where(eq(users.stripeCustomerId, customerId));
+  return u?.id;
+}
+
+/** Valuations this calendar month (UTC): the unit the plans are metered in. */
+export async function valuationsThisMonth(db: Db, userId: string): Promise<number> {
+  const [row] = await db
+    .select({ n: sql<number>`count(*)::int` })
+    .from(scans)
+    .where(and(eq(scans.userId, userId), gte(scans.createdAt, sql`date_trunc('month', now())`)));
+  return row?.n ?? 0;
 }
