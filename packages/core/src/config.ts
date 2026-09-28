@@ -4,14 +4,18 @@ import type { CategorySlug, Condition } from './types.js';
  * All tunable numbers of the pricing / confidence / decision engine live here, under one version.
  * Any change to these values must bump PRICING_ALGORITHM_VERSION and pass the benchmark (eval/).
  */
-export const PRICING_ALGORITHM_VERSION = 'pricing-0.1.0';
+export const PRICING_ALGORITHM_VERSION = 'pricing-0.1.3';
 
 export interface PricingConfig {
   readonly version: string;
   /** Minimum included comparables to produce a valuation at all. */
   readonly minComparables: number;
-  /** If at least this many comparables share the target condition, use only those. */
+  /** Use only same-condition comparables if there are at least this many of them... */
   readonly minSameCondition: number;
+  /** ...and they make up at least this share of the pool (otherwise adjust neighbours by multipliers). */
+  readonly minSameConditionShare: number;
+  /** Max comparables per seller, so one dealer with 30 units cannot set the price. */
+  readonly maxPerSeller: number;
   /** Comparables more than this many condition steps away are excluded. */
   readonly maxConditionDistance: number;
   /** Relative value of each condition (new = 1). Used to adjust prices across conditions. Starting guesses, calibrate on benchmark. */
@@ -47,6 +51,8 @@ export const DEFAULT_PRICING_CONFIG: PricingConfig = {
   version: PRICING_ALGORITHM_VERSION,
   minComparables: 5,
   minSameCondition: 5,
+  minSameConditionShare: 0.4,
+  maxPerSeller: 3,
   maxConditionDistance: 2,
   conditionMultipliers: {
     new: 1.0,

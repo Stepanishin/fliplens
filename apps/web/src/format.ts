@@ -49,6 +49,7 @@ export const REASON_LABEL: Record<string, string> = {
   suspected_scam: 'Suspected scam',
   stale: 'Too old',
   condition_mismatch: 'Condition too different',
+  seller_cap: 'Same seller (max 3)',
   currency_unknown: 'Unknown currency',
 };
 

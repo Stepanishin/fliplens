@@ -40,13 +40,17 @@ const ACCESSORY_LEAD = new Set([
   'case', 'hulle', 'etui', 'tasche', 'cover', 'bag', 'strap', 'armband', 'charger', 'ladegerat',
   'kabel', 'cable', 'adapter', 'stand', 'halterung', 'housse', 'coque', 'custodia', 'funda',
   'cuscinetti', 'hoesje', 'ladekabel', 'netzteil', 'akku', 'battery', 'batterie',
+  'ohrpolster', 'polster', 'earpads', 'kopfband', 'headband', 'diadema', 'coussinets', 'almohadillas',
 ]);
 
-/** Accessory nouns that make the listing an accessory anywhere in the title. */
+/**
+ * Nouns that make the listing an accessory or spare part anywhere in the title.
+ * Only words that almost never appear in a listing of the complete product: "with new ear pads" or
+ * "with lens cap" are normal extras, so those are matched only as the first word or after "for".
+ */
 const ACCESSORY_ANYWHERE = words([
-  'ear ?pads?', 'ohrpolster', 'polster', 'headband', 'kopfband', 'screen protector', 'schutzfolie',
-  'panzerglas', 'displayschutz', 'skin', 'decal', 'sticker', 'faceplate', 'coussinets',
-  'lens cap', 'objektivdeckel', 'gegenlichtblende', 'lens hood', 'ersatz ?polster',
+  'screen protector', 'schutzfolie', 'panzerglas', 'displayschutz', 'skin', 'decal', 'sticker', 'faceplate',
+  'scharnier', 'hinge', 'replacement part', 'ersatz ?polster', 'ersatzbugel', 'ersatzband',
 ]);
 
 /** "for / fur / pour / per / para / compatible ..." before the model mention means an accessory. */
@@ -69,6 +73,14 @@ const VARIANT_SUFFIXES = new Set([
   'xl', 'ii', 'iii', 'iv', 'mark', 'mk', 'mkii', 'mkiii', 'gen', 'nd', 'rd', 'th', 'edge',
 ]);
 const GENERATION_TOKEN = /^(?:[1-9])(?:st|nd|rd|th)?$/;
+/** A number right after the model followed by one of these is a spec, not a generation ("OLED 7 Zoll", "13 2 Jahre"). */
+const NUMBER_UNIT_AFTER = /^\s*(?:zoll|inch|inches|pollici|pouces|pulgadas|cali|duim|"|''|gb|tb|x\b|%|jahre?|years?|anni|ans|anos|mesi|monate|months?|mois|meses|stuck|pcs)/;
+
+/** Special / limited editions are priced differently from the base model. */
+const EDITION = words([
+  'limited edition', 'special edition', 'collectors? edition', 'edition limitee', 'edizione limitata',
+  'edicion limitada', 'sonderedition', '[a-z]+ edition',
+]);
 
 /** Canon/Sony mounts the matcher understands. Longer ones first so "ef-s" is not read as "ef". */
 const MOUNTS: readonly (readonly [string, RegExp])[] = [
@@ -148,16 +160,24 @@ export function matchTitle(product: NormalizedProduct, title: string): MatchResu
   if (/[0-9]/.test(lastModelChar) && /^[0-9]/.test(after)) {
     return { reason: 'wrong_variant', similarity: 0, detail: 'digit continuation' };
   }
-  if (after.trimStart().startsWith('+')) return { reason: 'wrong_variant', similarity: 0, detail: '+' };
-  const nextToken = after.match(/^[^a-z0-9]*([a-z0-9]+)/)?.[1];
+  // "Galaxy S23+" is a variant; "Switch OLED + 4 Joy-Cons" is just a list of extras.
+  if (after.startsWith('+')) return { reason: 'wrong_variant', similarity: 0, detail: '+' };
+  // After " + " / " & " / "," comes a list of extras, not part of the model name.
+  const nextToken = /^\s*[+&,(/]/.test(after) ? undefined : after.match(/^[^a-z0-9]*([a-z0-9]+)/)?.[1];
   const ownTokens = new Set(
     normalizeText([product.model, product.variant ?? '', product.generation ?? ''].join(' ')).split(/[^a-z0-9]+/),
   );
   if (nextToken !== undefined && !ownTokens.has(nextToken)) {
-    if (VARIANT_SUFFIXES.has(nextToken) || GENERATION_TOKEN.test(nextToken)) {
+    const afterToken = after.slice(after.indexOf(nextToken) + nextToken.length);
+    const isGeneration = GENERATION_TOKEN.test(nextToken) && !NUMBER_UNIT_AFTER.test(afterToken);
+    if (VARIANT_SUFFIXES.has(nextToken) || isGeneration) {
       return { reason: 'wrong_variant', similarity: 0, detail: nextToken };
     }
   }
+
+  const ownText = normalizeText(`${product.model} ${product.variant ?? ''}`);
+  const edition = EDITION.exec(t);
+  if (edition && !ownText.includes(edition[0])) return { reason: 'wrong_variant', similarity: 0, detail: edition[0] };
 
   let similarity = 1;
 

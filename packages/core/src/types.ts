@@ -68,6 +68,7 @@ export const EXCLUSION_REASONS = [
   'suspected_scam',
   'stale',
   'condition_mismatch',
+  'seller_cap',
   'currency_unknown',
 ] as const;
 export type ExclusionReason = (typeof EXCLUSION_REASONS)[number];

@@ -1,5 +1,12 @@
 import { createHash } from 'node:crypto';
-import { isCurrencyCode, money, type Condition, type MarketplaceItem, type NormalizedProduct } from '@fliplens/core';
+import {
+  isCurrencyCode,
+  money,
+  type CategorySlug,
+  type Condition,
+  type MarketplaceItem,
+  type NormalizedProduct,
+} from '@fliplens/core';
 import type { MarketplaceAdapter, SearchOptions, SearchResult, SourceWarning } from './adapter.js';
 
 /**
@@ -37,6 +44,32 @@ const CONDITION_BY_ID: Record<string, Condition> = {
   '7000': 'for_parts',
 };
 const QUERY_CONDITION_IDS = Object.keys(CONDITION_BY_ID).filter((id) => id !== '7000');
+
+/**
+ * eBay leaf category per product category. IDs are shared across the EU sites
+ * (checked 2026-09-28 on DE, FR, IT, ES, NL via Taxonomy API + Browse). Without this, a search for
+ * "PlayStation 5" is mostly games and controllers. Unmapped categories search without a filter.
+ */
+const EBAY_CATEGORY: Partial<Record<CategorySlug, string>> = {
+  headphones: '112529',
+  smartphones: '9355',
+  tablets: '171485',
+  laptops: '177',
+  smartwatches: '178893',
+  streaming: '168058',
+  consoles: '139971',
+  handhelds: '139971',
+  controllers: '117042',
+  games: '139973',
+  camera_bodies: '31388',
+  compact_cameras: '31388',
+  lenses: '3323',
+};
+
+export function ebayCategoryFor(p: NormalizedProduct): string | undefined {
+  if (p.category === 'laptops' && p.brand.trim().toLowerCase() === 'apple') return '111422'; // Apple Notebooks
+  return EBAY_CATEGORY[p.category];
+}
 
 interface EbayMoney {
   value?: string;
@@ -124,6 +157,8 @@ export class EbayAdapter implements MarketplaceAdapter {
     });
     if (product.gtin) params.set('gtin', product.gtin);
     else params.set('q', searchQuery(product));
+    const categoryId = ebayCategoryFor(product);
+    if (categoryId) params.set('category_ids', categoryId);
 
     const res = await this.fetchImpl(`${this.base}/buy/browse/v1/item_summary/search?${params}`, {
       headers: {
@@ -174,7 +209,8 @@ function searchQuery(p: NormalizedProduct): string {
 }
 
 function cacheKey(p: NormalizedProduct): string {
-  return p.gtin ? `gtin:${p.gtin}` : `q:${searchQuery(p).toLowerCase()}`;
+  const base = p.gtin ? `gtin:${p.gtin}` : `q:${searchQuery(p).toLowerCase()}`;
+  return `${base}|cat:${ebayCategoryFor(p) ?? '-'}`;
 }
 
 function toItem(s: EbayItemSummary, site: string, fetchedAt: Date): MarketplaceItem | undefined {

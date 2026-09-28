@@ -179,6 +179,15 @@ export function estimatePrice(input: PriceEstimateInput): PriceEstimate | Insuff
   for (const w of live) if (w.item.priceKind !== dataKind) w.role = 'unused_kind';
   const pool = live.filter((w) => w.role === 'comparable');
 
+  // 5b. Seller cap: keep at most N listings per seller (cheapest first is arbitrary; keep feed order).
+  const perSeller = new Map<string, number>();
+  for (const w of pool) {
+    if (w.item.sellerKey === undefined) continue;
+    const n = (perSeller.get(w.item.sellerKey) ?? 0) + 1;
+    perSeller.set(w.item.sellerKey, n);
+    if (n > cfg.maxPerSeller) exclude(w, 'seller_cap');
+  }
+
   // 6. Condition: same bucket if there is enough, otherwise adjust neighbours by multipliers.
   for (const w of pool) {
     if (w.item.condition === undefined) {
@@ -187,14 +196,20 @@ export function estimatePrice(input: PriceEstimateInput): PriceEstimate | Insuff
     }
   }
   const condOf = (w: Work): Condition => w.item.condition ?? cfg.defaultCondition;
-  const sameCount = pool.filter((w) => w.item.condition === targetCondition).length;
-  const useSameOnly = sameCount >= cfg.minSameCondition;
+  const active = pool.filter((w) => w.reason === undefined);
+  const sameCount = active.filter((w) => w.item.condition === targetCondition).length;
+  const useSameOnly = sameCount >= cfg.minSameCondition && sameCount >= active.length * cfg.minSameConditionShare;
   const targetMult = cfg.conditionMultipliers[targetCondition];
-  for (const w of pool) {
+  for (const w of active) {
     const c = condOf(w);
     const distance = Math.abs(conditionIndex(c) - conditionIndex(targetCondition));
     if (useSameOnly && w.item.condition !== targetCondition) {
       exclude(w, 'condition_mismatch', c);
+      continue;
+    }
+    // New items are mostly shop listings at retail prices: not a resale comparable for a used item.
+    if (c === 'new' && targetCondition !== 'new' && targetCondition !== 'like_new') {
+      exclude(w, 'condition_mismatch', 'new (retail)');
       continue;
     }
     if (distance > cfg.maxConditionDistance) {
