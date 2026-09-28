@@ -9,7 +9,7 @@ const MAX_PHOTOS = 3;
 
 interface Props {
   enabled: boolean;
-  onPick: (candidate: IdentificationCandidate, result: IdentificationResult) => void;
+  onPick: (candidate: IdentificationCandidate, result: IdentificationResult, index: number, method: 'photo' | 'barcode') => void;
   /** Current resized JPEG data URLs (for saving to the benchmark). */
   onPhotosChange?: (photos: string[]) => void;
 }
@@ -69,7 +69,7 @@ export function PhotoScan({ enabled, onPick, onPhotosChange }: Props) {
       setResult(r);
       if (r.candidates.length === 1 && r.candidates[0]!.confidence >= 0.85) {
         setPicked(0);
-        onPick(r.candidates[0]!, r);
+        onPick(r.candidates[0]!, r, 0, 'barcode');
       }
     } catch (err) {
       setError(err instanceof ApiError ? err.message : 'Barcode lookup failed');
@@ -82,7 +82,7 @@ export function PhotoScan({ enabled, onPick, onPhotosChange }: Props) {
     const c = r.candidates[i];
     if (!c) return;
     setPicked(i);
-    onPick(c, r);
+    onPick(c, r, i, (r as { gtin?: string }).gtin ? 'barcode' : 'photo');
   }
 
   function remove(i: number) {

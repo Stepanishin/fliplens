@@ -14,6 +14,7 @@ import {
 import { EbayAdapter, EcbFxService } from '@fliplens/sources';
 import { OpenAIVisionProvider, RecognitionError, gtinSearchVariants, normalizeGtin } from '@fliplens/recognition';
 import { registerBenchmarkRoutes } from './benchmark.js';
+import { initPersistence, type Persistence } from './persistence.js';
 
 // Up to 3 photos resized to ~1MP on the client: a few MB of base64 at most.
 const app = Fastify({ logger: { level: process.env.LOG_LEVEL ?? 'info' }, bodyLimit: 15 * 1024 * 1024 });
@@ -35,6 +36,8 @@ const titleIdentifier = new OpenAIVisionProvider({
 });
 
 registerBenchmarkRoutes(app);
+const store: Persistence = await initPersistence(process.env.DATABASE_URL, app.log);
+store.registerRoutes(app);
 
 const presetIds = Object.keys(FEE_PRESETS) as [FeePresetId, ...FeePresetId[]];
 
@@ -58,6 +61,10 @@ const ValuationBody = z.object({
   /** 1 for manually entered products; the chosen candidate's confidence for photo recognition. */
   identificationConfidence: z.number().min(0).max(1).default(1),
   recognitionModelVersion: z.string().max(200).optional(),
+  inputMethod: z.enum(['photo', 'barcode', 'manual']).default('manual'),
+  identificationId: z.string().uuid().optional(),
+  chosenCandidateIndex: z.number().int().min(0).max(10).optional(),
+  gtin: z.string().regex(/^\d{8,14}$/).optional(),
 });
 
 app.get('/api/health', async () => ({
@@ -65,6 +72,7 @@ app.get('/api/health', async () => ({
   pricingAlgorithmVersion: PRICING_ALGORITHM_VERSION,
   sources: { ebay: ebay.isConfigured() },
   vision: { configured: vision.isConfigured(), provider: vision.id },
+  db: store.status,
 }));
 
 const MAX_IMAGE_CHARS = 5 * 1024 * 1024;
@@ -98,7 +106,14 @@ app.post('/api/identify', async (req, reply) => {
       },
       'identify',
     );
-    return result;
+    const identificationId = await store.recordIdentification(req, {
+      method: 'photo',
+      imageCount: parsed.data.images.length,
+      result,
+      provider: 'openai',
+      model: vision.id.replace('openai:', ''),
+    });
+    return { ...result, identificationId };
   } catch (e) {
     if (e instanceof RecognitionError) {
       req.log.error({ event: 'recognition_failed', kind: e.kind }, e.message);
@@ -130,7 +145,15 @@ app.post('/api/identify/barcode', async (req, reply) => {
       { event: 'barcode_scanned', gtin, titles: found.titles.length, top: result.candidates[0] ? `${result.candidates[0].brand} ${result.candidates[0].model}` : null, costUsd: result.costUsd ?? null },
       'barcode',
     );
-    return { ...result, gtin, listingCount: found.titles.length, sites: found.sites };
+    const identificationId = await store.recordIdentification(req, {
+      method: 'barcode',
+      gtin,
+      imageCount: 0,
+      result,
+      provider: 'openai',
+      model: titleIdentifier.id.replace('openai:', ''),
+    });
+    return { ...result, gtin, listingCount: found.titles.length, sites: found.sites, identificationId };
   } catch (e) {
     if (e instanceof RecognitionError) {
       req.log.error({ event: 'recognition_failed', kind: e.kind }, e.message);
@@ -193,7 +216,17 @@ app.post('/api/valuation', async (req, reply) => {
     'valuation',
   );
 
+  const scanId = await store.recordValuation(req, {
+    body: b,
+    product,
+    result,
+    search,
+    fx: rates,
+    feeProfileId: FEE_PRESETS[b.preset].id,
+  });
+
   return {
+    scanId,
     source: 'ebay',
     dataFetchedAt: search.oldestFetchedAt?.toISOString() ?? null,
     sourceWarnings: search.warnings,

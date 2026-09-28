@@ -233,3 +233,8 @@ code { font-size: 13px; }
 .scanner-panel { background: var(--card); padding: 14px 16px calc(14px + env(safe-area-inset-bottom)); }
 .scanner-panel p { margin: 0 0 10px; }
 .scanner-manual { display: grid; grid-template-columns: 1fr auto; gap: 8px; }
+
+.history-row { display: flex; align-items: center; gap: 6px; }
+.history-row .row { flex: 1; min-width: 0; }
+.icon-btn { flex: 0 0 auto; width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--line); background: transparent; color: var(--muted); font-size: 18px; line-height: 1; }
+.ghost.danger { color: var(--skip); border-color: color-mix(in srgb, var(--skip) 40%, var(--line)); }

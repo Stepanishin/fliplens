@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState, type FormEvent } from 'react';
 import { CATEGORIES, CONDITIONS, FEE_PRESETS, type CategorySlug, type Condition, type FeePresetId } from '@fliplens/core';
-import { api, ApiError, type ComparableJson, type Health, type ValuationRequest, type ValuationResponse } from './api.js';
+import { api, ApiError, type ComparableJson, type Health, type ServerScan, type ValuationRequest, type ValuationResponse } from './api.js';
 import { ago, CONDITION_LABEL, DECISION_LABEL, FACTOR_LABEL, fmt, REASON_LABEL } from './format.js';
 import { loadHistory, loadSettings, saveHistory, saveSettings, type HistoryEntry } from './storage.js';
 import { PhotoScan } from './PhotoScan.js';
@@ -43,10 +43,29 @@ export function App() {
   const [error, setError] = useState<string | null>(null);
   const [resp, setResp] = useState<ValuationResponse | null>(null);
   const [showSettings, setShowSettings] = useState(false);
-  /** Set while the form holds an AI-recognised product; cleared as soon as the user edits brand/model. */
   const [photos, setPhotos] = useState<string[]>([]);
   const onPhotosChange = useCallback((p: string[]) => setPhotos(p), []);
-  const [recognition, setRecognition] = useState<{ confidence: number; modelVersion: string } | null>(null);
+  /**
+   * Set while the form holds an AI-recognised product. Editing the identity keeps the link (so the server can log
+   * the correction) but marks it edited: the user has then confirmed the product themselves.
+   */
+  const [recognition, setRecognition] = useState<{
+    confidence: number;
+    modelVersion: string;
+    method: 'photo' | 'barcode';
+    chosenIndex: number;
+    identificationId?: string;
+    gtin?: string;
+    edited: boolean;
+  } | null>(null);
+  const [serverScans, setServerScans] = useState<ServerScan[] | null>(null);
+  const dbOn = health?.db === 'connected';
+  const refreshScans = useCallback(() => {
+    api.scans().then(setServerScans, () => setServerScans(null));
+  }, []);
+  useEffect(() => {
+    if (dbOn) refreshScans();
+  }, [dbOn, refreshScans]);
 
   useEffect(() => {
     api.health().then(setHealth, () => setHealth(null));
@@ -56,11 +75,16 @@ export function App() {
 
   const set = <K extends keyof FormState>(k: K, v: FormState[K]) => {
     // A manual edit of the identity means the user has corrected / confirmed it themselves.
-    if (k === 'brand' || k === 'model' || k === 'capacity' || k === 'mount' || k === 'category') setRecognition(null);
+    if (k === 'brand' || k === 'model' || k === 'capacity' || k === 'mount' || k === 'category') setRecognition((r) => r && { ...r, edited: true });
     setForm((f) => ({ ...f, [k]: v }));
   };
 
-  function onPickCandidate(c: IdentificationCandidate, r: { confusableModels: readonly string[]; conditionGuess?: Condition; modelVersion: string }) {
+  function onPickCandidate(
+    c: IdentificationCandidate,
+    r: { confusableModels: readonly string[]; conditionGuess?: Condition; modelVersion: string; identificationId?: string; gtin?: string },
+    index: number,
+    method: 'photo' | 'barcode',
+  ) {
     setForm((f) => ({
       ...f,
       category: c.category,
@@ -71,7 +95,15 @@ export function App() {
       excludeModels: r.confusableModels.join(', '),
       condition: r.conditionGuess ?? f.condition,
     }));
-    setRecognition({ confidence: c.confidence, modelVersion: r.modelVersion });
+    setRecognition({
+      confidence: c.confidence,
+      modelVersion: r.modelVersion,
+      method,
+      chosenIndex: index,
+      edited: false,
+      ...(r.identificationId && { identificationId: r.identificationId }),
+      ...(r.gtin && { gtin: r.gtin }),
+    });
   }
 
   function buildRequest(f: FormState): ValuationRequest {
@@ -91,7 +123,14 @@ export function App() {
       preset: settings.preset,
       shippingCost: settings.shippingCost,
       targetRoiPct: settings.targetRoiPct,
-      ...(recognition && { identificationConfidence: recognition.confidence, recognitionModelVersion: recognition.modelVersion }),
+      inputMethod: recognition?.method ?? 'manual',
+      ...(recognition && {
+        identificationConfidence: recognition.edited ? 1 : recognition.confidence,
+        recognitionModelVersion: recognition.modelVersion,
+        chosenCandidateIndex: recognition.chosenIndex,
+        ...(recognition.identificationId && { identificationId: recognition.identificationId }),
+        ...(recognition.gtin && { gtin: recognition.gtin }),
+      }),
     };
   }
 
@@ -109,11 +148,13 @@ export function App() {
             ? { decision: r.result.decision.decision, expected: r.result.estimate.expected, profit: r.result.profit.expected.profit }
             : { decision: 'insufficient' },
       };
-      setHistory((h) => {
-        const next = [entry, ...h].slice(0, 30);
-        saveHistory(next);
-        return next;
-      });
+      if (r.scanId) refreshScans();
+      else
+        setHistory((h) => {
+          const next = [entry, ...h].slice(0, 30);
+          saveHistory(next);
+          return next;
+        });
       requestAnimationFrame(() => document.getElementById('result')?.scrollIntoView({ behavior: 'smooth' }));
     } catch (e) {
       setError(e instanceof ApiError ? e.message : 'Unexpected error');
@@ -195,6 +236,22 @@ export function App() {
             </label>
           </div>
           <p className="muted small">Pricing {health?.pricingAlgorithmVersion ?? 'n/a'}. Fee presets are unverified placeholders.</p>
+          {dbOn && (
+            <div className="row2">
+              <button type="button" className="ghost" onClick={() => void exportData()}>Export my data</button>
+              <button
+                type="button"
+                className="ghost danger"
+                onClick={() => {
+                  if (window.confirm('Delete all your scans and data on the server? This cannot be undone.')) {
+                    void api.deleteMyData().then(refreshScans);
+                  }
+                }}
+              >
+                Delete my data
+              </button>
+            </div>
+          )}
         </section>
       )}
 
@@ -205,7 +262,9 @@ export function App() {
       <form className="card" onSubmit={onSubmit}>
         {recognition && (
           <p className="muted small">
-            Recognised with {Math.round(recognition.confidence * 100)}% confidence. Edit any field to correct it.
+            {recognition.edited
+              ? 'Corrected by you: thanks, corrections improve recognition.'
+              : `Recognised with ${Math.round(recognition.confidence * 100)}% confidence. Edit any field to correct it.`}
           </p>
         )}
         <div className="row2">
@@ -284,7 +343,36 @@ export function App() {
 
       <BenchmarkAdd photos={photos} request={form.brand.trim() && form.model.trim() && form.purchasePrice !== '' ? buildRequest(form) : null} />
 
-      {history.length > 0 && (
+      {dbOn && serverScans && serverScans.length > 0 && (
+        <section className="card">
+          <h2>History</h2>
+          <ul className="history">
+            {serverScans.map((s) => (
+              <li key={s.id} className="history-row">
+                <button className="ghost row" onClick={() => fillFrom(scanToRequest(s))}>
+                  <span>
+                    <strong>
+                      {s.product.brand} {s.product.model} {s.product.capacity ?? ''}
+                    </strong>
+                    <span className="muted small">
+                      {' '}€{s.purchasePrice.amountMinor / 100} · {s.inputMethod} · {ago(s.createdAt)}
+                      {s.valuation?.expected ? ` · exp. €${Math.round(s.valuation.expected / 100)}` : ''}
+                    </span>
+                  </span>
+                  <span className={`pill d-${s.valuation?.decision ?? 'insufficient'}`}>
+                    {s.valuation?.decision ? DECISION_LABEL[s.valuation.decision as keyof typeof DECISION_LABEL] : 'NO DATA'}
+                  </span>
+                </button>
+                <button className="icon-btn" aria-label="Delete scan" onClick={() => void api.deleteScan(s.id).then(refreshScans)}>
+                  ×
+                </button>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      {!dbOn && history.length > 0 && (
         <section className="card">
           <h2>History</h2>
           <ul className="history">
@@ -308,6 +396,34 @@ export function App() {
       )}
     </div>
   );
+}
+
+function scanToRequest(s: ServerScan): ValuationRequest {
+  return {
+    product: {
+      category: s.product.category,
+      brand: s.product.brand,
+      model: s.product.model,
+      ...(s.product.capacity && { capacity: s.product.capacity }),
+      ...(s.product.mount && { mount: s.product.mount }),
+      ...(s.excludeModels.length > 0 && { excludeModels: s.excludeModels }),
+    },
+    condition: s.condition,
+    purchasePrice: s.purchasePrice.amountMinor / 100,
+    currency: 'EUR',
+    preset: 'ebay_de_private',
+    shippingCost: 6,
+  };
+}
+
+async function exportData(): Promise<void> {
+  const data = await api.exportMyData();
+  const url = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' }));
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'fliplens-export.json';
+  a.click();
+  URL.revokeObjectURL(url);
 }
 
 function Result({ resp }: { resp: ValuationResponse }) {

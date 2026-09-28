@@ -7,7 +7,8 @@ import type {
   InsufficientData,
   Valuation,
 } from '@fliplens/core';
-import type { IdentificationResult } from '@fliplens/recognition';
+import type { IdentificationResult as BaseIdentification } from '@fliplens/recognition';
+import { deviceId } from './storage.js';
 
 /** JSON turns Dates into strings; the UI only displays them. */
 type Jsonify<T> = T extends Date
@@ -21,7 +22,8 @@ type Jsonify<T> = T extends Date
 export type ValuationJson = Jsonify<Valuation>;
 export type InsufficientJson = Jsonify<InsufficientData>;
 export type ComparableJson = Jsonify<EvaluatedComparable>;
-export type { IdentificationResult };
+/** API adds the stored identification id (absent when the server has no database). */
+export type IdentificationResult = BaseIdentification & { identificationId?: string };
 
 export interface ValuationRequest {
   product: {
@@ -41,9 +43,14 @@ export interface ValuationRequest {
   targetRoiPct?: number;
   identificationConfidence?: number;
   recognitionModelVersion?: string;
+  inputMethod?: 'photo' | 'barcode' | 'manual';
+  identificationId?: string;
+  chosenCandidateIndex?: number;
+  gtin?: string;
 }
 
 export interface ValuationResponse {
+  scanId?: string;
   source: 'ebay';
   dataFetchedAt: string | null;
   sourceWarnings: { source: string; site?: string; message: string }[];
@@ -57,6 +64,19 @@ export interface Health {
   pricingAlgorithmVersion: string;
   sources: { ebay: boolean };
   vision: { configured: boolean; provider: string };
+  db: 'connected' | 'disabled' | 'error';
+}
+
+export interface ServerScan {
+  id: string;
+  createdAt: string;
+  inputMethod: 'photo' | 'barcode' | 'manual';
+  product: { category: CategorySlug; brand: string; model: string; capacity: string | null; mount: string | null };
+  excludeModels: string[];
+  condition: Condition;
+  purchasePrice: { amountMinor: number; currency: CurrencyCode };
+  status: 'valued' | 'insufficient_data';
+  valuation: { expected: number | null; profit: number | null; roiPct: number | null; decision: string | null; confidenceLevel: string | null; includedCount: number } | null;
 }
 
 export class ApiError extends Error {}
@@ -64,7 +84,9 @@ export class ApiError extends Error {}
 async function call<T>(path: string, init?: RequestInit): Promise<T> {
   let res: Response;
   try {
-    res = await fetch(path, init);
+    const headers = new Headers(init?.headers);
+    headers.set('x-device-id', deviceId());
+    res = await fetch(path, { ...init, headers });
   } catch {
     throw new ApiError('API unreachable. Is `pnpm dev` running?');
   }
@@ -99,6 +121,10 @@ export const api = {
       body: JSON.stringify(req),
     }),
   health: () => call<Health>('/api/health'),
+  scans: () => call<ServerScan[]>('/api/scans'),
+  deleteScan: (id: string) => call<{ deleted: boolean }>(`/api/scans/${id}`, { method: 'DELETE' }),
+  exportMyData: () => call<unknown>('/api/me/export'),
+  deleteMyData: () => call<{ deleted: boolean }>('/api/me', { method: 'DELETE' }),
   identify: (images: string[]) =>
     call<IdentificationResult>('/api/identify', {
       method: 'POST',

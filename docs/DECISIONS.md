@@ -36,6 +36,15 @@ Validation: Zod схемы, общие для API и клиента.
 Статус: принято.
 Почему: никаких float для денег. Храним `amount_minor` (центы) + `currency` (ISO 4217). Для CHF/SEK/PLN и т.д. тот же подход. EUR нормализация хранится отдельно вместе с fx_rate_id.
 
-## ADR-008: Локальная разработка на Homebrew PostgreSQL
-Статус: принято.
-Почему: Docker не установлен, PostgreSQL 14 уже есть. Production позже на managed Postgres (Neon / Supabase / RDS), выбор в Phase 5.
+## ADR-008: Postgres на Neon (EU, Frankfurt)
+Статус: принято 2026-09-28 (заменяет план с локальным Homebrew Postgres).
+Почему: бесплатный постоянный план без карты, EU регион (GDPR), branches для dev и production, обычный Postgres (Drizzle + postgres.js, без vendor lock-in). Минус: compute засыпает после 5 мин простоя, первый запрос медленнее. Supabase free отклонён: проект паузится после недели неактивности.
+Подключение: `DATABASE_URL` (pooled endpoint, `sslmode=require`), `prepare: false` для pooler. Migrations (`packages/db/migrations`, drizzle-kit) применяются API при старте. Без `DATABASE_URL` API работает, но ничего не сохраняет (health `db: disabled|error`).
+
+## ADR-009: Не храним контент eBay listings
+Статус: принято 2026-09-28.
+Почему: лицензия eBay требует удалять eBay content, когда listing больше не публичен, и запрещает ML на нём. Поэтому `valuations` хранит только агрегаты: распределение цен, число comparables по сайтам, счётчики причин исключения, версии алгоритма. Отдельные listings (title, URL, цена) не сохраняются; таблица `valuation_comparables` из исходной модели данных откладывается до появления источников, которые это разрешают (собственные продажи пользователей).
+
+## ADR-010: Пользователь = device key до появления аккаунтов
+Статус: принято 2026-09-28.
+Почему: для internal test и закрытой beta регистрация не нужна. Приложение генерирует случайный ключ установки (`x-device-id`), сервер создаёт по нему строку `users`. GDPR: `GET /api/me/export`, `DELETE /api/me` (каскадно удаляет всё), `DELETE /api/scans/:id`. Заменить на настоящую auth перед public beta.

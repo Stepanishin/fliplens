@@ -44,5 +44,32 @@ export const loadSettings = (): Settings => {
   return { preset, shippingCost, targetRoiPct, country };
 };
 export const saveSettings = (s: Settings): void => write(SETTINGS_KEY, s);
+const DEVICE_KEY = 'fliplens.device.v1';
+let memoryDeviceId: string | undefined;
+
+/** Random per-installation id: links this device's scans on the server until real accounts exist. */
+export function deviceId(): string {
+  try {
+    const existing = localStorage.getItem(DEVICE_KEY);
+    if (existing) return existing;
+  } catch {
+    // storage unavailable: fall back to an in-memory id for this session
+  }
+  const id = memoryDeviceId ?? randomId();
+  memoryDeviceId = id;
+  try {
+    localStorage.setItem(DEVICE_KEY, id);
+  } catch {
+    // ignore
+  }
+  return id;
+}
+
+function randomId(): string {
+  // crypto.randomUUID needs a secure context; getRandomValues works on plain http (LAN testing) too.
+  const b = crypto.getRandomValues(new Uint8Array(16));
+  return [...b].map((x) => x.toString(16).padStart(2, '0')).join('').replace(/^(.{8})(.{4})(.{4})(.{4})/, '$1-$2-$3-$4-');
+}
+
 export const loadHistory = (): HistoryEntry[] => read<HistoryEntry[]>(HISTORY_KEY, []);
 export const saveHistory = (h: HistoryEntry[]): void => write(HISTORY_KEY, h);
