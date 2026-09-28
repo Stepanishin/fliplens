@@ -1,6 +1,6 @@
 import { and, desc, eq, gte, sql } from 'drizzle-orm';
 import type { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
-import { productIdentifications, scans, usageCosts, users, valuations } from './schema.js';
+import { events, productIdentifications, scans, usageCosts, userSettings, users, valuations } from './schema.js';
 import type * as schema from './schema.js';
 
 type Db = PostgresJsDatabase<typeof schema>;
@@ -155,6 +155,56 @@ export async function listScans(db: Db, userId: string, limit = 50): Promise<{ s
     .limit(limit);
 }
 
+export async function getScan(db: Db, userId: string, scanId: string): Promise<{ scan: ScanRow; valuation: ValuationRow | null } | undefined> {
+  const [row] = await db
+    .select({ scan: scans, valuation: valuations })
+    .from(scans)
+    .leftJoin(valuations, eq(valuations.scanId, scans.id))
+    .where(and(eq(scans.id, scanId), eq(scans.userId, userId)));
+  return row;
+}
+
+export type SettingsRow = typeof userSettings.$inferSelect;
+export type SettingsInput = Omit<typeof userSettings.$inferInsert, 'userId' | 'updatedAt'>;
+
+export async function getSettings(db: Db, userId: string): Promise<SettingsRow | undefined> {
+  const [row] = await db.select().from(userSettings).where(eq(userSettings.userId, userId));
+  return row;
+}
+
+export async function saveSettings(db: Db, userId: string, s: SettingsInput): Promise<SettingsRow> {
+  const [row] = await db
+    .insert(userSettings)
+    .values({ ...s, userId })
+    .onConflictDoUpdate({ target: userSettings.userId, set: { ...s, updatedAt: sql`now()` } })
+    .returning();
+  return row!;
+}
+
+export async function recordEvents(
+  db: Db,
+  userId: string | undefined,
+  list: readonly { name: string; props: Record<string, string | number | boolean | null> }[],
+): Promise<void> {
+  if (list.length === 0) return;
+  await db.insert(events).values(list.map((e) => ({ ...(userId && { userId }), name: e.name, props: e.props })));
+}
+
+/** Funnel counts per event name plus active devices: the beta metrics (scans per active user per week). */
+export async function eventStats(db: Db, days = 7): Promise<{ days: number; activeUsers: number; byName: Record<string, number> }> {
+  const since = sql`now() - make_interval(days => ${days})`;
+  const rows = await db
+    .select({ name: events.name, n: sql<number>`count(*)::int` })
+    .from(events)
+    .where(gte(events.createdAt, since))
+    .groupBy(events.name);
+  const [active] = await db
+    .select({ n: sql<number>`count(distinct ${events.userId})::int` })
+    .from(events)
+    .where(gte(events.createdAt, since));
+  return { days, activeUsers: active?.n ?? 0, byName: Object.fromEntries(rows.map((r) => [r.name, r.n])) };
+}
+
 export async function deleteScan(db: Db, userId: string, scanId: string): Promise<boolean> {
   const rows = await db.delete(scans).where(and(eq(scans.id, scanId), eq(scans.userId, userId))).returning({ id: scans.id });
   return rows.length > 0;
@@ -171,6 +221,8 @@ export async function exportUserData(db: Db, userId: string): Promise<unknown> {
     user,
     scans: await listScans(db, userId, 10_000),
     identifications: await db.select().from(productIdentifications).where(eq(productIdentifications.userId, userId)),
+    settings: await getSettings(db, userId),
+    events: await db.select().from(events).where(eq(events.userId, userId)),
   };
 }
 

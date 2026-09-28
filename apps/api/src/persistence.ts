@@ -5,7 +5,12 @@ import {
   costSummary,
   deleteScan,
   deleteUserData,
+  eventStats,
   exportUserData,
+  getScan,
+  getSettings,
+  recordEvents,
+  saveSettings,
   listScans,
   recordIdentification as dbRecordIdentification,
   recordScan,
@@ -58,6 +63,32 @@ export interface Persistence {
   recordValuation(req: FastifyRequest, x: ValuationRecord): Promise<string | undefined>;
 }
 
+const SettingsBody = z.object({
+  country: z.string().regex(/^[A-Z]{2}$/),
+  currency: z.string().regex(/^[A-Z]{3}$/).default('EUR'),
+  feePreset: z.string().min(1).max(50),
+  shippingCostMinor: z.number().int().min(0).max(100_000),
+  targetRoiPct: z.number().int().min(0).max(1000),
+});
+
+/** Spec section 62. Anything else is rejected, and props are small scalars only (no free text, no PII). */
+const EVENT_NAMES = [
+  'scan_started', 'image_uploaded', 'barcode_scanned', 'product_detected', 'product_corrected',
+  'valuation_started', 'valuation_completed', 'valuation_failed', 'comparables_opened', 'item_marked_bought',
+  'subscription_viewed', 'subscription_started', 'inventory_added', 'item_sold', 'market_link_opened',
+] as const;
+const EventsBody = z.object({
+  events: z
+    .array(
+      z.object({
+        name: z.enum(EVENT_NAMES),
+        props: z.record(z.string().max(40), z.union([z.string().max(100), z.number(), z.boolean(), z.null()])).optional(),
+      }),
+    )
+    .min(1)
+    .max(50),
+});
+
 export async function initPersistence(url: string | undefined, log: FastifyBaseLogger): Promise<Persistence> {
   if (!url) {
     log.warn({ event: 'db_disabled' }, 'DATABASE_URL not set: scans are not stored');
@@ -82,6 +113,11 @@ function disabled(status: DbStatus): Persistence {
     registerRoutes(app) {
       app.get('/api/scans', unavailable);
       app.delete('/api/scans/:id', unavailable);
+      app.get('/api/scans/:id', unavailable);
+      app.get('/api/me/settings', unavailable);
+      app.put('/api/me/settings', unavailable);
+      app.post('/api/events', async () => ({ stored: 0 }));
+      app.get('/api/stats/events', unavailable);
       app.get('/api/me/export', unavailable);
       app.delete('/api/me', unavailable);
       app.get('/api/stats/costs', unavailable);
@@ -147,6 +183,41 @@ function enabled(db: Db, log: FastifyBaseLogger): Persistence {
             pricingAlgorithmVersion: v.pricingAlgorithmVersion,
           },
         }));
+      });
+
+      app.get('/api/scans/:id', async (req, reply) => {
+        const uid = await requireUser(req, reply);
+        if (!uid) return;
+        const id = z.string().uuid().safeParse((req.params as { id?: string }).id);
+        if (!id.success) return reply.code(400).send({ error: 'invalid_id' });
+        const row = await getScan(db, uid, id.data);
+        if (!row) return reply.code(404).send({ error: 'not_found' });
+        return { scan: { ...row.scan, createdAt: row.scan.createdAt.toISOString() }, valuation: row.valuation };
+      });
+
+      app.get('/api/me/settings', async (req, reply) => {
+        const uid = await requireUser(req, reply);
+        if (!uid) return;
+        return (await getSettings(db, uid)) ?? null;
+      });
+      app.put('/api/me/settings', async (req, reply) => {
+        const uid = await requireUser(req, reply);
+        if (!uid) return;
+        const parsed = SettingsBody.safeParse(req.body);
+        if (!parsed.success) return reply.code(400).send({ error: 'invalid_request', issues: parsed.error.issues.map((i) => i.message) });
+        return saveSettings(db, uid, parsed.data);
+      });
+
+      app.post('/api/events', async (req, reply) => {
+        const parsed = EventsBody.safeParse(req.body);
+        if (!parsed.success) return reply.code(400).send({ error: 'invalid_request' });
+        const uid = await userId(req);
+        await safely(req, 'events', () => recordEvents(db, uid, parsed.data.events.map((e) => ({ name: e.name, props: e.props ?? {} }))));
+        return { stored: parsed.data.events.length };
+      });
+      app.get('/api/stats/events', async (req) => {
+        const days = z.coerce.number().int().min(1).max(365).catch(7).parse((req.query as { days?: string }).days);
+        return eventStats(db, days);
       });
 
       app.delete('/api/scans/:id', async (req, reply) => {
@@ -249,6 +320,7 @@ function enabled(db: Db, log: FastifyBaseLogger): Persistence {
             decisionFactors: [...r.decision.factors],
             risks: [...r.decision.risks],
             distribution: r.estimate.distribution,
+            market: r.estimate.market,
           };
         } else {
           valuation = { ...common, status: 'insufficient_data', insufficientReason: r.reason };

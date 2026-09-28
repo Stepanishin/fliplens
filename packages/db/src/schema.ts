@@ -93,6 +93,8 @@ export const valuations = pgTable(
     fetchedCount: integer('fetched_count').notNull(),
     exclusionCounts: jsonb('exclusion_counts').$type<Record<string, number>>().notNull(),
     distribution: jsonb('distribution'),
+    /** Supply-side liquidity (active listings, listing age). */
+    market: jsonb('market'),
     sites: jsonb('sites').$type<Record<string, number>>(),
     feeProfileId: text('fee_profile_id').notNull(),
     fxRateDate: text('fx_rate_date'),
@@ -103,6 +105,30 @@ export const valuations = pgTable(
     createdAt: createdAt(),
   },
   (t) => [index('valuations_scan_idx').on(t.scanId)],
+);
+
+/** Profile screen: per-user defaults used for valuations. */
+export const userSettings = pgTable('user_settings', {
+  userId: uuid('user_id').primaryKey().references(() => users.id, { onDelete: 'cascade' }),
+  country: text('country').notNull().default('DE'),
+  currency: text('currency').notNull().default('EUR'),
+  feePreset: text('fee_preset').notNull().default('ebay_de_private'),
+  shippingCostMinor: integer('shipping_cost_minor').notNull().default(600),
+  targetRoiPct: integer('target_roi_pct').notNull().default(40),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+});
+
+/** Product analytics (spec section 62), first-party: no third-party tracker, no PII in props. */
+export const events = pgTable(
+  'events',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    userId: uuid('user_id').references(() => users.id, { onDelete: 'cascade' }),
+    name: text('name').notNull(),
+    props: jsonb('props').$type<Record<string, string | number | boolean | null>>().notNull().default({}),
+    createdAt: createdAt(),
+  },
+  (t) => [index('events_name_idx').on(t.name, t.createdAt)],
 );
 
 /** Approximate variable cost per call: the basis for "cost per successful valuation". */

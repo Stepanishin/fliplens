@@ -55,7 +55,16 @@ export interface ValuationResponse {
   dataFetchedAt: string | null;
   sourceWarnings: { source: string; site?: string; message: string }[];
   fx: { rateDate: string; source: string };
-  feePreset: { id: FeePresetId; profileId: string; percentageFeeBp: number; sourceQuality: 'official' | 'secondary'; lastVerifiedAt: string };
+  feePreset: {
+    id: FeePresetId;
+    label: string;
+    profileId: string;
+    percentageFeeBp: number;
+    fixedFeeMinor: number;
+    sellerPaysShipping: boolean;
+    sourceQuality: 'official' | 'secondary';
+    lastVerifiedAt: string;
+  };
   result: ValuationJson | InsufficientJson;
 }
 
@@ -77,6 +86,53 @@ export interface ServerScan {
   purchasePrice: { amountMinor: number; currency: CurrencyCode };
   status: 'valued' | 'insufficient_data';
   valuation: { expected: number | null; profit: number | null; roiPct: number | null; decision: string | null; confidenceLevel: string | null; includedCount: number } | null;
+}
+
+export interface ServerSettings {
+  country: string;
+  currency: string;
+  feePreset: string;
+  shippingCostMinor: number;
+  targetRoiPct: number;
+}
+
+export interface MarketActivityJson {
+  kind: 'active_listings';
+  activeListings: number;
+  countries: number;
+  medianListingAgeDays: number | null;
+  staleShare: number | null;
+}
+
+/** Stored valuation row (aggregates only, see ADR-009). */
+export interface StoredValuation {
+  status: 'ok' | 'insufficient_data';
+  insufficientReason: string | null;
+  dataKind: 'sold' | 'asking' | null;
+  currency: string;
+  fastSaleMinor: number | null;
+  expectedSaleMinor: number | null;
+  highSaleMinor: number | null;
+  estimatedFeesMinor: number | null;
+  estimatedShippingMinor: number | null;
+  expectedNetMinor: number | null;
+  expectedProfitMinor: number | null;
+  roiBp: number | null;
+  maxBuyMinor: number | null;
+  confidenceScore: number | null;
+  confidenceLevel: 'high' | 'medium' | 'low' | null;
+  decision: 'strong_buy' | 'buy' | 'borderline' | 'skip' | null;
+  decisionFactors: string[] | null;
+  risks: string[] | null;
+  includedCount: number;
+  fetchedCount: number;
+  exclusionCounts: Record<string, number>;
+  market: MarketActivityJson | null;
+  sites: Record<string, number> | null;
+  feeProfileId: string;
+  pricingAlgorithmVersion: string;
+  dataFetchedAt: string | null;
+  createdAt: string;
 }
 
 export class ApiError extends Error {}
@@ -122,6 +178,10 @@ export const api = {
     }),
   health: () => call<Health>('/api/health'),
   scans: () => call<ServerScan[]>('/api/scans'),
+  scan: (id: string) => call<{ scan: { id: string; createdAt: string }; valuation: StoredValuation | null }>(`/api/scans/${id}`),
+  settings: () => call<ServerSettings | null>('/api/me/settings'),
+  saveSettings: (s: ServerSettings) =>
+    call<ServerSettings>('/api/me/settings', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(s) }),
   deleteScan: (id: string) => call<{ deleted: boolean }>(`/api/scans/${id}`, { method: 'DELETE' }),
   exportMyData: () => call<unknown>('/api/me/export'),
   deleteMyData: () => call<{ deleted: boolean }>('/api/me', { method: 'DELETE' }),

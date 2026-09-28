@@ -1,7 +1,6 @@
-import type { Decision, FeePresetId, Money } from '@fliplens/core';
-import type { ValuationRequest } from './api.js';
+import type { FeePresetId } from '@fliplens/core';
 
-/** Per-device conveniences only. Real scan history moves to the API/DB in Phase 3. */
+/** Per-device conveniences: settings cache (synced to the server when it has a database) and the device id. */
 
 export interface Settings {
   preset: FeePresetId;
@@ -11,14 +10,7 @@ export interface Settings {
   country: string;
 }
 
-export interface HistoryEntry {
-  at: string;
-  request: ValuationRequest;
-  summary: { decision: Decision; expected: Money; profit: Money } | { decision: 'insufficient' };
-}
-
 const SETTINGS_KEY = 'fliplens.settings.v1';
-const HISTORY_KEY = 'fliplens.history.v2'; // v1 held demo-data results
 const DEFAULT_SETTINGS: Settings = { preset: 'ebay_de_private', shippingCost: 6, targetRoiPct: 40, country: 'DE' };
 
 function read<T>(key: string, fallback: T): T {
@@ -71,5 +63,3 @@ function randomId(): string {
   return [...b].map((x) => x.toString(16).padStart(2, '0')).join('').replace(/^(.{8})(.{4})(.{4})(.{4})/, '$1-$2-$3-$4-');
 }
 
-export const loadHistory = (): HistoryEntry[] => read<HistoryEntry[]>(HISTORY_KEY, []);
-export const saveHistory = (h: HistoryEntry[]): void => write(HISTORY_KEY, h);

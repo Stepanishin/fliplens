@@ -41,7 +41,7 @@ export function decide(i: DecisionInput, cfg: PricingConfig): DecisionResult {
   const factors = [
     i.roiPct === null ? 'ROI n/a (free item)' : `ROI ${i.roiPct}%`,
     `expected profit ${formatMoney(i.profit)}`,
-    i.liquidity === undefined ? 'liquidity data unavailable' : `${i.liquidity} demand`,
+    i.liquidity === undefined ? 'selling speed unknown (only supply data)' : `${i.liquidity} demand`,
     `${i.includedCount} comparable ${i.dataKind === 'sold' ? 'sales' : 'active listings'}`,
   ];
 

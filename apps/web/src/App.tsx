@@ -1,610 +1,373 @@
-import { useCallback, useEffect, useMemo, useState, type FormEvent } from 'react';
-import { CATEGORIES, CONDITIONS, FEE_PRESETS, type CategorySlug, type Condition, type FeePresetId } from '@fliplens/core';
-import { api, ApiError, type ComparableJson, type Health, type ServerScan, type ValuationRequest, type ValuationResponse } from './api.js';
-import { ago, CONDITION_LABEL, DECISION_LABEL, FACTOR_LABEL, fmt, REASON_LABEL } from './format.js';
-import { loadHistory, loadSettings, saveHistory, saveSettings, type HistoryEntry } from './storage.js';
-import { PhotoScan } from './PhotoScan.js';
-import { MarketLinks } from './MarketLinks.js';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { FEE_PRESETS, type FeePresetId } from '@fliplens/core';
+import { api, ApiError, type Health, type ServerScan, type ValuationResponse } from './api.js';
+import { BarcodeScanner } from './BarcodeScanner.js';
 import { BenchmarkAdd } from './BenchmarkAdd.js';
-import { LINK_COUNTRIES } from './marketSearch.js';
-import type { IdentificationCandidate } from '@fliplens/recognition';
+import {
+  applyCandidate,
+  buildRequest,
+  CAPACITY_CATEGORIES,
+  draftFromScan,
+  newDraft,
+  type Draft,
+  type Identification,
+  type ProductDraft,
+} from './flow.js';
+import { loadSettings, saveSettings, type Settings } from './storage.js';
+import { track } from './track.js';
+import { IconBack, IconClock, IconScan, IconUser } from './ui/icons.js';
+import { Confirm } from './screens/Confirm.js';
+import { History, ScanDetail } from './screens/History.js';
+import { Home } from './screens/Home.js';
+import { Price } from './screens/Price.js';
+import { Profile } from './screens/Profile.js';
+import { Result } from './screens/Result.js';
 
-const CAPACITY_CATEGORIES: readonly CategorySlug[] = ['smartphones', 'tablets', 'laptops', 'consoles', 'handhelds'];
-const MOUNT_CATEGORIES: readonly CategorySlug[] = ['lenses', 'camera_bodies'];
+type Route =
+  | { name: 'home' }
+  | { name: 'confirm' }
+  | { name: 'price' }
+  | { name: 'result' }
+  | { name: 'history' }
+  | { name: 'scan'; scan: ServerScan }
+  | { name: 'profile' };
 
-interface FormState {
-  category: CategorySlug;
-  brand: string;
-  model: string;
-  capacity: string;
-  mount: string;
-  excludeModels: string;
-  condition: Condition;
-  purchasePrice: string;
-}
-
-const EMPTY_FORM: FormState = {
-  category: 'headphones',
-  brand: '',
-  model: '',
-  capacity: '',
-  mount: '',
-  excludeModels: '',
-  condition: 'good',
-  purchasePrice: '',
-};
+const TITLES: Partial<Record<Route['name'], string>> = { confirm: 'Identify', price: 'Price', result: 'Verdict', scan: 'Saved scan', profile: 'Profile' };
+const DEV_KEY = 'fliplens.devtools.v1';
+const AUTO_PICK_CONFIDENCE = 0.6;
 
 export function App() {
-  const [health, setHealth] = useState<Health | null>(null);
-  const [form, setForm] = useState<FormState>(EMPTY_FORM);
-  const [settings, setSettings] = useState(loadSettings);
-  const [history, setHistory] = useState<HistoryEntry[]>(loadHistory);
+  const [health, setHealth] = useState<Health | null | undefined>(undefined);
+  const [stack, setStack] = useState<Route[]>([{ name: 'home' }]);
+  const route = stack[stack.length - 1]!;
+  const [draft, setDraft] = useState<Draft>(() => newDraft('manual'));
+  const [identifying, setIdentifying] = useState(false);
+  const [flowError, setFlowError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const [resp, setResp] = useState<ValuationResponse | null>(null);
-  const [showSettings, setShowSettings] = useState(false);
-  const [photos, setPhotos] = useState<string[]>([]);
-  const onPhotosChange = useCallback((p: string[]) => setPhotos(p), []);
-  /**
-   * Set while the form holds an AI-recognised product. Editing the identity keeps the link (so the server can log
-   * the correction) but marks it edited: the user has then confirmed the product themselves.
-   */
-  const [recognition, setRecognition] = useState<{
-    confidence: number;
-    modelVersion: string;
-    method: 'photo' | 'barcode';
-    chosenIndex: number;
-    identificationId?: string;
-    gtin?: string;
-    edited: boolean;
-  } | null>(null);
-  const [serverScans, setServerScans] = useState<ServerScan[] | null>(null);
+  const [scanning, setScanning] = useState(false);
+  const [scans, setScans] = useState<ServerScan[] | null>(null);
+  const [settings, setSettingsState] = useState<Settings>(loadSettings);
+  const [devTools, setDevTools] = useState(() => {
+    try {
+      return localStorage.getItem(DEV_KEY) === '1';
+    } catch {
+      return false;
+    }
+  });
   const dbOn = health?.db === 'connected';
-  const refreshScans = useCallback(() => {
-    api.scans().then(setServerScans, () => setServerScans(null));
+  const correctedOnce = useRef(false);
+
+  // ---------- navigation (the system back button pops the stack) ----------
+  const go = useCallback((r: Route, replace = false) => {
+    setStack((s) => (replace ? [...s.slice(0, -1), r] : [...s, r]));
+    if (!replace) window.history.pushState({ depth: Date.now() }, '');
+    window.scrollTo(0, 0);
+  }, []);
+  const tab = useCallback((r: Route) => {
+    setStack(r.name === 'home' ? [r] : [{ name: 'home' }, r]);
+    window.scrollTo(0, 0);
   }, []);
   useEffect(() => {
-    if (dbOn) refreshScans();
-  }, [dbOn, refreshScans]);
+    const onPop = () => setStack((s) => (s.length > 1 ? s.slice(0, -1) : s));
+    window.addEventListener('popstate', onPop);
+    return () => window.removeEventListener('popstate', onPop);
+  }, []);
+  const back = () => {
+    if (stack.length > 1) window.history.back();
+  };
 
+  // ---------- server state ----------
   useEffect(() => {
     api.health().then(setHealth, () => setHealth(null));
   }, []);
+  const refreshScans = useCallback(() => {
+    api.scans().then(setScans, () => setScans(null));
+  }, []);
+  useEffect(() => {
+    if (!dbOn) return;
+    refreshScans();
+    api.settings().then(
+      (s) => {
+        if (s && s.feePreset in FEE_PRESETS) {
+          const merged: Settings = {
+            country: s.country,
+            preset: s.feePreset as FeePresetId,
+            shippingCost: s.shippingCostMinor / 100,
+            targetRoiPct: s.targetRoiPct,
+          };
+          setSettingsState(merged);
+          saveSettings(merged);
+        }
+      },
+      () => undefined,
+    );
+  }, [dbOn, refreshScans]);
 
-  useEffect(() => saveSettings(settings), [settings]);
-
-  const set = <K extends keyof FormState>(k: K, v: FormState[K]) => {
-    // A manual edit of the identity means the user has corrected / confirmed it themselves.
-    if (k === 'brand' || k === 'model' || k === 'capacity' || k === 'mount' || k === 'category') setRecognition((r) => r && { ...r, edited: true });
-    setForm((f) => ({ ...f, [k]: v }));
+  const saveTimer = useRef<number | undefined>(undefined);
+  const setSettings = (s: Settings) => {
+    setSettingsState(s);
+    saveSettings(s);
+    if (!dbOn) return;
+    window.clearTimeout(saveTimer.current);
+    saveTimer.current = window.setTimeout(() => {
+      void api
+        .saveSettings({
+          country: s.country,
+          currency: 'EUR',
+          feePreset: s.preset,
+          shippingCostMinor: Math.round(s.shippingCost * 100),
+          targetRoiPct: Math.round(s.targetRoiPct),
+        })
+        .catch(() => undefined);
+    }, 600);
   };
 
-  function onPickCandidate(
-    c: IdentificationCandidate,
-    r: { confusableModels: readonly string[]; conditionGuess?: Condition; modelVersion: string; identificationId?: string; gtin?: string },
-    index: number,
-    method: 'photo' | 'barcode',
-  ) {
-    setForm((f) => ({
-      ...f,
-      category: c.category,
-      brand: c.brand,
-      model: c.model,
-      capacity: c.capacity ?? '',
-      mount: c.mount ?? '',
-      excludeModels: r.confusableModels.join(', '),
-      condition: r.conditionGuess ?? f.condition,
-    }));
-    setRecognition({
-      confidence: c.confidence,
-      modelVersion: r.modelVersion,
-      method,
-      chosenIndex: index,
-      edited: false,
-      ...(r.identificationId && { identificationId: r.identificationId }),
-      ...(r.gtin && { gtin: r.gtin }),
+  // ---------- scan flow ----------
+  const withIdentification = (d: Draft, r: Identification): Draft => {
+    const top = r.candidates[0];
+    const next = { ...d, identification: r };
+    return top && top.confidence >= AUTO_PICK_CONFIDENCE ? applyCandidate(next, top, 0, r) : next;
+  };
+
+  async function identifyPhotos(photos: string[]) {
+    setIdentifying(true);
+    setFlowError(null);
+    try {
+      const r = await api.identify(photos);
+      track('product_detected', { method: 'photo', found: r.candidates.length > 0, confidence: r.candidates[0]?.confidence ?? null });
+      setDraft((d) => withIdentification({ ...d, photos }, r));
+    } catch (e) {
+      setFlowError(e instanceof ApiError ? e.message : 'Recognition failed. Type the model instead.');
+    } finally {
+      setIdentifying(false);
+    }
+  }
+
+  function startPhotos(photos: string[]) {
+    correctedOnce.current = false;
+    track('scan_started', { method: 'photo' });
+    track('image_uploaded', { count: photos.length });
+    setDraft({ ...newDraft('photo'), photos });
+    setResp(null);
+    go({ name: 'confirm' });
+    void identifyPhotos(photos);
+  }
+
+  const onBarcode = useCallback(
+    async (code: string) => {
+      setScanning(false);
+      correctedOnce.current = false;
+      track('scan_started', { method: 'barcode' });
+      track('barcode_scanned', {});
+      setDraft(newDraft('barcode'));
+      setResp(null);
+      go({ name: 'confirm' });
+      setIdentifying(true);
+      setFlowError(null);
+      try {
+        const r = await api.identifyBarcode(code);
+        track('product_detected', { method: 'barcode', found: r.candidates.length > 0, confidence: r.candidates[0]?.confidence ?? null });
+        setDraft((d) => withIdentification(d, r));
+      } catch (e) {
+        setFlowError(e instanceof ApiError ? e.message : 'Barcode lookup failed. Type the model instead.');
+      } finally {
+        setIdentifying(false);
+      }
+    },
+    [go],
+  );
+  const closeScanner = useCallback(() => setScanning(false), []);
+
+  function startManual() {
+    correctedOnce.current = false;
+    track('scan_started', { method: 'manual' });
+    setDraft(newDraft('manual'));
+    setResp(null);
+    setFlowError(null);
+    go({ name: 'confirm' });
+  }
+
+  function changeProduct(p: Partial<ProductDraft>) {
+    setDraft((d) => {
+      const edited = d.identification !== null && d.chosenIndex !== null;
+      if (edited && !correctedOnce.current) {
+        correctedOnce.current = true;
+        track('product_corrected', { method: d.method, field: Object.keys(p)[0] ?? null });
+      }
+      return { ...d, product: { ...d.product, ...p }, edited: d.edited || edited };
     });
   }
 
-  function buildRequest(f: FormState): ValuationRequest {
-    const exclude = f.excludeModels.split(',').map((s) => s.trim()).filter(Boolean);
-    return {
-      product: {
-        category: f.category,
-        brand: f.brand.trim(),
-        model: f.model.trim(),
-        ...(f.capacity.trim() && CAPACITY_CATEGORIES.includes(f.category) && { capacity: f.capacity.trim() }),
-        ...(f.mount.trim() && MOUNT_CATEGORIES.includes(f.category) && { mount: f.mount.trim() }),
-        ...(exclude.length > 0 && { excludeModels: exclude }),
-      },
-      condition: f.condition,
-      purchasePrice: Number(f.purchasePrice.replace(',', '.')),
-      currency: 'EUR',
-      preset: settings.preset,
-      shippingCost: settings.shippingCost,
-      targetRoiPct: settings.targetRoiPct,
-      inputMethod: recognition?.method ?? 'manual',
-      ...(recognition && {
-        identificationConfidence: recognition.edited ? 1 : recognition.confidence,
-        recognitionModelVersion: recognition.modelVersion,
-        chosenCandidateIndex: recognition.chosenIndex,
-        ...(recognition.identificationId && { identificationId: recognition.identificationId }),
-        ...(recognition.gtin && { gtin: recognition.gtin }),
-      }),
-    };
-  }
-
-  async function run(req: ValuationRequest) {
+  async function runValuation(d: Draft) {
     setBusy(true);
-    setError(null);
+    setFlowError(null);
+    track('valuation_started', { method: d.method, category: d.product.category });
     try {
-      const r = await api.valuation(req);
+      const r = await api.valuation(buildRequest(d, settings));
       setResp(r);
-      const entry: HistoryEntry = {
-        at: new Date().toISOString(),
-        request: req,
-        summary:
-          r.result.status === 'ok'
-            ? { decision: r.result.decision.decision, expected: r.result.estimate.expected, profit: r.result.profit.expected.profit }
-            : { decision: 'insufficient' },
-      };
+      track(r.result.status === 'ok' ? 'valuation_completed' : 'valuation_failed', {
+        category: d.product.category,
+        ...(r.result.status === 'ok'
+          ? { decision: r.result.decision.decision, confidence: r.result.estimate.confidence.level, comparables: r.result.estimate.distribution.count }
+          : { reason: r.result.reason }),
+      });
       if (r.scanId) refreshScans();
-      else
-        setHistory((h) => {
-          const next = [entry, ...h].slice(0, 30);
-          saveHistory(next);
-          return next;
-        });
-      requestAnimationFrame(() => document.getElementById('result')?.scrollIntoView({ behavior: 'smooth' }));
+      go({ name: 'result' });
     } catch (e) {
-      setError(e instanceof ApiError ? e.message : 'Unexpected error');
+      track('valuation_failed', { reason: 'error' });
+      setFlowError(e instanceof ApiError ? e.message : 'Valuation failed.');
     } finally {
       setBusy(false);
     }
   }
 
-  function onSubmit(e: FormEvent) {
-    e.preventDefault();
-    if (!form.brand.trim() || !form.model.trim()) return setError('Brand and model are required.');
-    if (!(Number(form.purchasePrice.replace(',', '.')) >= 0) || form.purchasePrice === '') {
-      return setError('Enter the purchase price.');
-    }
-    void run(buildRequest(form));
+  function newScan() {
+    setDraft(newDraft('manual'));
+    setResp(null);
+    tab({ name: 'home' });
   }
 
-  function fillFrom(req: ValuationRequest) {
-    setRecognition(null);
-    setForm({
-      category: req.product.category,
-      brand: req.product.brand,
-      model: req.product.model,
-      capacity: req.product.capacity ?? '',
-      mount: req.product.mount ?? '',
-      excludeModels: req.product.excludeModels?.join(', ') ?? '',
-      condition: req.condition,
-      purchasePrice: String(req.purchasePrice),
-    });
-  }
-
-  const ebayReady = health?.sources.ebay ?? false;
+  const query = [draft.product.brand, draft.product.model, CAPACITY_CATEGORIES.includes(draft.product.category) ? draft.product.capacity : '']
+    .filter((x) => x.trim())
+    .join(' ');
+  const visionOn = health?.vision.configured ?? false;
+  const inFlow = ['confirm', 'price', 'result', 'scan'].includes(route.name) || (route.name === 'profile' && stack.length > 2);
+  const activeTab = route.name === 'history' || route.name === 'scan' ? 'history' : route.name === 'profile' ? 'profile' : 'home';
 
   return (
-    <div className="app">
-      <header className="top">
-        <div className="brand">
-          <img src="/icons/icon.svg" alt="" width={28} height={28} />
-          <span>FlipLens</span>
-          <span className="tag">internal test</span>
-        </div>
-        <button className="ghost" onClick={() => setShowSettings((s) => !s)} aria-expanded={showSettings}>
-          Settings
-        </button>
+    <div className="shell">
+      <header className="appbar">
+        {inFlow ? (
+          <button type="button" className="icon-btn plain" onClick={back} aria-label="Back"><IconBack /></button>
+        ) : (
+          <div className="logo"><img src="/icons/icon.svg" alt="" width={26} height={26} /> FlipLens</div>
+        )}
+        {inFlow && <div className="appbar-title">{TITLES[route.name]}</div>}
+        <div className="appbar-end" />
       </header>
 
-      {health === null && <div className="banner warn">API not reachable. Run <code>pnpm dev</code> in the repo root.</div>}
-      {health && !ebayReady && <div className="banner warn">eBay keys are missing in <code>.env</code>: valuations will fail.</div>}
+      {health === null && <div className="banner warn inset">Server not reachable. Run <code>pnpm dev</code>.</div>}
+      {health && !health.sources.ebay && <div className="banner warn inset">eBay keys missing on the server: valuations will fail.</div>}
 
-      {showSettings && (
-        <section className="card">
-          <h2>Settings</h2>
-          <label className="field">
-            <span>Your country</span>
-            <select value={settings.country} onChange={(e) => setSettings({ ...settings, country: e.target.value })}>
-              {LINK_COUNTRIES.map((c) => (
-                <option key={c} value={c}>{c}</option>
-              ))}
-            </select>
-          </label>
-          <label className="field">
-            <span>Sell on</span>
-            <select value={settings.preset} onChange={(e) => setSettings({ ...settings, preset: e.target.value as FeePresetId })}>
-              {Object.entries(FEE_PRESETS).map(([id, p]) => (
-                <option key={id} value={id}>
-                  {p.label}
-                </option>
-              ))}
-            </select>
-            <span className="muted small">
-              {FEE_PRESETS[settings.preset].note} Checked {FEE_PRESETS[settings.preset].lastVerifiedAt}
-              {FEE_PRESETS[settings.preset].sourceQuality === 'secondary' ? ' (secondary source)' : ''}.
-            </span>
-          </label>
-          <div className="row2">
-            <label className="field">
-              <span>Typical shipping (€)</span>
-              <input inputMode="decimal" value={settings.shippingCost} onChange={(e) => setSettings({ ...settings, shippingCost: Number(e.target.value) || 0 })} />
-            </label>
-            <label className="field">
-              <span>Target ROI (%)</span>
-              <input inputMode="numeric" value={settings.targetRoiPct} onChange={(e) => setSettings({ ...settings, targetRoiPct: Number(e.target.value) || 0 })} />
-            </label>
-          </div>
-          <p className="muted small">Pricing {health?.pricingAlgorithmVersion ?? 'n/a'}.</p>
-          {dbOn && (
-            <div className="row2">
-              <button type="button" className="ghost" onClick={() => void exportData()}>Export my data</button>
-              <button
-                type="button"
-                className="ghost danger"
-                onClick={() => {
-                  if (window.confirm('Delete all your scans and data on the server? This cannot be undone.')) {
-                    void api.deleteMyData().then(refreshScans);
-                  }
-                }}
-              >
-                Delete my data
-              </button>
-            </div>
-          )}
-        </section>
-      )}
-
-      <section className="card">
-        <PhotoScan enabled={health?.vision.configured ?? false} onPick={onPickCandidate} onPhotosChange={onPhotosChange} />
-      </section>
-
-      <form className="card" onSubmit={onSubmit}>
-        {recognition && (
-          <p className="muted small">
-            {recognition.edited
-              ? 'Corrected by you: thanks, corrections improve recognition.'
-              : `Recognised with ${Math.round(recognition.confidence * 100)}% confidence. Edit any field to correct it.`}
-          </p>
+      <main className="content">
+        {route.name === 'home' && (
+          <Home
+            visionEnabled={visionOn}
+            recent={scans ?? []}
+            onPhotos={startPhotos}
+            onBarcode={() => setScanning(true)}
+            onManual={startManual}
+            onOpenScan={(s) => go({ name: 'scan', scan: s })}
+            onSeeHistory={() => tab({ name: 'history' })}
+          />
         )}
-        <div className="row2">
-          <label className="field">
-            <span>Brand</span>
-            <input value={form.brand} onChange={(e) => set('brand', e.target.value)} placeholder="Sony" autoCapitalize="words" />
-          </label>
-          <label className="field">
-            <span>Category</span>
-            <select value={form.category} onChange={(e) => set('category', e.target.value as CategorySlug)}>
-              {CATEGORIES.map((c) => (
-                <option key={c} value={c}>
-                  {c.replace(/_/g, ' ')}
-                </option>
-              ))}
-            </select>
-          </label>
-        </div>
-        <label className="field">
-          <span>Model</span>
-          <input value={form.model} onChange={(e) => set('model', e.target.value)} placeholder="WH-1000XM4" />
-        </label>
-        {CAPACITY_CATEGORIES.includes(form.category) && (
-          <label className="field">
-            <span>Storage / capacity</span>
-            <input value={form.capacity} onChange={(e) => set('capacity', e.target.value)} placeholder="e.g. 128GB, leave empty if unsure" />
-            <span className="muted small">Listings with a different capacity are excluded, so a wrong value hides most of the market.</span>
-          </label>
+        {route.name === 'confirm' && (
+          <Confirm
+            draft={draft}
+            identifying={identifying}
+            error={flowError}
+            onChangeProduct={changeProduct}
+            onChangeCondition={(c) => setDraft((d) => ({ ...d, condition: c }))}
+            onPickCandidate={(i) =>
+              setDraft((d) => {
+                const c = d.identification?.candidates[i];
+                return c && d.identification ? applyCandidate(d, c, i, d.identification) : d;
+              })
+            }
+            onAddPhotos={(p) => {
+              const photos = [...draft.photos, ...p].slice(0, 3);
+              setDraft((d) => ({ ...d, photos }));
+              void identifyPhotos(photos);
+            }}
+            onRemovePhoto={(i) => setDraft((d) => ({ ...d, photos: d.photos.filter((_, j) => j !== i) }))}
+            onContinue={() => {
+              setFlowError(null);
+              go({ name: 'price' });
+            }}
+          />
         )}
-        {MOUNT_CATEGORIES.includes(form.category) && (
-          <label className="field">
-            <span>Mount</span>
-            <input value={form.mount} onChange={(e) => set('mount', e.target.value)} placeholder="RF, EF, EF-S, FE" />
-          </label>
+        {route.name === 'price' && (
+          <Price
+            draft={draft}
+            settings={settings}
+            busy={busy}
+            error={flowError}
+            onChangePrice={(price) => setDraft((d) => ({ ...d, price }))}
+            onSubmit={() => void runValuation(draft)}
+            onEditSettings={() => go({ name: 'profile' })}
+          />
         )}
-        <details className="adv">
-          <summary>Exclude similar models</summary>
-          <label className="field">
-            <span>Comma separated</span>
-            <input value={form.excludeModels} onChange={(e) => set('excludeModels', e.target.value)} placeholder="WH-1000XM5, WH-1000XM3" />
-          </label>
-        </details>
+        {route.name === 'result' && resp && (
+          <Result
+            resp={resp}
+            query={query}
+            country={settings.country}
+            targetRoiPct={settings.targetRoiPct}
+            onNewScan={newScan}
+            onEdit={() => go({ name: 'confirm' })}
+          >
+            {devTools && draft.photos.length > 0 && <BenchmarkAdd photos={draft.photos} request={buildRequest(draft, settings)} />}
+          </Result>
+        )}
+        {route.name === 'history' && <History scans={scans} dbOn={dbOn} onOpen={(s) => go({ name: 'scan', scan: s })} />}
+        {route.name === 'scan' && (
+          <ScanDetail
+            scan={route.scan}
+            onRecheck={() => {
+              const d = draftFromScan(route.scan);
+              setDraft(d);
+              void runValuation(d);
+            }}
+            onDelete={() => {
+              if (!window.confirm('Delete this scan?')) return;
+              void api.deleteScan(route.scan.id).then(() => {
+                refreshScans();
+                back();
+              });
+            }}
+          />
+        )}
+        {route.name === 'profile' && (
+          <Profile
+            settings={settings}
+            onChange={setSettings}
+            dbOn={dbOn}
+            version={health?.pricingAlgorithmVersion ?? 'offline'}
+            devTools={devTools}
+            onDevTools={(on) => {
+              setDevTools(on);
+              try {
+                localStorage.setItem(DEV_KEY, on ? '1' : '0');
+              } catch {
+                // storage unavailable: the toggle just won't persist
+              }
+            }}
+            onDataDeleted={() => {
+              setScans([]);
+              tab({ name: 'home' });
+            }}
+          />
+        )}
+      </main>
 
-        <div className="field">
-          <span>Condition</span>
-          <div className="seg wrap">
-            {CONDITIONS.map((c) => (
-              <button key={c} type="button" className={form.condition === c ? 'on' : ''} onClick={() => set('condition', c)}>
-                {CONDITION_LABEL[c]}
-              </button>
-            ))}
-          </div>
-        </div>
+      {scanning && <BarcodeScanner onCode={onBarcode} onClose={closeScanner} />}
 
-        <label className="field big">
-          <span>How much can you buy it for?</span>
-          <div className="money-input">
-            <span>€</span>
-            <input inputMode="decimal" value={form.purchasePrice} onChange={(e) => set('purchasePrice', e.target.value)} placeholder="0" />
-          </div>
-        </label>
-
-        {error && <div className="banner bad">{error}</div>}
-
-        <button className="primary" type="submit" disabled={busy}>
-          {busy ? 'Checking market…' : 'Should I buy it?'}
-        </button>
-      </form>
-
-      {resp && <Result resp={resp} />}
-
-      <MarketLinks
-        query={[form.brand, form.model, CAPACITY_CATEGORIES.includes(form.category) ? form.capacity : ''].filter((x) => x.trim()).join(' ')}
-        country={settings.country}
-      />
-
-      <BenchmarkAdd photos={photos} request={form.brand.trim() && form.model.trim() && form.purchasePrice !== '' ? buildRequest(form) : null} />
-
-      {dbOn && serverScans && serverScans.length > 0 && (
-        <section className="card">
-          <h2>History</h2>
-          <ul className="history">
-            {serverScans.map((s) => (
-              <li key={s.id} className="history-row">
-                <button className="ghost row" onClick={() => fillFrom(scanToRequest(s))}>
-                  <span>
-                    <strong>
-                      {s.product.brand} {s.product.model} {s.product.capacity ?? ''}
-                    </strong>
-                    <span className="muted small">
-                      {' '}€{s.purchasePrice.amountMinor / 100} · {s.inputMethod} · {ago(s.createdAt)}
-                      {s.valuation?.expected ? ` · exp. €${Math.round(s.valuation.expected / 100)}` : ''}
-                    </span>
-                  </span>
-                  <span className={`pill d-${s.valuation?.decision ?? 'insufficient'}`}>
-                    {s.valuation?.decision ? DECISION_LABEL[s.valuation.decision as keyof typeof DECISION_LABEL] : 'NO DATA'}
-                  </span>
-                </button>
-                <button className="icon-btn" aria-label="Delete scan" onClick={() => void api.deleteScan(s.id).then(refreshScans)}>
-                  ×
-                </button>
-              </li>
-            ))}
-          </ul>
-        </section>
-      )}
-
-      {!dbOn && history.length > 0 && (
-        <section className="card">
-          <h2>History</h2>
-          <ul className="history">
-            {history.map((h) => (
-              <li key={h.at}>
-                <button className="ghost row" onClick={() => fillFrom(h.request)}>
-                  <span>
-                    <strong>
-                      {h.request.product.brand} {h.request.product.model} {h.request.product.capacity ?? ''}
-                    </strong>
-                    <span className="muted small"> €{h.request.purchasePrice} · {ago(h.at)}</span>
-                  </span>
-                  <span className={`pill d-${h.summary.decision}`}>
-                    {h.summary.decision === 'insufficient' ? 'NO DATA' : DECISION_LABEL[h.summary.decision]}
-                  </span>
-                </button>
-              </li>
-            ))}
-          </ul>
-        </section>
-      )}
-    </div>
-  );
-}
-
-function scanToRequest(s: ServerScan): ValuationRequest {
-  return {
-    product: {
-      category: s.product.category,
-      brand: s.product.brand,
-      model: s.product.model,
-      ...(s.product.capacity && { capacity: s.product.capacity }),
-      ...(s.product.mount && { mount: s.product.mount }),
-      ...(s.excludeModels.length > 0 && { excludeModels: s.excludeModels }),
-    },
-    condition: s.condition,
-    purchasePrice: s.purchasePrice.amountMinor / 100,
-    currency: 'EUR',
-    preset: 'ebay_de_private',
-    shippingCost: 6,
-  };
-}
-
-async function exportData(): Promise<void> {
-  const data = await api.exportMyData();
-  const url = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' }));
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = 'fliplens-export.json';
-  a.click();
-  URL.revokeObjectURL(url);
-}
-
-function Result({ resp }: { resp: ValuationResponse }) {
-  const r = resp.result;
-  return (
-    <section id="result" className="card result">
-      {resp.sourceWarnings.map((w, i) => (
-        <div key={i} className="banner warn small">
-          {w.source}
-          {w.site ? ` ${w.site}` : ''}: {w.message}
-        </div>
-      ))}
-
-      {r.status === 'insufficient_data' ? (
-        <>
-          <div className="decision d-insufficient">Not enough market data</div>
-          <p>
-            {r.reason === 'too_few_comparables'
-              ? `Only ${r.includedCount} matching listings after filtering (need 5).`
-              : 'Product identification is too uncertain.'}
-          </p>
-          <p className="muted">Try: {r.suggestions.map((s) => s.replace(/_/g, ' ')).join(', ')}.</p>
-          <Comparables items={r.comparables} />
-        </>
-      ) : (
-        <>
-          <div className={`decision d-${r.decision.decision}`}>{DECISION_LABEL[r.decision.decision]}</div>
-
-          <div className="kpis">
-            <div>
-              <span className="muted small">Expected profit</span>
-              <strong className={r.profit.expected.profit.amountMinor >= 0 ? 'pos' : 'neg'}>{fmt(r.profit.expected.profit)}</strong>
-            </div>
-            <div>
-              <span className="muted small">ROI</span>
-              <strong>{r.profit.expected.roiPct === null ? 'n/a' : `${r.profit.expected.roiPct}%`}</strong>
-            </div>
-            <div>
-              <span className="muted small">Confidence</span>
-              <strong className={`c-${r.estimate.confidence.level}`}>{r.estimate.confidence.level.toUpperCase()}</strong>
-            </div>
-          </div>
-
-          <div className="range">
-            <div>
-              <span className="muted small">Fast sale</span>
-              <span>{fmt(r.estimate.fast)}</span>
-            </div>
-            <div className="mid">
-              <span className="muted small">Expected</span>
-              <strong>{fmt(r.estimate.expected)}</strong>
-            </div>
-            <div>
-              <span className="muted small">High ask</span>
-              <span>{fmt(r.estimate.high)}</span>
-            </div>
-          </div>
-
-          <table className="breakdown">
-            <tbody>
-              <tr><td>Expected sale</td><td>{fmt(r.profit.expected.salePrice)}</td></tr>
-              <tr><td>Marketplace fee</td><td>−{fmt(r.profit.expected.marketplaceFee, 2)}</td></tr>
-              <tr><td>Payment fee</td><td>−{fmt(r.profit.expected.paymentFee, 2)}</td></tr>
-              <tr><td>Shipping</td><td>−{fmt(r.profit.expected.shipping, 2)}</td></tr>
-              <tr className="sum"><td>Net</td><td>{fmt(r.profit.expected.net, 2)}</td></tr>
-              <tr><td>Purchase</td><td>−{fmt(r.profit.expected.purchasePrice, 2)}</td></tr>
-              <tr className="sum"><td>Profit</td><td>{fmt(r.profit.expected.profit, 2)}</td></tr>
-              {r.maxBuyPrice && (
-                <tr><td>Max buy for target ROI</td><td>{fmt(r.maxBuyPrice)}</td></tr>
-              )}
-            </tbody>
-          </table>
-          <p className="muted small">
-            Fees: {resp.feePreset.percentageFeeBp / 100}% ({resp.feePreset.profileId}), checked {resp.feePreset.lastVerifiedAt}
-            {resp.feePreset.sourceQuality === 'secondary' ? ', secondary source' : ''}.
-          </p>
-
-          <div className="twocol">
-            <div>
-              <h3>Why</h3>
-              <ul className="list">{r.decision.factors.map((f) => <li key={f}>{f}</li>)}</ul>
-            </div>
-            <div>
-              <h3>Risks</h3>
-              {r.decision.risks.length === 0 ? <p className="muted">None flagged</p> : <ul className="list">{r.decision.risks.map((f) => <li key={f}>{f}</li>)}</ul>}
-            </div>
-          </div>
-
-          <details className="adv">
-            <summary>Confidence {r.estimate.confidence.score} breakdown</summary>
-            <ul className="factors">
-              {r.estimate.confidence.factors.map((f) => (
-                <li key={f.name}>
-                  <span>{FACTOR_LABEL[f.name] ?? f.name}</span>
-                  <span className="muted small">{String(f.input)}</span>
-                  <meter min={0} max={1} value={f.value} />
-                  <span className="small">{f.value.toFixed(2)}</span>
-                </li>
-              ))}
-            </ul>
-          </details>
-
-          <p className="muted small">
-            Based on {r.estimate.distribution.count} {r.estimate.dataKind === 'sold' ? 'sold items' : 'active listings (asking prices)'} ·
-            data {ago(resp.dataFetchedAt)} · FX {resp.fx.source.toUpperCase()} {resp.fx.rateDate} · {r.pricingAlgorithmVersion}
-          </p>
-          {r.estimate.warnings.map((w) => <p key={w} className="muted small">{w}</p>)}
-
-          <Comparables items={r.estimate.comparables} />
-        </>
-      )}
-    </section>
-  );
-}
-
-function Comparables({ items }: { items: ComparableJson[] }) {
-  const included = useMemo(
-    () => items.filter((c) => c.included).sort((a, b) => b.similarity - a.similarity || (a.adjustedPrice?.amountMinor ?? 0) - (b.adjustedPrice?.amountMinor ?? 0)),
-    [items],
-  );
-  const excluded = useMemo(() => items.filter((c) => !c.included), [items]);
-  const byReason = useMemo(() => {
-    const m = new Map<string, number>();
-    for (const c of excluded) {
-      const k = c.exclusionReason ?? c.role;
-      m.set(k, (m.get(k) ?? 0) + 1);
-    }
-    return [...m.entries()].sort((a, b) => b[1] - a[1]);
-  }, [excluded]);
-  const [showAll, setShowAll] = useState(false);
-  const shown = showAll ? included : included.slice(0, 12);
-
-  return (
-    <div className="comps">
-      <h3>Comparables ({included.length} used)</h3>
-      <ul className="comp-list">
-        {shown.map((c) => (
-          <li key={`${c.item.source}:${c.item.externalId}`}>
-            <div className="comp-top">
-              <strong>{c.priceTarget ? fmt(c.priceTarget) : '?'}</strong>
-              {c.adjustedPrice && c.priceTarget && c.adjustedPrice.amountMinor !== c.priceTarget.amountMinor && (
-                <span className="muted small"> → {fmt(c.adjustedPrice)} adj.</span>
-              )}
-              <span className="muted small right">
-                {c.item.country ?? '?'} · {c.item.condition ? CONDITION_LABEL[c.item.condition] : 'no condition'} · sim {c.similarity}
-              </span>
-            </div>
-            <div className="comp-title">
-              {c.item.url ? (
-                <a href={c.item.url} target="_blank" rel="noreferrer">{c.item.title}</a>
-              ) : (
-                c.item.title
-              )}
-            </div>
-            <div className="muted small">{c.item.marketplaceSite} · listed {ago(c.item.listedAt ?? null)}</div>
-          </li>
-        ))}
-      </ul>
-      {included.length > 12 && (
-        <button className="ghost" onClick={() => setShowAll((s) => !s)}>{showAll ? 'Show less' : `Show all ${included.length}`}</button>
-      )}
-
-      {excluded.length > 0 && (
-        <details className="adv">
-          <summary>Excluded {excluded.length}: {byReason.map(([k, n]) => `${REASON_LABEL[k] ?? k} ${n}`).join(', ')}</summary>
-          <ul className="comp-list excluded">
-            {excluded.map((c) => (
-              <li key={`${c.item.source}:${c.item.externalId}`}>
-                <div className="comp-top">
-                  <span>{fmt(c.priceTarget ?? c.item.price)}</span>
-                  <span className="pill small">{REASON_LABEL[c.exclusionReason ?? ''] ?? c.role}{c.exclusionDetail ? `: ${c.exclusionDetail}` : ''}</span>
-                </div>
-                <div className="comp-title">{c.item.title}</div>
-              </li>
-            ))}
-          </ul>
-        </details>
+      {!inFlow && (
+        <nav className="tabbar" aria-label="Main">
+          <button type="button" className={activeTab === 'home' ? 'on' : ''} onClick={() => tab({ name: 'home' })}>
+            <IconScan />
+            <span>Scan</span>
+          </button>
+          <button type="button" className={activeTab === 'history' ? 'on' : ''} onClick={() => tab({ name: 'history' })}>
+            <IconClock />
+            <span>History</span>
+          </button>
+          <button type="button" className={activeTab === 'profile' ? 'on' : ''} onClick={() => tab({ name: 'profile' })}>
+            <IconUser />
+            <span>Profile</span>
+          </button>
+        </nav>
       )}
     </div>
   );

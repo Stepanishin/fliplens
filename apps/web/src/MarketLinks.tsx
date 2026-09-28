@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import { marketLinks } from './marketSearch.js';
+import { track } from './track.js';
 
 export function MarketLinks({ query, country }: { query: string; country: string }) {
   const { local, other } = useMemo(() => marketLinks(query, country), [query, country]);
@@ -13,9 +14,9 @@ export function MarketLinks({ query, country }: { query: string; country: string
       </p>
       <div className="links">
         {local.map((l) => (
-          <a key={l.id} className={`link-btn ${l.id === 'vinted' ? 'featured' : ''}`} href={l.url} target="_blank" rel="noreferrer">
+          <a key={l.id} className={`link-btn ${l.id === 'vinted' ? 'featured' : ''}`} href={l.url} target="_blank" rel="noreferrer" onClick={() => track('market_link_opened', { marketplace: l.id })}>
             {l.name}
-            {l.note && <span className="muted small"> ({l.note})</span>}
+            {l.note && <span className="muted small">&nbsp;({l.note})</span>}
           </a>
         ))}
       </div>

@@ -49,6 +49,21 @@ export interface Anchors {
   readonly refurbishedCeiling?: Money;
 }
 
+/**
+ * Supply side of liquidity from active listings: how many matching items are for sale and how long they have been
+ * listed. Not a sell-through rate: without sold data we do not know how fast items actually sell (spec: no fake precision).
+ */
+export interface MarketActivity {
+  readonly kind: 'active_listings';
+  /** Matching listings in any condition (after variant/accessory/duplicate filtering), in the fetched sample. */
+  readonly activeListings: number;
+  readonly countries: number;
+  /** Median days since listing, over listings with a known start date; null if unknown. */
+  readonly medianListingAgeDays: number | null;
+  /** Share of listings older than 60 days: many old listings = slow market or overpriced asks. */
+  readonly staleShare: number | null;
+}
+
 export interface PriceEstimate {
   readonly status: 'ok';
   readonly algorithmVersion: string;
@@ -61,6 +76,7 @@ export interface PriceEstimate {
   readonly high: Money;
   readonly anchors: Anchors;
   readonly confidence: Confidence;
+  readonly market: MarketActivity;
   readonly comparables: readonly EvaluatedComparable[];
   readonly warnings: readonly string[];
 }
@@ -178,6 +194,7 @@ export function estimatePrice(input: PriceEstimateInput): PriceEstimate | Insuff
   const dataKind: 'sold' | 'asking' = soldCount >= cfg.minComparables ? 'sold' : 'asking';
   for (const w of live) if (w.item.priceKind !== dataKind) w.role = 'unused_kind';
   const pool = live.filter((w) => w.role === 'comparable');
+  const market = marketActivity(pool.map((w) => w.item), now);
 
   // 5b. Seller cap: keep at most N listings per seller (cheapest first is arbitrary; keep feed order).
   const perSeller = new Map<string, number>();
@@ -304,8 +321,20 @@ export function estimatePrice(input: PriceEstimateInput): PriceEstimate | Insuff
     high: roundMajor(high, targetCurrency),
     anchors,
     confidence,
+    market,
     comparables,
     warnings,
+  };
+}
+
+function marketActivity(items: readonly MarketplaceItem[], now: Date): MarketActivity {
+  const ages = items.filter((i) => i.listedAt !== undefined).map((i) => ageDays(i, now)).sort((a, b) => a - b);
+  return {
+    kind: 'active_listings',
+    activeListings: items.length,
+    countries: new Set(items.map((i) => i.country ?? i.marketplaceSite)).size,
+    medianListingAgeDays: ages.length > 0 ? Math.round(percentile(ages, 0.5)) : null,
+    staleShare: ages.length > 0 ? Math.round((ages.filter((a) => a > 60).length / ages.length) * 100) / 100 : null,
   };
 }
 

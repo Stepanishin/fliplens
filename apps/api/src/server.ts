@@ -226,7 +226,16 @@ app.post('/api/valuation', async (req, reply) => {
     dataFetchedAt: search.oldestFetchedAt?.toISOString() ?? null,
     sourceWarnings: search.warnings,
     fx: { rateDate: rates.rateDate, source: rates.source },
-    feePreset: { id: b.preset, profileId: fees.id, percentageFeeBp: fees.percentageFeeBp, sourceQuality: FEE_PRESETS[b.preset].sourceQuality, lastVerifiedAt: FEE_PRESETS[b.preset].lastVerifiedAt },
+    feePreset: {
+      id: b.preset,
+      label: FEE_PRESETS[b.preset].label,
+      profileId: fees.id,
+      percentageFeeBp: fees.percentageFeeBp + fees.paymentFeeBp,
+      fixedFeeMinor: fees.fixedFeeMinor + fees.paymentFixedFeeMinor,
+      sellerPaysShipping: fees.sellerPaysShipping,
+      sourceQuality: FEE_PRESETS[b.preset].sourceQuality,
+      lastVerifiedAt: FEE_PRESETS[b.preset].lastVerifiedAt,
+    },
     result,
   };
 });
