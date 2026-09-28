@@ -150,7 +150,10 @@ export function matchTitle(product: NormalizedProduct, title: string): MatchResu
   const before = t.slice(0, modelMatch.index);
   if (COMPAT.test(before)) return { reason: 'accessory_only', similarity: 0, detail: 'compat' };
 
+  // Only siblings that are not part of our own model name: "Switch" must not exclude every "Switch 2" title.
+  const ownModel = compact(product.model);
   for (const other of product.excludeModels ?? []) {
+    if (ownModel.includes(compact(other))) continue;
     if (looseModelRegex(other).test(t)) return { reason: 'wrong_variant', similarity: 0, detail: other };
   }
 

@@ -1,0 +1,19 @@
+{
+  "name": "@fliplens/eval",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "./src/dataset.ts",
+  "types": "./src/dataset.ts",
+  "exports": { ".": "./src/dataset.ts" },
+  "scripts": {
+    "eval": "tsx --env-file=../.env src/run.ts",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@fliplens/core": "workspace:*",
+    "@fliplens/recognition": "workspace:*",
+    "@fliplens/sources": "workspace:*"
+  },
+  "devDependencies": { "tsx": "^4.19.0" }
+}

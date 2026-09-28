@@ -13,6 +13,7 @@ import {
 } from '@fliplens/core';
 import { EbayAdapter, EcbFxService } from '@fliplens/sources';
 import { OpenAIVisionProvider, RecognitionError } from '@fliplens/recognition';
+import { registerBenchmarkRoutes } from './benchmark.js';
 
 // Up to 3 photos resized to ~1MP on the client: a few MB of base64 at most.
 const app = Fastify({ logger: { level: process.env.LOG_LEVEL ?? 'info' }, bodyLimit: 15 * 1024 * 1024 });
@@ -27,6 +28,8 @@ const vision = new OpenAIVisionProvider({
   apiKey: process.env.OPENAI_API_KEY ?? '',
   ...(process.env.OPENAI_VISION_MODEL && { model: process.env.OPENAI_VISION_MODEL }),
 });
+
+registerBenchmarkRoutes(app);
 
 const presetIds = Object.keys(FEE_PRESETS) as [FeePresetId, ...FeePresetId[]];
 

@@ -20,6 +20,9 @@ importers:
       '@fliplens/core':
         specifier: workspace:*
         version: link:../../packages/core
+      '@fliplens/eval':
+        specifier: workspace:*
+        version: link:../../eval
       '@fliplens/recognition':
         specifier: workspace:*
         version: link:../../packages/recognition
@@ -73,6 +76,22 @@ importers:
       workbox-window:
         specifier: ^7.4.1
         version: 7.4.1
+
+  eval:
+    dependencies:
+      '@fliplens/core':
+        specifier: workspace:*
+        version: link:../packages/core
+      '@fliplens/recognition':
+        specifier: workspace:*
+        version: link:../packages/recognition
+      '@fliplens/sources':
+        specifier: workspace:*
+        version: link:../packages/sources
+    devDependencies:
+      tsx:
+        specifier: ^4.19.0
+        version: 4.23.15
 
   packages/core: {}
 

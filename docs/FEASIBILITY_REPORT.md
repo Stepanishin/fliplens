@@ -11,7 +11,7 @@
 1. **Легального, открытого источника EU sold prices сейчас нет.** eBay Marketplace Insights закрыт для новых пользователей (V), Finding API выключен 2025-02-04 (V). C2C classifieds (Vinted, Kleinanzeigen, Leboncoin, Wallapop, Subito, Willhaben, OLX, Marktplaats, Facebook) не дают доступ к чужим объявлениям и запрещают scraping (V/V~).
 2. **eBay Browse API технически идеален** (все 11 EU сайтов, поиск по GTIN, condition, страна, бесплатно), **но лицензия eBay ограничивает наш use case**: данные не старше 6 часов, удаление после окончания listing, запрет смешивать с non-eBay данными в public display, и нужно письменное разрешение на отображение данных, позволяющих вывести average selling price (V).
 3. **Технически всё остальное дёшево и решаемо**: vision ~$0.005-0.011 за scan, barcode lookup от €19/мес, FX бесплатно (ECB). Unit economics при €9.99/мес не проблема.
-4. **Рекомендация: CONDITIONAL GO на Phase 1 (Data Prototype) как internal research tool**, параллельно с legal/BD треком. **NO-GO на public beta**, пока нет письменного разрешения eBay или другого лицензированного источника цен.
+4. **Рекомендация: CONDITIONAL GO на Phase 1 (Data Prototype) как internal research tool**, параллельно с legal/BD треком. **Закрытая beta допустима** при соблюдении правил Public Display (см. раздел 3, уточнено 2026-09-28). **Платный запуск** только после подтверждения eBay и юриста.
 
 ---
 
@@ -54,7 +54,11 @@ eBay API License Agreement (V, ключевые пункты):
 - запрет обучения ML/AI на eBay content;
 - eBay считает своим «content created or derived therefrom».
 
-Интерпретация (требует юриста): per-item оценка на основе active listings, показанная пользователю вместе с этими listings и ссылками на eBay, ближе к разрешённому «enable users to search and browse listings», чем price guide. Но «Expected resale €105» как агрегат находится в серой зоне. **Считать eBay source НЕ production-ready до письменного подтверждения от eBay.**
+Интерпретация, уточнена 2026-09-28 по полному тексту лицензии (требует юриста):
+- Требование «pricing tools only upon eBay's express prior written consent» относится к **Restricted APIs** (market trends, pricing, sales volumes: Marketplace Insights и т.п.), а не к Browse API. Browse мы используем без Restricted APIs.
+- Требование consent на «Average selling price ... for any eBay category» касается статистики **по категории eBay** (и site-wide статистики). Мы считаем оценку **одного товара** по **asking prices** его listings, а не среднюю цену продажи по категории.
+- Public Display разрешён «to promote eBay and enable Your Users to search and browse listings» с ограничениями: удалять то, что больше не публично; не смешивать с non-eBay контентом; данные не старше 6 часов (иначе показывать возраст); не использовать eBay content для ML/AI training.
+- **Вывод:** показ eBay listings со ссылками на eBay и per-item оценки по ним выглядит допустимым при соблюдении этих правил. Это не явное разрешение, а трактовка. Серая зона: «derivation» агрегатов и общий запрет «commercialize». Рекомендация: соблюдать правила, для закрытой beta этого достаточно; перед платным запуском получить подтверждение eBay и юриста.
 
 Прочее:
 - PriceCharting: API на подписке только для «Internal Business Purposes» (V).
@@ -134,7 +138,7 @@ eBay API License Agreement (V, ключевые пункты):
 - Price: eBay Browse (все EU сайты), в UI отдельный eBay блок, live fetch с TTL <= 6 часов.
 - Anchors: Rebuy / Back Market affiliate feeds (refurb ceiling), idealo (new price).
 - Own data: purchase и actual sale в приложении, импорт собственных продаж пользователя через eBay Sell APIs (OAuth пользователя).
-- Статус: internal/prototype; для public launch требует eBay written consent.
+- Статус: prototype. Public Display по правилам лицензии; перед платным запуском подтверждение eBay и юриста.
 
 **Strategy B (параллельно, BD трек): licensed sold data**
 - eBay BD: Marketplace Insights + consent на pricing tool.

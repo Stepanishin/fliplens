@@ -13,7 +13,8 @@
     "@fliplens/sources": "workspace:*",
     "fastify": "^5.0.0",
     "zod": "^3.24.0",
-    "@fliplens/recognition": "workspace:*"
+    "@fliplens/recognition": "workspace:*",
+    "@fliplens/eval": "workspace:*"
   },
   "devDependencies": {
     "tsx": "^4.19.0"

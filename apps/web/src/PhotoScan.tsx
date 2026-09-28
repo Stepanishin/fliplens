@@ -1,4 +1,4 @@
-import { useRef, useState, type ChangeEvent } from 'react';
+import { useEffect, useRef, useState, type ChangeEvent } from 'react';
 import type { IdentificationCandidate } from '@fliplens/recognition';
 import { api, ApiError, type IdentificationResult } from './api.js';
 import { CONDITION_LABEL } from './format.js';
@@ -9,9 +9,11 @@ const MAX_PHOTOS = 3;
 interface Props {
   enabled: boolean;
   onPick: (candidate: IdentificationCandidate, result: IdentificationResult) => void;
+  /** Current resized JPEG data URLs (for saving to the benchmark). */
+  onPhotosChange?: (photos: string[]) => void;
 }
 
-export function PhotoScan({ enabled, onPick }: Props) {
+export function PhotoScan({ enabled, onPick, onPhotosChange }: Props) {
   const cameraRef = useRef<HTMLInputElement>(null);
   const uploadRef = useRef<HTMLInputElement>(null);
   const [photos, setPhotos] = useState<string[]>([]);
@@ -19,6 +21,8 @@ export function PhotoScan({ enabled, onPick }: Props) {
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<IdentificationResult | null>(null);
   const [picked, setPicked] = useState<number | null>(null);
+
+  useEffect(() => onPhotosChange?.(photos), [photos, onPhotosChange]);
 
   async function onFiles(e: ChangeEvent<HTMLInputElement>) {
     const files = [...(e.target.files ?? [])].slice(0, MAX_PHOTOS - photos.length);

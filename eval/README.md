@@ -83,12 +83,19 @@ Repeatable test set. Каждое изменение pricing или recognition 
 ### Cost и latency
 - Средняя стоимость и p50/p95 latency на identify и valuation.
 
-## Скрипты (Phase 0/1)
+## Как добавлять товары
+
+В приложении: сфотографировать вещь, исправить brand/model/condition/цену в форме, открыть **Add to benchmark**, ввести диапазон реальных продаж (low/high), сохранить. Запись попадает в `eval/dataset/items.jsonl`, фото в `eval/dataset/images/<id>/` (фото в git не попадают).
+
+## Запуск
 
 ```text
-pnpm eval:identify   прогон фото через VisionProvider, отчёт в eval/reports/identify-<date>.md
-pnpm eval:comps      поиск comparables через adapters, отчёт retrieval
-pnpm eval:pricing    полный valuation, сравнение с market_range
+pnpm eval                                     # все товары, модели gpt-6-sol и gpt-6-luna, pricing через eBay
+pnpm eval -- --models gpt-6-luna --limit 10
+pnpm eval -- --skip-vision                    # только pricing (без затрат на OpenAI)
+pnpm eval -- --skip-pricing --only el-003
 ```
 
-Отчёты коммитятся, чтобы видеть регрессии между версиями алгоритма.
+Отчёт: `eval/reports/<timestamp>.md` (коммитится) и `<timestamp>.raw.json` (не коммитится). В отчёте: точность распознавания по моделям и категориям, calibration confidence, ошибка оценки, доля ошибок > 50%, ложные STRONG BUY, предложенный asking→sold ratio, стоимость на scan.
+
+Распознавание считается верным, если кандидат прошёл бы как comparable для правильного товара (тот же matcher, что в pricing): XM5 вместо XM4 или 256GB вместо 128GB = wrong.

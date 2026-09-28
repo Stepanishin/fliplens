@@ -218,3 +218,7 @@ code { font-size: 13px; }
 .links { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
 .link-btn { display: inline-flex; align-items: center; min-height: 44px; padding: 8px 14px; border-radius: 12px; border: 1px solid var(--line); background: var(--field); color: var(--text); text-decoration: none; font-weight: 600; font-size: 15px; }
 .link-btn.featured { background: var(--accent); color: var(--accent-text); border-color: var(--accent); }
+
+.banner.good { background: color-mix(in srgb, var(--strong-buy) 15%, transparent); color: var(--text); }
+.bench summary { cursor: pointer; padding: 2px 0; }
+.bench[open] summary { margin-bottom: 10px; }

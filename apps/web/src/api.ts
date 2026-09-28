@@ -76,7 +76,26 @@ async function call<T>(path: string, init?: RequestInit): Promise<T> {
   return body as T;
 }
 
+export interface BenchmarkAddRequest {
+  images: string[];
+  category: CategorySlug;
+  truth: { brand: string; model: string; capacity?: string; mount?: string; variant?: string };
+  condition: Condition;
+  purchasePriceEur: number;
+  marketRange: { low: number; high: number; kind: 'sold' | 'asking' | 'mixed' };
+  photoContext?: 'in_hand_shop_light' | 'on_table' | 'boxed' | 'label_visible' | 'poor_light';
+  referenceUrls?: string[];
+  notes?: string;
+}
+
 export const api = {
+  benchmarkCount: () => call<{ count: number; byPrefix: Record<string, number> }>('/api/benchmark/items'),
+  benchmarkAdd: (req: BenchmarkAddRequest) =>
+    call<{ id: string; count: number }>('/api/benchmark/items', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(req),
+    }),
   health: () => call<Health>('/api/health'),
   identify: (images: string[]) =>
     call<IdentificationResult>('/api/identify', {

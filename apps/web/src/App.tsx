@@ -1,10 +1,11 @@
-import { useEffect, useMemo, useState, type FormEvent } from 'react';
+import { useCallback, useEffect, useMemo, useState, type FormEvent } from 'react';
 import { CATEGORIES, CONDITIONS, FEE_PRESETS, type CategorySlug, type Condition, type FeePresetId } from '@fliplens/core';
 import { api, ApiError, type ComparableJson, type Health, type ValuationRequest, type ValuationResponse } from './api.js';
 import { ago, CONDITION_LABEL, DECISION_LABEL, FACTOR_LABEL, fmt, REASON_LABEL } from './format.js';
 import { loadHistory, loadSettings, saveHistory, saveSettings, type HistoryEntry } from './storage.js';
 import { PhotoScan } from './PhotoScan.js';
 import { MarketLinks } from './MarketLinks.js';
+import { BenchmarkAdd } from './BenchmarkAdd.js';
 import { LINK_COUNTRIES } from './marketSearch.js';
 import type { IdentificationCandidate } from '@fliplens/recognition';
 
@@ -43,6 +44,8 @@ export function App() {
   const [resp, setResp] = useState<ValuationResponse | null>(null);
   const [showSettings, setShowSettings] = useState(false);
   /** Set while the form holds an AI-recognised product; cleared as soon as the user edits brand/model. */
+  const [photos, setPhotos] = useState<string[]>([]);
+  const onPhotosChange = useCallback((p: string[]) => setPhotos(p), []);
   const [recognition, setRecognition] = useState<{ confidence: number; modelVersion: string } | null>(null);
 
   useEffect(() => {
@@ -196,7 +199,7 @@ export function App() {
       )}
 
       <section className="card">
-        <PhotoScan enabled={health?.vision.configured ?? false} onPick={onPickCandidate} />
+        <PhotoScan enabled={health?.vision.configured ?? false} onPick={onPickCandidate} onPhotosChange={onPhotosChange} />
       </section>
 
       <form className="card" onSubmit={onSubmit}>
@@ -278,6 +281,8 @@ export function App() {
         query={[form.brand, form.model, CAPACITY_CATEGORIES.includes(form.category) ? form.capacity : ''].filter((x) => x.trim()).join(' ')}
         country={settings.country}
       />
+
+      <BenchmarkAdd photos={photos} request={form.brand.trim() && form.model.trim() && form.purchasePrice !== '' ? buildRequest(form) : null} />
 
       {history.length > 0 && (
         <section className="card">

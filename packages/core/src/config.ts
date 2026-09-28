@@ -4,7 +4,7 @@ import type { CategorySlug, Condition } from './types.js';
  * All tunable numbers of the pricing / confidence / decision engine live here, under one version.
  * Any change to these values must bump PRICING_ALGORITHM_VERSION and pass the benchmark (eval/).
  */
-export const PRICING_ALGORITHM_VERSION = 'pricing-0.1.3';
+export const PRICING_ALGORITHM_VERSION = 'pricing-0.1.4';
 
 export interface PricingConfig {
   readonly version: string;

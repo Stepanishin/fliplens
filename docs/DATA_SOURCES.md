@@ -16,7 +16,7 @@ official API > licensed commercial feed > affiliate API/feed > permitted public 
 
 | Источник | Статус | Причина |
 |---|---|---|
-| eBay Browse API | research (production keyset активен с 2026-09-28), pending для production | Лицензия: 6h freshness, delete ended, no co-mingling, consent для average price derivation. Поиск с `category_ids` (ID общие для DE/FR/IT/ES/NL), см. `packages/sources/src/ebay.ts` |
+| eBay Browse API | research (production keyset активен с 2026-09-28); closed beta допустима по правилам Public Display, платный запуск после подтверждения eBay/юриста | Лицензия: 6h freshness, delete ended, no co-mingling, no ML training; consent нужен для category-level average selling price и Restricted APIs (не Browse). Поиск с `category_ids` (ID общие для DE/FR/IT/ES/NL), см. `packages/sources/src/ebay.ts` |
 | eBay Catalog API | research | Identity по GTIN; проверить тот же license |
 | eBay Marketplace Insights | pending (BD) | Закрыт для новых пользователей |
 | eBay Sell APIs (данные самого пользователя) | pending | Импорт собственных продаж пользователя по OAuth |
