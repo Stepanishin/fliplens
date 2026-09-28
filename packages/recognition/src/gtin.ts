@@ -16,6 +16,11 @@ function checkDigit(body: string): number {
   return (10 - (sum % 10)) % 10;
 }
 
+/** Codes sellers enter when a product has no real barcode ("does not apply"), e.g. 0000000000017. */
+export function isPlaceholderGtin(gtin: string): boolean {
+  return /^0{7,}/.test(gtin) || /^(\d)\1+$/.test(gtin.slice(0, -1));
+}
+
 /** The same code as UPC-12 and EAN-13: marketplaces store it either way. */
 export function gtinSearchVariants(gtin: string): string[] {
   const out = new Set([gtin]);

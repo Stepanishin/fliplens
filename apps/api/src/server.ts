@@ -13,7 +13,8 @@ import {
   type NormalizedProduct,
 } from '@fliplens/core';
 import { EbayAdapter, EcbFxService } from '@fliplens/sources';
-import { OpenAIVisionProvider, RecognitionError, gtinSearchVariants, normalizeGtin } from '@fliplens/recognition';
+import { OpenAIVisionProvider, RecognitionError, gtinSearchVariants, isPlaceholderGtin, normalizeGtin } from '@fliplens/recognition';
+import { compact } from '@fliplens/core';
 import { registerBenchmarkRoutes } from './benchmark.js';
 import { initPersistence, type Persistence } from './persistence.js';
 import { billingConfigFromEnv } from './billing.js';
@@ -92,6 +93,7 @@ const IdentifyBody = z.object({
 app.post('/api/identify', async (req, reply) => {
   const parsed = IdentifyBody.safeParse(req.body);
   if (!parsed.success) return reply.code(400).send({ error: 'invalid_request', issues: parsed.error.issues.map((i) => i.message) });
+  if (!(await store.requireAccount(req, reply, 'identification'))) return reply;
   if (!vision.isConfigured()) {
     return reply.code(409).send({ error: 'vision_not_configured', message: 'Set OPENAI_API_KEY in .env to enable photo recognition' });
   }
@@ -136,6 +138,8 @@ app.post('/api/identify/barcode', async (req, reply) => {
   if (!parsed.success) return reply.code(400).send({ error: 'invalid_request', message: 'gtin required' });
   const gtin = normalizeGtin(parsed.data.gtin);
   if (!gtin) return reply.code(400).send({ error: 'invalid_gtin', message: `"${parsed.data.gtin}" is not a valid EAN/UPC (check digit or length)` });
+  if (isPlaceholderGtin(gtin)) return reply.code(400).send({ error: 'placeholder_gtin', message: 'This is a placeholder code, not a real product barcode. Try a photo or type the model.' });
+  if (!(await store.requireAccount(req, reply, 'identification'))) return reply;
   if (!ebay.isConfigured()) return reply.code(409).send({ error: 'source_not_configured', message: 'eBay keys are not configured' });
   if (!titleIdentifier.isConfigured()) return reply.code(409).send({ error: 'vision_not_configured', message: 'Set OPENAI_API_KEY in .env' });
 
@@ -143,10 +147,40 @@ app.post('/api/identify/barcode', async (req, reply) => {
   for (const w of found.warnings) req.log.warn({ event: 'source_fetch_failed', site: w.site }, w.message);
   if (found.titles.length === 0) {
     req.log.info({ event: 'barcode_not_found', gtin }, 'barcode');
+    // Record the attempt too: it counts towards the recognition limit and shows which codes we can't resolve.
+    await store.recordIdentification(req, {
+      method: 'barcode',
+      gtin,
+      imageCount: 0,
+      result: {
+        candidates: [],
+        confusableModels: [],
+        identifyingText: [],
+        provider: 'ebay',
+        modelVersion: 'ebay:gtin-lookup',
+        usage: { inputTokens: 0, outputTokens: 0 },
+        costUsd: 0,
+        latencyMs: 0,
+      },
+      provider: 'ebay',
+      model: 'gtin-lookup',
+    });
     return reply.code(404).send({ error: 'gtin_not_found', gtin, message: 'No eBay listings carry this barcode. Try a photo or enter the model.' });
   }
   try {
-    const result = await titleIdentifier.identifyFromListingTitles(gtin, found.titles);
+    const raw = await titleIdentifier.identifyFromListingTitles(gtin, found.titles);
+    // Trust the model only as far as the listings agree: share of titles that mention the candidate's model.
+    const agreement = (model: string): number => {
+      const key = compact(model);
+      return key ? found.titles.filter((t) => compact(t).includes(key)).length / found.titles.length : 0;
+    };
+    const result = {
+      ...raw,
+      candidates: raw.candidates.map((c) => {
+        const a = agreement(c.model);
+        return a >= 0.4 ? c : { ...c, confidence: Math.round(Math.min(c.confidence, 0.3 + a) * 100) / 100 };
+      }),
+    };
     req.log.info(
       { event: 'barcode_scanned', gtin, titles: found.titles.length, top: result.candidates[0] ? `${result.candidates[0].brand} ${result.candidates[0].model}` : null, costUsd: result.costUsd ?? null },
       'barcode',
@@ -179,6 +213,7 @@ app.post('/api/valuation', async (req, reply) => {
   const b = parsed.data;
 
   const product: NormalizedProduct = stripUndefined(b.product);
+  if (!(await store.requireAccount(req, reply, 'valuation'))) return reply;
   if (!ebay.isConfigured()) {
     return reply.code(409).send({ error: 'source_not_configured', message: 'eBay keys are not configured on the server (.env)' });
   }

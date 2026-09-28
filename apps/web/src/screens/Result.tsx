@@ -60,7 +60,7 @@ export function Result({ resp, query, country, onNewScan, onEdit, targetRoiPct, 
         <div key={i} className="banner warn small">{w.site ? `${w.site}: ` : ''}{w.message}</div>
       ))}
 
-      <DecisionHero decision={r.decision.decision} profitMinor={p.profit.amountMinor} roiPct={p.roiPct} />
+      <DecisionHero decision={r.decision.decision} profitMinor={p.profit.amountMinor} roiPct={p.roiPct} expectedMinor={e.expected.amountMinor} {...(r.maxBuyPrice && { maxBuyMinor: r.maxBuyPrice.amountMinor })} />
 
       <section className="card">
         <div className="card-head">

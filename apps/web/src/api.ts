@@ -167,6 +167,7 @@ async function call<T>(path: string, init?: RequestInit): Promise<T> {
   const body: unknown = await res.json().catch(() => null);
   if (!res.ok) {
     const b = body as { message?: string; error?: string } | null;
+    if (res.status === 401 && b?.error === 'sign_in_required') window.dispatchEvent(new Event('fliplens:signed-out'));
     throw new ApiError(b?.message ?? b?.error ?? `HTTP ${res.status}`, b?.error, res.status);
   }
   return body as T;

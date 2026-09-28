@@ -10,6 +10,7 @@ import {
   getScan,
   getSettings,
   getUser,
+  identificationsThisMonth,
   linkGoogle,
   unlinkDevice,
   recordEvents,
@@ -68,7 +69,15 @@ export interface Persistence {
   recordValuation(req: FastifyRequest, x: ValuationRecord): Promise<string | undefined>;
   /** Plan usage for the caller; undefined when there is no database (no metering). */
   quota(req: FastifyRequest): Promise<Quota | undefined>;
+  /**
+   * Gate for paid-for work (recognition, valuation): the caller must be signed in, and recognition calls are capped
+   * at IDENTIFY_FACTOR x the plan's monthly checks. Returns false after sending the error response.
+   */
+  requireAccount(req: FastifyRequest, reply: FastifyReply, kind: 'valuation' | 'identification'): Promise<boolean>;
 }
+
+/** Recognition calls allowed per plan check: a few photos or retries per item are normal. */
+const IDENTIFY_FACTOR = 3;
 
 const SettingsBody = z.object({
   country: z.string().regex(/^[A-Z]{2}$/),
@@ -143,6 +152,8 @@ function disabled(status: DbStatus): Persistence {
     recordIdentification: async () => undefined,
     recordValuation: async () => undefined,
     quota: async () => undefined,
+    // Without a database there are no accounts: local development only.
+    requireAccount: async () => true,
   };
 }
 
@@ -174,10 +185,37 @@ function enabled(db: Db, log: FastifyBaseLogger, auth: AuthConfig): Persistence 
     return id;
   };
 
+  /** Signed-in users only: history, settings and billing belong to an account. */
+  const requireSignedIn = async (req: FastifyRequest, reply: FastifyReply): Promise<string | undefined> => {
+    const uid = await requireUser(req, reply);
+    if (!uid) return undefined;
+    const u = await getUser(db, uid);
+    if (!u?.googleSub) {
+      void reply.code(401).send({ error: 'sign_in_required', message: 'Sign in with Google to use FlipLens' });
+      return undefined;
+    }
+    return uid;
+  };
+
   const billing = auth.billing ? createBilling(db, auth.billing, log) : undefined;
 
   return {
     status: 'connected',
+
+    async requireAccount(req, reply, kind) {
+      const uid = await requireSignedIn(req, reply);
+      if (!uid) return false;
+      if (kind === 'identification' && billing) {
+        const q = await billing.quota(uid);
+        const used = await identificationsThisMonth(db, uid);
+        if (used >= q.limit * IDENTIFY_FACTOR) {
+          req.log.info({ event: 'identify_limit', plan: q.plan }, 'recognition limit reached');
+          void reply.code(402).send({ error: 'identify_limit', message: `You reached this month's recognition limit of your ${q.plan} plan.`, quota: q });
+          return false;
+        }
+      }
+      return true;
+    },
 
     async quota(req) {
       if (!billing) return undefined;
@@ -186,7 +224,7 @@ function enabled(db: Db, log: FastifyBaseLogger, auth: AuthConfig): Persistence 
     },
 
     registerRoutes(app) {
-      billing?.registerRoutes(app, { requireUser });
+      billing?.registerRoutes(app, { requireUser: requireSignedIn });
 
       // ---------- account ----------
       app.get('/api/me', async (req, reply) => {
@@ -227,7 +265,7 @@ function enabled(db: Db, log: FastifyBaseLogger, auth: AuthConfig): Persistence 
       });
 
       app.get('/api/scans', async (req, reply) => {
-        const uid = await requireUser(req, reply);
+        const uid = await requireSignedIn(req, reply);
         if (!uid) return;
         const rows = await listScans(db, uid, 50);
         return rows.map(({ scan, valuation: v }) => ({
@@ -253,7 +291,7 @@ function enabled(db: Db, log: FastifyBaseLogger, auth: AuthConfig): Persistence 
       });
 
       app.get('/api/scans/:id', async (req, reply) => {
-        const uid = await requireUser(req, reply);
+        const uid = await requireSignedIn(req, reply);
         if (!uid) return;
         const id = z.string().uuid().safeParse((req.params as { id?: string }).id);
         if (!id.success) return reply.code(400).send({ error: 'invalid_id' });
@@ -263,12 +301,12 @@ function enabled(db: Db, log: FastifyBaseLogger, auth: AuthConfig): Persistence 
       });
 
       app.get('/api/me/settings', async (req, reply) => {
-        const uid = await requireUser(req, reply);
+        const uid = await requireSignedIn(req, reply);
         if (!uid) return;
         return (await getSettings(db, uid)) ?? null;
       });
       app.put('/api/me/settings', async (req, reply) => {
-        const uid = await requireUser(req, reply);
+        const uid = await requireSignedIn(req, reply);
         if (!uid) return;
         const parsed = SettingsBody.safeParse(req.body);
         if (!parsed.success) return reply.code(400).send({ error: 'invalid_request', issues: parsed.error.issues.map((i) => i.message) });
@@ -288,7 +326,7 @@ function enabled(db: Db, log: FastifyBaseLogger, auth: AuthConfig): Persistence 
       });
 
       app.delete('/api/scans/:id', async (req, reply) => {
-        const uid = await requireUser(req, reply);
+        const uid = await requireSignedIn(req, reply);
         if (!uid) return;
         const id = z.string().uuid().safeParse((req.params as { id?: string }).id);
         if (!id.success) return reply.code(400).send({ error: 'invalid_id' });

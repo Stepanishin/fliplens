@@ -15,7 +15,7 @@ export function Plans({ billing, account, notice, onSignIn }: Props) {
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  if (!billing) return <div className="screen"><div className="identifying"><span className="spinner" /> Loading…</div></div>;
+  if (!billing) return <div className="screen"><div className="skeleton-list"><div className="skeleton tall" /><div className="skeleton tall" /></div></div>;
   const current = billing.quota.plan;
   const sub = billing.subscription;
 
@@ -101,7 +101,9 @@ export function Plans({ billing, account, notice, onSignIn }: Props) {
       </div>
       {error && <div className="banner bad">{error}</div>}
       {!billing.enabled && <p className="muted small center">Payments are not configured on this server.</p>}
-      <p className="muted small center">Prices include VAT. Cancel anytime. Payments are handled by Stripe.</p>
+      <p className="muted small center">
+        Prices include VAT. Cancel anytime. Payments are handled by Stripe. See the <a href="/terms">Terms</a> (incl. 14-day withdrawal right) and <a href="/privacy">Privacy Policy</a>.
+      </p>
     </div>
   );
 }

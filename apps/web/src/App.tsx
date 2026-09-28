@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { FEE_PRESETS, type FeePresetId } from '@fliplens/core';
 import { api, ApiError, type Account, type BillingInfo, type Health, type ServerScan, type ValuationResponse } from './api.js';
 import { Plans } from './screens/Plans.js';
+import { Landing } from './screens/Landing.js';
 import { signOutGoogle } from './ui/GoogleButton.js';
 import { BarcodeScanner } from './BarcodeScanner.js';
 import { BenchmarkAdd } from './BenchmarkAdd.js';
@@ -17,7 +18,8 @@ import {
 } from './flow.js';
 import { loadSettings, resetDeviceId, saveSettings, type Settings } from './storage.js';
 import { track } from './track.js';
-import { IconBack, IconClock, IconScan, IconUser } from './ui/icons.js';
+import { IconBack, IconCamera, IconClock, IconHome, IconSpark, IconUser } from './ui/icons.js';
+import { resizeToJpegDataUrl } from './image.js';
 import { Confirm } from './screens/Confirm.js';
 import { History, ScanDetail } from './screens/History.js';
 import { Home } from './screens/Home.js';
@@ -35,8 +37,9 @@ type Route =
   | { name: 'profile' }
   | { name: 'plans' };
 
-const TITLES: Partial<Record<Route['name'], string>> = { confirm: 'Identify', price: 'Price', result: 'Verdict', scan: 'Saved scan', profile: 'Profile', plans: 'Plans' };
+const TITLES: Partial<Record<Route['name'], string>> = { confirm: 'Identify', price: 'Price', result: 'Verdict', scan: 'Saved scan', profile: 'Profile' };
 const DEV_KEY = 'fliplens.devtools.v1';
+
 const AUTO_PICK_CONFIDENCE = 0.6;
 
 export function App() {
@@ -59,11 +62,15 @@ export function App() {
     }
   });
   const [account, setAccount] = useState<Account | null>(null);
+  const [meLoaded, setMeLoaded] = useState(false);
+  /** The public start page, also reachable when signed in (/welcome, "About FlipLens"). */
+  const [welcome, setWelcome] = useState(() => window.location.pathname === '/welcome');
   const [authError, setAuthError] = useState<string | null>(null);
   const [billing, setBilling] = useState<BillingInfo | null>(null);
   const [plansNotice, setPlansNotice] = useState<string | null>(null);
   const dbOn = health?.db === 'connected';
   const correctedOnce = useRef(false);
+  const cameraRef = useRef<HTMLInputElement>(null);
 
   // ---------- navigation (the system back button pops the stack) ----------
   const go = useCallback((r: Route, replace = false) => {
@@ -76,7 +83,10 @@ export function App() {
     window.scrollTo(0, 0);
   }, []);
   useEffect(() => {
-    const onPop = () => setStack((s) => (s.length > 1 ? s.slice(0, -1) : s));
+    const onPop = () => {
+      setWelcome(window.location.pathname === '/welcome');
+      setStack((s) => (s.length > 1 ? s.slice(0, -1) : s));
+    };
     window.addEventListener('popstate', onPop);
     return () => window.removeEventListener('popstate', onPop);
   }, []);
@@ -95,7 +105,16 @@ export function App() {
     api.billing().then(setBilling, () => setBilling(null));
   }, []);
   const loadAccountState = useCallback(() => {
-    api.me().then((m) => setAccount(m.account), () => setAccount(null));
+    api.me().then(
+      (m) => {
+        setAccount(m.account);
+        setMeLoaded(true);
+      },
+      () => {
+        setAccount(null);
+        setMeLoaded(true);
+      },
+    );
     refreshBilling();
     refreshScans();
     api.settings().then(
@@ -117,6 +136,15 @@ export function App() {
   useEffect(() => {
     if (dbOn) loadAccountState();
   }, [dbOn, loadAccountState]);
+  // Any API call answered with sign_in_required (e.g. signed out on another device): back to the start page.
+  useEffect(() => {
+    const onSignedOut = () => {
+      setAccount(null);
+      setScans([]);
+    };
+    window.addEventListener('fliplens:signed-out', onSignedOut);
+    return () => window.removeEventListener('fliplens:signed-out', onSignedOut);
+  }, []);
 
   // Back from Stripe Checkout: the webhook may land a moment later, so poll billing briefly.
   useEffect(() => {
@@ -135,11 +163,13 @@ export function App() {
     go({ name: 'plans' });
   }, [go, refreshBilling]);
 
-  function openPlans(notice: string | null = null) {
+  function openPlans(notice: string | null = null, asTab = false) {
     setPlansNotice(notice);
     track('subscription_viewed', { plan: billing?.quota.plan ?? null });
     refreshBilling();
-    go({ name: 'plans' });
+    // The tab bar switches to Plans; links elsewhere (quota card, Profile) open it as a step with a back arrow.
+    if (asTab) tab({ name: 'plans' });
+    else go({ name: 'plans' });
   }
 
   async function signIn(credential: string) {
@@ -160,6 +190,7 @@ export function App() {
     resetDeviceId();
     setAccount(null);
     setScans([]);
+    tab({ name: 'home' });
     loadAccountState();
   }
 
@@ -297,8 +328,29 @@ export function App() {
     .filter((x) => x.trim())
     .join(' ');
   const visionOn = health?.vision.configured ?? false;
-  const inFlow = ['confirm', 'price', 'result', 'scan', 'plans'].includes(route.name) || (route.name === 'profile' && stack.length > 2);
-  const activeTab = route.name === 'history' || route.name === 'scan' ? 'history' : route.name === 'profile' ? 'profile' : 'home';
+  const inFlow = ['confirm', 'price', 'result', 'scan'].includes(route.name) || (route.name === 'plans' && stack.length > 2) || (route.name === 'profile' && stack.length > 2);
+  const activeTab = route.name === 'history' || route.name === 'scan' ? 'history' : route.name === 'profile' ? 'profile' : route.name === 'plans' ? 'plans' : 'home';
+
+  // Signed-in only: without an account the start page is all there is (with a database; local dev without one stays open).
+  const showLanding = (dbOn && meLoaded && !account) || welcome;
+  if (showLanding) {
+    return (
+      <Landing
+        signedIn={account !== null}
+        onOpenApp={() => {
+          window.history.replaceState(null, '', '/');
+          setWelcome(false);
+          window.scrollTo(0, 0);
+        }}
+        googleClientId={health?.auth.google ?? null}
+        authError={authError}
+        onGoogleCredential={(c) => void signIn(c)}
+      />
+    );
+  }
+  if (dbOn && !meLoaded) {
+    return <div className="boot"><img src="/icons/icon.svg" alt="" width={56} height={56} /></div>;
+  }
 
   return (
     <div className="shell">
@@ -308,8 +360,14 @@ export function App() {
         ) : (
           <div className="logo"><img src="/icons/icon.svg" alt="" width={26} height={26} /> FlipLens</div>
         )}
-        {inFlow && <div className="appbar-title">{TITLES[route.name]}</div>}
-        <div className="appbar-end" />
+        <div className="appbar-title">{inFlow ? TITLES[route.name] : ''}</div>
+        <div className="appbar-end">
+          {!inFlow && (
+            <button type="button" className="avatar-btn" onClick={() => tab({ name: 'profile' })} aria-label="Profile">
+              {account?.picture ? <img src={account.picture} alt="" referrerPolicy="no-referrer" /> : <IconUser size={20} />}
+            </button>
+          )}
+        </div>
       </header>
 
       {health === null && <div className="banner warn inset">Server not reachable. Run <code>pnpm dev</code>.</div>}
@@ -318,9 +376,11 @@ export function App() {
       <main className="content">
         {route.name === 'home' && (
           <Home
+            account={account}
             visionEnabled={visionOn}
-            recent={scans ?? []}
+            recent={dbOn ? scans : []}
             onPhotos={startPhotos}
+            onCamera={() => cameraRef.current?.click()}
             onBarcode={() => setScanning(true)}
             onManual={startManual}
             onOpenScan={(s) => go({ name: 'scan', scan: s })}
@@ -418,6 +478,11 @@ export function App() {
                 // storage unavailable: the toggle just won't persist
               }
             }}
+            onOpenWelcome={() => {
+              window.history.pushState(null, '', '/welcome');
+              setWelcome(true);
+              window.scrollTo(0, 0);
+            }}
             onDataDeleted={() => {
               setScans([]);
               tab({ name: 'home' });
@@ -427,16 +492,35 @@ export function App() {
       </main>
 
       {scanning && <BarcodeScanner onCode={onBarcode} onClose={closeScanner} />}
+      <input
+        ref={cameraRef}
+        type="file"
+        accept="image/*"
+        capture="environment"
+        hidden
+        onChange={async (e) => {
+          const files = [...(e.target.files ?? [])].slice(0, 3);
+          e.target.value = '';
+          if (files.length > 0) startPhotos(await Promise.all(files.map((f) => resizeToJpegDataUrl(f))));
+        }}
+      />
 
       {!inFlow && (
         <nav className="tabbar" aria-label="Main">
           <button type="button" className={activeTab === 'home' ? 'on' : ''} onClick={() => tab({ name: 'home' })}>
-            <IconScan />
-            <span>Scan</span>
+            <IconHome />
+            <span>Home</span>
           </button>
           <button type="button" className={activeTab === 'history' ? 'on' : ''} onClick={() => tab({ name: 'history' })}>
             <IconClock />
             <span>History</span>
+          </button>
+          <button type="button" className="fab" onClick={() => cameraRef.current?.click()} disabled={!visionOn} aria-label="Scan item with the camera">
+            <IconCamera size={26} />
+          </button>
+          <button type="button" className={activeTab === 'plans' ? 'on' : ''} onClick={() => openPlans(null, true)}>
+            <IconSpark />
+            <span>Plans</span>
           </button>
           <button type="button" className={activeTab === 'profile' ? 'on' : ''} onClick={() => tab({ name: 'profile' })}>
             <IconUser />

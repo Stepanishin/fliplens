@@ -17,7 +17,7 @@ export function History({ scans, dbOn, onOpen }: { scans: ServerScan[] | null; d
     <div className="screen">
       <h1 className="screen-title">History</h1>
       {scans === null ? (
-        <div className="identifying"><span className="spinner" /> Loading…</div>
+        <div className="skeleton-list"><div className="skeleton" /><div className="skeleton" /><div className="skeleton" /></div>
       ) : scans.length === 0 ? (
         <div className="empty">No scans yet. Your checks show up here.</div>
       ) : (
@@ -65,7 +65,7 @@ export function ScanDetail({ scan, onRecheck, onDelete }: { scan: ServerScan; on
 
       {v && v.status === 'ok' && v.decision && v.expectedProfitMinor !== null && (
         <>
-          <DecisionHero decision={v.decision} profitMinor={v.expectedProfitMinor} roiPct={v.roiBp === null ? null : v.roiBp / 100} />
+          <DecisionHero decision={v.decision} profitMinor={v.expectedProfitMinor} roiPct={v.roiBp === null ? null : v.roiBp / 100} {...(v.expectedSaleMinor !== null && { expectedMinor: v.expectedSaleMinor })} {...(v.maxBuyMinor !== null && { maxBuyMinor: v.maxBuyMinor })} />
           <section className="card">
             <div className="card-head">
               <h2>Resale value then</h2>

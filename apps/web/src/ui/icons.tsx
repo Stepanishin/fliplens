@@ -47,3 +47,18 @@ export const IconRefresh = (p: P) => (
 export const IconChevron = (p: P) => (
   <Svg {...p}><path d="m9 5 7 7-7 7" /></Svg>
 );
+export const IconHome = (p: P) => (
+  <Svg {...p}><path d="M4 11 12 4l8 7v8a1 1 0 0 1-1 1h-4v-6H9v6H5a1 1 0 0 1-1-1v-8Z" /></Svg>
+);
+export const IconCheck = (p: P) => (
+  <Svg {...p}><path d="m5 12.5 4.5 4.5L19 7.5" /></Svg>
+);
+export const IconAlert = (p: P) => (
+  <Svg {...p}><path d="M12 8v5M12 16.5v.5" /><circle cx="12" cy="12" r="9" /></Svg>
+);
+export const IconX = (p: P) => (
+  <Svg {...p}><circle cx="12" cy="12" r="9" /><path d="m9 9 6 6M15 9l-6 6" /></Svg>
+);
+export const IconSpark = (p: P) => (
+  <Svg {...p}><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8L12 3Z" /><path d="M19 16l.7 1.8L21.5 18.5l-1.8.7L19 21l-.7-1.8-1.8-.7 1.8-.7L19 16Z" /></Svg>
+);

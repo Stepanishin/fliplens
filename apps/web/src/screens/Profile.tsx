@@ -19,6 +19,7 @@ interface Props {
   devTools: boolean;
   onDevTools: (on: boolean) => void;
   onDataDeleted: () => void;
+  onOpenWelcome: () => void;
 }
 
 const COUNTRY_NAMES: Record<string, string> = {
@@ -27,7 +28,7 @@ const COUNTRY_NAMES: Record<string, string> = {
   PL: 'Poland', PT: 'Portugal', RO: 'Romania', SE: 'Sweden', SI: 'Slovenia', SK: 'Slovakia', GB: 'United Kingdom',
 };
 
-export function Profile({ billing, onOpenPlans, account, googleClientId, onGoogleCredential, onSignOut, authError, settings, onChange, dbOn, version, devTools, onDevTools, onDataDeleted }: Props) {
+export function Profile({ billing, onOpenPlans, account, googleClientId, onGoogleCredential, onSignOut, authError, settings, onChange, dbOn, version, devTools, onDevTools, onDataDeleted, onOpenWelcome }: Props) {
   const preset = FEE_PRESETS[settings.preset];
 
   async function exportData() {
@@ -65,6 +66,7 @@ export function Profile({ billing, onOpenPlans, account, googleClientId, onGoogl
             <>
               <h2>Sign in</h2>
               <p className="muted small">Keep your scans and settings across devices. Your current scans move into your account.</p>
+              <p className="muted small">By continuing you agree to the <a href="/terms">Terms</a> and <a href="/privacy">Privacy Policy</a>.</p>
               {googleClientId ? <GoogleButton clientId={googleClientId} onCredential={onGoogleCredential} /> : <p className="muted small">Sign-in is not configured on the server.</p>}
             </>
           )}
@@ -141,7 +143,11 @@ export function Profile({ billing, onOpenPlans, account, googleClientId, onGoogl
         </label>
       </section>
 
-      <p className="muted small center">FlipLens · {version}</p>
+      <p className="muted small center">
+        <button type="button" className="link" onClick={onOpenWelcome}>About FlipLens</button> · <a href="/privacy">Privacy Policy</a> · <a href="/terms">Terms of Service</a>
+        <br />
+        FlipLens · {version}
+      </p>
     </div>
   );
 }

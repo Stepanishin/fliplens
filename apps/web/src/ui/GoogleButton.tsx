@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from 'react';
 interface GsiButtonConfig {
   theme?: 'outline' | 'filled_blue' | 'filled_black';
   size?: 'large' | 'medium' | 'small';
-  text?: 'signin_with' | 'continue_with';
+  text?: 'signin_with' | 'continue_with' | 'signin';
   shape?: 'pill' | 'rectangular';
   width?: number;
 }
@@ -45,29 +45,53 @@ export function signOutGoogle(): void {
   window.google?.accounts.id.disableAutoSelect();
 }
 
-export function GoogleButton({ clientId, onCredential }: { clientId: string; onCredential: (credential: string) => void }) {
+/** One Google client per page: every button shares it, the latest mounted handler receives the credential. */
+let initializedFor: string | undefined;
+let credentialHandler: ((credential: string) => void) | undefined;
+
+export function GoogleButton({
+  clientId,
+  onCredential,
+  compact = false,
+}: {
+  clientId: string;
+  onCredential: (credential: string) => void;
+  /** Small "Sign in" pill for headers. */
+  compact?: boolean;
+}) {
   const ref = useRef<HTMLDivElement>(null);
   const [error, setError] = useState<string | null>(null);
-  const cb = useRef(onCredential);
-  cb.current = onCredential;
+
+  useEffect(() => {
+    credentialHandler = onCredential;
+  }, [onCredential]);
 
   useEffect(() => {
     let cancelled = false;
     loadGsi().then(
       (g) => {
         if (cancelled || !ref.current) return;
-        g.accounts.id.initialize({ client_id: clientId, callback: (r) => cb.current(r.credential), ux_mode: 'popup' });
-        g.accounts.id.renderButton(ref.current, { theme: 'outline', size: 'large', text: 'continue_with', shape: 'pill', locale: 'en', width: Math.min(360, ref.current.clientWidth || 320) });
+        if (initializedFor !== clientId) {
+          g.accounts.id.initialize({ client_id: clientId, callback: (r) => credentialHandler?.(r.credential), ux_mode: 'popup' });
+          initializedFor = clientId;
+        }
+        if (compact) {
+          g.accounts.id.renderButton(ref.current, { theme: 'outline', size: 'medium', text: 'signin_with', shape: 'pill', locale: 'en' });
+        } else {
+          // A zero-width container (e.g. inside a centred flex column) makes Google render nothing: always pass a real width.
+          const w = ref.current.parentElement?.clientWidth || 320;
+          g.accounts.id.renderButton(ref.current, { theme: 'outline', size: 'large', text: 'continue_with', shape: 'pill', locale: 'en', width: Math.max(240, Math.min(360, w)) });
+        }
       },
       (e: unknown) => setError(e instanceof Error ? e.message : 'Google sign-in unavailable'),
     );
     return () => {
       cancelled = true;
     };
-  }, [clientId]);
+  }, [clientId, compact]);
 
   return (
-    <div>
+    <div className={compact ? 'gsi-compact' : 'gsi-wrap'}>
       <div ref={ref} className="gsi-button" />
       {error && <p className="muted small">{error}</p>}
     </div>

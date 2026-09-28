@@ -1,4 +1,6 @@
+import type { JSX } from 'react';
 import type { MarketActivityJson } from '../api.js';
+import { IconAlert, IconCheck, IconX } from './icons.js';
 
 /** Shared result building blocks, used by the live Result and by saved scans. */
 
@@ -14,11 +16,37 @@ const DECISION_TEXT: Record<DecisionKey, { title: string; sub: string }> = {
 const eur = (minor: number, digits = 0): string =>
   new Intl.NumberFormat('en-IE', { style: 'currency', currency: 'EUR', minimumFractionDigits: digits, maximumFractionDigits: digits }).format(minor / 100);
 
-export function DecisionHero({ decision, profitMinor, roiPct }: { decision: DecisionKey; profitMinor: number; roiPct: number | null }) {
+const DECISION_ICON: Record<DecisionKey, (p: { size?: number }) => JSX.Element> = {
+  strong_buy: IconCheck,
+  buy: IconCheck,
+  borderline: IconAlert,
+  skip: IconX,
+};
+
+export function DecisionHero({
+  decision,
+  profitMinor,
+  roiPct,
+  expectedMinor,
+  maxBuyMinor,
+}: {
+  decision: DecisionKey;
+  profitMinor: number;
+  roiPct: number | null;
+  expectedMinor?: number;
+  maxBuyMinor?: number;
+}) {
   const t = DECISION_TEXT[decision];
+  const Icon = DECISION_ICON[decision];
   return (
     <div className={`hero d-${decision}`}>
-      <div className="hero-title">{t.title}</div>
+      <div className="hero-top">
+        <span className="hero-icon"><Icon size={26} /></span>
+        <div>
+          <div className="hero-title">{t.title}</div>
+          <div className="hero-sub">{maxBuyMinor !== undefined ? `Worth it up to ${eur(maxBuyMinor)}` : t.sub}</div>
+        </div>
+      </div>
       <div className="hero-numbers">
         <div>
           <span>Profit</span>
@@ -28,8 +56,13 @@ export function DecisionHero({ decision, profitMinor, roiPct }: { decision: Deci
           <span>ROI</span>
           <strong>{roiPct === null ? 'n/a' : `${Math.round(roiPct)}%`}</strong>
         </div>
+        {expectedMinor !== undefined && (
+          <div>
+            <span>Sells for</span>
+            <strong>{eur(expectedMinor)}</strong>
+          </div>
+        )}
       </div>
-      <div className="hero-sub">{t.sub}</div>
     </div>
   );
 }

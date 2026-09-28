@@ -364,3 +364,12 @@ export async function valuationsThisMonth(db: Db, userId: string): Promise<numbe
     .where(and(eq(scans.userId, userId), gte(scans.createdAt, sql`date_trunc('month', now())`)));
   return row?.n ?? 0;
 }
+
+/** Recognition calls this calendar month: capped separately because each one costs an AI request. */
+export async function identificationsThisMonth(db: Db, userId: string): Promise<number> {
+  const [row] = await db
+    .select({ n: sql<number>`count(*)::int` })
+    .from(productIdentifications)
+    .where(and(eq(productIdentifications.userId, userId), gte(productIdentifications.createdAt, sql`date_trunc('month', now())`)));
+  return row?.n ?? 0;
+}
