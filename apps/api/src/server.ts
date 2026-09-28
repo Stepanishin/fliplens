@@ -5,6 +5,7 @@ import {
   CONDITIONS,
   CURRENCIES,
   FEE_PRESETS,
+  resolveFeeProfile,
   money,
   PRICING_ALGORITHM_VERSION,
   valuate,
@@ -164,14 +165,7 @@ app.post('/api/identify/barcode', async (req, reply) => {
 });
 
 app.get('/api/presets', async () =>
-  Object.entries(FEE_PRESETS).map(([id, p]) => ({
-    id,
-    marketplace: p.marketplace,
-    sellerType: p.sellerType,
-    percentageFeeBp: p.percentageFeeBp,
-    sellerPaysShipping: p.sellerPaysShipping,
-    verified: 'lastVerifiedAt' in p,
-  })),
+  Object.entries(FEE_PRESETS).map(([id, p]) => ({ id, label: p.label, note: p.note, sourceUrl: p.sourceUrl, sourceQuality: p.sourceQuality, lastVerifiedAt: p.lastVerifiedAt })),
 );
 
 app.post('/api/valuation', async (req, reply) => {
@@ -188,6 +182,7 @@ app.post('/api/valuation', async (req, reply) => {
   for (const w of search.warnings) req.log.warn({ source: w.source, site: w.site, event: 'source_fetch_failed' }, w.message);
   if (rates.source !== 'ecb') req.log.warn({ event: 'fx_fallback' }, 'ECB unreachable, using static FX rates');
 
+  const fees = resolveFeeProfile(b.preset, b.condition, product.category);
   const result = valuate({
     product,
     targetCondition: b.condition,
@@ -197,7 +192,7 @@ app.post('/api/valuation', async (req, reply) => {
     now: new Date(),
     identificationConfidence: b.identificationConfidence,
     purchasePrice: money(b.purchasePrice, b.currency),
-    fees: FEE_PRESETS[b.preset],
+    fees,
     shippingCost: money(b.shippingCost, b.currency),
     ...(b.packagingCost !== undefined && { packagingCost: money(b.packagingCost, b.currency) }),
     ...(b.targetRoiPct !== undefined && { targetRoiPct: b.targetRoiPct }),
@@ -222,7 +217,7 @@ app.post('/api/valuation', async (req, reply) => {
     result,
     search,
     fx: rates,
-    feeProfileId: FEE_PRESETS[b.preset].id,
+    feeProfileId: fees.id,
   });
 
   return {
@@ -231,7 +226,7 @@ app.post('/api/valuation', async (req, reply) => {
     dataFetchedAt: search.oldestFetchedAt?.toISOString() ?? null,
     sourceWarnings: search.warnings,
     fx: { rateDate: rates.rateDate, source: rates.source },
-    feePreset: { id: b.preset, verified: 'lastVerifiedAt' in FEE_PRESETS[b.preset] },
+    feePreset: { id: b.preset, profileId: fees.id, percentageFeeBp: fees.percentageFeeBp, sourceQuality: FEE_PRESETS[b.preset].sourceQuality, lastVerifiedAt: FEE_PRESETS[b.preset].lastVerifiedAt },
     result,
   };
 });

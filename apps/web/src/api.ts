@@ -55,7 +55,7 @@ export interface ValuationResponse {
   dataFetchedAt: string | null;
   sourceWarnings: { source: string; site?: string; message: string }[];
   fx: { rateDate: string; source: string };
-  feePreset: { id: FeePresetId; verified: boolean };
+  feePreset: { id: FeePresetId; profileId: string; percentageFeeBp: number; sourceQuality: 'official' | 'secondary'; lastVerifiedAt: string };
   result: ValuationJson | InsufficientJson;
 }
 

@@ -220,10 +220,14 @@ export function App() {
             <select value={settings.preset} onChange={(e) => setSettings({ ...settings, preset: e.target.value as FeePresetId })}>
               {Object.entries(FEE_PRESETS).map(([id, p]) => (
                 <option key={id} value={id}>
-                  {id.replace(/_/g, ' ')} ({p.percentageFeeBp / 100}% fee)
+                  {p.label}
                 </option>
               ))}
             </select>
+            <span className="muted small">
+              {FEE_PRESETS[settings.preset].note} Checked {FEE_PRESETS[settings.preset].lastVerifiedAt}
+              {FEE_PRESETS[settings.preset].sourceQuality === 'secondary' ? ' (secondary source)' : ''}.
+            </span>
           </label>
           <div className="row2">
             <label className="field">
@@ -235,7 +239,7 @@ export function App() {
               <input inputMode="numeric" value={settings.targetRoiPct} onChange={(e) => setSettings({ ...settings, targetRoiPct: Number(e.target.value) || 0 })} />
             </label>
           </div>
-          <p className="muted small">Pricing {health?.pricingAlgorithmVersion ?? 'n/a'}. Fee presets are unverified placeholders.</p>
+          <p className="muted small">Pricing {health?.pricingAlgorithmVersion ?? 'n/a'}.</p>
           {dbOn && (
             <div className="row2">
               <button type="button" className="ghost" onClick={() => void exportData()}>Export my data</button>
@@ -496,7 +500,10 @@ function Result({ resp }: { resp: ValuationResponse }) {
               )}
             </tbody>
           </table>
-          {!resp.feePreset.verified && <p className="muted small">Fee preset "{resp.feePreset.id}" is not verified yet.</p>}
+          <p className="muted small">
+            Fees: {resp.feePreset.percentageFeeBp / 100}% ({resp.feePreset.profileId}), checked {resp.feePreset.lastVerifiedAt}
+            {resp.feePreset.sourceQuality === 'secondary' ? ', secondary source' : ''}.
+          </p>
 
           <div className="twocol">
             <div>

@@ -64,12 +64,15 @@ const BUNDLE = new RegExp(
     words(['bundle', 'konvolut', 'job lot', 'lot of', 'lote', 'lotto', 'sammlung', 'paket', 'pakket', 'zestaw']).source,
     String.raw`\+\s?\d+\s?(?:games|spiele|jeux|giochi|juegos|gier|spellen)`,
     String.raw`(?:mit|with|avec|con|z|met|inkl\.?|incl\.?|inkl)\s\d+\s?(?:games|spiele|spielen|jeux|giochi|juegos|gier|spellen)`,
+    // "... e 3 Giochi", "2 Spiele", "w/ games", "mit Spielen"
+    String.raw`(?<![a-z0-9])\d{1,2}\s?(?:games|spiele|spielen|jeux|giochi|juegos|gier|spellen)(?![a-z])`,
+    String.raw`(?:w/|with|mit|avec|con|inkl\.?|incl\.?)\s?(?:games|spiele|spielen|jeux|giochi|juegos|gier|spellen)(?![a-z])`,
   ].join('|'),
 );
 
 /** Words right after the model that turn it into a different variant. */
 const VARIANT_SUFFIXES = new Set([
-  'pro', 'max', 'plus', 'mini', 'lite', 'oled', 'ultra', 'slim', 'digital', 'se', 'fe', 'air',
+  'pro', 'max', 'plus', 'mini', 'lite', 'oled', 'ultra', 'slim', 'se', 'fe', 'air',
   'xl', 'ii', 'iii', 'iv', 'mark', 'mk', 'mkii', 'mkiii', 'gen', 'nd', 'rd', 'th', 'edge',
 ]);
 const GENERATION_TOKEN = /^(?:[1-9])(?:st|nd|rd|th)?$/;
@@ -80,7 +83,16 @@ const NUMBER_UNIT_AFTER = /^\s*(?:zoll|inch|inches|pollici|pouces|pulgadas|cali|
 const EDITION = words([
   'limited edition', 'special edition', 'collectors? edition', 'edition limitee', 'edizione limitata',
   'edicion limitada', 'sonderedition', '[a-z]+ edition',
+  'anniversary', 'aniversario', 'anniversario', 'anniversaire', 'jubilaums',
 ]);
+
+/**
+ * Console variants that sellers put anywhere in the title ("PlayStation 5 (PS5 Pro)", "Edicion Digital ... Slim").
+ * Only for consoles: "digital" or "pro" in a camera or phone title means something else.
+ */
+const CONSOLE_VARIANT_ANYWHERE = /(?<![a-z0-9])(pro|slim|digital|digitale|lite|oled)(?![a-z0-9])(?!\s*(?:controller|pad|joy|gamepad|headset|stand|case))/;
+/** Words after which the rest of the title lists extras: "Switch OLED mit Pro Controller". */
+const EXTRAS_START = /(?<![a-z0-9])(?:mit|with|w\/|inkl|incl|avec|con|und|and|plus|\+|&)(?![a-z0-9])/;
 
 /** Canon/Sony mounts the matcher understands. Longer ones first so "ef-s" is not read as "ef". */
 const MOUNTS: readonly (readonly [string, RegExp])[] = [
@@ -171,7 +183,7 @@ export function matchTitle(product: NormalizedProduct, title: string): MatchResu
   // "Galaxy S23+" is a variant; "Switch OLED + 4 Joy-Cons" is just a list of extras.
   if (after.startsWith('+')) return { reason: 'wrong_variant', similarity: 0, detail: '+' };
   // After " + " / " & " / "," comes a list of extras, not part of the model name.
-  const nextToken = /^\s*[+&,(/]/.test(after) ? undefined : after.match(/^[^a-z0-9]*([a-z0-9]+)/)?.[1];
+  const nextToken = /^\s*[+&,/]/.test(after) ? undefined : after.match(/^[^a-z0-9]*([a-z0-9]+)/)?.[1];
   const ownTokens = new Set(
     normalizeText([product.model, product.variant ?? '', product.generation ?? ''].join(' ')).split(/[^a-z0-9]+/),
   );
@@ -184,6 +196,11 @@ export function matchTitle(product: NormalizedProduct, title: string): MatchResu
   }
 
   const ownText = normalizeText(`${product.model} ${product.variant ?? ''}`);
+  if (product.category === 'consoles' || product.category === 'handhelds') {
+    const main = t.split(EXTRAS_START)[0] ?? t;
+    const v = CONSOLE_VARIANT_ANYWHERE.exec(main);
+    if (v && !ownText.split(/[^a-z0-9]+/).includes(v[1]!)) return { reason: 'wrong_variant', similarity: 0, detail: v[1]! };
+  }
   const edition = EDITION.exec(t);
   if (edition && !ownText.includes(edition[0])) return { reason: 'wrong_variant', similarity: 0, detail: edition[0] };
 

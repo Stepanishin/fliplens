@@ -11,7 +11,7 @@
 import { mkdir, writeFile } from 'node:fs/promises';
 import {
   DEFAULT_PRICING_CONFIG,
-  FEE_PRESETS,
+  resolveFeeProfile,
   PRICING_ALGORITHM_VERSION,
   compact,
   computeProfit,
@@ -178,7 +178,7 @@ async function main(): Promise<void> {
           pricing = { status: 'insufficient_data', included: est.includedCount, mid };
         } else {
           const expected = toMajor(est.expected);
-          const fees = FEE_PRESETS.ebay_de_private;
+          const fees = resolveFeeProfile('ebay_de_private', item.condition, item.category);
           const shipping = money(6, 'EUR');
           const purchase = money(item.hypothetical_purchase_price_eur, 'EUR');
           const decisionFor = (sale: number): Decision => {
