@@ -204,7 +204,7 @@ export function TermsOfService() {
         ))}
       </ul>
       <p>
-        Every valuation counts as a check, also when there is not enough market data. Photo and barcode recognition is limited to three times your plan's
+        Every valuation counts as a check, also when there is not enough market data. Photo and barcode recognition is limited to one and a half times your plan's
         monthly checks. Prices include VAT. Paid plans are billed monthly in advance through Stripe and renew automatically until cancelled. You can cancel at any time in
         "Manage subscription"; the plan then stays active until the end of the paid period and is not renewed. Unused checks do not carry over. We may change
         prices for future billing periods with at least 30 days' notice; you can cancel before the change takes effect.

@@ -152,6 +152,18 @@ export interface BillingInfo {
   plans: { id: 'free' | 'pro' | 'reseller'; name: string; priceMonthlyMinor: number; monthlyValuations: number; features: string[] }[];
 }
 
+export interface AdminOverview {
+  days: number;
+  users: { total: number; signedIn: number; activeInPeriod: number };
+  plans: Record<string, number>;
+  valuations: { total: number; ok: number; insufficient: number };
+  identifications: { total: number; photo: number; barcode: number; escalated: number; corrected: number; decided: number };
+  cost: { totalUsd: number; byKind: Record<string, { usd: number; calls: number }>; perSuccessfulValuationUsd: number | null };
+  ebayCallsToday: number;
+  topUsers: { email: string | null; plan: string; valuations: number; identifications: number; costUsd: number }[];
+  events: { days: number; activeUsers: number; byName: Record<string, number> };
+}
+
 export class ApiError extends Error {
   constructor(message: string, readonly code?: string, readonly status?: number) {
     super(message);
@@ -205,7 +217,8 @@ export const api = {
   checkout: (plan: 'pro' | 'reseller') =>
     call<{ url: string }>('/api/billing/checkout', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ plan }) }),
   portal: () => call<{ url: string }>('/api/billing/portal', { method: 'POST' }),
-  me: () => call<{ account: Account | null; authAvailable: boolean }>('/api/me'),
+  me: () => call<{ account: Account | null; authAvailable: boolean; isAdmin: boolean }>('/api/me'),
+  adminOverview: (days: number) => call<AdminOverview>(`/api/admin/overview?days=${days}`),
   googleLogin: (credential: string) =>
     call<{ account: Account }>('/api/auth/google', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ credential }) }),
   logout: () => call<{ signedOut: boolean }>('/api/auth/logout', { method: 'POST' }),

@@ -1,12 +1,13 @@
 import type { FastifyBaseLogger, FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import { z } from 'zod';
 import {
+  adminOverview,
   connect,
-  costSummary,
   deleteScan,
   deleteUserData,
   eventStats,
   exportUserData,
+  findUserByDevice,
   getScan,
   getSettings,
   getUser,
@@ -77,7 +78,7 @@ export interface Persistence {
 }
 
 /** Recognition calls allowed per plan check: a few photos or retries per item are normal. */
-const IDENTIFY_FACTOR = 3;
+const IDENTIFY_FACTOR = 1.5;
 
 const SettingsBody = z.object({
   country: z.string().regex(/^[A-Z]{2}$/),
@@ -107,6 +108,8 @@ const EventsBody = z.object({
 
 export interface AuthConfig {
   googleClientId?: string | undefined;
+  /** Lower-case emails of signed-in users who can see /admin and the stats endpoints. */
+  adminEmails?: readonly string[];
   billing?: BillingConfig;
 }
 
@@ -138,11 +141,10 @@ function disabled(status: DbStatus): Persistence {
       app.get('/api/me/settings', unavailable);
       app.put('/api/me/settings', unavailable);
       app.post('/api/events', async () => ({ stored: 0 }));
-      app.get('/api/stats/events', unavailable);
       app.get('/api/me/export', unavailable);
       app.delete('/api/me', unavailable);
-      app.get('/api/stats/costs', unavailable);
-      app.get('/api/me', async () => ({ account: null, authAvailable: false }));
+      app.get('/api/admin/overview', unavailable);
+      app.get('/api/me', async () => ({ account: null, authAvailable: false, isAdmin: false }));
       app.post('/api/auth/google', unavailable);
       app.post('/api/auth/logout', unavailable);
       app.get('/api/billing', unavailable);
@@ -197,6 +199,20 @@ function enabled(db: Db, log: FastifyBaseLogger, auth: AuthConfig): Persistence 
     return uid;
   };
 
+  const admins = new Set((auth.adminEmails ?? []).map((e) => e.trim().toLowerCase()).filter(Boolean));
+  const isAdmin = (email: string | null | undefined): boolean => Boolean(email && admins.has(email.toLowerCase()));
+  /** Internal business numbers: signed-in admins only (ADMIN_EMAILS). */
+  const requireAdmin = async (req: FastifyRequest, reply: FastifyReply): Promise<boolean> => {
+    const uid = await requireSignedIn(req, reply);
+    if (!uid) return false;
+    const u = await getUser(db, uid);
+    if (!isAdmin(u?.email)) {
+      void reply.code(403).send({ error: 'forbidden' });
+      return false;
+    }
+    return true;
+  };
+
   const billing = auth.billing ? createBilling(db, auth.billing, log) : undefined;
 
   return {
@@ -228,12 +244,15 @@ function enabled(db: Db, log: FastifyBaseLogger, auth: AuthConfig): Persistence 
 
       // ---------- account ----------
       app.get('/api/me', async (req, reply) => {
-        const uid = await requireUser(req, reply);
-        if (!uid) return;
-        const u = await getUser(db, uid);
+        const key = req.headers[DEVICE_HEADER];
+        if (typeof key !== 'string' || !DEVICE_KEY.test(key)) return reply.code(400).send({ error: 'device_id_required' });
+        // Read-only: visiting the start page must not create users.
+        const uid = userCache.get(key) ?? (await findUserByDevice(db, key));
+        const u = uid ? await getUser(db, uid) : undefined;
         return {
           authAvailable: Boolean(auth.googleClientId),
           account: u?.googleSub ? { email: u.email, name: u.name, picture: u.picture } : null,
+          isAdmin: Boolean(u?.googleSub) && isAdmin(u?.email),
         };
       });
 
@@ -320,10 +339,6 @@ function enabled(db: Db, log: FastifyBaseLogger, auth: AuthConfig): Persistence 
         await safely(req, 'events', () => recordEvents(db, uid, parsed.data.events.map((e) => ({ name: e.name, props: e.props ?? {} }))));
         return { stored: parsed.data.events.length };
       });
-      app.get('/api/stats/events', async (req) => {
-        const days = z.coerce.number().int().min(1).max(365).catch(7).parse((req.query as { days?: string }).days);
-        return eventStats(db, days);
-      });
 
       app.delete('/api/scans/:id', async (req, reply) => {
         const uid = await requireSignedIn(req, reply);
@@ -349,9 +364,11 @@ function enabled(db: Db, log: FastifyBaseLogger, auth: AuthConfig): Persistence 
         return { deleted: true };
       });
 
-      app.get('/api/stats/costs', async (req) => {
+      app.get('/api/admin/overview', async (req, reply) => {
+        if (!(await requireAdmin(req, reply))) return;
         const days = z.coerce.number().int().min(1).max(365).catch(30).parse((req.query as { days?: string }).days);
-        return costSummary(db, days);
+        const [overview, events] = await Promise.all([adminOverview(db, days), eventStats(db, days)]);
+        return { ...overview, events };
       });
     },
 

@@ -13,7 +13,7 @@ import {
   type NormalizedProduct,
 } from '@fliplens/core';
 import { EbayAdapter, EcbFxService } from '@fliplens/sources';
-import { OpenAIVisionProvider, RecognitionError, gtinSearchVariants, isPlaceholderGtin, normalizeGtin } from '@fliplens/recognition';
+import { CascadeVisionProvider, OpenAIVisionProvider, RecognitionError, gtinSearchVariants, isPlaceholderGtin, normalizeGtin } from '@fliplens/recognition';
 import { compact } from '@fliplens/core';
 import { registerBenchmarkRoutes } from './benchmark.js';
 import { initPersistence, type Persistence } from './persistence.js';
@@ -28,10 +28,16 @@ const ebay = new EbayAdapter({
   env: process.env.EBAY_ENV === 'sandbox' ? 'sandbox' : 'production',
 });
 const fx = new EcbFxService();
-const vision = new OpenAIVisionProvider({
-  apiKey: process.env.OPENAI_API_KEY ?? '',
-  ...(process.env.OPENAI_VISION_MODEL && { model: process.env.OPENAI_VISION_MODEL }),
-});
+/**
+ * Photo recognition: cheap model first (OPENAI_VISION_FAST_MODEL, default gpt-6-luna), the strong one
+ * (OPENAI_VISION_MODEL, default gpt-6-sol) only when the first is below OPENAI_VISION_ESCALATE_BELOW (0.8).
+ */
+const openaiKey = process.env.OPENAI_API_KEY ?? '';
+const vision = new CascadeVisionProvider(
+  new OpenAIVisionProvider({ apiKey: openaiKey, model: process.env.OPENAI_VISION_FAST_MODEL || 'gpt-6-luna' }),
+  new OpenAIVisionProvider({ apiKey: openaiKey, model: process.env.OPENAI_VISION_MODEL || 'gpt-6-sol' }),
+  Number(process.env.OPENAI_VISION_ESCALATE_BELOW || 0.8),
+);
 /** Barcode flow only reads listing titles: a cheap text model is enough. */
 const titleIdentifier = new OpenAIVisionProvider({
   apiKey: process.env.OPENAI_API_KEY ?? '',
@@ -41,6 +47,7 @@ const titleIdentifier = new OpenAIVisionProvider({
 registerBenchmarkRoutes(app);
 const store: Persistence = await initPersistence(process.env.DATABASE_URL, app.log, {
   googleClientId: process.env.GOOGLE_CLIENT_ID,
+  adminEmails: (process.env.ADMIN_EMAILS ?? '').split(','),
   billing: billingConfigFromEnv(process.env),
 });
 store.registerRoutes(app);
@@ -112,6 +119,7 @@ app.post('/api/identify', async (req, reply) => {
         outputTokens: result.usage.outputTokens,
         costUsd: result.costUsd ?? null,
         latencyMs: result.latencyMs,
+        escalatedFrom: result.escalatedFrom ?? null,
       },
       'identify',
     );
@@ -120,7 +128,7 @@ app.post('/api/identify', async (req, reply) => {
       imageCount: parsed.data.images.length,
       result,
       provider: 'openai',
-      model: vision.id.replace('openai:', ''),
+      model: result.modelVersion.replace(/^openai:|@.*$/g, '') + (result.escalatedFrom ? ' (escalated)' : ''),
     });
     return { ...result, identificationId };
   } catch (e) {

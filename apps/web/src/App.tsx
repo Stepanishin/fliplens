@@ -3,6 +3,7 @@ import { FEE_PRESETS, type CategorySlug, type FeePresetId } from '@fliplens/core
 import { api, ApiError, type Account, type BillingInfo, type Health, type ServerScan, type ValuationResponse } from './api.js';
 import { Plans } from './screens/Plans.js';
 import { Landing } from './screens/Landing.js';
+import { Admin } from './screens/Admin.js';
 import { signOutGoogle } from './ui/GoogleButton.js';
 import { BarcodeScanner } from './BarcodeScanner.js';
 import { BenchmarkAdd } from './BenchmarkAdd.js';
@@ -35,9 +36,10 @@ type Route =
   | { name: 'history' }
   | { name: 'scan'; scan: ServerScan }
   | { name: 'profile' }
-  | { name: 'plans' };
+  | { name: 'plans' }
+  | { name: 'admin' };
 
-const TITLES: Partial<Record<Route['name'], string>> = { confirm: 'Identify', price: 'Price', result: 'Verdict', scan: 'Saved scan', profile: 'Profile' };
+const TITLES: Partial<Record<Route['name'], string>> = { confirm: 'Identify', price: 'Price', result: 'Verdict', scan: 'Saved scan', profile: 'Profile', admin: 'Admin' };
 const DEV_KEY = 'fliplens.devtools.v1';
 /** Position of the scan-flow screens in the stepper. */
 const STEP: Partial<Record<Route['name'], number>> = { confirm: 0, price: 1, result: 2 };
@@ -66,6 +68,7 @@ export function App() {
   });
   const [account, setAccount] = useState<Account | null>(null);
   const [meLoaded, setMeLoaded] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
   /** The public start page, also reachable when signed in (/welcome, "About FlipLens"). */
   const [welcome, setWelcome] = useState(() => window.location.pathname === '/welcome');
   const [authError, setAuthError] = useState<string | null>(null);
@@ -111,6 +114,7 @@ export function App() {
     api.me().then(
       (m) => {
         setAccount(m.account);
+        setIsAdmin(m.isAdmin);
         setMeLoaded(true);
       },
       () => {
@@ -340,7 +344,7 @@ export function App() {
     .filter((x) => x.trim())
     .join(' ');
   const visionOn = health?.vision.configured ?? false;
-  const inFlow = ['confirm', 'price', 'result', 'scan'].includes(route.name) || (route.name === 'plans' && stack.length > 2) || (route.name === 'profile' && stack.length > 2);
+  const inFlow = ['confirm', 'price', 'result', 'scan', 'admin'].includes(route.name) || (route.name === 'plans' && stack.length > 2) || (route.name === 'profile' && stack.length > 2);
   const activeTab = route.name === 'history' || route.name === 'scan' ? 'history' : route.name === 'profile' ? 'profile' : route.name === 'plans' ? 'plans' : 'home';
 
   // Signed-in only: without an account the start page is all there is (with a database; local dev without one stays open).
@@ -467,6 +471,7 @@ export function App() {
           </Result>
         )}
         {route.name === 'plans' && <Plans billing={billing} account={account} notice={plansNotice} onSignIn={() => tab({ name: 'profile' })} />}
+        {route.name === 'admin' && isAdmin && <Admin />}
         {route.name === 'history' && <History scans={scans} dbOn={dbOn} onOpen={(s) => go({ name: 'scan', scan: s })} />}
         {route.name === 'scan' && (
           <ScanDetail
@@ -507,6 +512,8 @@ export function App() {
                 // storage unavailable: the toggle just won't persist
               }
             }}
+            isAdmin={isAdmin}
+            onOpenAdmin={() => go({ name: 'admin' })}
             onOpenWelcome={() => {
               window.history.pushState(null, '', '/welcome');
               setWelcome(true);

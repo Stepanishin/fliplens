@@ -373,3 +373,92 @@ export async function identificationsThisMonth(db: Db, userId: string): Promise<
     .where(and(eq(productIdentifications.userId, userId), gte(productIdentifications.createdAt, sql`date_trunc('month', now())`)));
   return row?.n ?? 0;
 }
+
+// ---------- admin ----------
+
+export interface AdminOverview {
+  days: number;
+  users: { total: number; signedIn: number; activeInPeriod: number };
+  plans: Record<string, number>;
+  valuations: { total: number; ok: number; insufficient: number };
+  identifications: { total: number; photo: number; barcode: number; escalated: number; corrected: number; decided: number };
+  cost: { totalUsd: number; byKind: Record<string, { usd: number; calls: number }>; perSuccessfulValuationUsd: number | null };
+  ebayCallsToday: number;
+  topUsers: { email: string | null; plan: string; valuations: number; identifications: number; costUsd: number }[];
+}
+
+export async function adminOverview(db: Db, days = 30): Promise<AdminOverview> {
+  const since = sql`now() - make_interval(days => ${days})`;
+  const one = async <T>(q: Promise<T[]>): Promise<T> => (await q)[0]!;
+  const users1 = await one(
+    db.select({ total: sql<number>`count(*)::int`, signedIn: sql<number>`count(${users.googleSub})::int` }).from(users),
+  );
+  const active = await one(db.select({ n: sql<number>`count(distinct ${scans.userId})::int` }).from(scans).where(gte(scans.createdAt, since)));
+  const planRows = await db
+    .select({ plan: subscriptions.plan, n: sql<number>`count(*)::int` })
+    .from(subscriptions)
+    .where(sql`${subscriptions.status} in ('active', 'trialing', 'past_due')`)
+    .groupBy(subscriptions.plan);
+  const v = await one(
+    db
+      .select({
+        total: sql<number>`count(*)::int`,
+        ok: sql<number>`count(*) filter (where ${valuations.status} = 'ok')::int`,
+      })
+      .from(valuations)
+      .where(gte(valuations.createdAt, since)),
+  );
+  const ids = await one(
+    db
+      .select({
+        total: sql<number>`count(*)::int`,
+        photo: sql<number>`count(*) filter (where ${productIdentifications.method} = 'photo')::int`,
+        barcode: sql<number>`count(*) filter (where ${productIdentifications.method} = 'barcode')::int`,
+        decided: sql<number>`count(${productIdentifications.corrected})::int`,
+        corrected: sql<number>`count(*) filter (where ${productIdentifications.corrected})::int`,
+      })
+      .from(productIdentifications)
+      .where(gte(productIdentifications.createdAt, since)),
+  );
+  const escalated = await one(
+    db
+      .select({ n: sql<number>`count(*)::int` })
+      .from(usageCosts)
+      .where(and(gte(usageCosts.createdAt, since), sql`${usageCosts.model} like '%(escalated)'`)),
+  );
+  const costs = await costSummary(db, days);
+  const ebayToday = await one(
+    db
+      .select({ n: sql<number>`coalesce(sum(${usageCosts.calls}), 0)::int` })
+      .from(usageCosts)
+      .where(and(eq(usageCosts.kind, 'marketplace_api'), gte(usageCosts.createdAt, sql`date_trunc('day', now())`))),
+  );
+  const top = await db
+    .select({
+      email: users.email,
+      plan: sql<string>`coalesce((select ${subscriptions.plan} from ${subscriptions} where ${subscriptions.userId} = ${users.id} and ${subscriptions.status} in ('active','trialing','past_due')), 'free')`,
+      valuations: sql<number>`(select count(*)::int from ${scans} where ${scans.userId} = ${users.id} and ${scans.createdAt} >= ${since})`,
+      identifications: sql<number>`(select count(*)::int from ${productIdentifications} where ${productIdentifications.userId} = ${users.id} and ${productIdentifications.createdAt} >= ${since})`,
+      costMicro: sql<number>`(select coalesce(sum(${usageCosts.costMicroUsd}), 0)::int from ${usageCosts} where ${usageCosts.userId} = ${users.id} and ${usageCosts.createdAt} >= ${since})`,
+    })
+    .from(users)
+    .where(sql`${users.googleSub} is not null`)
+    .orderBy(sql`5 desc`)
+    .limit(25);
+  return {
+    days,
+    users: { total: users1.total, signedIn: users1.signedIn, activeInPeriod: active.n },
+    plans: Object.fromEntries(planRows.map((r) => [r.plan, r.n])),
+    valuations: { total: v.total, ok: v.ok, insufficient: v.total - v.ok },
+    identifications: { total: ids.total, photo: ids.photo, barcode: ids.barcode, escalated: escalated.n, corrected: ids.corrected, decided: ids.decided },
+    cost: { totalUsd: costs.totalUsd, byKind: costs.byKind, perSuccessfulValuationUsd: costs.costPerSuccessfulValuationUsd },
+    ebayCallsToday: ebayToday.n,
+    topUsers: top.map((t) => ({ email: t.email, plan: t.plan, valuations: t.valuations, identifications: t.identifications, costUsd: t.costMicro / 1_000_000 })),
+  };
+}
+
+/** Look up a device without creating anything (for anonymous visitors of the start page). */
+export async function findUserByDevice(db: Db, deviceKey: string): Promise<string | undefined> {
+  const [dev] = await db.select({ userId: userDevices.userId }).from(userDevices).where(eq(userDevices.deviceKey, deviceKey));
+  return dev?.userId;
+}

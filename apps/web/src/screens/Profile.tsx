@@ -21,6 +21,8 @@ interface Props {
   onDevTools: (on: boolean) => void;
   onDataDeleted: () => void;
   onOpenWelcome: () => void;
+  isAdmin: boolean;
+  onOpenAdmin: () => void;
 }
 
 const COUNTRY_NAMES: Record<string, string> = {
@@ -29,7 +31,7 @@ const COUNTRY_NAMES: Record<string, string> = {
   PL: 'Poland', PT: 'Portugal', RO: 'Romania', SE: 'Sweden', SI: 'Slovenia', SK: 'Slovakia', GB: 'United Kingdom',
 };
 
-export function Profile({ billing, onOpenPlans, account, googleClientId, onGoogleCredential, onSignOut, authError, settings, onChange, dbOn, version, devTools, onDevTools, onDataDeleted, onOpenWelcome }: Props) {
+export function Profile({ billing, onOpenPlans, account, googleClientId, onGoogleCredential, onSignOut, authError, settings, onChange, dbOn, version, devTools, onDevTools, onDataDeleted, onOpenWelcome, isAdmin, onOpenAdmin }: Props) {
   const preset = FEE_PRESETS[settings.preset];
 
   async function exportData() {
@@ -134,6 +136,10 @@ export function Profile({ billing, onOpenPlans, account, googleClientId, onGoogl
             <button type="button" className="ghost danger" onClick={() => void deleteData()}>Delete all</button>
           </div>
         </section>
+      )}
+
+      {isAdmin && (
+        <button type="button" className="ghost wide" onClick={onOpenAdmin}>Admin: costs and usage</button>
       )}
 
       <section className="card">

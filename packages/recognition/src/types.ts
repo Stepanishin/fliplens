@@ -36,6 +36,8 @@ export interface IdentificationResult {
   /** Approximate cost of this call in USD; undefined if the model has no price entry. */
   readonly costUsd?: number;
   readonly latencyMs: number;
+  /** Set when a cheaper model was tried first and was not confident enough. */
+  readonly escalatedFrom?: string;
 }
 
 /** Vision/LLM provider abstraction: model costs and capabilities change, the rest of the system must not care. */
