@@ -1,24 +1,24 @@
 # Technical Plan
 
-Codename: **FlipLens** (рабочее название, не блокирует разработку).
+Codename: **FlipLens** (working title, does not block development).
 
-Главный принцип: **Validate the data before building the product.**
+Main principle: **Validate the data before building the product.**
 
-Порядок разработки (не менять):
+Development order (do not change):
 
 ```text
 DATA > VALUATION > RECOGNITION > PROFIT > MOBILE > BETA > PAYMENT > INVENTORY > LISTINGS
 ```
 
-Фильтры для каждой фичи:
-- Помогает ли это решить «buy or skip»? Если нет, не приоритет.
-- Нужна ли эта сложность сейчас? Если нет, отложить.
-- Есть ли право использовать эти данные? Если неизвестно, сначала исследовать.
-- Можно ли решить дешевле: cache, deterministic код, без AI call?
+Filters for every feature:
+- Does it help decide "buy or skip"? If not, it is not a priority.
+- Do we need this complexity now? If not, defer it.
+- Do we have the right to use this data? If unknown, research first.
+- Can it be solved cheaper: cache, deterministic code, no AI call?
 
 ---
 
-## 1. Архитектура
+## 1. Architecture
 
 ```text
                  ┌──────────────┐
@@ -42,35 +42,35 @@ DATA > VALUATION > RECOGNITION > PROFIT > MOBILE > BETA > PAYMENT > INVENTORY > 
                  └──────────────┘
 ```
 
-Слои:
-- `packages/core`: чистые функции. Вход: normalized product + normalized comparables + settings. Выход: valuation. Никакого marketplace-specific кода.
-- `packages/sources`: адаптеры. Каждый возвращает `MarketplaceItem` в общем формате.
-- `packages/recognition`: абстракция над vision/LLM provider и barcode lookup.
-- `packages/db`: Drizzle schema, migrations, репозитории.
-- `apps/api`: HTTP, auth, orchestration, кэш, cost tracking, логирование.
-- `apps/cli`: `evaluate "Sony WH-1000XM4" --condition good --buy-price 55` (второй deliverable).
-- `eval/`: benchmark dataset и regression scripts.
+Layers:
+- `packages/core`: pure functions. Input: normalized product + normalized comparables + settings. Output: valuation. No marketplace-specific code.
+- `packages/sources`: adapters. Each returns `MarketplaceItem` in a common format.
+- `packages/recognition`: abstraction over the vision/LLM provider and barcode lookup.
+- `packages/db`: Drizzle schema, migrations, repositories.
+- `apps/api`: HTTP, auth, orchestration, cache, cost tracking, logging.
+- `apps/cli`: `evaluate "Sony WH-1000XM4" --condition good --buy-price 55` (second deliverable).
+- `eval/`: benchmark dataset and regression scripts.
 
-## 2. Стек
+## 2. Stack
 
-| Слой | Выбор | Почему (см. DECISIONS.md) |
+| Layer | Choice | Why (see DECISIONS.md) |
 |---|---|---|
-| Язык | TypeScript strict, без `any` | typed, одна кодовая база |
+| Language | TypeScript strict, no `any` | typed, single codebase |
 | Monorepo | pnpm workspaces | ADR-001 |
 | API | Fastify + Zod | ADR-002 |
 | ORM | Drizzle | ADR-003 |
-| DB | PostgreSQL | локально Homebrew 14, prod managed |
-| Queue | нет; позже pg-boss; Redis/BullMQ только при нагрузке | ADR-005 |
-| Images | Cloudflare R2 (S3 API, без egress fees) | retention policy |
-| Vision | OpenAI Responses API (`gpt-6-sol`), strict structured output, за интерфейсом `VisionProvider` | ADR-006 |
+| DB | PostgreSQL | local Homebrew 14, managed in prod |
+| Queue | none; pg-boss later; Redis/BullMQ only under load | ADR-005 |
+| Images | Cloudflare R2 (S3 API, no egress fees) | retention policy |
+| Vision | OpenAI Responses API (`gpt-6-sol`), strict structured output, behind the `VisionProvider` interface | ADR-006 |
 | Mobile | Expo + React Native + TS, expo-camera | Phase 5 |
-| Tests | Vitest | быстрый, TS native |
-| Logging | pino (встроен в Fastify), JSON | structured |
+| Tests | Vitest | fast, TS native |
+| Logging | pino (built into Fastify), JSON | structured |
 | Errors | Sentry (API + mobile) | error tracking |
-| Analytics | PostHog (EU cloud) | GDPR, self-host возможен |
-| Billing | RevenueCat, Stripe для web позже | Phase 7 |
+| Analytics | PostHog (EU cloud) | GDPR, self-hosting possible |
+| Billing | RevenueCat, Stripe for web later | Phase 7 |
 
-## 3. Ключевые интерфейсы
+## 3. Key interfaces
 
 ```typescript
 type Money = { amountMinor: number; currency: CurrencyCode };
@@ -133,91 +133,91 @@ interface CurrencyService {
 
 ## 4. Pricing engine v1
 
-Pipeline (всё в `packages/core`, детерминировано):
+Pipeline (all in `packages/core`, deterministic):
 
 ```text
 normalized product
-  > fetch comparables (adapters, через кэш)
+  > fetch comparables (adapters, through cache)
   > match & filter (similarity + exclusion_reason)
-  > currency normalize (EUR, ECB rate на дату наблюдения)
-  > condition normalize (к condition пользователя)
+  > currency normalize (EUR, ECB rate on the observation date)
+  > condition normalize (to the user's condition)
   > outlier removal (IQR / MAD)
   > distribution (count, min, p10, p25, median, p75, p90, max)
   > valuation (fast / expected / high)
   > confidence
 ```
 
-### Matching и exclusion reasons
+### Matching and exclusion reasons
 
-Каждый comparable получает `similarity_score` (0..1) и либо `included=true`, либо `exclusion_reason`:
+Each comparable gets a `similarity_score` (0..1) and either `included=true` or an `exclusion_reason`:
 
 ```text
-wrong_variant        (XM5 вместо XM4, Lite вместо OLED, 512GB вместо 128GB, EF вместо RF)
-wrong_category       (case, чехол, амбушюры, кабель)
+wrong_variant        (XM5 instead of XM4, Lite instead of OLED, 512GB instead of 128GB, EF instead of RF)
+wrong_category       (case, cover, ear pads, cable)
 accessory_only
 box_only / empty_packaging
 for_parts / broken / defective
-bundle               (консоль + 5 игр)
+bundle               (console + 5 games)
 auction_unknown_final
-duplicate            (тот же seller + title + price, cross-listing)
+duplicate            (same seller + title + price, cross-listing)
 outlier_low / outlier_high
-suspected_scam       (цена < 30% median, новый seller, и т.д.)
-stale                (старше окна свежести)
+suspected_scam       (price < 30% of median, new seller, etc.)
+stale                (older than the freshness window)
 currency_unknown
 ```
 
-Реализация v1: rule-based (ключевые слова на EN/DE/FR/IT/ES/NL/PL + regex для model/capacity/mount + негативные токены вариантов). LLM-классификатор заголовков только если rules не справятся на benchmark, и с кэшированием по title hash.
+v1 implementation: rule-based (keywords in EN/DE/FR/IT/ES/NL/PL + regex for model/capacity/mount + negative variant tokens). An LLM title classifier only if rules fail on the benchmark, and with caching by title hash.
 
-### Цены
+### Prices
 
-Если есть sold данные (приоритет):
+If sold data is available (preferred):
 - expected = median sold
 - fast = p25 sold
 - high = p75 sold
 
-Если только asking:
-- expected = median asking × `asking_to_sold_ratio` (по категории, калибруется на benchmark; стартовая гипотеза 0.85-0.90)
+If only asking prices:
+- expected = median asking × `asking_to_sold_ratio` (per category, calibrated on the benchmark; starting hypothesis 0.85-0.90)
 - fast = p25 asking × ratio
-- high = p75 asking (как «high ask», явно помечено как asking)
-- в UI явно: «Based on N active listings (asking prices), not sold prices»
+- high = p75 asking (as "high ask", explicitly labeled as asking)
+- the UI states explicitly: "Based on N active listings (asking prices), not sold prices"
 
-Buy-back цены (если источник доступен) используются как нижняя граница: fast не ниже buy-back.
+Buy-back prices (if a source is available) are used as a lower bound: fast is never below buy-back.
 
 ### Condition adjustment
 
-1. Сначала сравнение с тем же condition bucket.
-2. Если в bucket < 5 наблюдений, берём соседние buckets с множителями (стартовые значения, калибруются):
+1. First compare within the same condition bucket.
+2. If the bucket has < 5 observations, take neighboring buckets with multipliers (starting values, to be calibrated):
 
 ```text
 new 1.00 | like_new 0.90 | very_good 0.82 | good 0.75 | fair 0.62 | poor 0.45 | for_parts 0.25
 ```
 
-Множители хранятся как версионированная конфигурация по категории, не хардкодятся.
+Multipliers are stored as versioned per-category configuration, not hardcoded.
 
 ### Confidence
 
-Числовой score 0..1, публично High (>=0.75) / Medium (>=0.5) / Low.
+Numeric score 0..1, publicly High (>=0.75) / Medium (>=0.5) / Low.
 
 ```text
 confidence = identification_conf
-           × f(count_included)          5 наблюдений: 0.6, 15: 0.85, 30+: 1.0
+           × f(count_included)          5 observations: 0.6, 15: 0.85, 30+: 1.0
            × f(mean_similarity)
-           × f(freshness)               median age наблюдений
+           × f(freshness)               median age of observations
            × data_kind_factor           sold 1.0, asking 0.8
            × f(spread)                  (p75 - p25) / median
 ```
 
-Все факторы возвращаются вместе со score, чтобы UI мог показать «почему Medium».
+All factors are returned together with the score, so the UI can show "why Medium".
 
-Если count_included < 5 или identification_conf < 0.5: valuation не выдаётся, ответ `insufficient_data` с предложениями: другое фото, ввести модель, сканировать barcode.
+If count_included < 5 or identification_conf < 0.5: no valuation is issued, and the response is `insufficient_data` with suggestions: another photo, enter the model, scan the barcode.
 
 ## 5. Profit engine
 
 ```text
 expected_sale_price
-- marketplace_fee   (percentage × (price + shipping charged, если так считает marketplace) + fixed)
+- marketplace_fee   (percentage × (price + shipping charged, if the marketplace counts it that way) + fixed)
 - payment_fee
-- shipping_cost     (user default, позже по весу/стране)
+- shipping_cost     (user default, later by weight/country)
 - packaging_cost    (optional)
 = expected_net
 - purchase_price
@@ -226,11 +226,11 @@ expected_sale_price
 ROI = expected_profit / purchase_price × 100
 ```
 
-Считается для трёх цен (fast/expected/high), чтобы показать диапазон прибыли.
+Calculated for three prices (fast/expected/high) to show the profit range.
 
-Fee profiles: таблица `marketplace_fee_profiles`, версии по `effective_from/effective_until`, поле `source` (URL) и `last_verified_at`. Presets MVP: eBay (DE private seller), Vinted (buyer-pays модель, у продавца fee 0), Local pickup (fee 0, shipping 0).
+Fee profiles: table `marketplace_fee_profiles`, versioned by `effective_from/effective_until`, with a `source` field (URL) and `last_verified_at`. MVP presets: eBay (DE private seller), Vinted (buyer-pays model, seller fee 0), Local pickup (fee 0, shipping 0).
 
-Также считается **max buy price** для target ROI пользователя (дёшево, полезно сразу):
+**Max buy price** for the user's target ROI is also calculated (cheap and immediately useful):
 
 ```text
 max_buy = expected_net / (1 + target_roi)
@@ -238,42 +238,42 @@ max_buy = expected_net / (1 + target_roi)
 
 ## 6. Decision engine
 
-Правила, не opaque score. Версионированная конфигурация:
+Rules, not an opaque score. Versioned configuration:
 
 ```text
 STRONG BUY : confidence >= medium AND ROI >= 60% AND profit >= €20 AND (liquidity unknown OR >= medium)
 BUY        : confidence >= medium AND ROI >= 30% AND profit >= €10
-BORDERLINE : ROI >= 10% OR profit >= €5, или confidence low при хороших цифрах
-SKIP       : иначе
+BORDERLINE : ROI >= 10% OR profit >= €5, or low confidence with good numbers
+SKIP       : otherwise
 ```
 
-Low confidence никогда не даёт STRONG BUY. Ответ всегда содержит `factors[]` и `risks[]`.
+Low confidence never yields STRONG BUY. The response always contains `factors[]` and `risks[]`.
 
-## 7. Caching и market snapshots
+## 7. Caching and market snapshots
 
 - `market_snapshots`: (variant_id, region, condition_bucket, data_kind) > distribution, sample_size, captured_at, pricing_algorithm_version.
-- TTL задаётся источником: eBay listings <= 6 часов, eBay-derived snapshots <= 24 часа (лицензия eBay, см. DATA_SOURCES.md).
-- Scan, попавший в свежий snapshot, не вызывает marketplace API.
-- UI: «Market data updated 3 hours ago».
-- Raw listings хранятся с `first_seen_at/last_seen_at` и `price_snapshots` (цена не перезаписывается) только в пределах, разрешённых ToS источника. eBay listings удаляются после окончания.
-- Comparables screen группирует comparables по источнику; eBay блок визуально отделён (no co-mingling).
+- TTL is set by the source: eBay listings <= 6 hours, eBay-derived snapshots <= 24 hours (eBay license, see DATA_SOURCES.md).
+- A scan that hits a fresh snapshot does not call the marketplace API.
+- UI: "Market data updated 3 hours ago".
+- Raw listings are stored with `first_seen_at/last_seen_at` and `price_snapshots` (price is not overwritten) only within the limits allowed by the source ToS. eBay listings are deleted after they end.
+- The comparables screen groups comparables by source; the eBay block is visually separated (no co-mingling).
 
 ## 8. Region
 
-- MVP: `EU` (все EU сайты источника) и `country` пользователя.
-- Позже: DE, FR, IT, ES, Benelux, Nordics, CEE.
-- Cross-border optimization не в MVP.
+- MVP: `EU` (all EU sites of the source) and the user's `country`.
+- Later: DE, FR, IT, ES, Benelux, Nordics, CEE.
+- Cross-border optimization is not in the MVP.
 
-## 9. Модель данных
+## 9. Data model
 
-Core таблицы (Phase 1-3). Деньги: integer minor units + currency (ADR-007).
+Core tables (Phase 1-3). Money: integer minor units + currency (ADR-007).
 
 ```text
 users, user_settings(country, currency, default_marketplace, shipping_default, packaging_default, target_roi, locale)
 categories
 products(id, category_id, brand, family, canonical_name)
 product_variants(id, product_id, model, generation, sku, ean, upc, capacity, colour, size, release_year, attributes_json)
-product_aliases(variant_id, alias, locale)          поисковые синонимы, в т.ч. из corrections
+product_aliases(variant_id, alias, locale)          search synonyms, including from corrections
 product_identifications(scan_id, source[vision|barcode|manual], provider, model_version, candidates_json, chosen_variant_id, confidence, corrected_by_user, correction_json)
 marketplaces(id, source, site, country, currency)
 marketplace_fee_profiles(marketplace_id, country, seller_type, percentage_fee_bp, fixed_fee_minor, payment_fee_bp, payment_fixed_minor, effective_from, effective_until, source_url, last_verified_at)
@@ -292,47 +292,47 @@ inventory_items (Phase 8), transactions (Phase 10), subscriptions (Phase 7)
 
 ## 10. Versioning
 
-Каждая valuation хранит `pricing_algorithm_version` (semver, например `pricing-1.0.0`) и `recognition_model_version` (`openai:gpt-6-sol@prompt-v1`). История не пересчитывается задним числом. Любое изменение pricing проходит benchmark regression до merge.
+Each valuation stores `pricing_algorithm_version` (semver, e.g. `pricing-1.0.0`) and `recognition_model_version` (`openai:gpt-6-sol@prompt-v1`). History is not recalculated retroactively. Any pricing change must pass benchmark regression before merge.
 
 ## 11. Observability
 
-- pino JSON logs, request id на каждый запрос, прокидывается в adapters и providers.
-- Sentry для exceptions.
-- Явные события ошибок: `source_fetch_failed{source,site,status}`, `recognition_failed{provider,reason}`, `valuation_insufficient_data`.
-- Ни одного silent failure: если adapter упал, valuation помечает это в `warnings[]` и снижает confidence.
+- pino JSON logs, a request id on every request, propagated into adapters and providers.
+- Sentry for exceptions.
+- Explicit error events: `source_fetch_failed{source,site,status}`, `recognition_failed{provider,reason}`, `valuation_insufficient_data`.
+- No silent failures: if an adapter fails, the valuation records it in `warnings[]` and lowers confidence.
 
 ## 12. Cost tracking
 
-На каждый scan пишем `usage_costs`: vision tokens × цена, marketplace calls, storage. Метрика: **cost per successful valuation**. Dashboard (SQL view) по пользователю и по месяцу. Лимит: variable cost пользователя должен быть заметно ниже цены тарифа.
+For every scan we write `usage_costs`: vision tokens × price, marketplace calls, storage. Metric: **cost per successful valuation**. Dashboard (SQL view) by user and by month. Limit: a user's variable cost must stay well below the plan price.
 
-Снижение стоимости:
-- barcode сначала, vision только если barcode нет;
+Cost reduction:
+- barcode first, vision only if there is no barcode;
 - market snapshot cache;
-- уменьшение изображений до ~1MP перед vision;
-- дешёвая модель по умолчанию, дорогая только при низком confidence.
+- downscale images to ~1MP before vision;
+- cheap model by default, expensive one only on low confidence.
 
 ## 13. Analytics
 
-PostHog (EU), события из спецификации: scan_started, image_uploaded, barcode_scanned, product_detected, product_corrected, valuation_started, valuation_completed, valuation_failed, comparables_opened, item_marked_bought, subscription_viewed, subscription_started, inventory_added, item_sold. Без PII в properties. Opt-in согласно GDPR/ePrivacy.
+PostHog (EU), events from the spec: scan_started, image_uploaded, barcode_scanned, product_detected, product_corrected, valuation_started, valuation_completed, valuation_failed, comparables_opened, item_marked_bought, subscription_viewed, subscription_started, inventory_added, item_sold. No PII in properties. Opt-in per GDPR/ePrivacy.
 
 ## 14. Privacy / GDPR
 
-- Data minimization: без location, без device fingerprint, без контактов.
+- Data minimization: no location, no device fingerprint, no contacts.
 - Endpoints: export data (JSON), delete account, delete scan, delete images.
-- Image retention: фото без inventory удаляются через 7 дней после обработки (`scan_images.delete_after`), job ежедневно. Фото inventory item хранятся, пока item существует. Политика описана в приложении.
-- Фото отправляются vision provider только для идентификации; провайдер с zero data retention / без обучения на данных.
-- EU hosting для DB и storage.
+- Image retention: photos without an inventory item are deleted 7 days after processing (`scan_images.delete_after`), via a daily job. Photos of an inventory item are kept as long as the item exists. The policy is described in the app.
+- Photos are sent to the vision provider only for identification; the provider must have zero data retention / no training on the data.
+- EU hosting for DB and storage.
 
 ## 15. Error UX
 
-Никогда не выдавать fake valuation. Ответ `insufficient_data` содержит причину и действия: `retake_photo`, `enter_model`, `scan_barcode`. Всегда показывать source count, data age, confidence, comparables.
+Never return a fake valuation. An `insufficient_data` response contains the reason and actions: `retake_photo`, `enter_model`, `scan_barcode`. Always show source count, data age, confidence, comparables.
 
 ## 16. i18n
 
-UI на английском, строки через i18n ключи с первого дня (expo-localization + i18next). Normalization словари по языкам (condition термины, «defekt», «pour pièces», «per ricambi»...).
+UI in English, strings through i18n keys from day one (expo-localization + i18next). Normalization dictionaries per language (condition terms, "defekt", "pour pièces", "per ricambi"...).
 
-## 17. Не делать до product-market validation
+## 17. Do not build before product-market validation
 
-Social feed, marketplace, chat, shipping, payments for goods, logistics, AI-generated фото, accounting, tax filing, desktop client, web3, gamification, forum, сложные referral программы, автопостинг через неофициальные endpoints, SEO price pages, opportunity discovery.
+Social feed, marketplace, chat, shipping, payments for goods, logistics, AI-generated photos, accounting, tax filing, desktop client, web3, gamification, forum, complex referral programs, auto-posting through unofficial endpoints, SEO price pages, opportunity discovery.
 
-AI не позиционируется как продукт. Пользователь покупает лучшие sourcing decisions.
+AI is not positioned as the product. The user is buying better sourcing decisions.

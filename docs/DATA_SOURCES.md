@@ -1,42 +1,42 @@
 # Data Sources
 
-Живой реестр источников. Полный анализ: [FEASIBILITY_REPORT.md](FEASIBILITY_REPORT.md). Обновлено 2026-09-23.
+Living registry of sources. Full analysis: [FEASIBILITY_REPORT.md](FEASIBILITY_REPORT.md). Updated 2026-09-23.
 
-## Приоритет типов доступа
+## Access type priority
 
 ```text
-official API > licensed commercial feed > affiliate API/feed > permitted public data > scraping (только если легально и по договору)
+official API > licensed commercial feed > affiliate API/feed > permitted public data > scraping (only if legal and contractually permitted)
 ```
 
-Не строим core на undocumented/private endpoints и reverse engineering authenticated API. Если права неясны, source не production-ready.
+We do not build the core on undocumented/private endpoints or reverse engineering of authenticated APIs. If rights are unclear, the source is not production-ready.
 
-## Статусы
+## Statuses
 
-`production` разрешён в продукте | `research` только internal eval | `pending` ждёт legal/BD | `rejected` не использовать
+`production` allowed in the product | `research` internal eval only | `pending` awaiting legal/BD | `rejected` do not use
 
-| Источник | Статус | Причина |
+| Source | Status | Reason |
 |---|---|---|
-| eBay Browse API | research (production keyset активен с 2026-09-28); closed beta допустима по правилам Public Display, платный запуск после подтверждения eBay/юриста | Лицензия: 6h freshness, delete ended, no co-mingling, no ML training; consent нужен для category-level average selling price и Restricted APIs (не Browse). Поиск с `category_ids` (ID общие для DE/FR/IT/ES/NL), см. `packages/sources/src/ebay.ts` |
-| eBay Catalog API | research | Identity по GTIN; проверить тот же license |
-| eBay Marketplace Insights | pending (BD) | Закрыт для новых пользователей |
-| eBay Sell APIs (данные самого пользователя) | pending | Импорт собственных продаж пользователя по OAuth |
-| Tradera API | pending | Legal review API Terms |
-| Rebuy, Back Market, Rakuten FR, MPB (Awin) | pending | Проверить условия affiliate программ и состав feeds |
+| eBay Browse API | research (production keyset active since 2026-09-28); closed beta allowed under Public Display rules, paid launch after confirmation from eBay/legal | License: 6h freshness, delete ended, no co-mingling, no ML training; consent required for category-level average selling price and Restricted APIs (not Browse). Search with `category_ids` (IDs shared across DE/FR/IT/ES/NL), see `packages/sources/src/ebay.ts` |
+| eBay Catalog API | research | Identity by GTIN; check the same license |
+| eBay Marketplace Insights | pending (BD) | Closed to new users |
+| eBay Sell APIs (the user's own data) | pending | Import of the user's own sales via OAuth |
+| Tradera API | pending | Legal review of API Terms |
+| Rebuy, Back Market, Rakuten FR, MPB (Awin) | pending | Check affiliate program terms and feed contents |
 | idealo affiliate | pending | New price anchor |
-| PriceCharting | pending | Нужна commercial license для display |
-| Keepa | research | Права на display Amazon данных не проверены |
-| EAN-Search.org | pending | Проверить caching terms |
+| PriceCharting | pending | Commercial license needed for display |
+| Keepa | research | Rights to display Amazon data not verified |
+| EAN-Search.org | pending | Check caching terms |
 | opengtindb | production candidate | GNU FDL, attribution |
-| Open Icecat | pending | Возможные ограничения на AI use |
-| ECB FX | production | Бесплатно, reference rates |
-| Vinted, Kleinanzeigen, Wallapop, Leboncoin, Subito, Willhaben, Bazos, Njuškalo, Bolha, FB Marketplace | rejected | Нет API, ToS запрещает automated access, database right |
-| Allegro | rejected | ToS 2025-09-23 запрещает price comparison use |
-| Marktplaats, OLX, Finn API | rejected | Только собственные объявления |
-| CEX / webuy | rejected | Только undocumented endpoints |
+| Open Icecat | pending | Possible restrictions on AI use |
+| ECB FX | production | Free, reference rates |
+| Vinted, Kleinanzeigen, Wallapop, Leboncoin, Subito, Willhaben, Bazos, Njuškalo, Bolha, FB Marketplace | rejected | No API, ToS prohibits automated access, database right |
+| Allegro | rejected | ToS of 2025-09-23 prohibits price comparison use |
+| Marktplaats, OLX, Finn API | rejected | Own listings only |
+| CEX / webuy | rejected | Undocumented endpoints only |
 
-## Шаблон legal-документа для source
+## Legal document template per source
 
-Перед интеграцией создать `docs/sources/<source>.md`:
+Before integration, create `docs/sources/<source>.md`:
 
 ```text
 Source:
@@ -56,10 +56,10 @@ Status:
 Reviewed by / date:
 ```
 
-## Архитектурные последствия лицензии eBay
+## Architectural implications of the eBay license
 
-- `marketplace_listings` для eBay: TTL 6 часов, удаление при status ended. Не строить исторический архив eBay listings.
-- `price_snapshots` для eBay только в пределах жизни listing.
-- `market_snapshots` на основе eBay: TTL <= 24 часа, с отображением возраста данных.
-- Comparables screen: eBay блок визуально отделён от других источников.
-- Никакого ML обучения на eBay content. Калибровка (ratio, multipliers) делается на собственном ground truth и данных пользователей.
+- `marketplace_listings` for eBay: TTL 6 hours, deletion when status is ended. Do not build a historical archive of eBay listings.
+- `price_snapshots` for eBay only within the lifetime of the listing.
+- `market_snapshots` based on eBay: TTL <= 24 hours, with the data age displayed.
+- Comparables screen: the eBay block is visually separated from other sources.
+- No ML training on eBay content. Calibration (ratio, multipliers) is done on our own ground truth and user data.

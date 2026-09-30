@@ -1,82 +1,82 @@
 # Architecture Decision Records
 
-## ADR-001: Monorepo на pnpm workspaces
-Статус: принято.
-Почему: core логика (pricing, normalization) переиспользуется в API, eval scripts и позже частично в mobile. Один TypeScript, одни типы. pnpm уже установлен, быстрый, строгий.
-Без Turborepo/Nx на старте: не нужно, добавим если сборка станет медленной.
+## ADR-001: Monorepo with pnpm workspaces
+Status: accepted.
+Why: core logic (pricing, normalization) is reused in the API, eval scripts and later partly in mobile. One TypeScript, one set of types. pnpm is already installed, fast and strict.
+No Turborepo/Nx at the start: not needed, we will add it if builds become slow.
 
-## ADR-002: Fastify вместо NestJS / Express
-Статус: принято.
-Почему: Fastify прост, быстрый, встроенная schema validation, хорошая TS поддержка. NestJS даёт DI и модули, но добавляет церемонию, которая не окупается для backend с десятком endpoints. Express устарел по эргономике (async errors, validation).
-Validation: Zod схемы, общие для API и клиента.
+## ADR-002: Fastify instead of NestJS / Express
+Status: accepted.
+Why: Fastify is simple, fast, has built-in schema validation and good TS support. NestJS provides DI and modules, but adds ceremony that does not pay off for a backend with a dozen endpoints. Express is outdated in ergonomics (async errors, validation).
+Validation: Zod schemas shared between the API and the client.
 
-## ADR-003: Drizzle вместо Prisma
-Статус: принято.
-Почему:
-- Pricing и liquidity требуют аналитических SQL запросов (percentile_cont, window functions, агрегаты по датам). Drizzle близок к SQL и не мешает писать сырые запросы с типами.
-- Нет отдельного query engine binary и codegen шага.
-- Миграции как SQL файлы, легко ревьюить.
-Минус: меньше экосистема, чем у Prisma. Приемлемо.
+## ADR-003: Drizzle instead of Prisma
+Status: accepted.
+Why:
+- Pricing and liquidity require analytical SQL queries (percentile_cont, window functions, date aggregates). Drizzle is close to SQL and does not get in the way of writing typed raw queries.
+- No separate query engine binary and no codegen step.
+- Migrations as SQL files, easy to review.
+Downside: smaller ecosystem than Prisma. Acceptable.
 
-## ADR-004: Core как чистые функции без I/O
-Статус: принято.
-Почему: pricing, filtering, profit, decision должны быть детерминированы и тестируемы на fixtures. Одинаковые входные comparables дают одинаковую valuation. Это позволяет версионировать алгоритм (`algorithm_version`) и перепроверять на eval dataset.
+## ADR-004: Core as pure functions without I/O
+Status: accepted.
+Why: pricing, filtering, profit and decision must be deterministic and testable on fixtures. The same input comparables produce the same valuation. This allows versioning the algorithm (`algorithm_version`) and re-checking against the eval dataset.
 
-## ADR-005: Нет Redis/BullMQ на старте
-Статус: принято.
-Почему: MVP укладывается в синхронный запрос + кэш в PostgreSQL. Если понадобится фоновая работа (liquidity re-fetch), сначала `pg-boss` (очередь поверх Postgres), Redis только при реальной нагрузке.
+## ADR-005: No Redis/BullMQ at the start
+Status: accepted.
+Why: the MVP fits within a synchronous request + a cache in PostgreSQL. If background work is needed (liquidity re-fetch), start with `pg-boss` (a queue on top of Postgres), and use Redis only under real load.
 
-## ADR-006: Vision через OpenAI (Responses API) со structured output
-Статус: принято 2026-09-23 (решение пользователя: OpenAI вместо Anthropic). Пересмотр по результатам eval.
-Почему: мультимодальная модель читает текст на корпусе/коробке (model numbers, EAN), понимает поколения. Strict Structured Outputs (`text.format: json_schema`) дают top-3 кандидата с confidence, confusable models, condition guess. Модель не используется для оценки цены: цена только из рыночных данных.
-Реализация: `packages/recognition`, интерфейс `VisionProvider`, провайдер `OpenAIVisionProvider`. `store: false`. Модель через `OPENAI_VISION_MODEL`, default `gpt-6-sol` ($2/$10 за 1M tokens). Кандидат на снижение стоимости: `gpt-6-luna` ($0.1/$0.5), сравнить на benchmark.
-Первый замер (синтетическая этикетка WH-1000XM4): верно, confidence 0.99, 1206 input + 220 output tokens, ~$0.005, 4.1 s.
+## ADR-006: Vision via OpenAI (Responses API) with structured output
+Status: accepted 2026-09-23 (product owner decision: OpenAI instead of Anthropic). To be revisited based on eval results.
+Why: a multimodal model reads text on the body/box (model numbers, EAN) and understands generations. Strict Structured Outputs (`text.format: json_schema`) give the top-3 candidates with confidence, confusable models and a condition guess. The model is not used for price estimation: price comes only from market data.
+Implementation: `packages/recognition`, the `VisionProvider` interface, the `OpenAIVisionProvider` provider. `store: false`. Model via `OPENAI_VISION_MODEL`, default `gpt-6-sol` ($2/$10 per 1M tokens). Candidate for cost reduction: `gpt-6-luna` ($0.1/$0.5), to be compared on the benchmark.
+First measurement (synthetic WH-1000XM4 label): correct, confidence 0.99, 1206 input + 220 output tokens, ~$0.005, 4.1 s.
 
-## ADR-007: Деньги как integer minor units
-Статус: принято.
-Почему: никаких float для денег. Храним `amount_minor` (центы) + `currency` (ISO 4217). Для CHF/SEK/PLN и т.д. тот же подход. EUR нормализация хранится отдельно вместе с fx_rate_id.
+## ADR-007: Money as integer minor units
+Status: accepted.
+Why: no floats for money. We store `amount_minor` (cents) + `currency` (ISO 4217). The same approach for CHF/SEK/PLN etc. EUR normalization is stored separately together with fx_rate_id.
 
-## ADR-008: Postgres на Neon (EU, Frankfurt)
-Статус: принято 2026-09-28 (заменяет план с локальным Homebrew Postgres).
-Почему: бесплатный постоянный план без карты, EU регион (GDPR), branches для dev и production, обычный Postgres (Drizzle + postgres.js, без vendor lock-in). Минус: compute засыпает после 5 мин простоя, первый запрос медленнее. Supabase free отклонён: проект паузится после недели неактивности.
-Подключение: `DATABASE_URL` (pooled endpoint, `sslmode=require`), `prepare: false` для pooler. Migrations (`packages/db/migrations`, drizzle-kit) применяются API при старте. Без `DATABASE_URL` API работает, но ничего не сохраняет (health `db: disabled|error`).
+## ADR-008: Postgres on Neon (EU, Frankfurt)
+Status: accepted 2026-09-28 (replaces the plan with a local Homebrew Postgres).
+Why: a free permanent plan without a card, EU region (GDPR), branches for dev and production, plain Postgres (Drizzle + postgres.js, no vendor lock-in). Downside: compute suspends after 5 minutes of idle time, so the first request is slower. Supabase free was rejected: the project is paused after a week of inactivity.
+Connection: `DATABASE_URL` (pooled endpoint, `sslmode=require`), `prepare: false` for the pooler. Migrations (`packages/db/migrations`, drizzle-kit) are applied by the API on startup. Without `DATABASE_URL` the API works but persists nothing (health `db: disabled|error`).
 
-## ADR-009: Не храним контент eBay listings
-Статус: принято 2026-09-28.
-Почему: лицензия eBay требует удалять eBay content, когда listing больше не публичен, и запрещает ML на нём. Поэтому `valuations` хранит только агрегаты: распределение цен, число comparables по сайтам, счётчики причин исключения, версии алгоритма. Отдельные listings (title, URL, цена) не сохраняются; таблица `valuation_comparables` из исходной модели данных откладывается до появления источников, которые это разрешают (собственные продажи пользователей).
+## ADR-009: Do not store eBay listing content
+Status: accepted 2026-09-28.
+Why: the eBay license requires deleting eBay content when a listing is no longer public, and prohibits ML on it. Therefore `valuations` stores only aggregates: price distribution, number of comparables per site, exclusion reason counters, algorithm versions. Individual listings (title, URL, price) are not stored; the `valuation_comparables` table from the original data model is deferred until sources that allow this appear (users' own sales).
 
-## ADR-010: Пользователь = device key до появления аккаунтов
-Статус: принято 2026-09-28, дополнено ADR-011.
-Почему: для internal test и закрытой beta регистрация не нужна. Приложение генерирует случайный ключ установки (`x-device-id`), сервер создаёт по нему строку `users`. GDPR: `GET /api/me/export`, `DELETE /api/me` (каскадно удаляет всё), `DELETE /api/scans/:id`. Заменить на настоящую auth перед public beta.
+## ADR-010: User = device key until accounts exist
+Status: accepted 2026-09-28, amended by ADR-011.
+Why: registration is not needed for the internal test and closed beta. The app generates a random installation key (`x-device-id`), and the server creates a `users` row for it. GDPR: `GET /api/me/export`, `DELETE /api/me` (cascade deletes everything), `DELETE /api/scans/:id`. Replace with real auth before public beta.
 
-## ADR-011: Вход через Google, device key как токен сессии
-Статус: принято 2026-09-28.
-Как: кнопка Google Identity Services отдаёт ID token, сервер проверяет его подпись и `aud` (jose + Google JWKS, `email_verified`), затем привязывает текущее устройство к аккаунту (`users.google_sub`). Если аккаунт уже есть на другом устройстве, анонимные данные этого устройства сливаются в него. Устройства в `user_devices`; выход удаляет строку устройства, приложение создаёт новый ключ.
-Почему так: нет своих паролей и cookie/CSRF-логики; 128-битный случайный ключ устройства работает как bearer token. Минус: ключ в localStorage доступен при XSS. Перед public launch рассмотреть httpOnly cookie-сессию.
+## ADR-011: Google sign-in, device key as session token
+Status: accepted 2026-09-28.
+How: a Google Identity Services button returns an ID token, the server verifies its signature and `aud` (jose + Google JWKS, `email_verified`), then binds the current device to the account (`users.google_sub`). If the account already exists on another device, this device's anonymous data is merged into it. Devices are stored in `user_devices`; sign-out deletes the device row, and the app creates a new key.
+Why this way: no custom passwords and no cookie/CSRF logic; a 128-bit random device key works as a bearer token. Downside: the key in localStorage is exposed to XSS. Consider an httpOnly cookie session before public launch.
 
-## ADR-012: Подписки через Stripe Checkout + Customer Portal
-Статус: принято 2026-09-28 (решение пользователя: монетизация до beta).
-Как: тарифы в `packages/core/src/plans.ts` (Free 10 / Pro €9.99 100 / Reseller €19.99 fair use 1000 проверок в месяц). Цены в Stripe создаёт `pnpm --filter @fliplens/api stripe:setup` по lookup_key. Checkout для новой подписки, Customer Portal для смены и отмены. Локальная таблица `subscriptions` пишется только webhooks (подпись проверяется, raw body). Лимит считается по scans за календарный месяц, при превышении API отвечает 402.
-Безопасность: в разработке используется `STRIPE_SECRET_KEY_TEST`; live-ключ отклоняется без `STRIPE_ALLOW_LIVE=1`.
-Для web (PWA) это корректно; для приложений в App Store / Google Play цифровые подписки должны идти через их биллинг (RevenueCat), это решим, если появятся нативные приложения.
+## ADR-012: Subscriptions via Stripe Checkout + Customer Portal
+Status: accepted 2026-09-28 (product owner decision: monetization before beta).
+How: plans in `packages/core/src/plans.ts` (Free 10 / Pro €9.99 100 / Reseller €19.99 fair use 1000 checks per month). Prices in Stripe are created by `pnpm --filter @fliplens/api stripe:setup` using lookup_key. Checkout for a new subscription, Customer Portal for changes and cancellation. The local `subscriptions` table is written only by webhooks (signature verified, raw body). The limit is counted by scans per calendar month; when exceeded, the API responds with 402.
+Safety: `STRIPE_SECRET_KEY_TEST` is used in development; a live key is rejected without `STRIPE_ALLOW_LIVE=1`.
+This is correct for web (PWA); for App Store / Google Play apps, digital subscriptions must go through their billing (RevenueCat), which we will decide if native apps appear.
 
-## ADR-013: Только для вошедших пользователей
-Статус: принято 2026-09-28 (решение пользователя).
-Распознавание (фото, barcode), оценка, история, Profile и billing требуют аккаунт Google (иначе 401 `sign_in_required`); без входа доступны только стартовая страница, вход и юридические страницы. Каждая попытка пишется в базу под аккаунтом: оценки (включая "not enough data") и распознавания (включая ненайденные barcodes). Лимиты: оценки по тарифу, распознавания до 3x лимита оценок в месяц (защита от затрат на OpenAI). Без DATABASE_URL (только локальная разработка) проверка отключена.
+## ADR-013: Signed-in users only
+Status: accepted 2026-09-28 (product owner decision).
+Recognition (photo, barcode), valuation, history, Profile and billing require a Google account (otherwise 401 `sign_in_required`); without signing in, only the landing page, sign-in and legal pages are available. Every attempt is written to the database under the account: valuations (including "not enough data") and recognitions (including barcodes not found). Limits: valuations per plan, recognitions up to 3x the valuation limit per month (protection against OpenAI costs). Without DATABASE_URL (local development only) the check is disabled.
 
-## ADR-014: Контроль затрат на распознавание
-Статус: принято 2026-09-28.
-- Каскад: фото сначала распознаёт `gpt-6-luna` (замер: $0.00024 за чёткую этикетку), `gpt-6-sol` только если уверенность luna ниже 0.8 или ничего не найдено (`OPENAI_VISION_ESCALATE_BELOW`). Стоимость обоих вызовов суммируется в `usage_costs`; эскалации помечены `(escalated)`.
-- Лимит распознаваний: 1.5x месячного лимита проверок тарифа (было 3x).
-- Лимиты тарифов не снижены (Pro 100): после каскада типичная AI-стоимость Pro около €0.25/мес, худший случай около €1.8 при выручке около €7.8 после НДС и Stripe.
-- Риск: Reseller в абсолютном худшем случае (все 1 500 распознаваний эскалируются и с 3 фото) около €17 затрат при €15.8 выручки. Следить на /admin; при необходимости снизить fair use.
-- /admin и статистика доступны только email из `ADMIN_EMAILS`. `/api/me` больше не создаёт пользователей для анонимных визитов.
-- eBay: дефолт около 5 000 вызовов/день на приложение (5 на проверку). Перед запуском подать Application Growth Check.
+## ADR-014: Recognition cost control
+Status: accepted 2026-09-28.
+- Cascade: a photo is recognized first by `gpt-6-luna` (measured: $0.00024 for a clear label), and by `gpt-6-sol` only if luna's confidence is below 0.8 or nothing is found (`OPENAI_VISION_ESCALATE_BELOW`). The cost of both calls is summed in `usage_costs`; escalations are marked `(escalated)`.
+- Recognition limit: 1.5x the plan's monthly check limit (was 3x).
+- Plan limits are not reduced (Pro 100): after the cascade, the typical AI cost of Pro is about €0.25/month, the worst case about €1.8 against revenue of about €7.8 after VAT and Stripe.
+- Risk: Reseller in the absolute worst case (all 1 500 recognitions escalated and with 3 photos) is about €17 of costs against €15.8 of revenue. Monitor on /admin; reduce fair use if necessary.
+- /admin and statistics are available only to emails in `ADMIN_EMAILS`. `/api/me` no longer creates users for anonymous visits.
+- eBay: default of about 5 000 calls/day per application (5 per check). Submit an Application Growth Check before launch.
 
-## ADR-015: Месячный AI-бюджет на пользователя
-Статус: принято 2026-09-28. Закрывает риск Reseller из ADR-014.
-- `aiBudgetMicroUsd` в `packages/core/src/plans.ts`: Free $0.30, Pro $3, Reseller $6. Считается по `usage_costs` за календарный месяц (UTC): распознавание, barcode-заголовки, генератор объявлений.
-- До бюджета каскад работает как обычно. После бюджета распознавание только `gpt-6-luna`, без эскалации на `gpt-6-sol` (событие `ai_cheap_mode`).
-- При 2x бюджета AI-функции останавливаются до следующего месяца: 402 `ai_budget` (распознавание) или `listing_limit` (объявления). Проверка цены, ввод вручную, склад работают.
-- Генератор объявлений: не больше объявлений в месяц, чем проверок в тарифе (Pro 100, Reseller 1 000).
-- Итог: гарантированный потолок AI-затрат Reseller около $12 (около €11) при выручке около €15.8 после НДС и Stripe; реалистичный максимум около $8. Pro: потолок $6 (около €5.6) при около €7.8.
+## ADR-015: Monthly AI budget per user
+Status: accepted 2026-09-28. Closes the Reseller risk from ADR-014.
+- `aiBudgetMicroUsd` in `packages/core/src/plans.ts`: Free $0.30, Pro $3, Reseller $6. Counted from `usage_costs` per calendar month (UTC): recognition, barcode titles, listing generator.
+- Below the budget the cascade works as usual. After the budget, recognition uses only `gpt-6-luna`, with no escalation to `gpt-6-sol` (event `ai_cheap_mode`).
+- At 2x the budget, AI features stop until next month: 402 `ai_budget` (recognition) or `listing_limit` (listings). Price checks, manual entry and inventory keep working.
+- Listing generator: no more listings per month than the plan's checks (Pro 100, Reseller 1 000).
+- Result: the guaranteed AI cost ceiling for Reseller is about $12 (about €11) against revenue of about €15.8 after VAT and Stripe; a realistic maximum is about $8. Pro: ceiling $6 (about €5.6) against about €7.8.
