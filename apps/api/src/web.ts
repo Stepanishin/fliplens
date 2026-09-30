@@ -24,6 +24,12 @@ const LIMITS: readonly [prefix: string, perMinute: number][] = [
 ];
 
 export async function registerSecurity(app: FastifyInstance): Promise<void> {
+  // One canonical origin: sign-in, localStorage and the installed PWA are all per origin. www.x -> x, path kept.
+  app.addHook('onRequest', async (req, reply) => {
+    const host = req.host;
+    if (host.startsWith('www.')) return reply.redirect(`https://${host.slice(4)}${req.url}`, 308);
+  });
+
   await app.register(helmet, {
     contentSecurityPolicy: {
       directives: {
