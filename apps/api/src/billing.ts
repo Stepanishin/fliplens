@@ -25,7 +25,8 @@ export interface BillingConfig {
   /** Stripe Tax: VAT by the buyer's country (needs Stripe Tax set up with your origin address). */
   automaticTax: boolean;
   webhookSecret?: string | undefined;
-  appUrl: string;
+  /** Public origin for Stripe return URLs; when unset or invalid, the request's own origin is used. */
+  appUrl?: string | undefined;
   allowLive: boolean;
 }
 
@@ -34,11 +35,21 @@ export function billingConfigFromEnv(env: NodeJS.ProcessEnv): BillingConfig {
     // Local development uses the test key even if a live key is also present in .env.
     secretKey: env.STRIPE_SECRET_KEY_TEST || env.STRIPE_SECRET_KEY || undefined,
     webhookSecret: env.STRIPE_WEBHOOK_SECRET_TEST || env.STRIPE_WEBHOOK_SECRET || undefined,
-    appUrl: env.APP_URL || 'http://localhost:5173',
+    appUrl: env.APP_URL || undefined,
     allowLive: env.STRIPE_ALLOW_LIVE === '1',
     requireTermsConsent: env.STRIPE_REQUIRE_TERMS === '1',
     automaticTax: env.STRIPE_AUTOMATIC_TAX === '1',
   };
+}
+
+function validOrigin(url: string | undefined): string | undefined {
+  if (!url) return undefined;
+  try {
+    const u = new URL(url);
+    return u.protocol === 'https:' || u.protocol === 'http:' ? u.origin : undefined;
+  } catch {
+    return undefined;
+  }
 }
 
 export interface Quota {
@@ -62,6 +73,11 @@ export function createBilling(db: Db, cfg: BillingConfig, log: FastifyBaseLogger
   else if (cfg.secretKey.startsWith('sk_live_') && !cfg.allowLive) {
     log.error({ event: 'billing_disabled' }, 'refusing a LIVE Stripe key without STRIPE_ALLOW_LIVE=1');
   } else stripe = new Stripe(cfg.secretKey);
+
+  // APP_URL must be an absolute http(s) URL (Stripe rejects anything else); fall back to the request origin.
+  const configuredUrl = validOrigin(cfg.appUrl);
+  if (cfg.appUrl && !configuredUrl) log.error({ event: 'app_url_invalid' }, 'APP_URL is not a valid http(s) URL: using the request origin');
+  const publicUrl = (req: FastifyRequest): string => configuredUrl ?? `${req.protocol}://${req.host}`;
 
   async function quota(userId: string): Promise<Quota> {
     const plan = effectivePlan(await getSubscription(db, userId));
@@ -132,6 +148,7 @@ export function createBilling(db: Db, cfg: BillingConfig, log: FastifyBaseLogger
         if (!stripe) return reply.code(503).send({ error: 'billing_disabled', message: 'Payments are not configured' });
         const body = z.object({ plan: z.enum(['pro', 'reseller']) }).safeParse(req.body);
         if (!body.success) return reply.code(400).send({ error: 'invalid_plan' });
+        const base = publicUrl(req);
         const user = await getUser(db, uid);
         if (!user?.googleSub) return reply.code(401).send({ error: 'sign_in_required', message: 'Sign in with Google to subscribe' });
 
@@ -154,12 +171,12 @@ export function createBilling(db: Db, cfg: BillingConfig, log: FastifyBaseLogger
           subscription_data: { metadata: { userId: uid, plan: body.data.plan } },
           allow_promotion_codes: true,
           custom_text: {
-            submit: { message: `By subscribing you agree to the FlipLens Terms (${cfg.appUrl}/terms). EU consumers have a 14-day right of withdrawal.` },
+            submit: { message: `By subscribing you agree to the FlipLens Terms (${base}/terms). EU consumers have a 14-day right of withdrawal.` },
           },
           ...(cfg.requireTermsConsent && { consent_collection: { terms_of_service: 'required' as const } }),
           ...(cfg.automaticTax && { automatic_tax: { enabled: true }, customer_update: { address: 'auto' as const }, billing_address_collection: 'required' as const }),
-          success_url: `${cfg.appUrl}/?billing=success`,
-          cancel_url: `${cfg.appUrl}/?billing=cancel`,
+          success_url: `${base}/?billing=success`,
+          cancel_url: `${base}/?billing=cancel`,
         });
         req.log.info({ event: 'checkout_started', plan: body.data.plan }, 'checkout started');
         return { url: session.url };
@@ -171,7 +188,7 @@ export function createBilling(db: Db, cfg: BillingConfig, log: FastifyBaseLogger
         if (!stripe) return reply.code(503).send({ error: 'billing_disabled' });
         const user = await getUser(db, uid);
         if (!user?.stripeCustomerId) return reply.code(400).send({ error: 'no_customer', message: 'No subscription yet' });
-        const session = await stripe.billingPortal.sessions.create({ customer: user.stripeCustomerId, return_url: `${cfg.appUrl}/` });
+        const session = await stripe.billingPortal.sessions.create({ customer: user.stripeCustomerId, return_url: `${publicUrl(req)}/` });
         return { url: session.url };
       });
 
