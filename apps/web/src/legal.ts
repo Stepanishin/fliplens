@@ -4,13 +4,17 @@
  */
 export const LEGAL = {
   /** Legal name of the company or person running FlipLens. */
-  operator: '[Company name]',
-  address: '[Street and number, postcode, city, country]',
-  /** Company register / VAT number, if any. */
-  registration: '[Company register number, VAT ID]',
-  email: '[privacy@your-domain.com]',
+  operator: 'Evgenii Stepanishin',
+  /** Postal address; empty to leave it out (add it once FlipLens is run as a registered business). */
+  address: '',
+  /** Business register / VAT number; empty while there is none. */
+  registration: '',
+  /** Data protection requests (Privacy Policy). */
+  email: 'privacy@fliplens.eu',
+  /** Everything else: account, billing, withdrawal (Terms). */
+  supportEmail: 'support@fliplens.eu',
   /** Country whose law governs the Terms. */
-  governingCountry: '[Country]',
+  governingCountry: 'Slovenia',
   /** Date of the current version (YYYY-MM-DD). */
   effectiveDate: '2026-09-28',
 } as const;

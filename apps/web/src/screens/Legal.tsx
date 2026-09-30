@@ -40,11 +40,11 @@ const Operator = () => (
   <p>
     {LEGAL.operator}
     <br />
-    {LEGAL.address}
+    {LEGAL.address && <>{LEGAL.address}<br /></>}
+    {LEGAL.registration && <>{LEGAL.registration}<br /></>}
+    Support: <a href={`mailto:${LEGAL.supportEmail}`}>{LEGAL.supportEmail}</a>
     <br />
-    {LEGAL.registration}
-    <br />
-    Email: <a href={`mailto:${LEGAL.email}`}>{LEGAL.email}</a>
+    Privacy: <a href={`mailto:${LEGAL.email}`}>{LEGAL.email}</a>
   </p>
 );
 
@@ -213,7 +213,7 @@ export function TermsOfService() {
       <h2>5. Right of withdrawal (EU consumers)</h2>
       <p>
         If you are a consumer in the EU, you can withdraw from a paid subscription within 14 days of subscribing without giving a reason, by writing to{' '}
-        <a href={`mailto:${LEGAL.email}`}>{LEGAL.email}</a>. If you asked us to start the service during this period, you pay only for the part of the period
+        <a href={`mailto:${LEGAL.supportEmail}`}>{LEGAL.supportEmail}</a>. If you asked us to start the service during this period, you pay only for the part of the period
         already provided; the rest is refunded.
       </p>
 
@@ -251,7 +251,7 @@ export function TermsOfService() {
       <h2>11. Law and disputes</h2>
       <p>
         These terms are governed by the law of {LEGAL.governingCountry}. If you are a consumer, you also keep the protection of the mandatory laws of the country
-        where you live, and you can bring claims in your local courts. Please contact us first at <a href={`mailto:${LEGAL.email}`}>{LEGAL.email}</a>; we try to
+        where you live, and you can bring claims in your local courts. Please contact us first at <a href={`mailto:${LEGAL.supportEmail}`}>{LEGAL.supportEmail}</a>; we try to
         solve every issue directly.
       </p>
 
