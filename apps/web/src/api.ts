@@ -260,6 +260,7 @@ export const api = {
     }),
   health: () => call<Health>('/api/health'),
   billing: () => call<BillingInfo>('/api/billing'),
+  syncBilling: () => call<{ synced: boolean }>('/api/billing/sync', { method: 'POST' }),
   inventory: () => call<{ items: InventoryItem[]; summary: InventorySummary }>('/api/inventory'),
   addInventory: (body: { scanId?: string; brand?: string; model?: string; category?: CategorySlug; condition?: Condition; purchasePrice: number; source?: string }) =>
     call<InventoryItem>('/api/inventory', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }),

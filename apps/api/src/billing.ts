@@ -182,6 +182,21 @@ export function createBilling(db: Db, cfg: BillingConfig, log: FastifyBaseLogger
         return { url: session.url };
       });
 
+      // Back from Checkout: read the subscription straight from Stripe, so the plan does not depend on the webhook
+      // alone (delayed, misconfigured). Only the caller's own Stripe customer is looked at.
+      app.post('/api/billing/sync', async (req, reply) => {
+        const uid = await requireUser(req, reply);
+        if (!uid) return;
+        if (!stripe) return reply.code(503).send({ error: 'billing_disabled' });
+        const user = await getUser(db, uid);
+        if (!user?.stripeCustomerId) return { synced: false };
+        const subs = await stripe.subscriptions.list({ customer: user.stripeCustomerId, status: 'all', limit: 5 });
+        const latest = subs.data.sort((a, b) => b.created - a.created)[0];
+        if (!latest) return { synced: false };
+        await syncSubscription(latest);
+        return { synced: true };
+      });
+
       app.post('/api/billing/portal', async (req, reply) => {
         const uid = await requireUser(req, reply);
         if (!uid) return;

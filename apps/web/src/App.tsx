@@ -183,6 +183,7 @@ export function App() {
     if (status === 'success') {
       setPlansNotice('Thanks! Your subscription is being activated.');
       track('subscription_started', { step: 'returned' });
+      void api.syncBilling().then(refreshBilling, () => undefined);
       let n = 0;
       const t = window.setInterval(() => {
         refreshBilling();
