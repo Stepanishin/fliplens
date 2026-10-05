@@ -79,6 +79,21 @@ export function createBilling(db: Db, cfg: BillingConfig, log: FastifyBaseLogger
   if (cfg.appUrl && !configuredUrl) log.error({ event: 'app_url_invalid' }, 'APP_URL is not a valid http(s) URL: using the request origin');
   const publicUrl = (req: FastifyRequest): string => configuredUrl ?? `${req.protocol}://${req.host}`;
 
+  /**
+   * The stored Stripe customer, if it exists for the current key. Customers are per mode: an id saved while running
+   * on the test key does not exist on the live key (and the other way round), so such ids are treated as absent.
+   */
+  async function existingCustomer(s: Stripe, customerId: string | null | undefined): Promise<string | undefined> {
+    if (!customerId) return undefined;
+    try {
+      const c = await s.customers.retrieve(customerId);
+      return c.deleted ? undefined : c.id;
+    } catch (e) {
+      if (e instanceof Stripe.errors.StripeInvalidRequestError && e.code === 'resource_missing') return undefined;
+      throw e;
+    }
+  }
+
   async function quota(userId: string): Promise<Quota> {
     const plan = effectivePlan(await getSubscription(db, userId));
     const used = await valuationsThisMonth(db, userId);
@@ -87,16 +102,19 @@ export function createBilling(db: Db, cfg: BillingConfig, log: FastifyBaseLogger
   }
 
   async function syncSubscription(sub: Stripe.Subscription): Promise<void> {
-    const customerId = typeof sub.customer === 'string' ? sub.customer : sub.customer.id;
-    const userId = sub.metadata.userId || (await userIdByStripeCustomer(db, customerId));
-    if (!userId) {
-      log.error({ event: 'billing_unknown_customer', customerId }, 'subscription for unknown customer');
+    // The Stripe account may also serve other products: only subscriptions to a FlipLens price are ours.
+    const item = sub.items.data[0];
+    const plan = planByLookupKey(item?.price.lookup_key);
+    if (!plan) {
+      log.info({ event: 'billing_foreign_subscription', price: item?.price.id }, 'ignoring a subscription that is not a FlipLens plan');
       return;
     }
-    const item = sub.items.data[0];
-    const plan = planByLookupKey(item?.price.lookup_key) ?? (sub.metadata.plan as 'pro' | 'reseller' | undefined);
-    if (!plan) {
-      log.error({ event: 'billing_unknown_price', price: item?.price.id }, 'subscription with unknown price');
+    const customerId = typeof sub.customer === 'string' ? sub.customer : sub.customer.id;
+    const known = await userIdByStripeCustomer(db, customerId);
+    // metadata.userId is only trusted together with our own customer record (set at checkout).
+    const userId = known ?? (sub.metadata.userId && (await getUser(db, sub.metadata.userId)) ? sub.metadata.userId : undefined);
+    if (!userId) {
+      log.error({ event: 'billing_unknown_customer', customerId }, 'subscription for unknown customer');
       return;
     }
     const periodEnd = item?.current_period_end;
@@ -115,7 +133,12 @@ export function createBilling(db: Db, cfg: BillingConfig, log: FastifyBaseLogger
     const sub = await getSubscription(db, userId);
     if (!sub || ['canceled', 'incomplete_expired'].includes(sub.status)) return;
     if (!stripe) throw new Error('Stripe is not configured but the user has a subscription');
-    await stripe.subscriptions.cancel(sub.stripeSubscriptionId, { invoice_now: false, prorate: false });
+    try {
+      await stripe.subscriptions.cancel(sub.stripeSubscriptionId, { invoice_now: false, prorate: false });
+    } catch (e) {
+      // Created under the other Stripe mode (test vs live): nothing to cancel with this key.
+      if (!(e instanceof Stripe.errors.StripeInvalidRequestError && e.code === 'resource_missing')) throw e;
+    }
     log.info({ event: 'subscription_cancelled_for_deletion' }, 'subscription cancelled before account deletion');
   }
 
@@ -157,7 +180,7 @@ export function createBilling(db: Db, cfg: BillingConfig, log: FastifyBaseLogger
         const price = prices.data[0];
         if (!price) return reply.code(500).send({ error: 'price_missing', message: `Run the Stripe setup script (missing ${lookupKey})` });
 
-        let customerId = user.stripeCustomerId;
+        let customerId = await existingCustomer(stripe, user.stripeCustomerId);
         if (!customerId) {
           const c = await stripe.customers.create({ ...(user.email && { email: user.email }), ...(user.name && { name: user.name }), metadata: { userId: uid } });
           customerId = c.id;
@@ -189,8 +212,9 @@ export function createBilling(db: Db, cfg: BillingConfig, log: FastifyBaseLogger
         if (!uid) return;
         if (!stripe) return reply.code(503).send({ error: 'billing_disabled' });
         const user = await getUser(db, uid);
-        if (!user?.stripeCustomerId) return { synced: false };
-        const subs = await stripe.subscriptions.list({ customer: user.stripeCustomerId, status: 'all', limit: 5 });
+        const customerId = await existingCustomer(stripe, user?.stripeCustomerId);
+        if (!customerId) return { synced: false };
+        const subs = await stripe.subscriptions.list({ customer: customerId, status: 'all', limit: 5 });
         const latest = subs.data.sort((a, b) => b.created - a.created)[0];
         if (!latest) return { synced: false };
         await syncSubscription(latest);
@@ -202,8 +226,9 @@ export function createBilling(db: Db, cfg: BillingConfig, log: FastifyBaseLogger
         if (!uid) return;
         if (!stripe) return reply.code(503).send({ error: 'billing_disabled' });
         const user = await getUser(db, uid);
-        if (!user?.stripeCustomerId) return reply.code(400).send({ error: 'no_customer', message: 'No subscription yet' });
-        const session = await stripe.billingPortal.sessions.create({ customer: user.stripeCustomerId, return_url: `${publicUrl(req)}/` });
+        const customerId = await existingCustomer(stripe, user?.stripeCustomerId);
+        if (!customerId) return reply.code(400).send({ error: 'no_customer', message: 'No subscription yet' });
+        const session = await stripe.billingPortal.sessions.create({ customer: customerId, return_url: `${publicUrl(req)}/` });
         return { url: session.url };
       });
 
