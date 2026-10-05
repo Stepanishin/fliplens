@@ -89,6 +89,9 @@ export function Result({ resp, query, country, onNewScan, onEdit, targetRoiPct, 
           DEFAULT_PRICING_CONFIG,
         );
   const maxBuy = r.maxBuyPrice ?? maxBuyPrice(base.net, targetRoiPct);
+  // Checked without a price: lead with "pay at most"; a verdict appears once a price is tried on the slider.
+  const noPrice = resp.priceProvided === false;
+  const showVerdict = !noPrice || buyMinor !== askedMinor;
   const shipping = p.shipping.amountMinor;
   // Sale price where profit hits 0: S - (S * fee% + fixed) - shipping = purchase.
   const breakEven = Math.round((p.purchasePrice.amountMinor + fee.fixedFeeMinor + shipping + p.packaging.amountMinor) / (1 - fee.percentageFeeBp / 10_000));
@@ -100,11 +103,27 @@ export function Result({ resp, query, country, onNewScan, onEdit, targetRoiPct, 
         <div key={i} className="banner warn small">{w.site ? `${w.site}: ` : ''}{w.message}</div>
       ))}
 
-      <DecisionHero decision={decision.decision} profitMinor={p.profit.amountMinor} roiPct={p.roiPct} expectedMinor={e.expected.amountMinor} maxBuyMinor={maxBuy.amountMinor} />
+      {showVerdict ? (
+        <DecisionHero decision={decision.decision} profitMinor={p.profit.amountMinor} roiPct={p.roiPct} expectedMinor={e.expected.amountMinor} maxBuyMinor={maxBuy.amountMinor} />
+      ) : (
+        <div className="hero d-value">
+          <div className="hero-top">
+            <div>
+              <div className="hero-title">Pay at most {eur(maxBuy.amountMinor)}</div>
+              <div className="hero-sub">for {targetRoiPct}% ROI after fees and shipping</div>
+            </div>
+          </div>
+          <div className="hero-numbers">
+            <div><span>Sells for</span><strong>{eur(e.expected.amountMinor)}</strong></div>
+            <div><span>Quick sale</span><strong>{eur(e.fast.amountMinor)}</strong></div>
+            <div><span>You keep</span><strong>{eur(base.net.amountMinor)}</strong></div>
+          </div>
+        </div>
+      )}
 
       <section className="card whatif">
         <div className="card-head">
-          <h2>What if you pay</h2>
+          <h2>{noPrice && !showVerdict ? 'Try a price' : 'What if you pay'}</h2>
           <strong className="whatif-price">{eur(buyMinor)}</strong>
         </div>
         <input
@@ -129,7 +148,14 @@ export function Result({ resp, query, country, onNewScan, onEdit, targetRoiPct, 
           <span>{eur(sliderMax)}</span>
         </div>
         {buyMinor !== askedMinor && (
-          <button type="button" className="link" onClick={() => setBuyMinor(askedMinor)}>Back to asking price {eur(askedMinor)}</button>
+          <button type="button" className="link" onClick={() => setBuyMinor(askedMinor)}>
+            {noPrice ? `Back to max price ${eur(askedMinor)}` : `Back to asking price ${eur(askedMinor)}`}
+          </button>
+        )}
+        {onBought && showVerdict && (
+          <button type="button" className="bought-btn" onClick={() => onBought(buyMinor)}>
+            <IconBag size={20} /> I bought it for {eur(buyMinor)}
+          </button>
         )}
       </section>
 
@@ -153,16 +179,20 @@ export function Result({ resp, query, country, onNewScan, onEdit, targetRoiPct, 
         </p>
       </section>
 
-      <section className="card">
-        <h2>Why</h2>
-        <ul className="list">{decision.factors.map((f) => <li key={f}>{f}</li>)}</ul>
-        {decision.risks.length > 0 && (
-          <>
-            <h3>Risks</h3>
-            <ul className="list risks">{decision.risks.map((f) => <li key={f}>{f}</li>)}</ul>
-          </>
-        )}
-      </section>
+      <Comparables items={e.comparables} defaultOpen />
+
+      {showVerdict && (
+        <section className="card">
+          <h2>Why</h2>
+          <ul className="list">{decision.factors.map((f) => <li key={f}>{f}</li>)}</ul>
+          {decision.risks.length > 0 && (
+            <>
+              <h3>Risks</h3>
+              <ul className="list risks">{decision.risks.map((f) => <li key={f}>{f}</li>)}</ul>
+            </>
+          )}
+        </section>
+      )}
 
       <section className="card">
         <h2>Market</h2>
@@ -208,12 +238,6 @@ export function Result({ resp, query, country, onNewScan, onEdit, targetRoiPct, 
         </details>
       </section>
 
-      {onBought && (
-        <button type="button" className="bought-btn" onClick={() => onBought(buyMinor)}>
-          <IconBag size={20} /> I bought it for {eur(buyMinor)}
-        </button>
-      )}
-      <Comparables items={e.comparables} />
       <MarketLinks query={query} country={country} />
       <Actions onNewScan={onNewScan} onEdit={onEdit} />
       {children}

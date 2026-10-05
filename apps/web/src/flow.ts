@@ -90,7 +90,8 @@ export function buildRequest(d: Draft, s: Settings): ValuationRequest {
       ...(exclude.length > 0 && { excludeModels: exclude }),
     },
     condition: d.condition,
-    purchasePrice: parsePrice(d.price),
+    // Empty price: "what is it worth, how much may I pay".
+    ...(d.price.trim() !== '' && { purchasePrice: parsePrice(d.price) }),
     currency: 'EUR',
     preset: s.preset,
     shippingCost: s.shippingCost,
@@ -120,6 +121,6 @@ export function draftFromScan(s: ServerScan): Draft {
       excludeModels: s.excludeModels.join(', '),
     },
     condition: s.condition,
-    price: String(s.purchasePrice.amountMinor / 100),
+    price: s.priceProvided === false ? '' : String(s.purchasePrice.amountMinor / 100),
   };
 }

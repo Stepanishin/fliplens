@@ -37,7 +37,7 @@ export function BenchmarkAdd({ photos, request }: Props) {
     photos.length === 0 && 'a photo',
     !request?.product.brand && 'brand',
     !request?.product.model && 'model',
-    !(request && request.purchasePrice >= 0) && 'purchase price',
+    !(request && (request.purchasePrice ?? -1) >= 0) && 'purchase price',
     !(num(low) > 0 && num(high) >= num(low)) && 'market range (low ≤ high)',
   ].filter(Boolean);
 
@@ -52,7 +52,7 @@ export function BenchmarkAdd({ photos, request }: Props) {
         category: p.category ?? 'other',
         truth: { brand: p.brand, model: p.model, ...(p.capacity && { capacity: p.capacity }), ...(p.mount && { mount: p.mount }) },
         condition: request.condition,
-        purchasePriceEur: request.purchasePrice,
+        purchasePriceEur: request.purchasePrice ?? 0,
         marketRange: { low: num(low), high: num(high), kind },
         photoContext: context,
         ...(url.trim() && { referenceUrls: [url.trim()] }),

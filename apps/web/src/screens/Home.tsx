@@ -1,6 +1,6 @@
 import { useRef, useState, type ChangeEvent } from 'react';
 import type { Account, BillingInfo, ServerScan } from '../api.js';
-import { ago, DECISION_LABEL } from '../format.js';
+import { ago, scanPill } from '../format.js';
 import { resizeToJpegDataUrl } from '../image.js';
 import { IconBarcode, IconCamera, IconChevron, IconEdit, IconImage } from '../ui/icons.js';
 import { eur } from '../ui/verdict.js';
@@ -95,18 +95,16 @@ export function Home({ account, visionEnabled, recent, onPhotos, onCamera, onBar
           <ul className="recent">
             {recent.slice(0, 4).map((s) => (
               <li key={s.id}>
-                <button type="button" className={`recent-row v-${s.valuation?.decision ?? 'insufficient'}`} onClick={() => onOpenScan(s)}>
+                <button type="button" className={`recent-row v-${s.priceProvided === false ? 'value' : (s.valuation?.decision ?? 'insufficient')}`} onClick={() => onOpenScan(s)}>
                   <span className="recent-main">
                     <strong>{s.product.brand} {s.product.model}{s.product.capacity ? ` ${s.product.capacity}` : ''}</strong>
                     <span className="muted small">
-                      €{s.purchasePrice.amountMinor / 100} → {s.valuation?.expected ? eur(s.valuation.expected) : 'n/a'} · {ago(s.createdAt)}
+                      {s.priceProvided === false ? 'worth' : `€${s.purchasePrice.amountMinor / 100} →`} {s.valuation?.expected ? eur(s.valuation.expected) : 'n/a'} · {ago(s.createdAt)}
                     </span>
                   </span>
                   <span className="recent-side">
-                    <span className={`pill d-${s.valuation?.decision ?? 'insufficient'}`}>
-                      {s.valuation?.decision ? DECISION_LABEL[s.valuation.decision as keyof typeof DECISION_LABEL] : 'NO DATA'}
-                    </span>
-                    {s.valuation?.profit !== null && s.valuation?.profit !== undefined && (
+                    <span className={`pill ${scanPill(s).cls}`}>{scanPill(s).label}</span>
+                    {s.priceProvided !== false && s.valuation?.profit !== null && s.valuation?.profit !== undefined && (
                       <span className={`recent-profit ${s.valuation.profit >= 0 ? 'pos' : 'neg'}`}>{s.valuation.profit >= 0 ? '+' : '−'}{eur(Math.abs(s.valuation.profit))}</span>
                     )}
                   </span>

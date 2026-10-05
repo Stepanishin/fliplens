@@ -4,7 +4,7 @@ import { ago, CONDITION_LABEL, fmt, REASON_LABEL } from '../format.js';
 import { track } from '../track.js';
 
 /** "Why do we think it is worth €105": the listings the estimate is built from, and what was filtered out. */
-export function Comparables({ items }: { items: ComparableJson[] }) {
+export function Comparables({ items, defaultOpen = false }: { items: ComparableJson[]; defaultOpen?: boolean }) {
   const included = useMemo(
     () => items.filter((c) => c.included).sort((a, b) => (a.adjustedPrice?.amountMinor ?? 0) - (b.adjustedPrice?.amountMinor ?? 0)),
     [items],
@@ -18,9 +18,9 @@ export function Comparables({ items }: { items: ComparableJson[] }) {
     }
     return [...m.entries()].sort((a, b) => b[1] - a[1]);
   }, [excluded]);
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(defaultOpen);
   const [showAll, setShowAll] = useState(false);
-  const shown = showAll ? included : included.slice(0, 10);
+  const shown = showAll ? included : included.slice(0, defaultOpen ? 5 : 10);
 
   if (!open) {
     return (
@@ -40,8 +40,8 @@ export function Comparables({ items }: { items: ComparableJson[] }) {
   return (
     <section className="section">
       <div className="section-head">
-        <h2>Comparables</h2>
-        <span className="muted small">eBay, cheapest first</span>
+        <h2>{defaultOpen ? 'eBay listings' : 'Comparables'}</h2>
+        <span className="muted small">{included.length} used for the estimate, cheapest first</span>
       </div>
       <ul className="list-card comps">
         {shown.map((c) => (
@@ -68,8 +68,15 @@ export function Comparables({ items }: { items: ComparableJson[] }) {
           </li>
         ))}
       </ul>
-      {included.length > 10 && (
-        <button type="button" className="ghost wide" onClick={() => setShowAll((s) => !s)}>
+      {included.length > (defaultOpen ? 5 : 10) && (
+        <button
+          type="button"
+          className="ghost wide"
+          onClick={() => {
+            if (!showAll) track('comparables_opened', { count: included.length });
+            setShowAll((s) => !s);
+          }}
+        >
           {showAll ? 'Show less' : `Show all ${included.length}`}
         </button>
       )}

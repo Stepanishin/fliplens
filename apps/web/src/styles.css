@@ -659,3 +659,10 @@ button:focus-visible, a:focus-visible, summary:focus-visible { outline: 2.5px so
 .plan-badge { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; padding: 3px 8px; border-radius: 999px; background: var(--surface-2); color: var(--muted); }
 .plan-badge.pro, .plan-badge.reseller { background: var(--accent-soft); color: var(--accent-2); }
 .admin-user .avatar { width: 36px; height: 36px; font-size: 15px; }
+
+/* ---------- checked without a price ---------- */
+.d-value { background: var(--accent); }
+.hero.d-value { background: linear-gradient(150deg, #14b8a6, #0f766e); }
+.recent-row.v-value::before { background: var(--accent); }
+.price-hint { display: block; text-align: center; }
+.whatif .bought-btn { margin-top: 12px; }

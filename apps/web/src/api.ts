@@ -36,7 +36,7 @@ export interface ValuationRequest {
     excludeModels?: string[];
   };
   condition: Condition;
-  purchasePrice: number;
+  purchasePrice?: number;
   currency: CurrencyCode;
   preset: FeePresetId;
   shippingCost: number;
@@ -54,6 +54,8 @@ export interface ValuationResponse {
   /** Category used for the search (auto-detected when the request had none). */
   category: CategorySlug;
   categoryDetected: boolean;
+  /** False when checked without a price: the result is valued at the max buy price. */
+  priceProvided?: boolean;
   source: 'ebay';
   dataFetchedAt: string | null;
   sourceWarnings: { source: string; site?: string; message: string }[];
@@ -94,6 +96,7 @@ export interface ServerScan {
   excludeModels: string[];
   condition: Condition;
   purchasePrice: { amountMinor: number; currency: CurrencyCode };
+  priceProvided?: boolean;
   status: 'valued' | 'insufficient_data';
   valuation: { expected: number | null; profit: number | null; roiPct: number | null; decision: string | null; confidenceLevel: string | null; includedCount: number } | null;
 }

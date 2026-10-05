@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { api, type ServerScan, type StoredValuation } from '../api.js';
-import { ago, CONDITION_LABEL, DECISION_LABEL, REASON_LABEL } from '../format.js';
+import { ago, CONDITION_LABEL, DECISION_LABEL, REASON_LABEL, scanPill } from '../format.js';
 import { ConfidencePill, DecisionHero, eur, MarketActivity } from '../ui/verdict.js';
 import { IconChevron, IconRefresh } from '../ui/icons.js';
 
@@ -28,13 +28,11 @@ export function History({ scans, dbOn, onOpen }: { scans: ServerScan[] | null; d
                 <span className="list-main">
                   <strong>{s.product.brand} {s.product.model} {s.product.capacity ?? ''}</strong>
                   <span className="muted small">
-                    buy €{s.purchasePrice.amountMinor / 100}
-                    {s.valuation?.profit !== null && s.valuation?.profit !== undefined ? ` · profit ${eur(s.valuation.profit)}` : ''} · {ago(s.createdAt)}
+                    {s.priceProvided === false ? 'no price' : `buy €${s.purchasePrice.amountMinor / 100}`}
+                    {s.priceProvided !== false && s.valuation?.profit !== null && s.valuation?.profit !== undefined ? ` · profit ${eur(s.valuation.profit)}` : ''} · {ago(s.createdAt)}
                   </span>
                 </span>
-                <span className={`pill d-${s.valuation?.decision ?? 'insufficient'}`}>
-                  {s.valuation?.decision ? DECISION_LABEL[s.valuation.decision as keyof typeof DECISION_LABEL] : 'NO DATA'}
-                </span>
+                <span className={`pill ${scanPill(s).cls}`}>{scanPill(s).label}</span>
                 <IconChevron size={18} className="muted" />
               </button>
             </li>
@@ -57,7 +55,7 @@ export function ScanDetail({ scan, onRecheck, onDelete }: { scan: ServerScan; on
     <div className="screen">
       <div className="summary-chip">
         <strong>{p.brand} {p.model}{p.capacity ? ` ${p.capacity}` : ''}</strong>
-        <span className="muted small">{CONDITION_LABEL[scan.condition]} · bought at €{scan.purchasePrice.amountMinor / 100} · {ago(scan.createdAt)}</span>
+        <span className="muted small">{CONDITION_LABEL[scan.condition]} · {scan.priceProvided === false ? `max buy €${scan.purchasePrice.amountMinor / 100}` : `bought at €${scan.purchasePrice.amountMinor / 100}`} · {ago(scan.createdAt)}</span>
       </div>
 
       {v === undefined && <div className="identifying"><span className="spinner" /> Loading…</div>}

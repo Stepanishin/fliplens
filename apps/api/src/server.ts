@@ -76,7 +76,8 @@ const ValuationBody = z.object({
     excludeModels: z.array(z.string().trim().min(1)).max(10).optional(),
   }),
   condition: z.enum(CONDITIONS),
-  purchasePrice: z.number().min(0).max(100_000),
+  /** Optional: without it we answer "what is it worth and how much may I pay" (valued at the max buy price). */
+  purchasePrice: z.number().min(0).max(100_000).optional(),
   currency: z.enum(CURRENCIES).default('EUR'),
   preset: z.enum(presetIds).default('ebay_de_private'),
   shippingCost: z.number().min(0).max(1000).default(6),
@@ -269,21 +270,31 @@ app.post('/api/valuation', async (req, reply) => {
   if (rates.source !== 'ecb') req.log.warn({ event: 'fx_fallback' }, 'ECB unreachable, using static FX rates');
 
   const fees = resolveFeeProfile(b.preset, b.condition, product.category);
-  const result = valuate({
-    product,
-    targetCondition: b.condition,
-    items: search.items,
-    targetCurrency: b.currency,
-    fx: rates,
-    now: new Date(),
-    identificationConfidence: b.identificationConfidence,
-    purchasePrice: money(b.purchasePrice, b.currency),
-    fees,
-    shippingCost: money(b.shippingCost, b.currency),
-    ...(b.packagingCost !== undefined && { packagingCost: money(b.packagingCost, b.currency) }),
-    ...(b.targetRoiPct !== undefined && { targetRoiPct: b.targetRoiPct }),
-    ...(b.recognitionModelVersion !== undefined && { recognitionModelVersion: b.recognitionModelVersion }),
-  });
+  const targetRoiPct = b.targetRoiPct ?? 40;
+  const valueAt = (price: number) =>
+    valuate({
+      product,
+      targetCondition: b.condition,
+      items: search.items,
+      targetCurrency: b.currency,
+      fx: rates,
+      now: new Date(),
+      identificationConfidence: b.identificationConfidence,
+      purchasePrice: money(price, b.currency),
+      fees,
+      shippingCost: money(b.shippingCost, b.currency),
+      ...(b.packagingCost !== undefined && { packagingCost: money(b.packagingCost, b.currency) }),
+      targetRoiPct,
+      ...(b.recognitionModelVersion !== undefined && { recognitionModelVersion: b.recognitionModelVersion }),
+    });
+  const priceProvided = b.purchasePrice !== undefined;
+  let purchasePrice = b.purchasePrice ?? 0;
+  let result = valueAt(purchasePrice);
+  if (!priceProvided && result.status === 'ok' && result.maxBuyPrice) {
+    // No price given: show the deal at the most one should pay (whole euros, rounded down).
+    purchasePrice = Math.max(0, Math.floor(result.maxBuyPrice.amountMinor / 100));
+    result = valueAt(purchasePrice);
+  }
 
   req.log.info(
     {
@@ -298,7 +309,7 @@ app.post('/api/valuation', async (req, reply) => {
   );
 
   const scanId = await store.recordValuation(req, {
-    body: b,
+    body: { ...b, purchasePrice, priceProvided },
     product,
     result,
     search,
@@ -310,6 +321,7 @@ app.post('/api/valuation', async (req, reply) => {
     scanId,
     category,
     categoryDetected: !b.product.category,
+    priceProvided,
     source: 'ebay',
     dataFetchedAt: search.oldestFetchedAt?.toISOString() ?? null,
     sourceWarnings: search.warnings,

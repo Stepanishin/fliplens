@@ -60,6 +60,8 @@ export interface ValuationRecord {
     gtin?: string | undefined;
     condition: string;
     purchasePrice: number;
+    /** False: checked without a price; purchasePrice is then the max buy price. */
+    priceProvided: boolean;
     currency: string;
     recognitionModelVersion?: string | undefined;
   };
@@ -344,6 +346,7 @@ function enabled(db: Db, log: FastifyBaseLogger, auth: AuthConfig): Persistence 
           excludeModels: (scan.product as NormalizedProduct).excludeModels ?? [],
           condition: scan.condition,
           purchasePrice: money(scan.purchasePriceMinor / 100, 'EUR'),
+          priceProvided: scan.priceProvided,
           status: scan.status,
           valuation: v && {
             expected: v.expectedSaleMinor,
@@ -544,6 +547,7 @@ function enabled(db: Db, log: FastifyBaseLogger, auth: AuthConfig): Persistence 
             product: p,
             condition: x.body.condition,
             purchasePriceMinor: Math.round(x.body.purchasePrice * 100),
+            priceProvided: x.body.priceProvided,
             currency: x.body.currency,
             status: r.status === 'ok' ? 'valued' : 'insufficient_data',
           },

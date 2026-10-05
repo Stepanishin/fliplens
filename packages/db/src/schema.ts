@@ -76,6 +76,8 @@ export const scans = pgTable(
     product: jsonb('product').notNull(),
     condition: text('condition').notNull(),
     purchasePriceMinor: integer('purchase_price_minor').notNull(),
+    /** False when the user checked without a price: purchasePriceMinor is then our max buy price. */
+    priceProvided: boolean('price_provided').notNull().default(true),
     currency: text('currency').notNull(),
     status: text('status').$type<'valued' | 'insufficient_data'>().notNull(),
     createdAt: createdAt(),

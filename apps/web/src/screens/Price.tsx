@@ -20,7 +20,8 @@ export function Price({ draft, settings, busy, error, onChangePrice, onSubmit, o
   const inputRef = useRef<HTMLInputElement>(null);
   useEffect(() => inputRef.current?.focus(), []);
   const p = draft.product;
-  const valid = draft.price.trim() !== '' && parsePrice(draft.price) >= 0;
+  const empty = draft.price.trim() === '';
+  const valid = empty || parsePrice(draft.price) >= 0;
 
   function submit(e: FormEvent) {
     e.preventDefault();
@@ -41,11 +42,12 @@ export function Price({ draft, settings, busy, error, onChangePrice, onSubmit, o
       </div>
 
       <label className="price-field">
-        <span>How much can you buy it for?</span>
+        <span>How much can you buy it for? <span className="muted">(optional)</span></span>
         <div className="price-input">
           <span>€</span>
-          <input ref={inputRef} inputMode="decimal" enterKeyHint="go" value={draft.price} onChange={(e) => onChangePrice(e.target.value)} placeholder="0" aria-label="Purchase price in euro" />
+          <input ref={inputRef} inputMode="decimal" enterKeyHint="go" value={draft.price} onChange={(e) => onChangePrice(e.target.value)} placeholder="Skip" aria-label="Purchase price in euro (optional)" />
         </div>
+        <small className="muted price-hint">{empty ? 'No price yet? We show what it sells for and the most you should pay.' : 'We compare this price with the market.'}</small>
       </label>
 
       <button type="button" className="context-row" onClick={onEditSettings}>
@@ -59,7 +61,7 @@ export function Price({ draft, settings, busy, error, onChangePrice, onSubmit, o
 
       <div className="sticky-cta">
         <button type="submit" className="primary" disabled={!valid || busy}>
-          {busy ? <><span className="spinner light" aria-hidden="true" /> Checking the market…</> : 'Should I buy it?'}
+          {busy ? <><span className="spinner light" aria-hidden="true" /> Checking the market…</> : empty ? 'Check the market' : 'Should I buy it?'}
         </button>
       </div>
     </form>

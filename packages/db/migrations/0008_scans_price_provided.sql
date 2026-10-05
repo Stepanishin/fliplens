@@ -1,0 +1,1 @@
+ALTER TABLE "scans" ADD COLUMN "price_provided" boolean DEFAULT true NOT NULL;

@@ -78,3 +78,10 @@ export const FACTOR_LABEL: Record<string, string> = {
   data_kind: 'Sold vs asking',
   spread: 'Price spread',
 };
+
+/** Pill for a saved check. Checked without a price: the useful answer is the max buy price, not a verdict. */
+export function scanPill(s: { priceProvided?: boolean; purchasePrice: { amountMinor: number }; valuation: { decision: string | null } | null }): { cls: string; label: string } {
+  if (!s.valuation?.decision) return { cls: 'd-insufficient', label: 'NO DATA' };
+  if (s.priceProvided === false) return { cls: 'd-value', label: `MAX €${Math.round(s.purchasePrice.amountMinor / 100)}` };
+  return { cls: `d-${s.valuation.decision}`, label: DECISION_LABEL[s.valuation.decision as keyof typeof DECISION_LABEL] ?? s.valuation.decision };
+}
