@@ -151,7 +151,9 @@ export function createBilling(db: Db, cfg: BillingConfig, log: FastifyBaseLogger
       app.get('/api/billing', async (req, reply) => {
         const uid = await requireUser(req, reply);
         if (!uid) return;
-        const sub = await getSubscription(db, uid);
+        // Ended subscriptions (canceled, unpaid, ...) are history: the user is on Free and must be able to subscribe again.
+        const stored = await getSubscription(db, uid);
+        const sub = stored && effectivePlan(stored) !== 'free' ? stored : undefined;
         return {
           enabled: stripe !== undefined,
           quota: await quota(uid),
