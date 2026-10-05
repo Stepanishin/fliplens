@@ -97,7 +97,7 @@ export function PrivacyPolicy() {
             <td>Contract (Art. 6(1)(b))</td>
           </tr>
           <tr>
-            <td>Usage events inside the app (for example "check started", "valuation completed", "comparables opened") with a few non-identifying details such as product category or decision</td>
+            <td>Usage events inside the app (for example "check started", "valuation completed", "comparables opened", which screens are opened) with a few non-identifying details such as product category or decision. For visits we also note the referring website, utm_source, whether the device is a phone and the browser language, counted under a one-way hash of the random device ID (no cookie, no third-party analytics)</td>
             <td>Understand which features work and fix problems. First-party only: no third-party trackers or advertising</td>
             <td>Legitimate interest (Art. 6(1)(f))</td>
           </tr>

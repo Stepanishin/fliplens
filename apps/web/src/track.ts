@@ -28,3 +28,32 @@ function flush(): void {
 }
 
 window.addEventListener('pagehide', flush);
+
+/**
+ * One "visit" per browser tab session: where people come from (referrer host, utm_source) and on what.
+ * No cookies and no third-party scripts; the server stores only a hash of the random device id.
+ */
+export function trackVisit(): void {
+  try {
+    if (sessionStorage.getItem('fliplens.visit')) return;
+    sessionStorage.setItem('fliplens.visit', '1');
+  } catch {
+    // storage blocked: count the visit anyway
+  }
+  let ref: string | null = null;
+  try {
+    const host = document.referrer ? new URL(document.referrer).hostname : '';
+    ref = host && host !== window.location.hostname ? host.replace(/^www\./, '').slice(0, 100) : null;
+  } catch {
+    ref = null;
+  }
+  const utm = new URLSearchParams(window.location.search).get('utm_source');
+  track('visit', {
+    ref,
+    utm: utm ? utm.slice(0, 60) : null,
+    entry: window.location.pathname.slice(0, 40),
+    mobile: window.matchMedia('(pointer: coarse)').matches,
+    standalone: window.matchMedia('(display-mode: standalone)').matches,
+    lang: navigator.language.slice(0, 2),
+  });
+}

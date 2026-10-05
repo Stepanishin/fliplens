@@ -2,6 +2,7 @@ import { FEE_PRESETS, type FeePresetId } from '@fliplens/core';
 import { api, type Account, type BillingInfo } from '../api.js';
 import { GoogleButton } from '../ui/GoogleButton.js';
 import { InstallApp } from '../ui/InstallApp.js';
+import { IconChevron } from '../ui/icons.js';
 import { LINK_COUNTRIES } from '../marketSearch.js';
 import type { Settings } from '../storage.js';
 
@@ -53,6 +54,17 @@ export function Profile({ billing, onOpenPlans, account, googleClientId, onGoogl
   return (
     <div className="screen">
       <h1 className="screen-title">Profile</h1>
+
+      {isAdmin && (
+        <button type="button" className="context-row admin-entry" onClick={onOpenAdmin}>
+          <span>
+            <strong>Admin panel</strong>
+            <br />
+            Users, visits, revenue and costs
+          </span>
+          <IconChevron size={18} />
+        </button>
+      )}
 
       {dbOn && (
         <section className="card account">
@@ -136,10 +148,6 @@ export function Profile({ billing, onOpenPlans, account, googleClientId, onGoogl
             <button type="button" className="ghost danger" onClick={() => void deleteData()}>Delete all</button>
           </div>
         </section>
-      )}
-
-      {isAdmin && (
-        <button type="button" className="ghost wide" onClick={onOpenAdmin}>Admin: costs and usage</button>
       )}
 
       {isAdmin && (

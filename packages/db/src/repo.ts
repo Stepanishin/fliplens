@@ -238,9 +238,10 @@ export async function recordEvents(
   db: Db,
   userId: string | undefined,
   list: readonly { name: string; props: Record<string, string | number | boolean | null> }[],
+  visitor?: string,
 ): Promise<void> {
   if (list.length === 0) return;
-  await db.insert(events).values(list.map((e) => ({ ...(userId && { userId }), name: e.name, props: e.props })));
+  await db.insert(events).values(list.map((e) => ({ ...(userId && { userId }), ...(visitor && { visitor }), name: e.name, props: e.props })));
 }
 
 /** Funnel counts per event name plus active devices: the beta metrics (scans per active user per week). */
@@ -526,4 +527,201 @@ export async function scanForInventory(db: Db, userId: string, scanId: string): 
 export async function getInventory(db: Db, userId: string, id: string): Promise<InventoryRow | undefined> {
   const [row] = await db.select().from(inventoryItems).where(and(eq(inventoryItems.id, id), eq(inventoryItems.userId, userId)));
   return row;
+}
+
+// ---------- admin: traffic, users ----------
+
+const rows = async <T>(db: Db, q: ReturnType<typeof sql>): Promise<T[]> => [...((await db.execute(q)) as unknown as T[])];
+
+export interface AdminTraffic {
+  days: number;
+  visits: number;
+  uniqueVisitors: number;
+  pageViews: number;
+  installs: number;
+  daily: { day: string; visitors: number; signups: number; checks: number }[];
+  referrers: { name: string; n: number }[];
+  campaigns: { name: string; n: number }[];
+  pages: { name: string; n: number }[];
+  devices: { mobile: number; desktop: number; standalone: number };
+  funnel: { visitors: number; signups: number; activated: number; paying: number };
+}
+
+/** Site traffic from first-party events (no cookies, no third-party analytics). */
+export async function adminTraffic(db: Db, days = 30): Promise<AdminTraffic> {
+  const since = sql`now() - make_interval(days => ${days})`;
+  const [totals] = await rows<{ visits: number; visitors: number; views: number; installs: number }>(
+    db,
+    sql`select count(*) filter (where name = 'visit')::int as visits,
+               count(distinct visitor)::int as visitors,
+               count(*) filter (where name = 'page_view')::int as views,
+               count(*) filter (where name = 'app_installed')::int as installs
+        from ${events} where created_at >= ${since}`,
+  );
+  const daily = await rows<{ day: string; visitors: number; signups: number; checks: number }>(
+    db,
+    sql`select to_char(d, 'YYYY-MM-DD') as day,
+          (select count(distinct visitor)::int from ${events} e where e.created_at >= d and e.created_at < d + interval '1 day') as visitors,
+          (select count(*)::int from ${users} u where u.google_sub is not null and u.created_at >= d and u.created_at < d + interval '1 day') as signups,
+          (select count(*)::int from ${scans} c where c.created_at >= d and c.created_at < d + interval '1 day') as checks
+        from generate_series(date_trunc('day', now()) - make_interval(days => ${days - 1}), date_trunc('day', now()), interval '1 day') d
+        order by d`,
+  );
+  const top = (key: string, name: string) =>
+    rows<{ name: string; n: number }>(
+      db,
+      sql`select coalesce(nullif(props->>${key}, ''), '(direct)') as name, count(*)::int as n
+          from ${events} where name = ${name} and created_at >= ${since} group by 1 order by 2 desc limit 10`,
+    );
+  const [referrers, campaigns, pages] = await Promise.all([top('ref', 'visit'), top('utm', 'visit'), top('page', 'page_view')]);
+  const [dev] = await rows<{ mobile: number; desktop: number; standalone: number }>(
+    db,
+    sql`select count(*) filter (where (props->>'mobile')::boolean)::int as mobile,
+               count(*) filter (where not coalesce((props->>'mobile')::boolean, false))::int as desktop,
+               count(*) filter (where (props->>'standalone')::boolean)::int as standalone
+        from ${events} where name = 'visit' and created_at >= ${since}`,
+  );
+  const [funnel] = await rows<{ signups: number; activated: number; paying: number }>(
+    db,
+    sql`select count(*)::int as signups,
+               count(*) filter (where exists (select 1 from ${scans} c where c.user_id = u.id))::int as activated,
+               count(*) filter (where exists (select 1 from ${subscriptions} s where s.user_id = u.id and s.status in ('active','trialing','past_due')))::int as paying
+        from ${users} u where u.google_sub is not null and u.created_at >= ${since}`,
+  );
+  return {
+    days,
+    visits: totals?.visits ?? 0,
+    uniqueVisitors: totals?.visitors ?? 0,
+    pageViews: totals?.views ?? 0,
+    installs: totals?.installs ?? 0,
+    daily,
+    referrers: referrers.filter((r) => r.name !== '(direct)' || r.n > 0),
+    campaigns: campaigns.filter((c) => c.name !== '(direct)'),
+    pages,
+    devices: dev ?? { mobile: 0, desktop: 0, standalone: 0 },
+    funnel: { visitors: totals?.visitors ?? 0, signups: funnel?.signups ?? 0, activated: funnel?.activated ?? 0, paying: funnel?.paying ?? 0 },
+  };
+}
+
+export interface AdminUserRow {
+  id: string;
+  email: string | null;
+  name: string | null;
+  picture: string | null;
+  createdAt: string;
+  lastSeenAt: string;
+  plan: string;
+  subStatus: string | null;
+  cancelAtPeriodEnd: boolean;
+  country: string | null;
+  checks: number;
+  checks30d: number;
+  recognitions: number;
+  stock: number;
+  sold: number;
+  devices: number;
+  costUsd: number;
+}
+
+/** Signed-in users, most recently active first. `q` filters by email or name. */
+export async function adminUsers(db: Db, opts: { q?: string; limit?: number; offset?: number } = {}): Promise<{ total: number; users: AdminUserRow[] }> {
+  const like = opts.q ? `%${opts.q.replace(/[\\%_]/g, (c) => `\\${c}`)}%` : null;
+  const where = like ? sql`u.google_sub is not null and (u.email ilike ${like} or u.name ilike ${like})` : sql`u.google_sub is not null`;
+  const [count] = await rows<{ n: number }>(db, sql`select count(*)::int as n from ${users} u where ${where}`);
+  return { total: count?.n ?? 0, users: await adminUsersWhere(db, where, Math.min(opts.limit ?? 50, 200), opts.offset ?? 0) };
+}
+
+async function adminUsersWhere(db: Db, where: ReturnType<typeof sql>, limit = 1, offset = 0): Promise<AdminUserRow[]> {
+  const list = await rows<Omit<AdminUserRow, 'costUsd'> & { costMicro: number }>(
+    db,
+    sql`select u.id, u.email, u.name, u.picture,
+          to_char(u.created_at at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS"Z"') as "createdAt",
+          to_char(u.last_seen_at at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS"Z"') as "lastSeenAt",
+          case when s.status in ('active','trialing','past_due') then s.plan else 'free' end as plan,
+          s.status as "subStatus", coalesce(s.cancel_at_period_end, false) as "cancelAtPeriodEnd",
+          st.country,
+          (select count(*)::int from ${scans} c where c.user_id = u.id) as checks,
+          (select count(*)::int from ${scans} c where c.user_id = u.id and c.created_at >= now() - interval '30 days') as "checks30d",
+          (select count(*)::int from ${productIdentifications} p where p.user_id = u.id) as recognitions,
+          (select count(*)::int from ${inventoryItems} i where i.user_id = u.id and i.status in ('bought','ready_to_list','listed')) as stock,
+          (select count(*)::int from ${inventoryItems} i where i.user_id = u.id and i.status = 'sold') as sold,
+          (select count(*)::int from ${userDevices} d where d.user_id = u.id) as devices,
+          (select coalesce(sum(cost_micro_usd), 0)::int from ${usageCosts} k where k.user_id = u.id) as "costMicro"
+        from ${users} u
+        left join ${subscriptions} s on s.user_id = u.id
+        left join ${userSettings} st on st.user_id = u.id
+        where ${where}
+        order by u.last_seen_at desc
+        limit ${limit} offset ${offset}`,
+  );
+  return list.map(({ costMicro, ...u }) => ({ ...u, costUsd: costMicro / 1_000_000 }));
+}
+
+export interface AdminUserDetail {
+  user: AdminUserRow;
+  settings: { country: string; feePreset: string; shippingCostMinor: number; targetRoiPct: number } | null;
+  subscription: { plan: string; status: string; currentPeriodEnd: string | null; cancelAtPeriodEnd: boolean; stripeSubscriptionId: string } | null;
+  stripeCustomerId: string | null;
+  scans: { id: string; createdAt: string; method: string; brand: string; model: string; priceMinor: number; status: string; decision: string | null; expectedSaleMinor: number | null; profitMinor: number | null }[];
+  inventory: { status: string; n: number; purchaseMinor: number; soldMinor: number }[];
+  events: { name: string; createdAt: string; props: Record<string, unknown> }[];
+  costThisMonthUsd: number;
+}
+
+export async function adminUser(db: Db, id: string): Promise<AdminUserDetail | undefined> {
+  const [row] = await adminUsersWhere(db, sql`u.id = ${id}`);
+  if (!row) return undefined;
+  const [u] = await db.select({ stripeCustomerId: users.stripeCustomerId }).from(users).where(eq(users.id, id));
+  const [settings] = await db.select().from(userSettings).where(eq(userSettings.userId, id));
+  const [sub] = await db.select().from(subscriptions).where(eq(subscriptions.userId, id));
+  const recent = await rows<AdminUserDetail['scans'][number]>(
+    db,
+    sql`select c.id, to_char(c.created_at at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS"Z"') as "createdAt", c.input_method as method,
+          c.brand, c.model, c.purchase_price_minor as "priceMinor", c.status, v.decision,
+          v.expected_sale_minor as "expectedSaleMinor", v.expected_profit_minor as "profitMinor"
+        from ${scans} c left join ${valuations} v on v.scan_id = c.id
+        where c.user_id = ${id} order by c.created_at desc limit 25`,
+  );
+  const inventory = await rows<AdminUserDetail['inventory'][number]>(
+    db,
+    sql`select status, count(*)::int as n, coalesce(sum(purchase_price_minor), 0)::int as "purchaseMinor", coalesce(sum(sold_price_minor), 0)::int as "soldMinor"
+        from ${inventoryItems} where user_id = ${id} group by status order by 2 desc`,
+  );
+  const evs = await rows<AdminUserDetail['events'][number]>(
+    db,
+    sql`select name, to_char(created_at at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS"Z"') as "createdAt", props
+        from ${events} where user_id = ${id} and name <> 'page_view' order by created_at desc limit 40`,
+  );
+  return {
+    user: row,
+    settings: settings ? { country: settings.country, feePreset: settings.feePreset, shippingCostMinor: settings.shippingCostMinor, targetRoiPct: settings.targetRoiPct } : null,
+    subscription: sub
+      ? { plan: sub.plan, status: sub.status, currentPeriodEnd: sub.currentPeriodEnd?.toISOString() ?? null, cancelAtPeriodEnd: sub.cancelAtPeriodEnd, stripeSubscriptionId: sub.stripeSubscriptionId }
+      : null,
+    stripeCustomerId: u?.stripeCustomerId ?? null,
+    scans: recent,
+    inventory,
+    events: evs,
+    costThisMonthUsd: (await aiCostThisMonth(db, id)) / 1_000_000,
+  };
+}
+
+/** Latest checks across all users: what people actually look up. */
+export async function adminRecentChecks(db: Db, limit = 20): Promise<{ createdAt: string; email: string | null; brand: string; model: string; priceMinor: number; decision: string | null }[]> {
+  return rows(
+    db,
+    sql`select to_char(c.created_at at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS"Z"') as "createdAt", u.email, c.brand, c.model,
+          c.purchase_price_minor as "priceMinor", v.decision
+        from ${scans} c join ${users} u on u.id = c.user_id left join ${valuations} v on v.scan_id = c.id
+        order by c.created_at desc limit ${limit}`,
+  );
+}
+
+/** Active subscriptions by plan, plus how many are set to end: the input for MRR. */
+export async function adminSubscriptions(db: Db): Promise<{ plan: string; active: number; ending: number }[]> {
+  return rows(
+    db,
+    sql`select plan, count(*)::int as active, count(*) filter (where cancel_at_period_end)::int as ending
+        from ${subscriptions} where status in ('active','trialing','past_due') group by plan`,
+  );
 }

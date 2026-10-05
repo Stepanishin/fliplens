@@ -16,7 +16,7 @@ export const LEGAL = {
   /** Country whose law governs the Terms. */
   governingCountry: 'Slovenia',
   /** Date of the current version (YYYY-MM-DD). */
-  effectiveDate: '2026-09-28',
+  effectiveDate: '2026-10-05',
 } as const;
 
 export const LEGAL_IS_DRAFT = Object.values(LEGAL).some((v) => v.startsWith('['));

@@ -188,7 +188,7 @@ export function createBilling(db: Db, cfg: BillingConfig, log: FastifyBaseLogger
           customerId = c.id;
           await setStripeCustomer(db, uid, customerId);
         }
-        const session = await stripe.checkout.sessions.create({
+        const params = (withConsent: boolean): Stripe.Checkout.SessionCreateParams => ({
           mode: 'subscription',
           customer: customerId,
           client_reference_id: uid,
@@ -198,11 +198,21 @@ export function createBilling(db: Db, cfg: BillingConfig, log: FastifyBaseLogger
           custom_text: {
             submit: { message: `By subscribing you agree to the FlipLens Terms (${base}/terms). EU consumers have a 14-day right of withdrawal.` },
           },
-          ...(cfg.requireTermsConsent && { consent_collection: { terms_of_service: 'required' as const } }),
+          ...(withConsent && { consent_collection: { terms_of_service: 'required' as const } }),
           ...(cfg.automaticTax && { automatic_tax: { enabled: true }, customer_update: { address: 'auto' as const }, billing_address_collection: 'required' as const }),
           success_url: `${base}/?billing=success`,
           cancel_url: `${base}/?billing=cancel`,
         });
+        let session: Stripe.Checkout.Session;
+        try {
+          session = await stripe.checkout.sessions.create(params(cfg.requireTermsConsent));
+        } catch (e) {
+          // No Terms URL in the Stripe dashboard (Settings > Public details): Stripe refuses the consent checkbox.
+          // Do not block payments over that; the Terms notice above the button still shows. Fix the dashboard.
+          if (!(cfg.requireTermsConsent && e instanceof Stripe.errors.StripeInvalidRequestError && /terms of service/i.test(e.message))) throw e;
+          req.log.error({ event: 'stripe_terms_url_missing' }, 'Set the Terms of service URL in Stripe > Settings > Public details');
+          session = await stripe.checkout.sessions.create(params(false));
+        }
         req.log.info({ event: 'checkout_started', plan: body.data.plan }, 'checkout started');
         return { url: session.url };
       });

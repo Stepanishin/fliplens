@@ -194,9 +194,11 @@ export const events = pgTable(
     userId: uuid('user_id').references(() => users.id, { onDelete: 'cascade' }),
     name: text('name').notNull(),
     props: jsonb('props').$type<Record<string, string | number | boolean | null>>().notNull().default({}),
+    /** Pseudonymous visitor: a hash of the device key, so unique visitors can be counted without accounts or cookies. */
+    visitor: text('visitor'),
     createdAt: createdAt(),
   },
-  (t) => [index('events_name_idx').on(t.name, t.createdAt)],
+  (t) => [index('events_name_idx').on(t.name, t.createdAt), index('events_created_idx').on(t.createdAt)],
 );
 
 /** Approximate variable cost per call: the basis for "cost per successful valuation". */

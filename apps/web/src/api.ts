@@ -162,6 +162,53 @@ export interface AdminOverview {
   ebayCallsToday: number;
   topUsers: { email: string | null; plan: string; valuations: number; identifications: number; costUsd: number }[];
   events: { days: number; activeUsers: number; byName: Record<string, number> };
+  recentChecks: { createdAt: string; email: string | null; brand: string; model: string; priceMinor: number; decision: string | null }[];
+  revenue: { mrrEur: number; byPlan: { plan: string; active: number; ending: number; mrrEur: number }[] };
+}
+
+export interface AdminTraffic {
+  days: number;
+  visits: number;
+  uniqueVisitors: number;
+  pageViews: number;
+  installs: number;
+  daily: { day: string; visitors: number; signups: number; checks: number }[];
+  referrers: { name: string; n: number }[];
+  campaigns: { name: string; n: number }[];
+  pages: { name: string; n: number }[];
+  devices: { mobile: number; desktop: number; standalone: number };
+  funnel: { visitors: number; signups: number; activated: number; paying: number };
+}
+
+export interface AdminUserRow {
+  id: string;
+  email: string | null;
+  name: string | null;
+  picture: string | null;
+  createdAt: string;
+  lastSeenAt: string;
+  plan: string;
+  subStatus: string | null;
+  cancelAtPeriodEnd: boolean;
+  country: string | null;
+  checks: number;
+  checks30d: number;
+  recognitions: number;
+  stock: number;
+  sold: number;
+  devices: number;
+  costUsd: number;
+}
+
+export interface AdminUserDetail {
+  user: AdminUserRow;
+  settings: { country: string; feePreset: string; shippingCostMinor: number; targetRoiPct: number } | null;
+  subscription: { plan: string; status: string; currentPeriodEnd: string | null; cancelAtPeriodEnd: boolean; stripeSubscriptionId: string } | null;
+  stripeCustomerId: string | null;
+  scans: { id: string; createdAt: string; method: string; brand: string; model: string; priceMinor: number; status: string; decision: string | null; expectedSaleMinor: number | null; profitMinor: number | null }[];
+  inventory: { status: string; n: number; purchaseMinor: number; soldMinor: number }[];
+  events: { name: string; createdAt: string; props: Record<string, unknown> }[];
+  costThisMonthUsd: number;
 }
 
 export type InventoryStatus = 'bought' | 'ready_to_list' | 'listed' | 'sold' | 'returned' | 'discarded';
@@ -279,6 +326,9 @@ export const api = {
   portal: () => call<{ url: string }>('/api/billing/portal', { method: 'POST' }),
   me: () => call<{ account: Account | null; authAvailable: boolean; isAdmin: boolean }>('/api/me'),
   adminOverview: (days: number) => call<AdminOverview>(`/api/admin/overview?days=${days}`),
+  adminTraffic: (days: number) => call<AdminTraffic>(`/api/admin/traffic?days=${days}`),
+  adminUsers: (q: string, offset = 0) => call<{ total: number; users: AdminUserRow[] }>(`/api/admin/users?${new URLSearchParams({ ...(q && { q }), offset: String(offset) })}`),
+  adminUser: (id: string) => call<AdminUserDetail>(`/api/admin/users/${id}`),
   googleLogin: (credential: string) =>
     call<{ account: Account }>('/api/auth/google', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ credential }) }),
   logout: () => call<{ signedOut: boolean }>('/api/auth/logout', { method: 'POST' }),

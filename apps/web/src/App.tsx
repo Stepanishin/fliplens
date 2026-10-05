@@ -382,6 +382,22 @@ export function App() {
 
   // Signed-in only: without an account the start page is all there is (with a database; local dev without one stays open).
   const showLanding = (dbOn && meLoaded && !account) || welcome;
+
+  // Page views for the admin traffic report (screen names only, nothing typed by the user).
+  const pageName = showLanding ? 'landing' : route.name;
+  const pageKnown = !dbOn || meLoaded;
+  useEffect(() => {
+    if (pageKnown) track('page_view', { page: pageName });
+  }, [pageName, pageKnown]);
+
+  // fliplens.eu/admin opens the admin screen directly for admins.
+  useEffect(() => {
+    if (isAdmin && window.location.pathname === '/admin') {
+      window.history.replaceState(null, '', '/');
+      go({ name: 'admin' });
+    }
+  }, [isAdmin, go]);
+
   if (showLanding) {
     return (
       <Landing

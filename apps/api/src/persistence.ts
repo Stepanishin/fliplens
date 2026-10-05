@@ -1,7 +1,13 @@
 import type { FastifyBaseLogger, FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import { z } from 'zod';
+import { createHash } from 'node:crypto';
 import {
   adminOverview,
+  adminRecentChecks,
+  adminSubscriptions,
+  adminTraffic,
+  adminUser,
+  adminUsers,
   connect,
   deleteScan,
   deleteUserData,
@@ -101,7 +107,7 @@ const EVENT_NAMES = [
   'scan_started', 'image_uploaded', 'barcode_scanned', 'product_detected', 'product_corrected',
   'valuation_started', 'valuation_completed', 'valuation_failed', 'comparables_opened', 'item_marked_bought',
   'subscription_viewed', 'subscription_started', 'inventory_added', 'item_sold', 'market_link_opened', 'signed_in', 'app_installed', 'app_install_prompt', 'whatif_used', 'confirm_skipped',
-  'item_status_changed', 'listing_generated', 'listing_copied',
+  'item_status_changed', 'listing_generated', 'listing_copied', 'visit', 'page_view',
 ] as const;
 const EventsBody = z.object({
   events: z
@@ -154,6 +160,9 @@ function disabled(status: DbStatus): Persistence {
       app.get('/api/me/export', unavailable);
       app.delete('/api/me', unavailable);
       app.get('/api/admin/overview', unavailable);
+      app.get('/api/admin/traffic', unavailable);
+      app.get('/api/admin/users', unavailable);
+      app.get('/api/admin/users/:id', unavailable);
       app.get('/api/inventory', unavailable);
       app.post('/api/inventory', unavailable);
       app.patch('/api/inventory/:id', unavailable);
@@ -375,8 +384,12 @@ function enabled(db: Db, log: FastifyBaseLogger, auth: AuthConfig): Persistence 
       app.post('/api/events', async (req, reply) => {
         const parsed = EventsBody.safeParse(req.body);
         if (!parsed.success) return reply.code(400).send({ error: 'invalid_request' });
-        const uid = await userId(req);
-        await safely(req, 'events', () => recordEvents(db, uid, parsed.data.events.map((e) => ({ name: e.name, props: e.props ?? {} }))));
+        // Lookup only: anonymous visitors of the start page are counted by a pseudonymous hash, never turned into users.
+        const key = req.headers[DEVICE_HEADER];
+        const validKey = typeof key === 'string' && DEVICE_KEY.test(key) ? key : undefined;
+        const uid = validKey ? (userCache.get(validKey) ?? (await findUserByDevice(db, validKey))) : undefined;
+        const visitor = validKey ? createHash('sha256').update(`fliplens-visitor:${validKey}`).digest('hex').slice(0, 20) : undefined;
+        await safely(req, 'events', () => recordEvents(db, uid, parsed.data.events.map((e) => ({ name: e.name, props: e.props ?? {} })), visitor));
         return { stored: parsed.data.events.length };
       });
 
@@ -416,8 +429,28 @@ function enabled(db: Db, log: FastifyBaseLogger, auth: AuthConfig): Persistence 
       app.get('/api/admin/overview', async (req, reply) => {
         if (!(await requireAdmin(req, reply))) return;
         const days = z.coerce.number().int().min(1).max(365).catch(30).parse((req.query as { days?: string }).days);
-        const [overview, events] = await Promise.all([adminOverview(db, days), eventStats(db, days)]);
-        return { ...overview, events };
+        const [overview, events, recentChecks, subs] = await Promise.all([adminOverview(db, days), eventStats(db, days), adminRecentChecks(db), adminSubscriptions(db)]);
+        const byPlan = subs.map((p) => ({ ...p, mrrEur: (PLANS[p.plan as keyof typeof PLANS]?.priceMonthlyMinor ?? 0) * p.active / 100 }));
+        return { ...overview, events, recentChecks, revenue: { mrrEur: byPlan.reduce((a, p) => a + p.mrrEur, 0), byPlan } };
+      });
+
+      app.get('/api/admin/traffic', async (req, reply) => {
+        if (!(await requireAdmin(req, reply))) return;
+        const days = z.coerce.number().int().min(1).max(365).catch(30).parse((req.query as { days?: string }).days);
+        return adminTraffic(db, days);
+      });
+
+      app.get('/api/admin/users', async (req, reply) => {
+        if (!(await requireAdmin(req, reply))) return;
+        const q = z.object({ q: z.string().trim().max(100).optional(), offset: z.coerce.number().int().min(0).max(100_000).catch(0) }).parse(req.query ?? {});
+        return adminUsers(db, { ...(q.q && { q: q.q }), offset: q.offset, limit: 50 });
+      });
+
+      app.get('/api/admin/users/:id', async (req, reply) => {
+        if (!(await requireAdmin(req, reply))) return;
+        const id = z.string().uuid().safeParse((req.params as { id?: string }).id);
+        if (!id.success) return reply.code(400).send({ error: 'invalid_id' });
+        return (await adminUser(db, id.data)) ?? reply.code(404).send({ error: 'not_found' });
       });
     },
 
