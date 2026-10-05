@@ -80,3 +80,11 @@ Status: accepted 2026-09-28. Closes the Reseller risk from ADR-014.
 - At 2x the budget, AI features stop until next month: 402 `ai_budget` (recognition) or `listing_limit` (listings). Price checks, manual entry and inventory keep working.
 - Listing generator: no more listings per month than the plan's checks (Pro 100, Reseller 1 000).
 - Result: the guaranteed AI cost ceiling for Reseller is about $12 (about €11) against revenue of about €15.8 after VAT and Stripe; a realistic maximum is about $8. Pro: ceiling $6 (about €5.6) against about €7.8.
+
+## ADR-016: Search and AI discoverability
+Status: accepted 2026-10-05.
+- The app is a client-rendered SPA, so crawlers that do not run JavaScript (most AI crawlers) saw an empty page. `apps/web/scripts/site.ts` now generates, from one source (plans come from `@fliplens/core`): static content pages (`/how-it-works`, `/pricing`, `/faq`, `/guides`, 4 guides), `sitemap.xml`, `robots.txt` (AI crawlers explicitly allowed), `llms.txt` and `llms-full.txt`, plus the meta tags, Open Graph, JSON-LD and a prerendered text version of the start page inside `index.html`.
+- The prerendered text is replaced by React on load and only becomes visible after 1.5 s if the app did not start, so app users see no flash.
+- The server gives `/privacy` and `/terms` their own title and canonical, serves content pages without `.html`, redirects trailing slashes, and answers unknown paths with 404 plus `noindex` (they used to return 200).
+- No ratings or reviews in structured data: we have none, and fabricated ones are against Google's rules.
+- IndexNow (`pnpm --filter @fliplens/web indexnow`) notifies Bing, which ChatGPT search uses, after content changes.

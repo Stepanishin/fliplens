@@ -29,7 +29,9 @@ export default defineConfig({
         ],
       },
       workbox: {
-        navigateFallbackDenylist: [/^\/api\//],
+        // Content pages and crawler files are real documents from the server, never the cached app shell.
+        navigateFallbackDenylist: [/^\/api\//, /^\/(guides|pricing|faq|how-it-works)(\/|$)/, /\.(txt|xml|png)$/],
+        globIgnores: ['**/guides/**', 'guides.html', 'pricing.html', 'faq.html', 'how-it-works.html', 'og.png'],
         runtimeCaching: [{ urlPattern: /\/api\//, handler: 'NetworkOnly' }],
       },
     }),

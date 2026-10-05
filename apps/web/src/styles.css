@@ -666,3 +666,8 @@ button:focus-visible, a:focus-visible, summary:focus-visible { outline: 2.5px so
 .recent-row.v-value::before { background: var(--accent); }
 .price-hint { display: block; text-align: center; }
 .whatif .bought-btn { margin-top: 12px; }
+
+/* Crawler text in index.html (see scripts/site.ts). React replaces it within milliseconds; it only becomes
+   visible if the app did not start, so app users never see a flash of it. */
+.prerender { max-width: 720px; margin: 0 auto; padding: 24px 16px; opacity: 0; animation: prerender-show 0s linear 1.5s forwards; }
+@keyframes prerender-show { to { opacity: 1; } }

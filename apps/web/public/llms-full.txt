@@ -1,0 +1,276 @@
+# FlipLens: full text
+
+Source: https://fliplens.eu. Updated 2026-10-05.
+
+
+## How FlipLens works
+
+URL: https://fliplens.eu/how-it-works
+
+FlipLens answers one question: "I can buy this for €X. Is it worth buying to resell?" Here is exactly how the answer is made, including where it can be wrong.
+
+### 1. Identify the exact product
+
+You take a photo of the item or its label, scan the barcode on the box, or type the model. Photos are identified by an AI vision model; barcodes (EAN and UPC) are matched against marketplace listings. FlipLens looks for the details that change the price: model generation (WH-1000XM4 is not XM5), storage (128 GB is not 256 GB), lens mount (RF is not EF) and condition. You can correct anything before the check runs.
+
+### 2. Find comparable listings
+
+FlipLens searches current eBay listings in Germany, France, Italy, Spain and the Netherlands through the official eBay API and converts prices to euro with European Central Bank rates. It then filters out what would distort the price: other models and variants, accessories sold on their own, bundles, broken or "for parts" items, duplicates and listings in a very different condition. You can see every listing that was used and why others were removed.
+
+### 3. Estimate the resale value
+
+From the remaining listings FlipLens builds a price distribution adjusted to your item's condition and reports three numbers: a quick-sale price, the expected sale price and a high asking price. Because asking prices are usually above final sale prices, the estimate is adjusted down. Every estimate carries a confidence score based on how many listings matched, how much they agree and how well the product was identified.
+
+### 4. Calculate profit after fees
+
+FlipLens subtracts the selling fees of the marketplace you sell on (for example eBay.de private or business, Vinted or local pickup), your shipping cost and the purchase price. The result is profit, return on investment (ROI) and the maximum price worth paying for your target ROI: max price = money you keep after fees and shipping ÷ (1 + target ROI).
+
+### 5. Give a verdict, or say it does not know
+
+The verdict is strong buy, buy, borderline or skip, with the reasons and risks behind it. If fewer than five matching listings remain, or the product identification is too uncertain, FlipLens says "not enough market data" instead of inventing a number.
+
+### Known limits
+
+- Prices are based on active listings (asking prices), not on confirmed sale prices.
+- Supply is visible (how many items are for sale and for how long), sell-through speed is not yet.
+- Fashion, collectibles and one-of-a-kind items are not supported.
+- Fees change: each fee profile shows when it was last checked and links to its source.
+
+
+## Simple pricing
+
+URL: https://fliplens.eu/pricing
+
+Start free. Upgrade when FlipLens pays for itself: one good find usually covers a month.
+
+### Plans
+
+PlanPriceIncludes
+ | Free | Free | 10 checks per monthPhoto and barcode recognitionResale range, profit, ROI and stock tracking
+ | Pro | €9.99 / month | 100 checks per monthStock tracking with real profitListing generator for eBay, Vinted, Kleinanzeigen
+ | Reseller | €19.99 / month | Unlimited checks (fair use 1,000/month)Everything in ProPriority support and new features first
+
+Prices include VAT. Payments are handled by Stripe. Cancel anytime from the customer portal. EU consumers have a 14-day right of withdrawal, see the Terms (/terms).
+
+### What counts as a check
+
+A check is one valuation: FlipLens looks up the market and calculates resale value, profit and a verdict. Recognising the item from a photo or barcode is included. Checks reset on the 1st of every month.
+
+**Is there a free plan?**
+Yes. Free includes 10 checks per month with photo and barcode recognition, profit and ROI, and stock tracking. No card is needed.
+
+**What do the paid plans add?**
+Pro (€9.99/month): 100 checks per month, stock tracking with real profit, listing generator for ebay, vinted, kleinanzeigen. Reseller (€19.99/month): unlimited checks (fair use 1,000/month), everything in pro, priority support and new features first.
+
+**Can I cancel anytime?**
+Yes. Cancel in the customer portal from your profile; the plan stays active until the end of the paid month.
+
+
+## Frequently asked questions
+
+URL: https://fliplens.eu/faq
+
+Short answers about how FlipLens works and what it can and cannot do.
+
+**What is FlipLens?**
+FlipLens is a web app for resellers in Europe. Take a photo, scan a barcode or type a model, and it tells you what the item resells for on eBay in Germany, France, Italy, Spain and the Netherlands, your profit after fees and shipping, the most you should pay, and a verdict: strong buy, buy, borderline or skip.
+
+**Where do the prices come from?**
+From active eBay listings in five EU countries, read through the official eBay API and converted to euro with ECB exchange rates. Asking prices are usually above what items finally sell for, so FlipLens adjusts them down and always shows how many listings an estimate is based on. You can open every listing it used.
+
+**Which items work best?**
+Consumer electronics, gaming and cameras: headphones, smartphones, tablets, laptops, smartwatches, speakers, consoles, handhelds, controllers, games, camera bodies, lenses, action and compact cameras, plus power tools. Fashion is not supported yet.
+
+**Do I need to enter a price?**
+No. Without a price FlipLens shows what the item sells for and the maximum price worth paying for your target return. With a price you get a verdict, profit and ROI for that exact deal.
+
+**What happens to my photos and data?**
+Photos are only used to identify the item and are never stored. Your checks are kept until you delete them, and you can export or delete everything from your profile at any time.
+
+**Is FlipLens affiliated with eBay?**
+No. FlipLens is independent and shows eBay data through the official eBay API. It does not buy, sell or ship anything.
+
+**Which countries does FlipLens cover?**
+Market data comes from eBay Germany, France, Italy, Spain and the Netherlands. Links to check prices yourself are available for Vinted, Kleinanzeigen and other marketplaces across the EU.
+
+**How accurate is the estimate?**
+It depends on the market. Every result shows a confidence score, how many listings it is based on and the risks. When there is not enough data, FlipLens says so instead of guessing. You can track your real sale prices in Stock and see how close the estimates were.
+
+**Which marketplaces are the fees calculated for?**
+eBay.de for private and business sellers, Vinted and local pickup with cash. Each fee profile shows when it was last checked.
+
+**Can FlipLens write my listing?**
+Yes, on Pro and Reseller. It writes a title, description and condition text in the style of eBay, Vinted or Kleinanzeigen, in your language, ready to copy. FlipLens never posts on your behalf.
+
+**Is there a mobile app?**
+FlipLens is a web app that installs on your phone: open fliplens.eu and choose "Add to Home Screen" (iPhone) or "Install app" (Android). It then opens full screen like a native app.
+
+**Why do I need to sign in?**
+Your free checks, history and plan belong to your account, so they work on all your devices. Sign in with Google in one tap; there is no password to create.
+
+
+## How to check an item's resale value before you buy it
+
+URL: https://fliplens.eu/guides/how-to-check-resale-value
+
+At a flea market or on a classifieds site you usually have a minute to decide. This is the method resellers use, and the one FlipLens automates.
+
+### 1. Pin down the exact model
+
+Price differences between variants are often bigger than between conditions. Read the model number on the label, the box or the settings screen. Check storage size, model generation, colour where it matters, and for lenses the mount. "Sony headphones" is not a price; "Sony WH-1000XM4" is.
+
+### 2. Look at comparable listings, not the first result
+
+Search the exact model on eBay and filter out what does not compare: other generations, accessories sold alone, bundles with games or extra lenses, "for parts" items and listings from far away with expensive shipping. Look at several countries: the same item can sell for noticeably different prices in Germany, France or Italy.
+
+### 3. Correct for asking price and condition
+
+Most listings show asking prices, and items usually sell for less. Take the middle of the realistic range, not the highest listing, and adjust for condition: a "good" item does not fetch a "like new" price. If only a handful of comparable listings exist, treat any estimate with caution.
+
+### 4. Subtract fees and shipping
+
+What you keep is the sale price minus marketplace fees and the shipping you pay. On eBay.de private sellers pay no selling fees within Germany, business sellers do; on Vinted the buyer pays the fees. See eBay.de fees for private and business sellers (/guides/ebay-fees-germany) and where to sell used electronics in Europe (/guides/where-to-sell-used-electronics-europe).
+
+### 5. Work out your maximum price
+
+Decide the return you want, then divide what you keep by 1 plus that return. Example: a Nintendo Switch OLED expected to sell for €176, no selling fee, €6 shipping, so you keep €170. For a 40% return the most you should pay is €170 ÷ 1.4 = €121. Anything below is a buy; above it, negotiate or walk away.
+
+### Do it in seconds with FlipLens
+
+FlipLens does all five steps from a photo, a barcode or a typed model: it identifies the exact variant, reads comparable eBay listings in five EU countries, adjusts for condition and asking prices, subtracts your marketplace fees and shipping, and shows the maximum price worth paying. You do not even need to know the seller's price.
+
+**How do I know what something will resell for?**
+Identify the exact model, compare it with similar listings in the same condition, take the realistic middle of the range rather than the top asking price, then subtract selling fees and shipping.
+
+**How much should I pay for an item I want to resell?**
+Divide what you will keep after fees and shipping by 1 plus your target return. For €170 kept and a 40% target, pay at most €121.
+
+
+## eBay.de fees in 2026: private vs business sellers
+
+URL: https://fliplens.eu/guides/ebay-fees-germany
+
+Whether you sell as a private person or as a business changes your margin on every item. Here is the difference and how to account for it. Always confirm current fees on eBay's own pages before relying on them.
+
+### Private sellers
+
+Since 1 March 2023 private sellers on eBay.de pay no selling fees for sales within Germany. Optional extras, such as some listing upgrades and international selling, can still cost money. Source: eBay.de help: fees for private sellers (https://www.ebay.de/help/selling/fees-credits-invoices/gebhren-fr-private-verkufer-die-der-zahlungsabwicklung-teilnehmen?id=4822).
+
+### Business sellers
+
+Business sellers pay a final value fee that depends on the category and on whether the item is new or used. As of our last check (September 2026), the rates for the categories FlipLens covers were approximately:
+ItemFee
+ | Used or refurbished electronics | 5%
+ | New electronics | 7%
+ | Accessories | 12%
+ | Tools | 13%
+ | Per order over €10 | + €0.45
+
+These figures come from a secondary source and categories have exceptions, so check eBay's current fee table for your category.
+
+### Example: the same item, two seller types
+
+A used Nintendo Switch OLED sells for €176 and you pay €6 shipping.
+- Private seller: no selling fee, you keep €170. For a 40% return you can pay up to €121.
+- Business seller: about 5% (€8.80) plus €0.45, you keep about €160.75. For a 40% return you can pay up to about €114.
+
+A difference of a few euros per item adds up over a month of sourcing, so set your seller type correctly in FlipLens: every check then uses the right fees.
+
+### Private or business: which am I?
+
+If you buy items with the intention of reselling them regularly, tax and consumer law usually treat that as a business activity, even when you started casually. This is general information, not legal or tax advice: check the rules in your country or ask an accountant.
+
+**Do private sellers pay fees on eBay.de?**
+No selling fees for sales within Germany since 1 March 2023. Optional extras and international selling can cost money.
+
+**What do business sellers pay on eBay.de?**
+A final value fee by category and condition; as of September 2026 roughly 5% for used electronics and 7% for new, plus €0.45 per order over €10. Check eBay's current fee table.
+
+
+## Where to sell used electronics in Europe
+
+URL: https://fliplens.eu/guides/where-to-sell-used-electronics-europe
+
+The best marketplace depends on the item, how fast you want to sell and who pays the fees. A quick comparison for resellers in the EU.
+
+### eBay: the widest reach
+
+eBay has country sites across Europe (Germany, France, Italy, Spain, the Netherlands and more) and buyers who search by exact model. It suits items with a clear model number: consoles, phones, headphones, cameras and lenses. Private sellers in Germany pay no selling fees within Germany; business sellers pay a fee by category. See eBay.de fees (/guides/ebay-fees-germany).
+
+### Vinted: no seller fees
+
+On Vinted the seller pays no fee: the buyer pays a buyer protection fee and shipping on top. That makes your price look higher to the buyer, so items may need to be listed a little lower. It works well for small, easy-to-ship electronics and gaming.
+
+### Kleinanzeigen: local in Germany
+
+Kleinanzeigen is the big classifieds site in Germany. Basic listings for private sellers are free, many buyers prefer pickup, and buyers expect to negotiate, so start a bit above your target price. Good for bulky or heavy items where shipping would eat the margin.
+
+### Local pickup and cash
+
+No fees and no shipping, but a smaller audience and slower sales. Worth it for large items or when you already have a buyer.
+
+### Compare before you buy
+
+Set the marketplace you usually sell on in FlipLens and every check uses its fees and shipping rules. The result also links to Vinted, Kleinanzeigen and other marketplaces so you can see local prices yourself.
+
+**Is it better to sell electronics on eBay or Vinted?**
+eBay reaches more buyers who search by exact model and suits higher-value items; on Vinted the seller pays no fee because the buyer pays buyer protection, which works well for small items. Compare what you keep after fees and shipping.
+
+**Who pays the fees on Vinted?**
+The buyer. Vinted charges the buyer a buyer protection fee and shipping; the seller receives the listed price.
+
+
+## Flea market reselling checklist
+
+URL: https://fliplens.eu/guides/flea-market-reselling-checklist
+
+Most bad buys are not overpriced, they are the wrong variant, incomplete or locked. Run through this before you hand over cash.
+
+### Before you go
+
+- Charge your phone and bring a power bank: you will be checking prices on the spot.
+- Bring small notes and coins, sellers rarely have change early in the morning.
+- Know your maximum price per item type, or check it with FlipLens in a few seconds.
+
+### Identify the exact item
+
+- Find the model number on the label, battery compartment or box. Take a photo of it.
+- Check storage size, generation and for lenses the mount.
+- Barcodes on boxes identify the exact variant fastest.
+
+### Test what you can
+
+- Does it power on? Ask for a socket or bring a power bank and cable.
+- Screens: dead pixels, burn-in, cracks. Ports: wobbly charging ports are common.
+- Controllers and Joy-Cons: check for stick drift.
+- Cameras and lenses: look through the lens against light for haze, fungus and scratches; check the shutter fires.
+- Phones and tablets: check battery health in settings if possible.
+
+### Check it is not locked
+
+Phones, tablets, laptops and smartwatches can be tied to the previous owner's account (for example Apple's Activation Lock). A locked device is worth a fraction of its price. Ask the seller to show it is signed out or reset in front of you.
+
+### Completeness adds value
+
+The original box, charger, cables, lens caps and manuals all help an item sell faster and for more. Missing chargers and proprietary cables cost you money to replace.
+
+### Decide on the numbers
+
+Compare the asking price with the maximum price worth paying after fees and shipping. If the seller is above it, negotiate down to it or walk away. See how to check resale value (/guides/how-to-check-resale-value).
+
+**What should I check before buying used electronics to resell?**
+The exact model and variant, that it powers on and works, screen and port condition, that it is not locked to someone else's account, what accessories are included, and that the price is below your maximum after fees and shipping.
+
+
+## Reselling guides
+
+URL: https://fliplens.eu/guides
+
+Short, practical guides for sourcing and reselling second-hand items in Europe.
+
+### All guides
+
+- How to check an item's resale value before you buy it (/guides/how-to-check-resale-value)A step-by-step method to find what a second-hand item really resells for in Europe, subtract fees and shipping, and work out the maximum price worth paying.
+- eBay.de fees in 2026: private vs business sellers (/guides/ebay-fees-germany)What selling on eBay Germany costs private and business sellers, with an example of how fees change your profit and the price you can pay for stock.
+- Where to sell used electronics in Europe (/guides/where-to-sell-used-electronics-europe)Compare eBay, Vinted, Kleinanzeigen and local cash sales for second-hand electronics in Europe: who pays fees, reach, speed and when each one makes sense.
+- Flea market reselling checklist (/guides/flea-market-reselling-checklist)A practical checklist for buying second-hand electronics, consoles and cameras at flea markets and car boot sales to resell: identification, testing, completeness, locks and price.

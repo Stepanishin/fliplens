@@ -103,8 +103,8 @@ export function Landing({ signedIn, onOpenApp, googleClientId, authError, onGoog
           </div>
           <div className="lp-step">
             <span className="lp-step-icon"><IconEdit /></span>
-            <h3>2. Enter the price</h3>
-            <p>What the seller wants for it. Your marketplace, shipping and target ROI are remembered.</p>
+            <h3>2. Enter the price (optional)</h3>
+            <p>What the seller wants for it, or skip it to see the most you should pay. Your marketplace, shipping and target ROI are remembered.</p>
           </div>
           <div className="lp-step">
             <span className="lp-step-icon"><IconScan /></span>
@@ -188,7 +188,10 @@ export function Landing({ signedIn, onOpenApp, googleClientId, authError, onGoog
       </section>
 
       <footer className="lp-footer">
-        <span>© {new Date().getFullYear()} FlipLens · <a href="/privacy">Privacy</a> · <a href="/terms">Terms</a></span>
+        <span>
+          © {new Date().getFullYear()} FlipLens · <a href="/how-it-works">How it works</a> · <a href="/pricing">Pricing</a> · <a href="/guides">Guides</a> ·{' '}
+          <a href="/faq">FAQ</a> · <a href="/privacy">Privacy</a> · <a href="/terms">Terms</a>
+        </span>
         <span className="muted">Not affiliated with eBay. eBay data shown via the eBay API.</span>
       </footer>
     </div>

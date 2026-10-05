@@ -1,4 +1,4 @@
-import { existsSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import type { FastifyInstance } from 'fastify';
 import helmet from '@fastify/helmet';
@@ -83,15 +83,64 @@ export async function registerWebApp(app: FastifyInstance, distDir: string): Pro
   await app.register(fastifyStatic, {
     root,
     wildcard: false,
+    // "/" goes to the handler below (per-page meta), as do content pages without ".html" (/pricing -> pricing.html).
+    index: false,
     setHeaders: (res, path) => {
       // Hashed assets can be cached forever; the service worker and HTML must always be revalidated.
       if (/\/assets\//.test(path)) void res.header('Cache-Control', 'public, max-age=31536000, immutable');
       else void res.header('Cache-Control', 'no-cache');
     },
   });
+  const shell = readFileSync(resolve(root, 'index.html'), 'utf8');
+  const pages = new Map<string, string>([
+    ['/', shell],
+    ['/welcome', withMeta(shell, '/', null)],
+    ['/admin', withMeta(shell, '/', null, true)],
+    ['/privacy', withMeta(shell, '/privacy', { title: 'Privacy Policy | FlipLens', description: 'How FlipLens handles your data: what is collected, why, how long it is kept, who processes it and your rights under the GDPR.' })],
+    ['/terms', withMeta(shell, '/terms', { title: 'Terms of Service | FlipLens', description: 'The terms for using FlipLens, including plans, payments, the 14-day withdrawal right for EU consumers and limits of the estimates.' })],
+  ]);
+  const notFound = withMeta(shell, null, { title: 'Page not found | FlipLens', description: 'This page does not exist.' }, true);
+
   app.setNotFoundHandler((req, reply) => {
-    if (req.method === 'GET' && !req.url.startsWith('/api/')) return reply.header('Cache-Control', 'no-cache').sendFile('index.html');
-    return reply.code(404).send({ error: 'not_found' });
+    if ((req.method !== 'GET' && req.method !== 'HEAD') || req.url.startsWith('/api/')) return reply.code(404).send({ error: 'not_found' });
+    const path = req.url.split('?')[0]!;
+    // One URL per page: /pricing/ -> /pricing.
+    // Always a same-site path ("//host/" must not become a redirect to another site).
+    if (path.length > 1 && path.endsWith('/')) return reply.redirect(`/${path.replace(/^\/+|\/+$/g, '')}${req.url.slice(path.length)}`, 301);
+    // Generated content pages (apps/web/scripts/site.ts). Strict pattern: no dots, so no path traversal.
+    if (/^\/[a-z0-9-]+(\/[a-z0-9-]+)*$/.test(path) && existsSync(resolve(root, `${path.slice(1)}.html`))) {
+      return reply.header('Cache-Control', 'no-cache').type('text/html; charset=utf-8').sendFile(`${path.slice(1)}.html`);
+    }
+    const html = pages.get(path);
+    // Unknown paths still load the app (it handles them), but answer 404 so search engines do not index them.
+    return reply.code(html ? 200 : 404).header('Cache-Control', 'no-cache').type('text/html; charset=utf-8').send(html ?? notFound);
   });
   return true;
 }
+
+/**
+ * index.html carries the start page's title, description, canonical and Open Graph tags (see apps/web/scripts/site.ts).
+ * Other app URLs get their own title and canonical; `noindex` keeps app-only and missing pages out of search results.
+ */
+function withMeta(html: string, canonical: string | null, meta: { title: string; description: string } | null, noindex = false): string {
+  let out = html;
+  if (meta) {
+    const t = escapeHtml(meta.title);
+    const d = escapeHtml(meta.description);
+    out = out
+      .replace(/<title>[^<]*<\/title>/, `<title>${t}</title>`)
+      .replace(/(<meta name="description" content=")[^"]*(")/, `$1${d}$2`)
+      .replace(/(<meta property="og:title" content=")[^"]*(")/, `$1${t}$2`)
+      .replace(/(<meta property="og:description" content=")[^"]*(")/, `$1${d}$2`)
+      .replace(/(<meta name="twitter:title" content=")[^"]*(")/, `$1${t}$2`)
+      .replace(/(<meta name="twitter:description" content=")[^"]*(")/, `$1${d}$2`);
+  }
+  if (canonical) {
+    const url = `https://fliplens.eu${canonical}`;
+    out = out.replace(/(<link rel="canonical" href=")[^"]*(")/, `$1${url}$2`).replace(/(<meta property="og:url" content=")[^"]*(")/, `$1${url}$2`);
+  } else out = out.replace(/\s*<link rel="canonical" href="[^"]*">/, '');
+  if (noindex) out = out.replace('</head>', '  <meta name="robots" content="noindex">\n  </head>');
+  return out;
+}
+
+const escapeHtml = (s: string): string => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');

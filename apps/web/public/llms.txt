@@ -1,0 +1,31 @@
+# FlipLens
+
+> FlipLens (https://fliplens.eu) is a web app for resellers in Europe that answers "I can buy this for €X: is it worth buying to resell?". From a photo, a barcode or a typed model it identifies the exact product, reads comparable active eBay listings in Germany, France, Italy, Spain and the Netherlands, estimates the resale value, subtracts marketplace fees and shipping, and returns profit, ROI, the maximum price worth paying and a verdict (strong buy, buy, borderline, skip). It is independent, not affiliated with eBay, and does not buy, sell or ship items.
+
+Key facts:
+- Works best for consumer electronics, gaming and cameras (headphones, phones, tablets, laptops, consoles, controllers, games, camera bodies, lenses) and power tools. Fashion is not supported yet.
+- The purchase price is optional: without it FlipLens shows the maximum price worth paying for the user's target ROI.
+- Fee profiles: eBay.de private and business sellers, Vinted, local pickup. Each shows when it was last checked.
+- When fewer than 5 comparable listings remain it says "not enough market data" instead of guessing.
+- Pricing (EUR, VAT included): Free at €0: 10 checks per month; Pro at €9.99/month: 100 checks per month; Reseller at €19.99/month: unlimited checks, fair use 1,000/month.
+- Also: stock tracking with real profit, and (paid plans) a listing generator for eBay, Vinted and Kleinanzeigen.
+- Installs on phones as a web app (PWA). Sign-in with Google. Photos are never stored.
+- Operator: Evgenii Stepanishin, Slovenia. Contact: support@fliplens.eu.
+
+## Product
+- [How it works](https://fliplens.eu/how-it-works): identification, comparables, estimate, fees, verdict and known limits
+- [Pricing](https://fliplens.eu/pricing): Free, Pro and Reseller plans
+- [FAQ](https://fliplens.eu/faq)
+
+## Guides
+- [How to check an item's resale value before you buy it](https://fliplens.eu/guides/how-to-check-resale-value): A step-by-step method to find what a second-hand item really resells for in Europe, subtract fees and shipping, and work out the maximum price worth paying.
+- [eBay.de fees in 2026: private vs business sellers](https://fliplens.eu/guides/ebay-fees-germany): What selling on eBay Germany costs private and business sellers, with an example of how fees change your profit and the price you can pay for stock.
+- [Where to sell used electronics in Europe](https://fliplens.eu/guides/where-to-sell-used-electronics-europe): Compare eBay, Vinted, Kleinanzeigen and local cash sales for second-hand electronics in Europe: who pays fees, reach, speed and when each one makes sense.
+- [Flea market reselling checklist](https://fliplens.eu/guides/flea-market-reselling-checklist): A practical checklist for buying second-hand electronics, consoles and cameras at flea markets and car boot sales to resell: identification, testing, completeness, locks and price.
+
+## Legal
+- [Privacy Policy](https://fliplens.eu/privacy)
+- [Terms of Service](https://fliplens.eu/terms)
+
+## Optional
+- [Full text of all pages](https://fliplens.eu/llms-full.txt)
