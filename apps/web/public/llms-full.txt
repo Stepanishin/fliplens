@@ -50,7 +50,7 @@ PlanPriceIncludes
  | Pro | €9.99 / month | 100 checks per monthStock tracking with real profitListing generator for eBay, Vinted, Kleinanzeigen
  | Reseller | €19.99 / month | Unlimited checks (fair use 1,000/month)Everything in ProPriority support and new features first
 
-Prices include VAT. Payments are handled by Stripe. Cancel anytime from the customer portal. EU consumers have a 14-day right of withdrawal, see the Terms (/terms).
+Final prices, no hidden fees. Payments are handled by Stripe. Cancel anytime from the customer portal. EU consumers have a 14-day right of withdrawal, see the Terms (/terms).
 
 ### What counts as a check
 

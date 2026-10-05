@@ -7,7 +7,7 @@ Key facts:
 - The purchase price is optional: without it FlipLens shows the maximum price worth paying for the user's target ROI.
 - Fee profiles: eBay.de private and business sellers, Vinted, local pickup. Each shows when it was last checked.
 - When fewer than 5 comparable listings remain it says "not enough market data" instead of guessing.
-- Pricing (EUR, VAT included): Free at €0: 10 checks per month; Pro at €9.99/month: 100 checks per month; Reseller at €19.99/month: unlimited checks, fair use 1,000/month.
+- Pricing (EUR, final prices): Free at €0: 10 checks per month; Pro at €9.99/month: 100 checks per month; Reseller at €19.99/month: unlimited checks, fair use 1,000/month.
 - Also: stock tracking with real profit, and (paid plans) a listing generator for eBay, Vinted and Kleinanzeigen.
 - Installs on phones as a web app (PWA). Sign-in with Google. Photos are never stored.
 - Operator: Evgenii Stepanishin, Slovenia. Contact: support@fliplens.eu.

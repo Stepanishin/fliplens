@@ -156,7 +156,7 @@ export function Landing({ signedIn, onOpenApp, googleClientId, authError, onGoog
             </div>
           ))}
         </div>
-        <p className="muted small center">Prices include VAT. Cancel anytime.</p>
+        <p className="muted small center">Final prices, no hidden fees. Cancel anytime.</p>
       </section>
 
       <section className="lp-section lp-faq">

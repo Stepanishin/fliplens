@@ -102,7 +102,7 @@ export function Plans({ billing, account, notice, onSignIn }: Props) {
       {error && <div className="banner bad">{error}</div>}
       {!billing.enabled && <p className="muted small center">Payments are not configured on this server.</p>}
       <p className="muted small center">
-        Prices include VAT. Cancel anytime. Payments are handled by Stripe. See the <a href="/terms">Terms</a> (incl. 14-day withdrawal right) and <a href="/privacy">Privacy Policy</a>.
+        Final prices, no hidden fees. Cancel anytime. Payments are handled by Stripe. See the <a href="/terms">Terms</a> (incl. 14-day withdrawal right) and <a href="/privacy">Privacy Policy</a>.
       </p>
     </div>
   );

@@ -122,7 +122,7 @@ const PAGES: Page[] = [
     kind: 'page',
     crumb: 'Pricing',
     title: `FlipLens pricing: free resale checks, Pro ${eur(PLANS.pro.priceMonthlyMinor)}, Reseller ${eur(PLANS.reseller.priceMonthlyMinor)}`,
-    description: `Free: ${PLANS.free.monthlyValuations} resale checks a month. Pro ${eur(PLANS.pro.priceMonthlyMinor)}: ${PLANS.pro.monthlyValuations} checks and a listing generator. Reseller ${eur(PLANS.reseller.priceMonthlyMinor)}: up to ${PLANS.reseller.monthlyValuations.toLocaleString('en')} checks. VAT included, cancel anytime.`,
+    description: `Free: ${PLANS.free.monthlyValuations} resale checks a month. Pro ${eur(PLANS.pro.priceMonthlyMinor)}: ${PLANS.pro.monthlyValuations} checks and a listing generator. Reseller ${eur(PLANS.reseller.priceMonthlyMinor)}: up to ${PLANS.reseller.monthlyValuations.toLocaleString('en')} checks. Final prices, cancel anytime.`,
     h1: 'Simple pricing',
     lead: 'Start free. Upgrade when FlipLens pays for itself: one good find usually covers a month.',
     sections: [
@@ -130,7 +130,7 @@ const PAGES: Page[] = [
         h2: 'Plans',
         html: `<table><thead><tr><th>Plan</th><th>Price</th><th>Includes</th></tr></thead><tbody>${plans
           .map((p) => `<tr><td><strong>${esc(p.name)}</strong></td><td>${p.priceMonthlyMinor ? `${eur(p.priceMonthlyMinor)} / month` : 'Free'}</td><td>${p.features.map(esc).join('<br>')}</td></tr>`)
-          .join('')}</tbody></table><p>Prices include VAT. Payments are handled by Stripe. Cancel anytime from the customer portal. EU consumers have a 14-day right of withdrawal, see the <a href="/terms">Terms</a>.</p>`,
+          .join('')}</tbody></table><p>Final prices, no hidden fees. Payments are handled by Stripe. Cancel anytime from the customer portal. EU consumers have a 14-day right of withdrawal, see the <a href="/terms">Terms</a>.</p>`,
       },
       {
         h2: 'What counts as a check',
@@ -497,7 +497,7 @@ Key facts:
 - The purchase price is optional: without it FlipLens shows the maximum price worth paying for the user's target ROI.
 - Fee profiles: eBay.de private and business sellers, Vinted, local pickup. Each shows when it was last checked.
 - When fewer than 5 comparable listings remain it says "not enough market data" instead of guessing.
-- Pricing (EUR, VAT included): ${planLine}.
+- Pricing (EUR, final prices): ${planLine}.
 - Also: stock tracking with real profit, and (paid plans) a listing generator for eBay, Vinted and Kleinanzeigen.
 - Installs on phones as a web app (PWA). Sign-in with Google. Photos are never stored.
 - Operator: ${LEGAL.operator}, Slovenia. Contact: ${LEGAL.supportEmail}.
