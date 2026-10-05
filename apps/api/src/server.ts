@@ -267,6 +267,12 @@ app.post('/api/valuation', async (req, reply) => {
 
   const [search, rates] = await Promise.all([ebay.searchProduct(product, { requestId: req.id }), fx.latest()]);
   for (const w of search.warnings) req.log.warn({ source: w.source, site: w.site, event: 'source_fetch_failed' }, w.message);
+  // eBay down or our daily API limit used up: no data at all is an outage, not "not enough data".
+  // Answer before anything is recorded, so the user does not lose a check.
+  if (search.items.length === 0 && search.warnings.some((w) => w.site)) {
+    req.log.error({ event: 'market_unavailable', failedSites: search.warnings.length }, 'no eBay site answered');
+    return reply.code(503).send({ error: 'market_unavailable', message: 'eBay is not answering right now. Please try again in a few minutes; this check was not counted.' });
+  }
   if (rates.source !== 'ecb') req.log.warn({ event: 'fx_fallback' }, 'ECB unreachable, using static FX rates');
 
   const fees = resolveFeeProfile(b.preset, b.condition, product.category);
