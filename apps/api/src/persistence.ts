@@ -109,7 +109,7 @@ const EVENT_NAMES = [
   'scan_started', 'image_uploaded', 'barcode_scanned', 'product_detected', 'product_corrected',
   'valuation_started', 'valuation_completed', 'valuation_failed', 'comparables_opened', 'item_marked_bought',
   'subscription_viewed', 'subscription_started', 'inventory_added', 'item_sold', 'market_link_opened', 'signed_in', 'app_installed', 'app_install_prompt', 'whatif_used', 'confirm_skipped',
-  'item_status_changed', 'listing_generated', 'listing_copied', 'visit', 'page_view', 'cta_clicked', 'signin_started',
+  'item_status_changed', 'listing_generated', 'listing_copied', 'visit', 'page_view', 'cta_clicked', 'signin_started', 'quick_listing_opened',
 ] as const;
 const EventsBody = z.object({
   events: z

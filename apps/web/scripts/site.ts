@@ -45,6 +45,8 @@ interface Page {
   faq?: Faq[];
   kind: 'page' | 'article';
   crumb: string;
+  /** Call to action at the end; defaults to the price-check CTA. */
+  cta?: string;
   parent?: { path: string; name: string };
 }
 
@@ -53,6 +55,8 @@ const paid = plans.filter((p) => p.priceMonthlyMinor > 0);
 const planLine = plans.map((p) => `${p.name} at ${p.priceMonthlyMinor ? `${eur(p.priceMonthlyMinor)}/month` : '€0'}: ${p.features[0]!.toLowerCase().replace(/\s*\((.*)\)/, ', $1')}`).join('; ');
 
 const CTA = `<p class="cta"><a class="btn" href="/">Check an item for free</a><span>10 free checks a month. Sign in with Google, no card needed.</span></p>`;
+
+const LISTING_CTA = `<p class="cta"><a class="btn" href="/?tool=listing">Write my listing free</a><span>${PLANS.free.monthlyListings} free listings a month. Sign in with Google, no card needed.</span></p>`;
 
 const COMMON_FAQ: Faq[] = [
   {
@@ -157,7 +161,7 @@ const PAGES: Page[] = [
       { q: 'Which countries does FlipLens cover?', a: 'Market data comes from eBay Germany, France, Italy, Spain and the Netherlands. Links to check prices yourself are available for Vinted, Kleinanzeigen and other marketplaces across the EU.' },
       { q: 'How accurate is the estimate?', a: 'It depends on the market. Every result shows a confidence score, how many listings it is based on and the risks. When there is not enough data, FlipLens says so instead of guessing. You can track your real sale prices in Stock and see how close the estimates were.' },
       { q: 'Which marketplaces are the fees calculated for?', a: 'eBay.de for private and business sellers, Vinted and local pickup with cash. Each fee profile shows when it was last checked.' },
-      { q: 'Can FlipLens write my listing?', a: 'Yes, on Pro and Reseller. It writes a title, description and condition text in the style of eBay, Vinted or Kleinanzeigen, in your language, ready to copy. FlipLens never posts on your behalf.' },
+      { q: 'Can FlipLens write my listing?', a: `Yes. Take a photo of any item, clothes included, and FlipLens writes a title, description and condition text in the style of Vinted, eBay or Kleinanzeigen, in your language, ready to copy. Free includes ${PLANS.free.monthlyListings} listings a month, Pro ${PLANS.pro.monthlyListings}. FlipLens never posts on your behalf.` },
       { q: 'Is there a mobile app?', a: 'FlipLens is a web app that installs on your phone: open fliplens.eu and choose "Add to Home Screen" (iPhone) or "Install app" (Android). It then opens full screen like a native app.' },
       { q: 'Why do I need to sign in?', a: 'Your free checks, history and plan belong to your account, so they work on all your devices. Sign in with Google in one tap; there is no password to create.' },
     ],
@@ -309,6 +313,89 @@ const PAGES: Page[] = [
       { q: 'What should I check before buying used electronics to resell?', a: 'The exact model and variant, that it powers on and works, screen and port condition, that it is not locked to someone else\'s account, what accessories are included, and that the price is below your maximum after fees and shipping.' },
     ],
   },
+  {
+    path: '/vinted-listing-generator',
+    kind: 'page',
+    crumb: 'Vinted listing generator',
+    cta: LISTING_CTA,
+    title: 'Vinted listing generator: title and description from a photo',
+    description: `Take a photo of anything you sell, clothes included, and get a Vinted title, description and hashtags in your language. ${PLANS.free.monthlyListings} free listings a month.`,
+    h1: 'Vinted listing generator',
+    lead: 'Take a photo of the item and get a title, description and hashtags ready to paste into Vinted. Works for clothes, shoes, bags, home, toys and tech, in your language.',
+    sections: [
+      {
+        h2: 'How it works',
+        html: '<ol><li>Take one to three photos: front, back and the brand or size label work best.</li><li>Pick the condition and add what photos cannot show, such as size, material or a small flaw.</li><li>Copy the title and description, open Vinted and paste.</li></ol>',
+      },
+      {
+        h2: 'What it writes',
+        html: '<p>For Vinted: a short, natural title (brand, item and one key detail), a friendly and honest description, one sentence about the condition and a few relevant search words and hashtags. The same photo can also become an eBay listing (keyword-first title, structured description) or a Kleinanzeigen ad (direct, with the usual private-sale note).</p>',
+      },
+      {
+        h2: 'Honest by design',
+        html: '<p>The writer describes only what is visible in your photos or written in your details. It does not invent a size, material, brand or measurements. When something buyers usually ask about is missing, such as the size or measurements, it tells you so you can add it before you post.</p>',
+      },
+      {
+        h2: 'What about the price?',
+        html: '<p>FlipLens does not read Vinted data. After writing your listing it links to similar items on Vinted so you can compare prices in a tap. For electronics, games and cameras, FlipLens can also <a href="/how-it-works">estimate the resale value</a> from eBay listings in five EU countries.</p>',
+      },
+      {
+        h2: 'Plans',
+        html: `<p>Free: ${PLANS.free.monthlyListings} listings a month. Pro (${eur(PLANS.pro.priceMonthlyMinor)}/month): ${PLANS.pro.monthlyListings} listings and ${PLANS.pro.monthlyValuations} price checks. Reseller (${eur(PLANS.reseller.priceMonthlyMinor)}/month): up to ${PLANS.reseller.monthlyListings.toLocaleString('en')}. See <a href="/pricing">pricing</a>.</p>`,
+      },
+    ],
+    faq: [
+      { q: 'Is the Vinted listing generator free?', a: `Yes, ${PLANS.free.monthlyListings} listings a month are free after signing in with Google. Pro includes ${PLANS.pro.monthlyListings} a month.` },
+      { q: 'Which languages does it write in?', a: 'English, German, French, Italian, Spanish, Dutch, Polish, Slovenian, Croatian, Czech, Portuguese and Swedish.' },
+      { q: 'Does it post to Vinted for me?', a: 'No. You copy the text and paste it into Vinted yourself. FlipLens is independent and not affiliated with Vinted.' },
+      { q: 'Are my photos stored?', a: 'No. Photos are only used to write the listing and are not stored.' },
+    ],
+  },
+  {
+    path: '/guides/how-to-sell-on-vinted',
+    kind: 'article',
+    crumb: 'How to sell on Vinted',
+    parent: { path: '/guides', name: 'Guides' },
+    cta: LISTING_CTA,
+    title: 'How to sell on Vinted: fees, listings that sell and pricing',
+    description: 'A practical guide to selling on Vinted in Europe: who pays the fees, how to photograph and describe items, how to price them and how to ship.',
+    h1: 'How to sell on Vinted',
+    lead: 'Vinted is the biggest second-hand marketplace for clothes in Europe and works for small electronics and home items too. Clear photos, an honest description and the right price do most of the work.',
+    sections: [
+      {
+        h2: 'Who pays the fees',
+        html: '<p>Sellers pay no selling fee on Vinted. The buyer pays a Buyer Protection fee and the shipping on top of your price, so the total they see is higher than what you asked. Optional paid promotions, such as bumping an item, are available to sellers. Fees can differ by country and change over time, so check Vinted\'s help centre for the current rules.</p>',
+      },
+      {
+        h2: 'Photos that get clicks',
+        html: '<ul><li>Use daylight and a plain background.</li><li>Show the front, the back, the brand label and the size label.</li><li>Photograph flaws close up: buyers trust sellers who show them.</li><li>Your first photo is what people see in search, so make it the clearest one.</li></ul>',
+      },
+      {
+        h2: 'Title and description',
+        html: '<p>Start the title with the brand and the item, then one key detail such as size or colour: "Levi\'s 501 jeans W32 L32, dark blue". In the description give the size and, for clothes, measurements (for example chest and length), the material from the care label, how it fits and the condition, including any flaws. Add a few words people search for, such as the style or the occasion.</p>',
+      },
+      {
+        h2: 'Choose the condition honestly',
+        html: '<p>Vinted asks you to choose a condition, from "New with tags" to "Satisfactory". Picking a better condition than the item has is a common cause of disputes and returns. If in doubt, choose the lower one and explain in the description.</p>',
+      },
+      {
+        h2: 'Pricing',
+        html: '<p>Search Vinted for the same brand and item in a similar condition and price within that range. Many buyers send offers, so leave a little room. Bundle discounts encourage buyers to take several items in one parcel, which also saves you trips to the post office.</p>',
+      },
+      {
+        h2: 'Shipping',
+        html: '<p>Pack items securely, ship within the time Vinted gives you and keep the proof of postage until the buyer has confirmed the order.</p>',
+      },
+      {
+        h2: 'Write listings faster',
+        html: '<p>The <a href="/vinted-listing-generator">FlipLens listing generator</a> turns a photo into a Vinted title and description in your language and tells you what buyers will ask about, such as size or measurements.</p>',
+      },
+    ],
+    faq: [
+      { q: 'Do sellers pay fees on Vinted?', a: 'No selling fee. The buyer pays a Buyer Protection fee and shipping on top of the price. Optional promotions cost extra.' },
+      { q: 'How do I write a good Vinted description?', a: 'Give the brand, size and measurements, material, fit and an honest condition including flaws, plus a few words buyers search for.' },
+    ],
+  },
 ];
 
 const GUIDES = PAGES.filter((p) => p.path.startsWith('/guides/'));
@@ -397,7 +484,7 @@ function renderPage(p: Page): string {
         ${p.kind === 'article' ? `<p class="meta">Updated ${UPDATED} · by FlipLens</p>` : ''}
         ${p.sections.map((s) => `<section><h2>${esc(s.h2)}</h2>${s.html}</section>`).join('\n        ')}
         ${faqHtml}
-        ${CTA}
+        ${p.cta ?? CTA}
       </article>
     </main>
     ${FOOTER}
@@ -444,7 +531,7 @@ function homePrerender(): string {
       <h2>Three taps, a few seconds</h2>
       <ol><li>Scan it: photo of the item or its label, the barcode on the box, or just type the model.</li><li>Enter the price (optional): without it you get the maximum price worth paying.</li><li>Get the verdict, with the numbers and the reasons behind it.</li></ol>
       <h2>Built for buying decisions, not guesses</h2>
-      <ul><li>Exact model, not "headphones": wrong variants, accessories, bundles and broken items are filtered out.</li><li>Live market data from eBay in five EU countries, converted to euro. You can see every listing used.</li><li>Profit after marketplace fees and shipping, plus the maximum price worth paying.</li><li>Honest about uncertainty: every verdict shows its confidence; not enough data means no number.</li></ul>
+      <ul><li>Exact model, not "headphones": wrong variants, accessories, bundles and broken items are filtered out.</li><li>Live market data from eBay in five EU countries, converted to euro. You can see every listing used.</li><li>Profit after marketplace fees and shipping, plus the maximum price worth paying.</li><li>Honest about uncertainty: every verdict shows its confidence; not enough data means no number.</li><li>Selling? Turn a photo of any item, clothes included, into a Vinted, eBay or Kleinanzeigen listing: <a href="/vinted-listing-generator">listing generator</a>.</li></ul>
       <h2>Pricing</h2>
       <ul>${plans.map((p) => `<li>${esc(p.name)}: ${p.priceMonthlyMinor ? `${eur(p.priceMonthlyMinor)} per month` : 'free'}. ${p.features.map(esc).join(', ')}.</li>`).join('')}</ul>
       <h2>Questions</h2>
@@ -498,7 +585,7 @@ Key facts:
 - Fee profiles: eBay.de private and business sellers, Vinted, local pickup. Each shows when it was last checked.
 - When fewer than 5 comparable listings remain it says "not enough market data" instead of guessing.
 - Pricing (EUR, final prices): ${planLine}.
-- Also: stock tracking with real profit, and (paid plans) a listing generator for eBay, Vinted and Kleinanzeigen.
+- Also: a listing writer that turns a photo of any item (clothes included) into a Vinted, eBay or Kleinanzeigen title and description (${PLANS.free.monthlyListings} free per month), and stock tracking with real profit.
 - Installs on phones as a web app (PWA). Sign-in with Google. Photos are never stored.
 - Operator: ${LEGAL.operator}, Slovenia. Contact: ${LEGAL.supportEmail}.
 

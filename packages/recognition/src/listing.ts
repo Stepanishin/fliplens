@@ -22,6 +22,25 @@ export interface ListingInput {
   sellerType: 'private' | 'business';
 }
 
+/** A listing straight from photos: any item (clothes, shoes, home, toys, electronics), no prior identification. */
+export interface PhotoListingInput {
+  marketplace: ListingMarketplace;
+  language: string;
+  /** data: URLs (JPEG/PNG/WEBP), 1 to 3. */
+  images: readonly string[];
+  /** Condition as the user chose it, e.g. "Very good". */
+  condition?: string;
+  /** Size, brand, flaws, what is included ... Facts the photos cannot show. */
+  notes?: string;
+  sellerType: 'private' | 'business';
+}
+
+export interface PhotoListingText extends ListingText {
+  item: { brand: string | null; type: string; colour: string | null };
+  /** What a buyer will ask that the photos and notes do not answer (e.g. "size", "measurements"). */
+  missing: string[];
+}
+
 export interface ListingText {
   title: string;
   description: string;
@@ -60,6 +79,22 @@ const SCHEMA = {
   },
 } as const;
 
+const PHOTO_SCHEMA = {
+  type: 'object',
+  additionalProperties: false,
+  required: ['title', 'description', 'condition_text', 'keywords', 'item', 'missing'],
+  properties: {
+    ...SCHEMA.properties,
+    item: {
+      type: 'object',
+      additionalProperties: false,
+      required: ['brand', 'type', 'colour'],
+      properties: { brand: { type: ['string', 'null'] }, type: { type: 'string' }, colour: { type: ['string', 'null'] } },
+    },
+    missing: { type: 'array', items: { type: 'string' } },
+  },
+} as const;
+
 export class OpenAIListingWriter {
   readonly id: string;
   constructor(
@@ -72,6 +107,81 @@ export class OpenAIListingWriter {
 
   isConfigured(): boolean {
     return this.apiKey.length > 0;
+  }
+
+  async writeFromPhotos(input: PhotoListingInput): Promise<PhotoListingText> {
+    if (!this.isConfigured()) throw new RecognitionError('OPENAI_API_KEY is not set', 'not_configured');
+    const system = `You write second-hand marketplace listings for European sellers from photos of the item. Write the listing in the language with ISO code "${input.language}".
+${STYLE[input.marketplace]}
+Rules:
+- Describe only what you can see in the photos or what the seller notes say. Brand only from a visible logo or label, or the notes. Never invent size, material, measurements, model, age or defects.
+- If the item is not clearly visible or the photos show no sellable item, still return the fields but put the problem in "missing".
+- condition_text: one honest sentence; use the seller's condition if given, otherwise describe visible wear.
+- keywords: 5-10 search terms buyers would type (brand, item type, colour, style).
+- item: brand (null if not visible), a short item type in English (e.g. "denim jacket", "running shoes", "table lamp"), colour (null if unclear).
+- missing: up to 4 short English phrases for facts buyers usually ask about that are not visible or given (e.g. "size", "measurements", "material", "flaws"). Empty when nothing important is missing.
+- Do not mention the price.`;
+    const facts = [
+      `Seller: ${input.sellerType}`,
+      input.condition ? `Condition: ${input.condition}` : 'Condition: not given',
+      input.notes ? `Seller notes: ${input.notes}` : 'Seller notes: none',
+    ].join('\n');
+
+    let res: Response;
+    try {
+      res = await this.fetchImpl('https://api.openai.com/v1/responses', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${this.apiKey}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: this.model,
+          store: false,
+          input: [
+            { role: 'system', content: system },
+            {
+              role: 'user',
+              content: [
+                { type: 'input_text', text: `Write the listing for the item in ${input.images.length === 1 ? 'this photo' : `these ${input.images.length} photos (same item)`}.\n${facts}` },
+                ...input.images.map((url) => ({ type: 'input_image', image_url: url, detail: 'high' })),
+              ],
+            },
+          ],
+          text: { format: { type: 'json_schema', name: 'photo_listing', schema: PHOTO_SCHEMA, strict: true } },
+        }),
+        signal: AbortSignal.timeout(60_000),
+      });
+    } catch (e) {
+      throw new RecognitionError(`OpenAI request failed: ${e instanceof Error ? e.message : String(e)}`, 'provider_error');
+    }
+    const json = (await res.json().catch(() => ({}))) as {
+      output?: { type: string; content?: { type: string; text?: string }[] }[];
+      usage?: { input_tokens?: number; output_tokens?: number };
+      error?: { message?: string };
+    };
+    if (!res.ok) throw new RecognitionError(`OpenAI HTTP ${res.status}: ${json.error?.message ?? res.statusText}`, 'provider_error');
+    const text = json.output?.find((o) => o.type === 'message')?.content?.find((c) => c.type === 'output_text')?.text;
+    if (!text) throw new RecognitionError('OpenAI returned no listing text', 'bad_output');
+    const raw = JSON.parse(text) as {
+      title: string;
+      description: string;
+      condition_text: string;
+      keywords: string[];
+      item: { brand: string | null; type: string; colour: string | null };
+      missing: string[];
+    };
+    const inputTokens = json.usage?.input_tokens ?? 0;
+    const outputTokens = json.usage?.output_tokens ?? 0;
+    const price = PRICING[this.model];
+    return {
+      title: raw.title.trim(),
+      description: raw.description.trim(),
+      conditionText: raw.condition_text.trim(),
+      keywords: raw.keywords.map((k) => k.trim()).filter(Boolean),
+      item: raw.item,
+      missing: raw.missing.map((m) => m.trim()).filter(Boolean).slice(0, 4),
+      usage: { inputTokens, outputTokens },
+      ...(price && { costUsd: (inputTokens * price[0] + outputTokens * price[1]) / 1_000_000 }),
+      modelVersion: `${this.id}@listing-photo-v1`,
+    };
   }
 
   async write(input: ListingInput): Promise<ListingText> {

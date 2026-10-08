@@ -2,7 +2,7 @@ import { useRef, useState, type ChangeEvent } from 'react';
 import type { Account, BillingInfo, ServerScan } from '../api.js';
 import { ago, scanPill } from '../format.js';
 import { resizeToJpegDataUrl } from '../image.js';
-import { IconBarcode, IconCamera, IconChevron, IconEdit, IconImage } from '../ui/icons.js';
+import { IconBarcode, IconCamera, IconChevron, IconEdit, IconImage, IconSpark } from '../ui/icons.js';
 import { eur } from '../ui/verdict.js';
 import { InstallApp } from '../ui/InstallApp.js';
 
@@ -11,6 +11,8 @@ interface Props {
   visionEnabled: boolean;
   recent: ServerScan[] | null;
   onPhotos: (photos: string[]) => void;
+  /** The "listing from a photo" tool (any item, e.g. clothes for Vinted). */
+  onQuickListing: () => void;
   onCamera: () => void;
   onBarcode: () => void;
   onManual: () => void;
@@ -25,7 +27,7 @@ function greeting(): string {
   return h < 12 ? 'Good morning' : h < 18 ? 'Good afternoon' : 'Good evening';
 }
 
-export function Home({ account, visionEnabled, recent, onPhotos, onCamera, onBarcode, onManual, onOpenScan, onSeeHistory, quota, onOpenPlans }: Props) {
+export function Home({ account, visionEnabled, recent, onPhotos, onQuickListing, onCamera, onBarcode, onManual, onOpenScan, onSeeHistory, quota, onOpenPlans }: Props) {
   const galleryRef = useRef<HTMLInputElement>(null);
   const [error, setError] = useState<string | null>(null);
   const firstName = account?.name?.split(' ')[0];
@@ -64,6 +66,15 @@ export function Home({ account, visionEnabled, recent, onPhotos, onCamera, onBar
       <input ref={galleryRef} type="file" accept="image/*" multiple hidden onChange={onFiles} />
       {!visionEnabled && <p className="muted small center">Photo and barcode recognition are off on the server.</p>}
       {error && <div className="banner bad">{error}</div>}
+
+      <button type="button" className="home-tool" onClick={onQuickListing} disabled={!visionEnabled}>
+        <span className="home-tool-icon"><IconSpark size={20} /></span>
+        <span style={{ flex: 1 }}>
+          <strong>Selling something? Write the listing from a photo</strong>
+          <span className="muted">Title and description for Vinted, eBay or Kleinanzeigen. Clothes too.</span>
+        </span>
+        <IconChevron size={18} className="muted" />
+      </button>
 
       {quota && quota.plan === 'free' && (
         <button type="button" className="quota-card" onClick={onOpenPlans}>

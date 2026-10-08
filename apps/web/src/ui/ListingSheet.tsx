@@ -1,15 +1,15 @@
 import { useState } from 'react';
 import { api, ApiError, type InventoryItem } from '../api.js';
 import { track } from '../track.js';
-import { eur } from './verdict.js';
+import { ListingResult } from './ListingResult.js';
 
-type Market = 'ebay' | 'vinted' | 'kleinanzeigen';
-const MARKETS: readonly [Market, string][] = [['ebay', 'eBay'], ['vinted', 'Vinted'], ['kleinanzeigen', 'Kleinanzeigen']];
-const LANGUAGES: readonly [string, string][] = [
+export type Market = 'ebay' | 'vinted' | 'kleinanzeigen';
+export const MARKETS: readonly [Market, string][] = [['ebay', 'eBay'], ['vinted', 'Vinted'], ['kleinanzeigen', 'Kleinanzeigen']];
+export const LANGUAGES: readonly [string, string][] = [
   ['en', 'English'], ['de', 'Deutsch'], ['fr', 'Français'], ['it', 'Italiano'], ['es', 'Español'], ['nl', 'Nederlands'],
   ['pl', 'Polski'], ['sl', 'Slovenščina'], ['hr', 'Hrvatski'], ['cs', 'Čeština'], ['pt', 'Português'], ['sv', 'Svenska'],
 ];
-const LANG_BY_COUNTRY: Record<string, string> = {
+export const LANG_BY_COUNTRY: Record<string, string> = {
   DE: 'de', AT: 'de', CH: 'de', FR: 'fr', BE: 'fr', LU: 'fr', IT: 'it', ES: 'es', NL: 'nl', PL: 'pl', SI: 'sl', HR: 'hr', CZ: 'cs', PT: 'pt', SE: 'sv',
 };
 
@@ -30,7 +30,6 @@ export function ListingSheet({ item, country, onClose, onUpgrade }: { item: Inve
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<{ text: string; upgrade: boolean } | null>(null);
   const [listing, setListing] = useState<Listing | null>(null);
-  const [copied, setCopied] = useState<string | null>(null);
 
   async function generate() {
     setBusy(true);
@@ -46,28 +45,6 @@ export function ListingSheet({ item, country, onClose, onUpgrade }: { item: Inve
     }
   }
 
-  async function copy(label: string, text: string) {
-    try {
-      if (navigator.clipboard) await navigator.clipboard.writeText(text);
-      else {
-        // Older in-app browsers: no async clipboard API.
-        const ta = document.createElement('textarea');
-        ta.value = text;
-        document.body.appendChild(ta);
-        ta.select();
-        const ok = document.execCommand('copy');
-        ta.remove();
-        if (!ok) throw new Error('copy failed');
-      }
-      setCopied(label);
-      track('listing_copied', { field: label });
-      window.setTimeout(() => setCopied((c) => (c === label ? null : c)), 1500);
-    } catch {
-      setCopied(null);
-    }
-  }
-
-  const all = listing ? `${listing.title}\n\n${listing.description}` : '';
 
   return (
     <div className="sheet-backdrop" role="presentation" onClick={onClose}>
@@ -108,30 +85,7 @@ export function ListingSheet({ item, country, onClose, onUpgrade }: { item: Inve
         )}
 
         {listing && (
-          <div className="listing-out">
-            <div className="listing-field">
-              <div className="card-head"><strong>Title</strong><button type="button" className="link" onClick={() => void copy('title', listing.title)}>{copied === 'title' ? 'Copied' : 'Copy'}</button></div>
-              <p>{listing.title}</p>
-              <span className="muted small">{listing.title.length} characters</span>
-            </div>
-            <div className="listing-field">
-              <div className="card-head"><strong>Description</strong><button type="button" className="link" onClick={() => void copy('description', listing.description)}>{copied === 'description' ? 'Copied' : 'Copy'}</button></div>
-              <p className="listing-desc">{listing.description}</p>
-            </div>
-            <div className="listing-field">
-              <div className="card-head"><strong>Condition</strong><button type="button" className="link" onClick={() => void copy('condition', listing.conditionText)}>{copied === 'condition' ? 'Copied' : 'Copy'}</button></div>
-              <p>{listing.conditionText}</p>
-            </div>
-            {listing.suggestedPriceMinor !== null && (
-              <div className="maxbuy"><span>Suggested price</span><strong>{eur(listing.suggestedPriceMinor)}</strong></div>
-            )}
-            {listing.keywords.length > 0 && <p className="muted small">Keywords: {listing.keywords.join(', ')}</p>}
-            <div className="sheet-actions">
-              <button type="button" className="ghost" onClick={() => void copy('all', all)}>{copied === 'all' ? 'Copied' : 'Copy title + text'}</button>
-              <a className="primary" href={listing.sellUrl} target="_blank" rel="noreferrer">Open {MARKETS.find(([id]) => id === market)?.[1]}</a>
-            </div>
-            <button type="button" className="link" disabled={busy} onClick={() => void generate()}>Write another version</button>
-          </div>
+          <ListingResult listing={listing} marketName={MARKETS.find(([id]) => id === market)?.[1] ?? ''} busy={busy} onRegenerate={() => void generate()} />
         )}
       </div>
     </div>

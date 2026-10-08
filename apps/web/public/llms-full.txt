@@ -46,8 +46,8 @@ Start free. Upgrade when FlipLens pays for itself: one good find usually covers 
 ### Plans
 
 PlanPriceIncludes
- | Free | Free | 10 checks per monthPhoto and barcode recognitionResale range, profit, ROI and stock tracking
- | Pro | €9.99 / month | 100 checks per monthStock tracking with real profitListing generator for eBay, Vinted, Kleinanzeigen
+ | Free | Free | 10 checks per month3 AI listings for Vinted, eBay or KleinanzeigenResale range, profit, ROI and stock tracking
+ | Pro | €9.99 / month | 100 checks per monthStock tracking with real profit100 AI listings for Vinted, eBay, Kleinanzeigen
  | Reseller | €19.99 / month | Unlimited checks (fair use 1,000/month)Everything in ProPriority support and new features first
 
 Final prices, no hidden fees. Payments are handled by Stripe. Cancel anytime from the customer portal. EU consumers have a 14-day right of withdrawal, see the Terms (/terms).
@@ -60,7 +60,7 @@ A check is one valuation: FlipLens looks up the market and calculates resale val
 Yes. Free includes 10 checks per month with photo and barcode recognition, profit and ROI, and stock tracking. No card is needed.
 
 **What do the paid plans add?**
-Pro (€9.99/month): 100 checks per month, stock tracking with real profit, listing generator for ebay, vinted, kleinanzeigen. Reseller (€19.99/month): unlimited checks (fair use 1,000/month), everything in pro, priority support and new features first.
+Pro (€9.99/month): 100 checks per month, stock tracking with real profit, 100 ai listings for vinted, ebay, kleinanzeigen. Reseller (€19.99/month): unlimited checks (fair use 1,000/month), everything in pro, priority support and new features first.
 
 **Can I cancel anytime?**
 Yes. Cancel in the customer portal from your profile; the plan stays active until the end of the paid month.
@@ -100,7 +100,7 @@ It depends on the market. Every result shows a confidence score, how many listin
 eBay.de for private and business sellers, Vinted and local pickup with cash. Each fee profile shows when it was last checked.
 
 **Can FlipLens write my listing?**
-Yes, on Pro and Reseller. It writes a title, description and condition text in the style of eBay, Vinted or Kleinanzeigen, in your language, ready to copy. FlipLens never posts on your behalf.
+Yes. Take a photo of any item, clothes included, and FlipLens writes a title, description and condition text in the style of Vinted, eBay or Kleinanzeigen, in your language, ready to copy. Free includes 3 listings a month, Pro 100. FlipLens never posts on your behalf.
 
 **Is there a mobile app?**
 FlipLens is a web app that installs on your phone: open fliplens.eu and choose "Add to Home Screen" (iPhone) or "Install app" (Android). It then opens full screen like a native app.
@@ -262,6 +262,91 @@ Compare the asking price with the maximum price worth paying after fees and ship
 The exact model and variant, that it powers on and works, screen and port condition, that it is not locked to someone else's account, what accessories are included, and that the price is below your maximum after fees and shipping.
 
 
+## Vinted listing generator
+
+URL: https://fliplens.eu/vinted-listing-generator
+
+Take a photo of the item and get a title, description and hashtags ready to paste into Vinted. Works for clothes, shoes, bags, home, toys and tech, in your language.
+
+### How it works
+
+- Take one to three photos: front, back and the brand or size label work best.
+- Pick the condition and add what photos cannot show, such as size, material or a small flaw.
+- Copy the title and description, open Vinted and paste.
+
+### What it writes
+
+For Vinted: a short, natural title (brand, item and one key detail), a friendly and honest description, one sentence about the condition and a few relevant search words and hashtags. The same photo can also become an eBay listing (keyword-first title, structured description) or a Kleinanzeigen ad (direct, with the usual private-sale note).
+
+### Honest by design
+
+The writer describes only what is visible in your photos or written in your details. It does not invent a size, material, brand or measurements. When something buyers usually ask about is missing, such as the size or measurements, it tells you so you can add it before you post.
+
+### What about the price?
+
+FlipLens does not read Vinted data. After writing your listing it links to similar items on Vinted so you can compare prices in a tap. For electronics, games and cameras, FlipLens can also estimate the resale value (/how-it-works) from eBay listings in five EU countries.
+
+### Plans
+
+Free: 3 listings a month. Pro (€9.99/month): 100 listings and 100 price checks. Reseller (€19.99/month): up to 1,000. See pricing (/pricing).
+
+**Is the Vinted listing generator free?**
+Yes, 3 listings a month are free after signing in with Google. Pro includes 100 a month.
+
+**Which languages does it write in?**
+English, German, French, Italian, Spanish, Dutch, Polish, Slovenian, Croatian, Czech, Portuguese and Swedish.
+
+**Does it post to Vinted for me?**
+No. You copy the text and paste it into Vinted yourself. FlipLens is independent and not affiliated with Vinted.
+
+**Are my photos stored?**
+No. Photos are only used to write the listing and are not stored.
+
+
+## How to sell on Vinted
+
+URL: https://fliplens.eu/guides/how-to-sell-on-vinted
+
+Vinted is the biggest second-hand marketplace for clothes in Europe and works for small electronics and home items too. Clear photos, an honest description and the right price do most of the work.
+
+### Who pays the fees
+
+Sellers pay no selling fee on Vinted. The buyer pays a Buyer Protection fee and the shipping on top of your price, so the total they see is higher than what you asked. Optional paid promotions, such as bumping an item, are available to sellers. Fees can differ by country and change over time, so check Vinted's help centre for the current rules.
+
+### Photos that get clicks
+
+- Use daylight and a plain background.
+- Show the front, the back, the brand label and the size label.
+- Photograph flaws close up: buyers trust sellers who show them.
+- Your first photo is what people see in search, so make it the clearest one.
+
+### Title and description
+
+Start the title with the brand and the item, then one key detail such as size or colour: "Levi's 501 jeans W32 L32, dark blue". In the description give the size and, for clothes, measurements (for example chest and length), the material from the care label, how it fits and the condition, including any flaws. Add a few words people search for, such as the style or the occasion.
+
+### Choose the condition honestly
+
+Vinted asks you to choose a condition, from "New with tags" to "Satisfactory". Picking a better condition than the item has is a common cause of disputes and returns. If in doubt, choose the lower one and explain in the description.
+
+### Pricing
+
+Search Vinted for the same brand and item in a similar condition and price within that range. Many buyers send offers, so leave a little room. Bundle discounts encourage buyers to take several items in one parcel, which also saves you trips to the post office.
+
+### Shipping
+
+Pack items securely, ship within the time Vinted gives you and keep the proof of postage until the buyer has confirmed the order.
+
+### Write listings faster
+
+The FlipLens listing generator (/vinted-listing-generator) turns a photo into a Vinted title and description in your language and tells you what buyers will ask about, such as size or measurements.
+
+**Do sellers pay fees on Vinted?**
+No selling fee. The buyer pays a Buyer Protection fee and shipping on top of the price. Optional promotions cost extra.
+
+**How do I write a good Vinted description?**
+Give the brand, size and measurements, material, fit and an honest condition including flaws, plus a few words buyers search for.
+
+
 ## Reselling guides
 
 URL: https://fliplens.eu/guides
@@ -274,3 +359,4 @@ Short, practical guides for sourcing and reselling second-hand items in Europe.
 - eBay.de fees in 2026: private vs business sellers (/guides/ebay-fees-germany)What selling on eBay Germany costs private and business sellers, with an example of how fees change your profit and the price you can pay for stock.
 - Where to sell used electronics in Europe (/guides/where-to-sell-used-electronics-europe)Compare eBay, Vinted, Kleinanzeigen and local cash sales for second-hand electronics in Europe: who pays fees, reach, speed and when each one makes sense.
 - Flea market reselling checklist (/guides/flea-market-reselling-checklist)A practical checklist for buying second-hand electronics, consoles and cameras at flea markets and car boot sales to resell: identification, testing, completeness, locks and price.
+- How to sell on Vinted (/guides/how-to-sell-on-vinted)A practical guide to selling on Vinted in Europe: who pays the fees, how to photograph and describe items, how to price them and how to ship.

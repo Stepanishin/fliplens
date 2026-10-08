@@ -142,6 +142,11 @@ export function Landing({ signedIn, onOpenApp, googleClientId, authError, onGoog
             <h3>Honest about uncertainty</h3>
             <p>Every verdict shows its confidence and risks. Not enough data? We say so instead of inventing a number.</p>
           </div>
+          <div className="lp-feature">
+            <IconEdit />
+            <h3>Listings written for you</h3>
+            <p>Selling on Vinted, eBay or Kleinanzeigen? Turn a photo of any item, clothes included, into a title and description in your language.</p>
+          </div>
         </div>
       </section>
 

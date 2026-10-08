@@ -671,3 +671,15 @@ button:focus-visible, a:focus-visible, summary:focus-visible { outline: 2.5px so
    visible if the app did not start, so app users never see a flash of it. */
 .prerender { max-width: 720px; margin: 0 auto; padding: 24px 16px; opacity: 0; animation: prerender-show 0s linear 1.5s forwards; }
 @keyframes prerender-show { to { opacity: 1; } }
+
+/* ---------- listing from a photo ---------- */
+.ql-photos { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 10px; }
+.ql-photo { position: relative; aspect-ratio: 1; border-radius: var(--radius-sm); overflow: hidden; background: var(--surface-2); }
+.ql-photo img { width: 100%; height: 100%; object-fit: cover; }
+.ql-photo button { position: absolute; top: 6px; right: 6px; width: 28px; height: 28px; border-radius: 50%; border: 0; background: rgba(0, 0, 0, 0.6); color: #fff; font-size: 18px; line-height: 1; }
+.ql-add { display: flex; gap: 8px; margin-bottom: 8px; }
+.ql-add button { flex: 1; }
+.field textarea { width: 100%; font: inherit; padding: 12px 14px; border-radius: var(--radius-sm); border: 1px solid var(--line); background: var(--surface-2); color: var(--text); resize: vertical; }
+.home-tool { display: flex; align-items: center; gap: 12px; width: 100%; text-align: left; padding: 14px 16px; border-radius: var(--radius); border: 1px solid var(--line); background: var(--surface); box-shadow: var(--shadow-sm); color: var(--text); }
+.home-tool .home-tool-icon { width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; background: var(--accent-soft); color: var(--accent-2); flex: 0 0 auto; }
+.home-tool span.muted { display: block; font-size: 13px; }

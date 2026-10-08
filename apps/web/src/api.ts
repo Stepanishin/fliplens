@@ -169,6 +169,18 @@ export interface AdminOverview {
   revenue: { mrrEur: number; byPlan: { plan: string; active: number; ending: number; mrrEur: number }[] };
 }
 
+export interface PhotoListing {
+  title: string;
+  description: string;
+  conditionText: string;
+  keywords: string[];
+  item: { brand: string | null; type: string; colour: string | null };
+  missing: string[];
+  marketplace: string;
+  sellUrl: string;
+  usage: { used: number; limit: number | null };
+}
+
 export interface AdminTraffic {
   days: number;
   visits: number;
@@ -321,6 +333,8 @@ export const api = {
       '/api/listing',
       { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) },
     ),
+  photoListing: (body: { images: string[]; marketplace: 'ebay' | 'vinted' | 'kleinanzeigen'; language: string; condition?: string; notes?: string }) =>
+    call<PhotoListing>('/api/listing/photo', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }),
   deleteInventory: (id: string) => call<{ deleted: boolean }>(`/api/inventory/${id}`, { method: 'DELETE' }),
   detectCategory: (brand: string, model: string) =>
     call<{ category: CategorySlug | null }>(`/api/category?${new URLSearchParams({ brand, model })}`),

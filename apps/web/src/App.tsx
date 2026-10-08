@@ -5,6 +5,7 @@ import { Plans } from './screens/Plans.js';
 import { Landing } from './screens/Landing.js';
 import { Admin } from './screens/Admin.js';
 import { Inventory } from './screens/Inventory.js';
+import { QuickListing } from './screens/QuickListing.js';
 import { BoughtSheet } from './ui/BoughtSheet.js';
 import { ListingSheet } from './ui/ListingSheet.js';
 import type { InventoryItem } from './api.js';
@@ -48,9 +49,10 @@ type Route =
   | { name: 'profile' }
   | { name: 'plans' }
   | { name: 'admin' }
-  | { name: 'inventory' };
+  | { name: 'inventory' }
+  | { name: 'listing' };
 
-const TITLES: Partial<Record<Route['name'], string>> = { confirm: 'Identify', price: 'Price', result: 'Verdict', scan: 'Saved scan', profile: 'Profile', admin: 'Admin' };
+const TITLES: Partial<Record<Route['name'], string>> = { confirm: 'Identify', price: 'Price', result: 'Verdict', scan: 'Saved scan', profile: 'Profile', admin: 'Admin', listing: 'Write listing' };
 const DEV_KEY = 'fliplens.devtools.v1';
 /** Position of the scan-flow screens in the stepper. */
 const STEP: Partial<Record<Route['name'], number>> = { confirm: 0, price: 1, result: 2 };
@@ -377,7 +379,7 @@ export function App() {
     .filter((x) => x.trim())
     .join(' ');
   const visionOn = health?.vision.configured ?? false;
-  const inFlow = ['confirm', 'price', 'result', 'scan', 'admin'].includes(route.name) || (route.name === 'plans' && stack.length > 2) || (route.name === 'profile' && stack.length > 2);
+  const inFlow = ['confirm', 'price', 'result', 'scan', 'admin', 'listing'].includes(route.name) || (route.name === 'plans' && stack.length > 2) || (route.name === 'profile' && stack.length > 2);
   const activeTab = route.name === 'history' || route.name === 'scan' ? 'history' : route.name === 'profile' ? 'profile' : route.name === 'plans' ? 'plans' : route.name === 'inventory' ? 'inventory' : 'home';
 
   // Signed-in only: without an account the start page is all there is (with a database; local dev without one stays open).
@@ -398,6 +400,25 @@ export function App() {
       go({ name: 'admin' });
     }
   }, [isAdmin, go]);
+
+  // fliplens.eu/?tool=listing (ads, guides) opens the listing tool, after sign-in if needed.
+  useEffect(() => {
+    let intent: string | null = new URLSearchParams(window.location.search).get('tool');
+    try {
+      if (intent) sessionStorage.setItem('fliplens.intent', intent);
+      else intent = sessionStorage.getItem('fliplens.intent');
+    } catch {
+      // storage blocked: the intent only survives this page load
+    }
+    if (intent !== 'listing' || !account) return;
+    try {
+      sessionStorage.removeItem('fliplens.intent');
+    } catch {
+      // ignore
+    }
+    track('quick_listing_opened', { from: 'link' });
+    go({ name: 'listing' });
+  }, [account, go]);
 
   if (showLanding) {
     return (
@@ -462,6 +483,7 @@ export function App() {
             visionEnabled={visionOn}
             recent={dbOn ? scans : []}
             onPhotos={startPhotos}
+            onQuickListing={() => { track('quick_listing_opened', { from: 'home' }); go({ name: 'listing' }); }}
             onCamera={() => cameraRef.current?.click()}
             onBarcode={() => setScanning(true)}
             onManual={startManual}
@@ -471,6 +493,7 @@ export function App() {
             onOpenPlans={() => openPlans()}
           />
         )}
+        {route.name === 'listing' && <QuickListing country={settings.country} onUpgrade={() => openPlans()} />}
         {route.name === 'confirm' && (
           <Confirm
             draft={draft}

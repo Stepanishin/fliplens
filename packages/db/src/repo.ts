@@ -385,7 +385,6 @@ export async function listingsThisMonth(db: Db, userId: string): Promise<number>
     .where(
       and(
         eq(usageCosts.userId, userId),
-        eq(usageCosts.kind, 'text_llm'),
         sql`${usageCosts.model} like '%@listing-%'`,
         gte(usageCosts.createdAt, sql`date_trunc('month', now())`),
       ),
