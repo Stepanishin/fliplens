@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { track } from '../track.js';
 
 /** "Sign in with Google" via Google Identity Services. Returns an ID token (credential) to verify on the server. */
 
@@ -65,6 +66,23 @@ export function GoogleButton({
   useEffect(() => {
     credentialHandler = onCredential;
   }, [onCredential]);
+
+  // Google's button is a cross-origin iframe, so its clicks never reach us. A click moves focus into that iframe and
+  // blurs our window: count it as "sign-in started" (funnel step between visiting and signing in).
+  useEffect(() => {
+    let sent = false;
+    const onBlur = () => {
+      window.setTimeout(() => {
+        const el = document.activeElement;
+        if (!sent && el?.tagName === 'IFRAME' && ref.current?.contains(el)) {
+          sent = true;
+          track('signin_started', { compact });
+        }
+      }, 0);
+    };
+    window.addEventListener('blur', onBlur);
+    return () => window.removeEventListener('blur', onBlur);
+  }, [compact]);
 
   useEffect(() => {
     let cancelled = false;

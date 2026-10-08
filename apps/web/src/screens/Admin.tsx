@@ -199,6 +199,7 @@ function Traffic({ days }: { days: number }) {
         <Funnel
           steps={[
             { label: 'Visitors', n: f.visitors },
+            { label: 'Clicked sign-in', n: f.signinStarted },
             { label: 'Signed up', n: f.signups },
             { label: 'Ran a check', n: f.activated },
             { label: 'Paying', n: f.paying },

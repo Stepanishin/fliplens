@@ -646,7 +646,7 @@ button:focus-visible, a:focus-visible, summary:focus-visible { outline: 2.5px so
 .admin-details table { margin-top: 8px; }
 .admin-details th { text-align: left; font-size: 12px; color: var(--muted); font-weight: 600; }
 .funnel { display: flex; flex-direction: column; gap: 10px; }
-.funnel-row { display: grid; grid-template-columns: 96px 1fr 72px; align-items: center; gap: 10px; font-size: 14px; }
+.funnel-row { display: grid; grid-template-columns: 112px 1fr 72px; align-items: center; gap: 10px; font-size: 14px; }
 .funnel-track { height: 10px; border-radius: 4px; background: var(--surface-2); overflow: hidden; }
 .funnel-bar { display: block; height: 100%; border-radius: 4px; background: var(--chart-bar); }
 .funnel-n { text-align: right; font-variant-numeric: tabular-nums; }

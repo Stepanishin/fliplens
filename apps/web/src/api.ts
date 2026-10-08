@@ -180,7 +180,7 @@ export interface AdminTraffic {
   campaigns: { name: string; n: number }[];
   pages: { name: string; n: number }[];
   devices: { mobile: number; desktop: number; standalone: number };
-  funnel: { visitors: number; signups: number; activated: number; paying: number };
+  funnel: { visitors: number; signinStarted: number; signups: number; activated: number; paying: number };
 }
 
 export interface AdminUserRow {

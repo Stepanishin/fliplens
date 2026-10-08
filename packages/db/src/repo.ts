@@ -544,15 +544,16 @@ export interface AdminTraffic {
   campaigns: { name: string; n: number }[];
   pages: { name: string; n: number }[];
   devices: { mobile: number; desktop: number; standalone: number };
-  funnel: { visitors: number; signups: number; activated: number; paying: number };
+  funnel: { visitors: number; signinStarted: number; signups: number; activated: number; paying: number };
 }
 
 /** Site traffic from first-party events (no cookies, no third-party analytics). */
 export async function adminTraffic(db: Db, days = 30): Promise<AdminTraffic> {
   const since = sql`now() - make_interval(days => ${days})`;
-  const [totals] = await rows<{ visits: number; visitors: number; views: number; installs: number }>(
+  const [totals] = await rows<{ visits: number; visitors: number; views: number; installs: number; signin: number }>(
     db,
     sql`select count(*) filter (where name = 'visit')::int as visits,
+               count(distinct visitor) filter (where name = 'signin_started')::int as signin,
                count(distinct visitor)::int as visitors,
                count(*) filter (where name = 'page_view')::int as views,
                count(*) filter (where name = 'app_installed')::int as installs
@@ -599,7 +600,7 @@ export async function adminTraffic(db: Db, days = 30): Promise<AdminTraffic> {
     campaigns: campaigns.filter((c) => c.name !== '(direct)'),
     pages,
     devices: dev ?? { mobile: 0, desktop: 0, standalone: 0 },
-    funnel: { visitors: totals?.visitors ?? 0, signups: funnel?.signups ?? 0, activated: funnel?.activated ?? 0, paying: funnel?.paying ?? 0 },
+    funnel: { visitors: totals?.visitors ?? 0, signinStarted: totals?.signin ?? 0, signups: funnel?.signups ?? 0, activated: funnel?.activated ?? 0, paying: funnel?.paying ?? 0 },
   };
 }
 

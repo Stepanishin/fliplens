@@ -385,7 +385,8 @@ export function App() {
 
   // Page views for the admin traffic report (screen names only, nothing typed by the user).
   const pageName = showLanding ? 'landing' : route.name;
-  const pageKnown = !dbOn || meLoaded;
+  // Wait for /api/health and /api/me, otherwise a signed-out visitor is first logged as 'home'.
+  const pageKnown = health !== undefined && (!dbOn || meLoaded);
   useEffect(() => {
     if (pageKnown) track('page_view', { page: pageName });
   }, [pageName, pageKnown]);

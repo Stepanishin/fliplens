@@ -1,5 +1,6 @@
 import { PLANS } from '@fliplens/core';
 import { GoogleButton } from '../ui/GoogleButton.js';
+import { track } from '../track.js';
 import { IconBarcode, IconCamera, IconCheck, IconClock, IconEdit, IconScan, IconSpark } from '../ui/icons.js';
 
 interface Props {
@@ -16,7 +17,11 @@ const eur = (minor: number): string =>
 
 /** Public start page for signed-out visitors: what it does, how, what it costs, and a way in. */
 export function Landing({ signedIn, onOpenApp, googleClientId, authError, onGoogleCredential }: Props) {
-  const toSignIn = () => (signedIn ? onOpenApp() : window.scrollTo({ top: 0, behavior: 'smooth' }));
+  const toSignIn = () => {
+    track('cta_clicked', { signedIn });
+    if (signedIn) onOpenApp();
+    else window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
   const signIn = signedIn ? (
     <button type="button" className="primary lp-open" onClick={onOpenApp}>Open app</button>
   ) : googleClientId ? (
