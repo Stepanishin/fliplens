@@ -5,7 +5,7 @@ import type { ValuationResponse } from '../api.js';
 import { ago, FACTOR_LABEL } from '../format.js';
 import { MarketLinks } from '../MarketLinks.js';
 import { ConfidencePill, DecisionHero, eur, MarketActivity, RangeBar } from '../ui/verdict.js';
-import { IconBag, IconEdit, IconScan } from '../ui/icons.js';
+import { IconBag, IconEdit, IconScan, IconSpark } from '../ui/icons.js';
 import { Comparables } from './Comparables.js';
 
 interface Props {
@@ -17,10 +17,12 @@ interface Props {
   targetRoiPct: number;
   /** "I bought it" with the price currently selected on the slider (cents). */
   onBought?: (priceMinor: number) => void;
+  /** Open the listing writer with the same photos (the way forward when there is no price data, e.g. clothes). */
+  onWriteListing?: () => void;
   children?: ReactNode;
 }
 
-export function Result({ resp, query, country, onNewScan, onEdit, targetRoiPct, onBought, children }: Props) {
+export function Result({ resp, query, country, onNewScan, onEdit, targetRoiPct, onBought, onWriteListing, children }: Props) {
   const r = resp.result;
   const askedMinor = r.status === 'ok' ? r.profit.expected.purchasePrice.amountMinor : 0;
   // "What if I pay X?": recomputed locally with the same core logic, no new check, no quota.
@@ -39,6 +41,15 @@ export function Result({ resp, query, country, onNewScan, onEdit, targetRoiPct, 
               : 'The product identification is too uncertain to value.'}
           </div>
         </div>
+        {onWriteListing && (
+          <button type="button" className="home-tool" onClick={onWriteListing}>
+            <span className="home-tool-icon"><IconSpark size={20} /></span>
+            <span style={{ flex: 1 }}>
+              <strong>Selling it? Write the listing from your photo</strong>
+              <span className="muted">Clothes and other items without price data work too: title and description for Vinted, eBay or Kleinanzeigen.</span>
+            </span>
+          </button>
+        )}
         <section className="card">
           <h2>What you can do</h2>
           <ul className="list">

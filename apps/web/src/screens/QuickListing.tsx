@@ -11,10 +11,10 @@ import { LANG_BY_COUNTRY, LANGUAGES, MARKETS, type Market } from '../ui/ListingS
 const CONDITIONS = ['New with tags', 'New without tags', 'Very good', 'Good', 'Satisfactory'] as const;
 
 /** Photo in, ready-to-paste listing out. Any item, including clothes: no price check needed. */
-export function QuickListing({ country, onUpgrade }: { country: string; onUpgrade: () => void }) {
+export function QuickListing({ country, initialPhotos = [], onUpgrade }: { country: string; initialPhotos?: string[]; onUpgrade: () => void }) {
   const cameraRef = useRef<HTMLInputElement>(null);
   const galleryRef = useRef<HTMLInputElement>(null);
-  const [photos, setPhotos] = useState<string[]>([]);
+  const [photos, setPhotos] = useState<string[]>(initialPhotos.slice(0, 3));
   const [market, setMarket] = useState<Market>('vinted');
   const [language, setLanguage] = useState(LANG_BY_COUNTRY[country] ?? 'en');
   const [condition, setCondition] = useState<string | null>(null);

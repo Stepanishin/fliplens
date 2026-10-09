@@ -50,7 +50,7 @@ type Route =
   | { name: 'plans' }
   | { name: 'admin' }
   | { name: 'inventory' }
-  | { name: 'listing' };
+  | { name: 'listing'; photos?: string[] };
 
 const TITLES: Partial<Record<Route['name'], string>> = { confirm: 'Identify', price: 'Price', result: 'Verdict', scan: 'Saved scan', profile: 'Profile', admin: 'Admin', listing: 'Write listing' };
 const DEV_KEY = 'fliplens.devtools.v1';
@@ -493,7 +493,7 @@ export function App() {
             onOpenPlans={() => openPlans()}
           />
         )}
-        {route.name === 'listing' && <QuickListing country={settings.country} onUpgrade={() => openPlans()} />}
+        {route.name === 'listing' && <QuickListing country={settings.country} initialPhotos={route.photos ?? []} onUpgrade={() => openPlans()} />}
         {route.name === 'confirm' && (
           <Confirm
             draft={draft}
@@ -541,6 +541,10 @@ export function App() {
             onNewScan={newScan}
             onEdit={() => go({ name: 'confirm' })}
             {...(resp.scanId && { onBought: (m: number) => setBoughtPriceMinor(m) })}
+            onWriteListing={() => {
+              track('quick_listing_opened', { from: 'result', status: resp.result.status });
+              go({ name: 'listing', photos: draft.photos });
+            }}
           >
             {devTools && isAdmin && draft.photos.length > 0 && <BenchmarkAdd photos={draft.photos} request={buildRequest(draft, settings)} />}
           </Result>
