@@ -19,6 +19,7 @@ import {
   getUser,
   aiCostThisMonth,
   identificationsThisMonth,
+  listingsThisMonth,
   applyReferral,
   linkGoogle,
   userIdByGoogleSub,
@@ -91,6 +92,8 @@ export interface Persistence {
    * at IDENTIFY_FACTOR x the plan's monthly checks. Returns false after sending the error response.
    */
   requireAccount(req: FastifyRequest, reply: FastifyReply, kind: 'valuation' | 'identification'): Promise<boolean>;
+  /** Any visitor with a device id (guests included): for cheap helpers that must not use up the guest trial. */
+  requireVisitor(req: FastifyRequest, reply: FastifyReply): Promise<boolean>;
   /** 'cheap' once the caller spent the plan's AI budget this month: recognition must not escalate. */
   aiMode(req: FastifyRequest): Promise<'full' | 'cheap'>;
   /** Signed-in admin (ADMIN_EMAILS). Returns false after sending the error response. */
@@ -113,7 +116,7 @@ const EVENT_NAMES = [
   'scan_started', 'image_uploaded', 'barcode_scanned', 'product_detected', 'product_corrected',
   'valuation_started', 'valuation_completed', 'valuation_failed', 'comparables_opened', 'item_marked_bought',
   'subscription_viewed', 'subscription_started', 'inventory_added', 'item_sold', 'market_link_opened', 'signed_in', 'app_installed', 'app_install_prompt', 'whatif_used', 'confirm_skipped',
-  'item_status_changed', 'listing_generated', 'listing_copied', 'visit', 'page_view', 'cta_clicked', 'signin_started', 'quick_listing_opened', 'referral_link_copied', 'referral_link_shared', 'referral_payout_requested',
+  'item_status_changed', 'listing_generated', 'listing_copied', 'visit', 'page_view', 'cta_clicked', 'signin_started', 'quick_listing_opened', 'find_shared', 'referral_link_copied', 'referral_link_shared', 'referral_payout_requested', 'inapp_link_copied', 'inapp_open_chrome', 'guest_started', 'trial_used',
 ] as const;
 const EventsBody = z.object({
   events: z
@@ -189,6 +192,7 @@ function disabled(status: DbStatus): Persistence {
     quota: async () => undefined,
     // Without a database there are no accounts: local development only.
     requireAccount: async () => true,
+    requireVisitor: async () => true,
     aiMode: async () => 'full',
     requireAdmin: async () => true,
   };
@@ -234,6 +238,51 @@ function enabled(db: Db, log: FastifyBaseLogger, auth: AuthConfig): Persistence 
     return uid;
   };
 
+  /**
+   * Try before signing in: one check (with a few recognition attempts) and one photo listing per device, capped per
+   * IP and per day overall so a viral video cannot run up the AI bill. Counters per IP/day live in memory (one
+   * instance); per device they come from the database. Exceeded: 401 trial_used (the app then asks to sign in).
+   */
+  const TRIAL_PER_DEVICE = { valuation: 1, identification: 3, listing: 1 } as const;
+  const TRIAL_PER_IP_DAY = { valuation: 3, identification: 9, listing: 3 } as const;
+  const TRIAL_PER_DAY = { valuation: 400, identification: 1200, listing: 400 } as const;
+  type TrialKind = keyof typeof TRIAL_PER_DEVICE;
+  const trialCounts = new Map<string, number>();
+  const bump = (key: string): number => {
+    const n = (trialCounts.get(key) ?? 0) + 1;
+    trialCounts.set(key, n);
+    if (trialCounts.size > 50_000) trialCounts.clear();
+    return n;
+  };
+  const trial = async (req: FastifyRequest, reply: FastifyReply, uid: string, kind: TrialKind): Promise<boolean> => {
+    const day = new Date().toISOString().slice(0, 10);
+    const usedHere =
+      kind === 'valuation'
+        ? (await listScans(db, uid, 5)).length
+        : kind === 'identification'
+          ? await identificationsThisMonth(db, uid)
+          : await listingsThisMonth(db, uid);
+    const ip = trialCounts.get(`${day}|${req.ip}|${kind}`) ?? 0;
+    const all = trialCounts.get(`${day}|*|${kind}`) ?? 0;
+    if (usedHere >= TRIAL_PER_DEVICE[kind] || ip >= TRIAL_PER_IP_DAY[kind] || all >= TRIAL_PER_DAY[kind]) {
+      req.log.info({ event: 'trial_used', kind, reason: usedHere >= TRIAL_PER_DEVICE[kind] ? 'device' : ip >= TRIAL_PER_IP_DAY[kind] ? 'ip' : 'global' }, 'trial limit');
+      void reply.code(401).send({ error: 'trial_used', message: 'Sign in with Google to keep going: 10 free checks a month.' });
+      return false;
+    }
+    bump(`${day}|${req.ip}|${kind}`);
+    bump(`${day}|*|${kind}`);
+    if (trialCounts.size % 1000 === 0) for (const k of trialCounts.keys()) if (!k.startsWith(day)) trialCounts.delete(k);
+    return true;
+  };
+  /** Signed-in users pass; guests pass while their trial lasts. Returns the user id or sends the error. */
+  const allowTrial = (kind: TrialKind) => async (req: FastifyRequest, reply: FastifyReply): Promise<string | undefined> => {
+    const uid = await requireUser(req, reply);
+    if (!uid) return undefined;
+    const u = await getUser(db, uid);
+    if (u?.googleSub) return uid;
+    return (await trial(req, reply, uid, kind)) ? uid : undefined;
+  };
+
   const admins = new Set((auth.adminEmails ?? []).map((e) => e.trim().toLowerCase()).filter(Boolean));
   const isAdmin = (email: string | null | undefined): boolean => Boolean(email && admins.has(email.toLowerCase()));
   /** Internal business numbers: signed-in admins only (ADMIN_EMAILS). */
@@ -256,8 +305,9 @@ function enabled(db: Db, log: FastifyBaseLogger, auth: AuthConfig): Persistence 
     requireAdmin,
 
     async requireAccount(req, reply, kind) {
-      const uid = await requireSignedIn(req, reply);
+      const uid = await requireUser(req, reply);
       if (!uid) return false;
+      if (!(await getUser(db, uid))?.googleSub) return trial(req, reply, uid, kind);
       if (kind === 'identification' && billing) {
         const q = await billing.quota(uid);
         const used = await identificationsThisMonth(db, uid);
@@ -274,6 +324,10 @@ function enabled(db: Db, log: FastifyBaseLogger, auth: AuthConfig): Persistence 
         }
       }
       return true;
+    },
+
+    async requireVisitor(req, reply) {
+      return Boolean(await requireUser(req, reply));
     },
 
     async aiMode(req) {
@@ -298,7 +352,7 @@ function enabled(db: Db, log: FastifyBaseLogger, auth: AuthConfig): Persistence 
       registerInventoryRoutes(app, db, requireSignedIn);
       registerReferralRoutes(app, { db, requireSignedIn, requireAdmin });
       if (auth.listingWriter) {
-        registerListingRoutes(app, { db, writer: auth.listingWriter, requireSignedIn, ...(billing && { quota: (uid: string) => billing.quota(uid) }) });
+        registerListingRoutes(app, { db, writer: auth.listingWriter, requireSignedIn, allowTrial: allowTrial('listing'), ...(billing && { quota: (uid: string) => billing.quota(uid) }) });
       }
 
       // ---------- account ----------

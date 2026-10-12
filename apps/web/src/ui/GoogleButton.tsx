@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { track } from '../track.js';
+import { IN_APP } from '../inapp.js';
+import { InAppNotice } from './InAppNotice.js';
 import { LANG, tr } from '../i18n.js';
 
 const T = tr({
@@ -56,7 +58,19 @@ export function signOutGoogle(): void {
 let initializedFor: string | undefined;
 let credentialHandler: ((credential: string) => void) | undefined;
 
-export function GoogleButton({
+/** In TikTok, Instagram and other in-app browsers Google refuses sign-in: show how to open a real browser instead. */
+export function GoogleButton(props: GoogleButtonProps) {
+  if (IN_APP) return <InAppNotice compact={props.compact ?? false} />;
+  return <GoogleButtonInner {...props} />;
+}
+
+interface GoogleButtonProps {
+  clientId: string;
+  onCredential: (credential: string) => void;
+  compact?: boolean;
+}
+
+function GoogleButtonInner({
   clientId,
   onCredential,
   compact = false,

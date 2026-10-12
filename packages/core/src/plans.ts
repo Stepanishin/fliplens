@@ -71,4 +71,7 @@ export const REFERRAL = {
   /** Commission becomes withdrawable after the EU withdrawal period (refunds). */
   holdDays: 14,
   minPayoutMinor: 2000,
+  /** Extra free checks for an invited user during their first 30 days. */
+  inviteeBonusChecks: 10,
+  inviteeBonusDays: 30,
 } as const;

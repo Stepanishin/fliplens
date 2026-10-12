@@ -17,6 +17,7 @@ Key facts:
 - [How it works](https://fliplens.eu/how-it-works): identification, comparables, estimate, fees, verdict and known limits
 - [Pricing](https://fliplens.eu/pricing): Free, Pro and Reseller plans
 - [FAQ](https://fliplens.eu/faq)
+- [Partner programme](https://fliplens.eu/partner): earn 20% of payments from invited users for 6 months
 
 ## Guides
 - [How to check an item's resale value before you buy it](https://fliplens.eu/guides/how-to-check-resale-value): A step-by-step method to find what a second-hand item really resells for in Europe, subtract fees and shipping, and work out the maximum price worth paying.
@@ -37,6 +38,7 @@ Key facts:
 - [Vinted-Anzeigen-Generator](https://fliplens.eu/de/vinted-listing-generator)
 - [Auf Vinted verkaufen](https://fliplens.eu/de/guides/how-to-sell-on-vinted)
 - [Ratgeber](https://fliplens.eu/de/guides)
+- [20 % Provision, 6 Monate lang](https://fliplens.eu/de/partner)
 
 ## Legal
 - [Privacy Policy](https://fliplens.eu/privacy)

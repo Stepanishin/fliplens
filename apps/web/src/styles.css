@@ -688,3 +688,18 @@ button:focus-visible, a:focus-visible, summary:focus-visible { outline: 2.5px so
 .banner.ok { background: var(--accent-soft); color: var(--accent-3); }
 .ref-link { padding: 12px 14px; border-radius: var(--radius-sm); background: var(--surface-2); margin-bottom: 10px; overflow-wrap: anywhere; }
 .ref-link code { font-size: 15px; color: var(--text); }
+
+/* ---------- in-app browser notice ---------- */
+.inapp { display: flex; flex-direction: column; gap: 8px; padding: 14px 16px; border-radius: var(--radius-sm); background: var(--warn-bg); color: var(--warn-text); text-align: left; }
+.inapp p { margin: 0; }
+.inapp .muted { color: inherit; opacity: 0.85; }
+.inapp-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.inapp-actions > * { flex: 1; min-width: 140px; text-align: center; text-decoration: none; }
+button.ghost.small { min-height: 34px; padding: 6px 12px; font-size: 13px; }
+
+/* ---------- share your find ---------- */
+.share-find-btn { margin-top: 10px; }
+.share-note { margin: 8px 0 0; text-align: center; }
+.lp-try { margin-top: 10px; width: 100%; max-width: 360px; }
+.guest-card { border: 1px solid var(--accent); }
+.lp-invite { margin-bottom: 14px; padding: 12px 14px; border-radius: var(--radius-sm); background: var(--accent-soft); color: var(--accent-3); font-weight: 600; font-size: 15px; }

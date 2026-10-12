@@ -46,6 +46,8 @@ export function registerListingRoutes(
     db: Db;
     writer: OpenAIListingWriter;
     requireSignedIn: (req: FastifyRequest, reply: FastifyReply) => Promise<string | undefined>;
+    /** Guests may write one listing from a photo before signing in. */
+    allowTrial?: (req: FastifyRequest, reply: FastifyReply) => Promise<string | undefined>;
     quota?: (userId: string) => Promise<Quota>;
   },
 ): void {
@@ -68,7 +70,7 @@ export function registerListingRoutes(
 
   // Any item, straight from photos: no check, no stock item needed (the "Vinted listing" tool).
   app.post('/api/listing/photo', async (req, reply) => {
-    const uid = await deps.requireSignedIn(req, reply);
+    const uid = await (deps.allowTrial ?? deps.requireSignedIn)(req, reply);
     if (!uid) return;
     const parsed = PhotoBody.safeParse(req.body);
     if (!parsed.success) return reply.code(400).send({ error: 'invalid_request', issues: parsed.error.issues.map((i) => i.message) });

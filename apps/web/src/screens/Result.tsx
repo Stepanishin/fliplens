@@ -8,9 +8,12 @@ import { MarketLinks } from '../MarketLinks.js';
 import { ConfidencePill, DecisionHero, eur, MarketActivity, RangeBar } from '../ui/verdict.js';
 import { IconBag, IconEdit, IconScan, IconSpark } from '../ui/icons.js';
 import { Comparables } from './Comparables.js';
+import { prefetchShareLink, shareFind, type DecisionKey } from '../ui/ShareCard.js';
 
 const T = tr({
   en: {
+    shareFind: 'Share this find',
+    sharing: 'Creating image…',
     notEnough: 'Not enough market data',
     tooFew: (n: number) => `Only ${n} matching listings after filtering (5 needed). We don't guess.`,
     uncertain: 'The product identification is too uncertain to value.',
@@ -53,6 +56,8 @@ const T = tr({
     newScan: 'New scan',
   },
   de: {
+    shareFind: 'Fund teilen',
+    sharing: 'Bild wird erstellt…',
     notEnough: 'Nicht genug Marktdaten',
     tooFew: (n: number) => `Nur ${n} passende Angebote nach dem Filtern (5 nötig). Wir raten nicht.`,
     uncertain: 'Das Produkt ist zu unsicher erkannt, um es zu bewerten.',
@@ -116,6 +121,12 @@ export function Result({ resp, query, country, onNewScan, onEdit, targetRoiPct, 
   // "What if I pay X?": recomputed locally with the same core logic, no new check, no quota.
   const [buyMinor, setBuyMinor] = useState(askedMinor);
   const [tried, setTried] = useState(false);
+  const [sharing, setSharing] = useState(false);
+  const [shareNote, setShareNote] = useState<string | null>(null);
+  // Look up the invite code early, so sharing does not wait for it.
+  useEffect(() => {
+    if (r.status === 'ok') prefetchShareLink();
+  }, [r.status]);
   useEffect(() => setBuyMinor(askedMinor), [askedMinor, resp.scanId]);
 
   if (r.status === 'insufficient_data') {
@@ -254,6 +265,35 @@ export function Result({ resp, query, country, onNewScan, onEdit, targetRoiPct, 
             <IconBag size={20} /> {T.bought(eur(buyMinor))}
           </button>
         )}
+        {showVerdict && (
+          <button
+            type="button"
+            className="ghost wide share-find-btn"
+            disabled={sharing}
+            onClick={async () => {
+              setSharing(true);
+              setShareNote(null);
+              try {
+                const note = await shareFind({
+                  product: query,
+                  boughtMinor: buyMinor,
+                  worthMinor: e.expected.amountMinor,
+                  profitMinor: p.profit.amountMinor,
+                  roiPct: p.roiPct,
+                  decision: decision.decision as DecisionKey,
+                });
+                setShareNote(note);
+              } catch {
+                setShareNote(null);
+              } finally {
+                setSharing(false);
+              }
+            }}
+          >
+            {sharing ? T.sharing : T.shareFind}
+          </button>
+        )}
+        {shareNote && <p className="muted small share-note">{shareNote}</p>}
       </section>
 
       <section className="card">

@@ -356,6 +356,7 @@ async function call<T>(path: string, init?: RequestInit): Promise<T> {
   if (!res.ok) {
     const b = body as { message?: string; error?: string } | null;
     if (res.status === 401 && b?.error === 'sign_in_required') window.dispatchEvent(new Event('fliplens:signed-out'));
+    if (res.status === 401 && b?.error === 'trial_used') window.dispatchEvent(new Event('fliplens:trial-used'));
     throw new ApiError(b?.message ?? b?.error ?? `HTTP ${res.status}`, b?.error, res.status);
   }
   return body as T;
@@ -412,6 +413,7 @@ export const api = {
   googleLogin: (credential: string) =>
     call<{ account: Account }>('/api/auth/google', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ credential, ...(inviteCode() && { invite: inviteCode() }) }) }),
   referral: () => call<ReferralInfo>('/api/referral'),
+  invite: (code: string) => call<{ name: string | null; bonusChecks: number; bonusDays: number }>(`/api/invite/${encodeURIComponent(code)}`),
   requestPayout: (body: { method: 'paypal'; email: string } | { method: 'iban'; holder: string; iban: string }) =>
     call<{ requestedMinor: number }>('/api/referral/payout', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }),
   adminReferrals: () => call<AdminReferrals>('/api/admin/referrals'),

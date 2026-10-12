@@ -156,7 +156,8 @@ app.post('/api/identify', async (req, reply) => {
 app.get('/api/category', async (req, reply) => {
   const q = z.object({ brand: z.string().trim().min(1).max(100), model: z.string().trim().min(1).max(200) }).safeParse(req.query);
   if (!q.success) return reply.code(400).send({ error: 'invalid_request' });
-  if (!(await store.requireAccount(req, reply, 'valuation'))) return reply;
+  // Category hint while typing: free (eBay taxonomy), so it must not count against a guest's trial.
+  if (!(await store.requireVisitor(req, reply))) return reply;
   if (!ebay.isConfigured()) return reply.code(409).send({ error: 'source_not_configured' });
   try {
     return { category: await ebay.suggestCategory(`${q.data.brand} ${q.data.model}`) };

@@ -104,3 +104,11 @@ Status: accepted 2026-10-12 (product owner decision: 20%, 6 months, no promo cod
 - Commission: `REFERRAL.sharePct` (20%) of each paid invoice of the invited user, without tax, for `REFERRAL.months` (6) after their first commissioned payment. Recorded from the Stripe `invoice.paid` webhook, once per invoice.
 - Earnings are held `REFERRAL.holdDays` (14, the withdrawal period), then become available. Refunds: an admin reverses the commission in the admin screen (automatic matching of refunds to invoices is not reliable on the current Stripe API).
 - Payouts: the user requests the whole available balance (minimum €20) by PayPal or IBAN; the admin pays by hand and marks it paid or rejected. Terms section 7 and the Privacy Policy describe the programme and the payout data.
+
+## ADR-019: Ready for creator traffic
+Status: accepted 2026-10-12.
+- **In-app browsers.** Google blocks sign-in inside TikTok, Instagram, Facebook and similar WebViews. They are detected from the user agent (`apps/web/src/inapp.ts`); instead of the Google button the visitor sees how to open the page in a real browser, "Open in Chrome" (Android intent link) and "Copy link".
+- **Try without signing in** (changes ADR-013). Guests get one check (up to 3 recognition attempts) and one photo listing per device, capped per IP per day (3 / 9 / 3) and per day overall (400 / 1200 / 400), so a viral video cannot run up the AI bill. Beyond that the API answers 401 `trial_used` and the app asks to sign in; guest data moves into the account on sign-in. The category hint while typing is free and does not count.
+- **Invitee bonus.** People who sign up through an invite link get `REFERRAL.inviteeBonusChecks` (10) extra free checks for `inviteeBonusDays` (30). The landing page names the inviter by first name only (`GET /api/invite/:code`).
+- **Share your find.** The result screen renders a 1080x1350 card in the browser (no upload) with the user's invite link, shared via the system share sheet or downloaded.
+- **Partner page** `/partner` and `/de/partner` explain the programme for creators.

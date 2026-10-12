@@ -1,4 +1,5 @@
 import { deviceId } from './storage.js';
+import { IN_APP } from './inapp.js';
 
 /**
  * First-party product analytics (spec section 62). Batched, fire-and-forget, never blocks the UI.
@@ -84,5 +85,6 @@ export function trackVisit(): void {
     standalone: window.matchMedia('(display-mode: standalone)').matches,
     lang: navigator.language.slice(0, 2),
     invite,
+    inapp: IN_APP ? (IN_APP.app ?? 'webview') : null,
   });
 }

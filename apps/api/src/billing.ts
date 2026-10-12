@@ -103,7 +103,10 @@ export function createBilling(db: Db, cfg: BillingConfig, log: FastifyBaseLogger
   async function quota(userId: string): Promise<Quota> {
     const plan = effectivePlan(await getSubscription(db, userId));
     const used = await valuationsThisMonth(db, userId);
-    const limit = PLANS[plan].monthlyValuations;
+    // Invited users get extra free checks during their first days (referral programme).
+    const u = plan === 'free' ? await getUser(db, userId) : undefined;
+    const bonus = u?.referredAt && Date.now() - u.referredAt.getTime() < REFERRAL.inviteeBonusDays * 86_400_000 ? REFERRAL.inviteeBonusChecks : 0;
+    const limit = PLANS[plan].monthlyValuations + bonus;
     return { plan, used, limit, remaining: Math.max(0, limit - used) };
   }
 

@@ -278,7 +278,7 @@ function TermsOfServiceEn() {
         request a payout once at least {money(REFERRAL.minPayoutMinor)} is available, by PayPal or bank transfer; we usually pay within 14 days.
         Inviting yourself, creating several accounts, misleading advertising, spam and bidding on the FlipLens name in search ads are not allowed;
         earnings from such activity are cancelled. You are responsible for any taxes on your earnings and, where required, for labelling your posts
-        as advertising. We may change or end the programme for the future; earnings already available will still be paid.
+        as advertising. People who sign up through an invite link get {REFERRAL.inviteeBonusChecks} extra free checks during their first {REFERRAL.inviteeBonusDays} days. We may change or end the programme for the future; earnings already available will still be paid.
       </p>
 
       <h2>8. Third-party services</h2>
@@ -516,7 +516,7 @@ function TermsOfServiceDe() {
         zurückgebucht wird. Eine Auszahlung können Sie anfordern, sobald mindestens {money(REFERRAL.minPayoutMinor)} auszahlbar sind, per PayPal oder
         Überweisung; wir zahlen in der Regel innerhalb von 14 Tagen. Nicht erlaubt sind Selbsteinladungen, mehrere Konten, irreführende Werbung,
         Spam und Suchanzeigen auf den Namen FlipLens; Einnahmen aus solchen Aktivitäten verfallen. Für Steuern auf Ihre Einnahmen und, soweit
-        erforderlich, für die Kennzeichnung Ihrer Beiträge als Werbung sind Sie selbst verantwortlich. Wir können das Programm für die Zukunft
+        erforderlich, für die Kennzeichnung Ihrer Beiträge als Werbung sind Sie selbst verantwortlich. Wer sich über einen Einladungslink anmeldet, erhält in den ersten {REFERRAL.inviteeBonusDays} Tagen {REFERRAL.inviteeBonusChecks} zusätzliche kostenlose Checks. Wir können das Programm für die Zukunft
         ändern oder beenden; bereits auszahlbare Einnahmen werden weiterhin ausgezahlt.
       </p>
 

@@ -6,7 +6,7 @@ import { track } from '../track.js';
 const T = tr({
   en: {
     title: 'Invite friends, earn money',
-    lead: (pct: number, months: number) => `You get ${pct}% of everything the people you invite pay for FlipLens during their first ${months} months.`,
+    lead: (pct: number, months: number) => `You get ${pct}% of everything the people you invite pay for FlipLens during their first ${months} months. They get extra free checks in their first month.`,
     yourLink: 'Your invite link',
     copy: 'Copy',
     copied: 'Copied',
@@ -50,7 +50,7 @@ const T = tr({
   },
   de: {
     title: 'Freunde einladen, Geld verdienen',
-    lead: (pct: number, months: number) => `Du bekommst ${pct} % von allem, was die Leute, die du einlädst, in ihren ersten ${months} Monaten für FlipLens bezahlen.`,
+    lead: (pct: number, months: number) => `Du bekommst ${pct} % von allem, was die Leute, die du einlädst, in ihren ersten ${months} Monaten für FlipLens bezahlen. Sie bekommen im ersten Monat zusätzliche kostenlose Checks.`,
     yourLink: 'Dein Einladungslink',
     copy: 'Kopieren',
     copied: 'Kopiert',

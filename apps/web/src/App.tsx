@@ -6,6 +6,7 @@ import { Landing } from './screens/Landing.js';
 import { Admin } from './screens/Admin.js';
 import { Inventory } from './screens/Inventory.js';
 import { QuickListing } from './screens/QuickListing.js';
+import { GoogleButton } from './ui/GoogleButton.js';
 import { Referral } from './screens/Referral.js';
 import { BoughtSheet } from './ui/BoughtSheet.js';
 import { ListingSheet } from './ui/ListingSheet.js';
@@ -57,6 +58,9 @@ type Route =
 
 const T = tr({
   en: {
+    guestTitle: 'Save your checks',
+    guestText: 'Sign in with Google to keep this check and get 10 free checks every month. No password, no card.',
+    guestGate: 'Sign in to see your checks and stock.',
     titles: { confirm: 'Identify', price: 'Price', result: 'Verdict', scan: 'Saved scan', profile: 'Profile', admin: 'Admin', listing: 'Write listing', referral: 'Invite friends' } as Partial<Record<string, string>>,
     steps: ['Identify', 'Price', 'Verdict'] as readonly string[],
     step: (n: number, of: number) => `Step ${n} of ${of}`,
@@ -77,6 +81,9 @@ const T = tr({
     scanCamera: 'Scan item with the camera',
   },
   de: {
+    guestTitle: 'Speicher deine Checks',
+    guestText: 'Melde dich mit Google an, um diesen Check zu behalten und jeden Monat 10 kostenlose Checks zu bekommen. Kein Passwort, keine Karte.',
+    guestGate: 'Melde dich an, um deine Checks und dein Lager zu sehen.',
     titles: { confirm: 'Erkennen', price: 'Preis', result: 'Ergebnis', scan: 'Gespeicherter Scan', profile: 'Profil', admin: 'Admin', listing: 'Anzeige schreiben', referral: 'Freunde einladen' } as Partial<Record<string, string>>,
     steps: ['Erkennen', 'Preis', 'Ergebnis'] as readonly string[],
     step: (n: number, of: number) => `Schritt ${n} von ${of}`,
@@ -136,6 +143,14 @@ export function App() {
   /** The public start page, also reachable when signed in (/welcome, "About FlipLens"). */
   const [welcome, setWelcome] = useState(() => window.location.pathname === '/welcome');
   const [authError, setAuthError] = useState<string | null>(null);
+  // Guests try the app without an account (one check or listing); the server enforces the limit.
+  const [guest, setGuest] = useState(() => {
+    try {
+      return sessionStorage.getItem('fliplens.guest') === '1';
+    } catch {
+      return false;
+    }
+  });
   const [billing, setBilling] = useState<BillingInfo | null>(null);
   const [plansNotice, setPlansNotice] = useState<string | null>(null);
   const dbOn = health?.db === 'connected';
@@ -222,6 +237,17 @@ export function App() {
     return () => window.removeEventListener('fliplens:signed-out', onSignedOut);
   }, []);
 
+  // A guest used up the free try: ask them to sign in (Profile shows the Google button and this message).
+  useEffect(() => {
+    const onTrialUsed = () => {
+      track('trial_used', {});
+      setAuthError(errorText({ code: 'trial_used' }));
+      tab({ name: 'profile' });
+    };
+    window.addEventListener('fliplens:trial-used', onTrialUsed);
+    return () => window.removeEventListener('fliplens:trial-used', onTrialUsed);
+  }, [tab]);
+
   // Back from Stripe Checkout: the webhook may land a moment later, so poll billing briefly.
   useEffect(() => {
     const status = new URLSearchParams(window.location.search).get('billing');
@@ -254,7 +280,13 @@ export function App() {
     try {
       const r = await api.googleLogin(credential);
       setAccount(r.account);
-      track('signed_in', { provider: 'google' });
+      track('signed_in', { provider: 'google', guest });
+      try {
+        sessionStorage.removeItem('fliplens.guest');
+      } catch {
+        // ignore
+      }
+      setGuest(false);
       loadAccountState();
     } catch (e) {
       setAuthError(errorText(e, T.signInFailed));
@@ -428,7 +460,7 @@ export function App() {
   const activeTab = route.name === 'history' || route.name === 'scan' ? 'history' : route.name === 'profile' ? 'profile' : route.name === 'plans' ? 'plans' : route.name === 'inventory' ? 'inventory' : 'home';
 
   // Signed-in only: without an account the start page is all there is (with a database; local dev without one stays open).
-  const showLanding = (dbOn && meLoaded && !account) || welcome;
+  const showLanding = (dbOn && meLoaded && !account && !guest) || welcome;
 
   // Page views for the admin traffic report (screen names only, nothing typed by the user).
   const pageName = showLanding ? 'landing' : route.name;
@@ -465,6 +497,16 @@ export function App() {
     go({ name: 'listing' });
   }, [account, go]);
 
+  const isGuest = dbOn && meLoaded && !account;
+  const guestCard = (text: string) => (
+    <section className="card guest-card">
+      <h2>{T.guestTitle}</h2>
+      <p className="muted">{text}</p>
+      {health?.auth.google && <GoogleButton clientId={health.auth.google} onCredential={(c) => void signIn(c)} />}
+      {authError && <div className="banner bad">{authError}</div>}
+    </section>
+  );
+
   if (showLanding) {
     return (
       <Landing
@@ -477,6 +519,17 @@ export function App() {
         googleClientId={health?.auth.google ?? null}
         authError={authError}
         onGoogleCredential={(c) => void signIn(c)}
+        onTry={() => {
+          try {
+            sessionStorage.setItem('fliplens.guest', '1');
+          } catch {
+            // storage blocked: guest mode lasts for this page only
+          }
+          track('guest_started', {});
+          setGuest(true);
+          setWelcome(false);
+          window.scrollTo(0, 0);
+        }}
       />
     );
   }
@@ -593,12 +646,14 @@ export function App() {
             }}
           >
             {devTools && isAdmin && draft.photos.length > 0 && <BenchmarkAdd photos={draft.photos} request={buildRequest(draft, settings)} />}
+            {isGuest && guestCard(T.guestText)}
           </Result>
         )}
         {route.name === 'plans' && <Plans billing={billing} account={account} notice={plansNotice} onSignIn={() => tab({ name: 'profile' })} />}
         {route.name === 'admin' && isAdmin && <Admin />}
-        {route.name === 'inventory' && <Inventory settings={settings} onCreateListing={setListingFor} />}
-        {route.name === 'history' && <History scans={scans} dbOn={dbOn} onOpen={(s) => go({ name: 'scan', scan: s })} />}
+        {isGuest && (route.name === 'inventory' || route.name === 'history') && guestCard(T.guestGate)}
+        {route.name === 'inventory' && !isGuest && <Inventory settings={settings} onCreateListing={setListingFor} />}
+        {route.name === 'history' && !isGuest && <History scans={scans} dbOn={dbOn} onOpen={(s) => go({ name: 'scan', scan: s })} />}
         {route.name === 'scan' && (
           <ScanDetail
             scan={route.scan}

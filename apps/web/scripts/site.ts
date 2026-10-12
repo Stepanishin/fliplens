@@ -8,7 +8,7 @@
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { PLANS } from '@fliplens/core';
+import { PLANS, REFERRAL } from '@fliplens/core';
 import { LEGAL } from '../src/legal.js';
 import { PLAN_FEATURES_BY_LANG } from '../src/i18n.js';
 
@@ -418,6 +418,60 @@ PAGES.push({
 
 // ---------- German ----------
 
+// ---------- partner programme (referrals) ----------
+
+/** Example earnings: 50 invited people on Pro. */
+const EXAMPLE_PEOPLE = 50;
+const exampleMinor = Math.round((EXAMPLE_PEOPLE * PLANS.pro.priceMonthlyMinor * REFERRAL.sharePct) / 100);
+const INVITE_BONUS_CHECKS = REFERRAL.inviteeBonusChecks;
+
+PAGES.push({
+  path: '/partner',
+  kind: 'page',
+  crumb: 'Partner programme',
+  cta: `<p class="cta"><a class="btn" href="/">Get your link</a><span>Sign in with Google, open Profile, "Invite friends". Free to join.</span></p>`,
+  title: `FlipLens partner programme: earn ${REFERRAL.sharePct}% for ${REFERRAL.months} months`,
+  description: `Recommend FlipLens to resellers and earn ${REFERRAL.sharePct}% of every payment from the people you invite, for ${REFERRAL.months} months. Your audience gets ${INVITE_BONUS_CHECKS} extra free checks. Payouts from ${eur(REFERRAL.minPayoutMinor)}.`,
+  h1: `Earn ${REFERRAL.sharePct}% for ${REFERRAL.months} months`,
+  lead: 'Make videos about flea market finds, flips or selling on Vinted? Show your audience FlipLens and earn from every person who subscribes through your link.',
+  sections: [
+    {
+      h2: 'Who it is for',
+      html: '<p>Resellers and creators on TikTok, Instagram and YouTube who post about flea markets, thrift finds, flipping electronics or selling on Vinted, eBay and Kleinanzeigen. Normal users can join too: everyone with a FlipLens account gets an invite link.</p>',
+    },
+    {
+      h2: 'What you earn',
+      html: `<ul><li><strong>${REFERRAL.sharePct}% of every payment</strong> made by people who sign up with your link, without taxes.</li><li>For <strong>${REFERRAL.months} months</strong> from each person's first payment, renewals included.</li><li>Earnings become available ${REFERRAL.holdDays} days after each payment (the refund period).</li><li>Payouts from ${eur(REFERRAL.minPayoutMinor)} by PayPal or bank transfer, requested in the app.</li></ul><p>Example: ${EXAMPLE_PEOPLE} people on Pro (${eur(PLANS.pro.priceMonthlyMinor)} a month) bring you about <strong>${eur(exampleMinor)} a month</strong> for ${REFERRAL.months} months.</p>`,
+    },
+    {
+      h2: 'What your audience gets',
+      html: `<p>People who create a new account with your link get <strong>${INVITE_BONUS_CHECKS} extra free checks</strong> in their first month, on top of the free plan. They can check what an item resells for, see their profit after fees and write Vinted, eBay or Kleinanzeigen listings from a photo.</p>`,
+    },
+    {
+      h2: 'How to join',
+      html: `<ol><li>Sign in at <a href="/">fliplens.eu</a> with Google.</li><li>Open Profile, then "Invite friends".</li><li>Copy your link (fliplens.eu/?ref=yourcode) and share it in your bio, videos and stories.</li></ol><p>Want a custom code such as <code>?ref=anna</code>? Write to <a href="mailto:${LEGAL.supportEmail}">${LEGAL.supportEmail}</a> after signing in.</p>`,
+    },
+    {
+      h2: 'Content ideas',
+      html: '<ul><li>Flea market check: "Is it worth buying?" with the verdict on screen.</li><li>Before and after flips with the real profit.</li><li>"I turned this into a Vinted listing in 10 seconds."</li><li>Share-your-find cards from the app in your stories.</li></ul>',
+    },
+    {
+      h2: 'Rules',
+      html: '<ul><li>Label sponsored content as advertising (in Germany "Werbung" or "Anzeige").</li><li>No misleading claims about earnings or results, no spam.</li><li>No search ads on the FlipLens name, no self-referrals or extra accounts.</li></ul><p>Full rules: <a href="/terms">Terms</a>, section "Referral programme".</p>',
+    },
+    {
+      h2: 'Brand assets',
+      html: '<p><a href="/og.png">Preview image (1200×630)</a> · <a href="/icons/icon-512.png">App icon (512×512)</a></p>',
+    },
+  ],
+  faq: [
+    { q: 'Does it cost anything to join?', a: 'No. Every signed-in user has an invite link, and the free plan is enough to take part.' },
+    { q: 'How long do I earn from a person I invite?', a: `${REFERRAL.months} months from their first payment. You receive ${REFERRAL.sharePct}% of every payment in that time, renewals included.` },
+    { q: 'When and how do I get paid?', a: `Earnings become available ${REFERRAL.holdDays} days after each payment. From ${eur(REFERRAL.minPayoutMinor)} you can request a payout by PayPal or bank transfer in the app; it is usually paid within 14 days.` },
+    { q: 'Who pays taxes on my earnings?', a: 'You do. Earnings are paid without tax deductions; declare them as required in your country.' },
+  ],
+});
+
 type Lang = 'en' | 'de';
 
 /** Public URL of a page in a language: English at the root, German under /de. */
@@ -792,12 +846,60 @@ PAGES_DE.push({
 
 // ---------- rendering ----------
 
+PAGES_DE.push({
+  path: '/partner',
+  kind: 'page',
+  crumb: 'Partnerprogramm',
+  cta: `<p class="cta"><a class="btn" href="/de">Hol dir deinen Link</a><span>Mit Google anmelden, Profil öffnen, "Freunde einladen". Kostenlos.</span></p>`,
+  title: `FlipLens Partnerprogramm: ${REFERRAL.sharePct} % Provision für ${REFERRAL.months} Monate`,
+  description: `Empfiehl FlipLens Resellern und verdiene ${REFERRAL.sharePct} % jeder Zahlung der Leute, die du einlädst, ${REFERRAL.months} Monate lang. Deine Community bekommt ${INVITE_BONUS_CHECKS} zusätzliche Gratis-Checks. Auszahlung ab ${deEur(REFERRAL.minPayoutMinor)}.`,
+  h1: `${REFERRAL.sharePct} % Provision, ${REFERRAL.months} Monate lang`,
+  lead: 'Du machst Videos über Flohmarktfunde, Flips oder Verkaufen auf Vinted? Zeig deiner Community FlipLens und verdiene an jeder Person, die über deinen Link ein Abo abschließt.',
+  sections: [
+    {
+      h2: 'Für wen',
+      html: '<p>Reseller und Creator auf TikTok, Instagram und YouTube, die über Flohmärkte, Second-Hand-Funde, Elektronik-Flips oder Verkaufen auf Vinted, eBay und Kleinanzeigen posten. Auch ganz normale Nutzer können mitmachen: Jedes FlipLens-Konto hat einen Einladungslink.</p>',
+    },
+    {
+      h2: 'Was du verdienst',
+      html: `<ul><li><strong>${REFERRAL.sharePct} % jeder Zahlung</strong> der Leute, die sich über deinen Link registrieren, ohne Steuern.</li><li><strong>${REFERRAL.months} Monate lang</strong> ab der ersten Zahlung der jeweiligen Person, Verlängerungen inklusive.</li><li>Einnahmen werden ${REFERRAL.holdDays} Tage nach jeder Zahlung auszahlbar (Widerrufsfrist).</li><li>Auszahlung ab ${deEur(REFERRAL.minPayoutMinor)} per PayPal oder Überweisung, direkt in der App anfragen.</li></ul><p>Beispiel: ${EXAMPLE_PEOPLE} Leute mit Pro (${deEur(PLANS.pro.priceMonthlyMinor)} im Monat) bringen dir etwa <strong>${deEur(exampleMinor)} im Monat</strong>, ${REFERRAL.months} Monate lang.</p>`,
+    },
+    {
+      h2: 'Was deine Community bekommt',
+      html: `<p>Wer über deinen Link ein neues Konto anlegt, bekommt im ersten Monat <strong>${INVITE_BONUS_CHECKS} zusätzliche Gratis-Checks</strong>, zusätzlich zum kostenlosen Tarif. Damit prüft man, wofür sich ein Artikel weiterverkaufen lässt, sieht den Gewinn nach Gebühren und schreibt aus einem Foto Anzeigen für Vinted, eBay oder Kleinanzeigen.</p>`,
+    },
+    {
+      h2: "So machst du mit",
+      html: `<ol><li>Melde dich auf <a href="/de">fliplens.eu</a> mit Google an.</li><li>Öffne Profil und dann "Freunde einladen".</li><li>Kopier deinen Link (fliplens.eu/de?ref=deincode) und teil ihn in Bio, Videos und Storys.</li></ol><p>Du möchtest einen eigenen Code wie <code>?ref=anna</code>? Schreib nach der Anmeldung an <a href="mailto:${LEGAL.supportEmail}">${LEGAL.supportEmail}</a>.</p>`,
+    },
+    {
+      h2: 'Ideen für Content',
+      html: '<ul><li>Flohmarkt-Check: "Lohnt sich der Kauf?" mit dem Urteil im Bild.</li><li>Vorher-nachher-Flips mit dem echten Gewinn.</li><li>"Daraus habe ich in 10 Sekunden eine Vinted-Anzeige gemacht."</li><li>Fund-Karten aus der App in deinen Storys teilen.</li></ul>',
+    },
+    {
+      h2: 'Regeln',
+      html: '<ul><li>Kennzeichne gesponserte Inhalte als Werbung ("Werbung" oder "Anzeige").</li><li>Keine irreführenden Versprechen zu Gewinnen oder Ergebnissen, kein Spam.</li><li>Keine Suchanzeigen auf den Namen FlipLens, keine Selbsteinladungen oder Zweitkonten.</li></ul><p>Alle Regeln: <a href="/terms">Nutzungsbedingungen</a>, Abschnitt "Empfehlungsprogramm".</p>',
+    },
+    {
+      h2: 'Markenmaterial',
+      html: '<p><a href="/og.png">Vorschaubild (1200×630)</a> · <a href="/icons/icon-512.png">App-Icon (512×512)</a></p>',
+    },
+  ],
+  faq: [
+    { q: 'Kostet die Teilnahme etwas?', a: 'Nein. Jeder angemeldete Nutzer hat einen Einladungslink, der kostenlose Tarif reicht zum Mitmachen.' },
+    { q: 'Wie lange verdiene ich an einer eingeladenen Person?', a: `${REFERRAL.months} Monate ab ihrer ersten Zahlung. Du bekommst ${REFERRAL.sharePct} % jeder Zahlung in dieser Zeit, Verlängerungen inklusive.` },
+    { q: 'Wann und wie werde ich ausgezahlt?', a: `Einnahmen werden ${REFERRAL.holdDays} Tage nach jeder Zahlung auszahlbar. Ab ${deEur(REFERRAL.minPayoutMinor)} kannst du in der App eine Auszahlung per PayPal oder Überweisung anfragen; sie erfolgt in der Regel innerhalb von 14 Tagen.` },
+    { q: 'Wer zahlt Steuern auf meine Einnahmen?', a: 'Du selbst. Einnahmen werden ohne Steuerabzug ausgezahlt; gib sie so an, wie es in deinem Land vorgeschrieben ist.' },
+  ],
+});
+
 const UI = {
   en: {
     nav: [['/how-it-works', 'How it works'], ['/pricing', 'Pricing'], ['/guides', 'Guides'], ['/faq', 'FAQ']] as const,
     tryFree: 'Try free',
     privacy: 'Privacy',
     terms: 'Terms',
+    partner: 'Partner programme',
     disclaimer: 'FlipLens is not affiliated with eBay. eBay data shown via the eBay API.',
     questions: 'Questions',
     answers: 'Answers',
@@ -812,6 +914,7 @@ const UI = {
     tryFree: 'Gratis testen',
     privacy: 'Datenschutz',
     terms: 'Nutzungsbedingungen',
+    partner: 'Partnerprogramm',
     disclaimer: 'FlipLens gehört nicht zu eBay. eBay-Daten werden über die eBay-API angezeigt.',
     questions: 'Fragen',
     answers: 'Antworten',
@@ -830,7 +933,7 @@ function nav(lang: Lang, path: string): string {
 
 function footer(lang: Lang, path: string): string {
   const u = UI[lang];
-  const links = [...u.nav.map(([p, n]) => `<a href="${href(lang, p)}">${n}</a>`), `<a href="/privacy">${u.privacy}</a>`, `<a href="/terms">${u.terms}</a>`, `<a href="mailto:${LEGAL.supportEmail}">${LEGAL.supportEmail}</a>`];
+  const links = [...u.nav.map(([p, n]) => `<a href="${href(lang, p)}">${n}</a>`), `<a href="${href(lang, '/partner')}">${u.partner}</a>`, `<a href="/privacy">${u.privacy}</a>`, `<a href="/terms">${u.terms}</a>`, `<a href="mailto:${LEGAL.supportEmail}">${LEGAL.supportEmail}</a>`];
   const switcher = lang === 'en' ? `English | <a href="${href('de', path)}" hreflang="de" lang="de">Deutsch</a>` : `<a href="${href('en', path)}" hreflang="en" lang="en">English</a> | Deutsch`;
   return `<footer><p>${links.join(' · ')}</p><p>${switcher}</p><p>© ${new Date().getFullYear()} ${esc(LEGAL.operator)}. ${u.disclaimer}</p></footer>`;
 }
@@ -967,7 +1070,7 @@ function homePrerender(): string {
       ${COMMON_FAQ.map((f) => `<h3>${esc(f.q)}</h3><p>${esc(f.a)}</p>`).join('')}
       <h2>Guides</h2>
       <ul>${GUIDES.map((g) => `<li><a href="${g.path}">${esc(g.h1)}</a></li>`).join('')}</ul>
-      <p><a href="/privacy">Privacy Policy</a> · <a href="/terms">Terms of Service</a> · Not affiliated with eBay.</p>
+      <p><a href="/partner">Partner programme: earn ${REFERRAL.sharePct}% for ${REFERRAL.months} months</a> · <a href="/privacy">Privacy Policy</a> · <a href="/terms">Terms of Service</a> · Not affiliated with eBay.</p>
     </div>`;
 }
 
@@ -987,7 +1090,7 @@ function homePrerenderDe(): string {
       ${COMMON_FAQ_DE.map((f) => `<h3>${esc(f.q)}</h3><p>${esc(f.a)}</p>`).join('')}
       <h2>Ratgeber</h2>
       <ul>${GUIDES_DE.map((g) => `<li><a href="${href('de', g.path)}">${esc(g.h1)}</a></li>`).join('')}</ul>
-      <p><a href="/privacy">Datenschutz</a> · <a href="/terms">Nutzungsbedingungen</a> · FlipLens gehört nicht zu eBay.</p>
+      <p><a href="/de/partner">Partnerprogramm: ${REFERRAL.sharePct} % Provision für ${REFERRAL.months} Monate</a> · <a href="/privacy">Datenschutz</a> · <a href="/terms">Nutzungsbedingungen</a> · FlipLens gehört nicht zu eBay.</p>
     </div>`;
 }
 
@@ -1053,6 +1156,7 @@ Key facts:
 - [How it works](${SITE}/how-it-works): identification, comparables, estimate, fees, verdict and known limits
 - [Pricing](${SITE}/pricing): Free, Pro and Reseller plans
 - [FAQ](${SITE}/faq)
+- [Partner programme](${SITE}/partner): earn ${REFERRAL.sharePct}% of payments from invited users for ${REFERRAL.months} months
 
 ## Guides
 ${GUIDES.map((g) => `- [${g.h1}](${SITE}${g.path}): ${g.description}`).join('\n')}

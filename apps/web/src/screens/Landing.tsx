@@ -1,5 +1,8 @@
+import { useEffect, useState } from 'react';
 import { PLANS } from '@fliplens/core';
 import { GoogleButton } from '../ui/GoogleButton.js';
+import { api } from '../api.js';
+import { inviteCode } from '../track.js';
 import { track } from '../track.js';
 import { LANG, money, planFeatures, setLang, tr } from '../i18n.js';
 import { IconBarcode, IconCamera, IconCheck, IconClock, IconEdit, IconScan, IconSpark } from '../ui/icons.js';
@@ -11,6 +14,8 @@ interface Props {
   googleClientId: string | null;
   authError: string | null;
   onGoogleCredential: (credential: string) => void;
+  /** Enter the app as a guest (one free check or listing). */
+  onTry?: () => void;
 }
 
 const eur = (minor: number): string => money(minor, minor % 100 === 0 ? 0 : 2);
@@ -20,6 +25,9 @@ const page = (path: string): string => (LANG === 'de' ? `/de${path}` : path);
 
 const T = tr({
   en: {
+    invited: (name: string | null, n: number) => `${name ? `${name} recommends FlipLens` : 'You were invited to FlipLens'}: sign up now and get +${n} free checks in your first month.`,
+    tryNow: 'Try it now, no sign-in',
+    tryNote: 'One free check or listing, no account needed.',
     openApp: 'Open app',
     noSignIn: 'Sign-in is not configured on this server.',
     navHow: 'How it works',
@@ -89,6 +97,9 @@ const T = tr({
     language: 'Language',
   },
   de: {
+    invited: (name: string | null, n: number) => `${name ? `${name} empfiehlt FlipLens` : 'Du wurdest zu FlipLens eingeladen'}: Melde dich jetzt an und bekomm +${n} kostenlose Checks im ersten Monat.`,
+    tryNow: 'Jetzt ausprobieren, ohne Anmeldung',
+    tryNote: 'Ein kostenloser Check oder eine Anzeige, ganz ohne Konto.',
     openApp: 'App öffnen',
     noSignIn: 'Die Anmeldung ist auf diesem Server nicht eingerichtet.',
     navHow: 'So funktioniert es',
@@ -160,7 +171,14 @@ const T = tr({
 });
 
 /** Public start page for signed-out visitors: what it does, how, what it costs, and a way in. */
-export function Landing({ signedIn, onOpenApp, googleClientId, authError, onGoogleCredential }: Props) {
+export function Landing({ signedIn, onOpenApp, googleClientId, authError, onGoogleCredential, onTry }: Props) {
+  // Invite link (?ref=): name the person who invited and the welcome bonus.
+  const [invite, setInvite] = useState<{ name: string | null; bonusChecks: number } | null>(null);
+  useEffect(() => {
+    const code = inviteCode();
+    if (!code || signedIn) return;
+    api.invite(code).then(setInvite, () => undefined);
+  }, [signedIn]);
   const toSignIn = () => {
     track('cta_clicked', { signedIn });
     if (signedIn) onOpenApp();
@@ -191,12 +209,19 @@ export function Landing({ signedIn, onOpenApp, googleClientId, authError, onGoog
 
       <section className="lp-hero">
         <div className="lp-hero-copy">
+          {invite && <div className="lp-invite">🎁 {T.invited(invite.name, invite.bonusChecks)}</div>}
           <span className="lp-badge"><IconSpark size={14} /> {T.badge}</span>
           <h1>{T.h1a}<span>{T.h1b}</span></h1>
           <p className="lp-lead">{T.lead}</p>
           <div className="lp-cta">
             {signIn}
             {!signedIn && <p className="lp-free-note">{T.freeNote(PLANS.free.monthlyValuations)}</p>}
+            {!signedIn && onTry && (
+              <>
+                <button type="button" className="ghost lp-try" onClick={onTry}>{T.tryNow}</button>
+                <p className="muted small">{T.tryNote}</p>
+              </>
+            )}
           </div>
           {!signedIn && <p className="muted small lp-consent">
             {T.consentA}<a href="/terms">{T.terms}</a>{T.and}<a href="/privacy">{T.privacy}</a>{T.consentB}

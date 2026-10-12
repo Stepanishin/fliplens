@@ -6,6 +6,8 @@ import {
   adminReferrerCommissions,
   adminReferrers,
   decideReferralPayout,
+  getUser,
+  userIdByReferralCode,
   referralSummary,
   requestReferralPayout,
   reverseReferralCommission,
@@ -26,6 +28,17 @@ type AdminGuard = (req: FastifyRequest, reply: FastifyReply) => Promise<boolean>
 
 export function registerReferralRoutes(app: FastifyInstance, deps: { db: Db; requireSignedIn: Guard; requireAdmin: AdminGuard }): void {
   const { db } = deps;
+
+  // Public: who invited this visitor (first name only) and the welcome bonus, for the landing banner.
+  app.get('/api/invite/:code', async (req, reply) => {
+    const code = z.string().trim().toLowerCase().max(40).safeParse((req.params as { code?: string }).code);
+    if (!code.success) return reply.code(400).send({ error: 'invalid_code' });
+    const uid = await userIdByReferralCode(db, code.data);
+    if (!uid) return reply.code(404).send({ error: 'unknown_code' });
+    const u = await getUser(db, uid);
+    const first = u?.name?.trim().split(/\s+/)[0] ?? null;
+    return { name: first, bonusChecks: REFERRAL.inviteeBonusChecks, bonusDays: REFERRAL.inviteeBonusDays };
+  });
 
   app.get('/api/referral', async (req, reply) => {
     const uid = await deps.requireSignedIn(req, reply);
