@@ -311,7 +311,9 @@ export function createBilling(db: Db, cfg: BillingConfig, log: FastifyBaseLogger
             case 'customer.subscription.created':
             case 'customer.subscription.updated':
             case 'customer.subscription.deleted':
-              await syncSubscription(event.data.object);
+              // Re-read in our API version: webhook payloads follow the endpoint's (possibly older) version, where fields
+              // such as current_period_end live elsewhere.
+              await syncSubscription(await stripe.subscriptions.retrieve(event.data.object.id));
               break;
             default:
               break;
