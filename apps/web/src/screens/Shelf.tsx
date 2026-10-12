@@ -82,7 +82,7 @@ export function Shelf({ photo, settings, onOpenScan, onCheckItem, onUpgrade, onS
     const timers = [window.setTimeout(() => live && setPhase(1), 4000), window.setTimeout(() => live && setPhase(2), 12000)];
     track('shelf_scan_started', {});
     api
-      .shelfScan({ image: photo, preset: settings.preset, shippingCost: settings.shippingCost, targetRoiPct: settings.targetRoiPct })
+      .shelfScan({ image: photo, preset: settings.preset, shippingCost: settings.shippingCost, targetRoiPct: settings.targetRoiPct, country: settings.country })
       .then(
         (r) => {
           if (!live) return;
@@ -95,7 +95,7 @@ export function Shelf({ photo, settings, onOpenScan, onCheckItem, onUpgrade, onS
       live = false;
       timers.forEach((t) => window.clearTimeout(t));
     };
-  }, [photo, settings.preset, settings.shippingCost, settings.targetRoiPct]);
+  }, [photo, settings.preset, settings.shippingCost, settings.targetRoiPct, settings.country]);
 
   // Number items in the photo by position in the ranked list.
   const ranked = useMemo(() => (res ? [...res.items].sort((a, b) => rank(b) - rank(a)) : []), [res]);

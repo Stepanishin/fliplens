@@ -6,6 +6,8 @@ import {
   CURRENCIES,
   FEE_PRESETS,
   resolveFeeProfile,
+  feeProfileIn,
+  marketFor,
   money,
   PRICING_ALGORITHM_VERSION,
   valuate,
@@ -81,6 +83,8 @@ const ValuationBody = z.object({
   purchasePrice: z.number().min(0).max(100_000).optional(),
   currency: z.enum(CURRENCIES).default('EUR'),
   preset: z.enum(presetIds).default('ebay_de_private'),
+  /** The user's country: decides the eBay site(s) and the currency (GB: eBay.co.uk in pounds). */
+  country: z.string().regex(/^[A-Z]{2}$/).optional(),
   shippingCost: z.number().min(0).max(1000).default(6),
   packagingCost: z.number().min(0).max(100).optional(),
   targetRoiPct: z.number().min(0).max(1000).optional(),
@@ -168,7 +172,7 @@ app.get('/api/category', async (req, reply) => {
   }
 });
 
-const BarcodeBody = z.object({ gtin: z.string().trim().min(8).max(20) });
+const BarcodeBody = z.object({ gtin: z.string().trim().min(8).max(20), country: z.string().regex(/^[A-Z]{2}$/).optional() });
 
 app.post('/api/identify/barcode', async (req, reply) => {
   const parsed = BarcodeBody.safeParse(req.body);
@@ -180,7 +184,8 @@ app.post('/api/identify/barcode', async (req, reply) => {
   if (!ebay.isConfigured()) return reply.code(409).send({ error: 'source_not_configured', message: 'eBay keys are not configured' });
   if (!titleIdentifier.isConfigured()) return reply.code(409).send({ error: 'vision_not_configured', message: 'Set OPENAI_API_KEY in .env' });
 
-  const found = await ebay.titlesForGtin(gtinSearchVariants(gtin));
+  const sites = marketFor(parsed.data.country).sites;
+  const found = await ebay.titlesForGtin(gtinSearchVariants(gtin), sites ? { sites } : {});
   for (const w of found.warnings) req.log.warn({ event: 'source_fetch_failed', site: w.site }, w.message);
   if (found.titles.length === 0) {
     req.log.info({ event: 'barcode_not_found', gtin }, 'barcode');
@@ -255,7 +260,8 @@ app.get('/api/presets', async () =>
 app.post('/api/valuation', async (req, reply) => {
   const parsed = ValuationBody.safeParse(req.body);
   if (!parsed.success) return reply.code(400).send({ error: 'invalid_request', issues: parsed.error.issues });
-  const b = parsed.data;
+  const market = marketFor(parsed.data.country);
+  const b = { ...parsed.data, currency: market.currency };
 
   if (!(await store.requireAccount(req, reply, 'valuation'))) return reply;
   if (!ebay.isConfigured()) {
@@ -275,7 +281,7 @@ app.post('/api/valuation', async (req, reply) => {
     return reply.code(402).send({ error: 'quota_exceeded', message: `You used all ${quota.limit} checks of your ${quota.plan} plan this month.`, quota });
   }
 
-  const [search, rates] = await Promise.all([ebay.searchProduct(product, { requestId: req.id }), fx.latest()]);
+  const [search, rates] = await Promise.all([ebay.searchProduct(product, { requestId: req.id, ...(market.sites && { sites: market.sites }) }), fx.latest()]);
   for (const w of search.warnings) req.log.warn({ source: w.source, site: w.site, event: 'source_fetch_failed' }, w.message);
   // eBay down or our daily API limit used up: no data at all is an outage, not "not enough data".
   // Answer before anything is recorded, so the user does not lose a check.
@@ -285,7 +291,7 @@ app.post('/api/valuation', async (req, reply) => {
   }
   if (rates.source !== 'ecb') req.log.warn({ event: 'fx_fallback' }, 'ECB unreachable, using static FX rates');
 
-  const fees = resolveFeeProfile(b.preset, b.condition, product.category);
+  const fees = feeProfileIn(resolveFeeProfile(b.preset, b.condition, product.category), b.currency, rates);
   const targetRoiPct = b.targetRoiPct ?? 40;
   const valueAt = (price: number) =>
     valuate({

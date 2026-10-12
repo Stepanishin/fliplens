@@ -2,7 +2,7 @@ import { useEffect, useRef, type FormEvent } from 'react';
 import { FEE_PRESETS } from '@fliplens/core';
 import { parsePrice, type Draft } from '../flow.js';
 import { CONDITION_LABEL } from '../format.js';
-import { tr, presetText } from '../i18n.js';
+import { tr, presetText, currencySymbol, money } from '../i18n.js';
 import type { Settings } from '../storage.js';
 
 const T = tr({
@@ -16,7 +16,7 @@ const T = tr({
     hintEmpty: 'No price yet? We show what it sells for and the most you should pay.',
     hintPrice: 'We compare this price with the market.',
     selling: 'Selling on',
-    context: (ship: number, roi: number) => ` · shipping €${ship} · target ROI ${roi}%`,
+    context: (ship: number, roi: number) => ` · shipping ${money(Math.round(ship * 100), ship % 1 ? 2 : 0)} · target ROI ${roi}%`,
     change: 'Change',
     checking: 'Checking the market…',
     checkMarket: 'Check the market',
@@ -32,7 +32,7 @@ const T = tr({
     hintEmpty: 'Noch kein Preis? Wir zeigen, wofür es verkauft wird und was du höchstens zahlen solltest.',
     hintPrice: 'Wir vergleichen diesen Preis mit dem Markt.',
     selling: 'Verkauf auf',
-    context: (ship: number, roi: number) => ` · Versand ${ship} € · Ziel-ROI ${roi} %`,
+    context: (ship: number, roi: number) => ` · Versand ${money(Math.round(ship * 100), ship % 1 ? 2 : 0)} · Ziel-ROI ${roi} %`,
     change: 'Ändern',
     checking: 'Markt wird geprüft…',
     checkMarket: 'Markt prüfen',
@@ -80,7 +80,7 @@ export function Price({ draft, settings, busy, error, onChangePrice, onSubmit, o
       <label className="price-field">
         <span>{T.howMuch} <span className="muted">{T.optional}</span></span>
         <div className="price-input">
-          <span>€</span>
+          <span>{currencySymbol()}</span>
           <input ref={inputRef} inputMode="decimal" enterKeyHint="go" value={draft.price} onChange={(e) => onChangePrice(e.target.value)} placeholder={T.skip} aria-label={T.aria} />
         </div>
         <small className="muted price-hint">{empty ? T.hintEmpty : T.hintPrice}</small>

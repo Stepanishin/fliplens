@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { FEE_PRESETS } from '@fliplens/core';
 import { api, type InventoryItem, type InventoryStatus, type InventorySummary } from '../api.js';
-import { ago, date, errorText, money as eur, tr } from '../i18n.js';
+import { ago, date, errorText, money as eur, tr, currencySymbol } from '../i18n.js';
 import type { Settings } from '../storage.js';
 import { track } from '../track.js';
 
@@ -314,7 +314,7 @@ function ItemSheet({
         {mode === 'list' && (
           <div className="form-card">
             <label className="field"><span>{T.listedOn}</span><input value={listedOn} onChange={(e) => setListedOn(e.target.value)} /></label>
-            <label className="field"><span>{T.listingPrice}</span><div className="input-affix"><span>€</span><input inputMode="decimal" value={listedPrice} onChange={(e) => setListedPrice(e.target.value)} /></div></label>
+            <label className="field"><span>{T.listingPrice}</span><div className="input-affix"><span>{currencySymbol()}</span><input inputMode="decimal" value={listedPrice} onChange={(e) => setListedPrice(e.target.value)} /></div></label>
             <div className="sheet-actions">
               <button type="button" className="ghost" onClick={() => setMode('view')}>{T.cancel}</button>
               <button type="button" className="primary" disabled={busy} onClick={() => void patch({ status: 'listed', listedOn, ...(listedPrice && { listedPrice: num(listedPrice) }) }, 'item_status_changed')}>{T.save}</button>
@@ -324,10 +324,10 @@ function ItemSheet({
 
         {mode === 'sell' && (
           <div className="form-card">
-            <label className="field"><span>{T.soldForLabel}</span><div className="input-affix"><span>€</span><input inputMode="decimal" value={soldPrice} onChange={(e) => setSoldPrice(e.target.value)} autoFocus /></div></label>
+            <label className="field"><span>{T.soldForLabel}</span><div className="input-affix"><span>{currencySymbol()}</span><input inputMode="decimal" value={soldPrice} onChange={(e) => setSoldPrice(e.target.value)} autoFocus /></div></label>
             <div className="row2">
-              <label className="field"><span>{T.fees}</span><div className="input-affix"><span>€</span><input inputMode="decimal" value={fees} placeholder={suggestFees(num(soldPrice) || 0).toFixed(2)} onChange={(e) => setFees(e.target.value)} /></div></label>
-              <label className="field"><span>{T.shippingPaid}</span><div className="input-affix"><span>€</span><input inputMode="decimal" value={ship} onChange={(e) => setShip(e.target.value)} /></div></label>
+              <label className="field"><span>{T.fees}</span><div className="input-affix"><span>{currencySymbol()}</span><input inputMode="decimal" value={fees} placeholder={suggestFees(num(soldPrice) || 0).toFixed(2)} onChange={(e) => setFees(e.target.value)} /></div></label>
+              <label className="field"><span>{T.shippingPaid}</span><div className="input-affix"><span>{currencySymbol()}</span><input inputMode="decimal" value={ship} onChange={(e) => setShip(e.target.value)} /></div></label>
             </div>
             <p className={`sale-preview ${profitPreview >= 0 ? 'pos' : 'neg'}`}>{T.profitPreview} {profitPreview >= 0 ? '+' : '−'}{eur(Math.round(Math.abs(profitPreview) * 100), 2)}</p>
             <div className="sheet-actions">

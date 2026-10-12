@@ -8,7 +8,7 @@ import type {
   Valuation,
 } from '@fliplens/core';
 import type { IdentificationResult as BaseIdentification } from '@fliplens/recognition';
-import { deviceId } from './storage.js';
+import { deviceId, loadSettings } from './storage.js';
 import { LANG } from './i18n.js';
 import { inviteCode } from './track.js';
 
@@ -40,6 +40,8 @@ export interface ValuationRequest {
   condition: Condition;
   purchasePrice?: number;
   currency: CurrencyCode;
+  /** User's country: GB uses eBay.co.uk in pounds. */
+  country?: string;
   preset: FeePresetId;
   shippingCost: number;
   targetRoiPct?: number;
@@ -433,7 +435,7 @@ export const api = {
   googleLogin: (credential: string) =>
     call<{ account: Account }>('/api/auth/google', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ credential, ...(inviteCode() && { invite: inviteCode() }) }) }),
   referral: () => call<ReferralInfo>('/api/referral'),
-  shelfScan: (body: { image: string; preset: string; shippingCost: number; targetRoiPct: number }) =>
+  shelfScan: (body: { image: string; preset: string; shippingCost: number; targetRoiPct: number; country: string }) =>
     call<ShelfScanResponse>('/api/scan/shelf', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }),
   invite: (code: string) => call<{ name: string | null; bonusChecks: number; bonusDays: number }>(`/api/invite/${encodeURIComponent(code)}`),
   requestPayout: (body: { method: 'paypal'; email: string } | { method: 'iban'; holder: string; iban: string }) =>
@@ -464,7 +466,7 @@ export const api = {
     call<BarcodeResult>('/api/identify/barcode', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ gtin }),
+      body: JSON.stringify({ gtin, country: loadSettings().country }),
     }),
   valuation: (req: ValuationRequest) =>
     call<ValuationResponse>('/api/valuation', {

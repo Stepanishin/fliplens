@@ -11,7 +11,7 @@ interface Props {
   onSignIn: () => void;
 }
 
-const eur = (minor: number): string => money(minor, 2);
+const eur = (minor: number): string => money(minor, 2, 'EUR');
 
 const T = tr({
   en: {

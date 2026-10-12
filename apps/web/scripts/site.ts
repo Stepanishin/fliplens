@@ -159,7 +159,7 @@ const PAGES: Page[] = [
     sections: [],
     faq: [
       ...COMMON_FAQ,
-      { q: 'Which countries does FlipLens cover?', a: 'Market data comes from eBay Germany, France, Italy, Spain and the Netherlands. Links to check prices yourself are available for Vinted, Kleinanzeigen and other marketplaces across the EU.' },
+      { q: 'Which countries does FlipLens cover?', a: 'Market data comes from eBay Germany, France, Italy, Spain and the Netherlands, in euro. If you set your country to the United Kingdom, FlipLens uses eBay.co.uk and shows prices in pounds, with UK private seller fees. Links to check prices yourself are available for Vinted, Kleinanzeigen and other marketplaces.' },
       { q: 'How accurate is the estimate?', a: 'It depends on the market. Every result shows a confidence score, how many listings it is based on and the risks. When there is not enough data, FlipLens says so instead of guessing. You can track your real sale prices in Stock and see how close the estimates were.' },
       { q: 'Which marketplaces are the fees calculated for?', a: 'eBay.de for private and business sellers, Vinted and local pickup with cash. Each fee profile shows when it was last checked.' },
       { q: 'Can FlipLens write my listing?', a: `Yes. Take a photo of any item, clothes included, and FlipLens writes a title, description and condition text in the style of Vinted, eBay or Kleinanzeigen, in your language, ready to copy. Free includes ${PLANS.free.monthlyListings} listings a month, Pro ${PLANS.pro.monthlyListings}. FlipLens never posts on your behalf.` },
@@ -806,7 +806,7 @@ const PAGES_DE: Page[] = [
     sections: [],
     faq: [
       ...COMMON_FAQ_DE,
-      { q: 'Welche Länder deckt FlipLens ab?', a: 'Die Marktdaten kommen von eBay Deutschland, Frankreich, Italien, Spanien und den Niederlanden. Links, um Preise selbst zu prüfen, gibt es für Vinted, Kleinanzeigen und weitere Marktplätze in der EU.' },
+      { q: 'Welche Länder deckt FlipLens ab?', a: 'Die Marktdaten kommen von eBay Deutschland, Frankreich, Italien, Spanien und den Niederlanden, in Euro. Wenn du als Land Großbritannien wählst, nutzt FlipLens eBay.co.uk und zeigt Preise in Pfund, mit den Gebühren für private Verkäufer in Großbritannien. Links, um Preise selbst zu prüfen, gibt es für Vinted, Kleinanzeigen und weitere Marktplätze.' },
       { q: 'Wie genau ist die Schätzung?', a: 'Das hängt vom Markt ab. Jedes Ergebnis zeigt einen Sicherheitswert, auf wie vielen Angeboten es beruht und die Risiken. Gibt es nicht genug Daten, sagt FlipLens das, statt zu raten. Im Lager kannst du deine echten Verkaufspreise festhalten und sehen, wie nah die Schätzungen lagen.' },
       { q: 'Für welche Marktplätze werden die Gebühren berechnet?', a: 'eBay.de für private und gewerbliche Verkäufer, Vinted und Abholung gegen Bargeld. Jedes Gebührenprofil zeigt, wann es zuletzt geprüft wurde.' },
       { q: 'Kann FlipLens meine Anzeige schreiben?', a: `Ja. Fotografier einen beliebigen Artikel, auch Kleidung, und FlipLens schreibt Titel, Beschreibung und Zustandstext im Stil von Vinted, eBay oder Kleinanzeigen, in deiner Sprache und fertig zum Kopieren. Free enthält ${PLANS.free.monthlyListings} Anzeigen pro Monat, Pro ${PLANS.pro.monthlyListings}. FlipLens veröffentlicht nie etwas in deinem Namen.` },
@@ -1586,7 +1586,8 @@ function llms(): string {
 Key facts:
 - Works best for consumer electronics, gaming and cameras (headphones, phones, tablets, laptops, consoles, controllers, games, camera bodies, lenses) and power tools. Fashion is not supported yet.
 - The purchase price is optional: without it FlipLens shows the maximum price worth paying for the user's target ROI.
-- Fee profiles: eBay.de private and business sellers, Vinted, local pickup. Each shows when it was last checked.
+- Fee profiles: eBay.de private and business sellers, eBay.co.uk private sellers, Vinted, local pickup. Each shows when it was last checked.
+- UK users (country set to United Kingdom) get eBay.co.uk data and prices in pounds.
 - When fewer than 5 comparable listings remain it says "not enough market data" instead of guessing.
 - Pricing (EUR, final prices): ${planLine}.
 - Also: a listing writer that turns a photo of any item (clothes included) into a Vinted, eBay or Kleinanzeigen title and description (${PLANS.free.monthlyListings} free per month), and stock tracking with real profit.

@@ -59,9 +59,31 @@ export function setLang(l: Lang): void {
 
 // ---------- formatting ----------
 
-/** Euro amount from cents: "€121" / "121 €". */
-export function money(minor: number, digits = 0): string {
-  return new Intl.NumberFormat(LOCALE, { style: 'currency', currency: 'EUR', minimumFractionDigits: digits, maximumFractionDigits: digits }).format(minor / 100);
+/**
+ * The user's money: pounds for the UK (eBay.co.uk), euro everywhere else. Follows the country in the settings;
+ * FlipLens' own prices and referral payouts stay in euro (pass 'EUR').
+ */
+export type Currency = 'EUR' | 'GBP';
+function initialCurrency(): Currency {
+  try {
+    const raw = typeof localStorage === 'undefined' ? null : localStorage.getItem('fliplens.settings.v1');
+    return raw && (JSON.parse(raw) as { country?: string }).country === 'GB' ? 'GBP' : 'EUR';
+  } catch {
+    return 'EUR';
+  }
+}
+let currency: Currency = initialCurrency();
+export const currencyForCountry = (country: string): Currency => (country === 'GB' ? 'GBP' : 'EUR');
+export function setCurrency(c: Currency): void {
+  currency = c;
+}
+export const userCurrency = (): Currency => currency;
+/** "€" or "£" for input fields. */
+export const currencySymbol = (c: Currency = currency): string => (c === 'GBP' ? '£' : '€');
+
+/** Amount from minor units in the user's currency (or the one given): "€121" / "121 €" / "£121". */
+export function money(minor: number, digits = 0, c: Currency = currency): string {
+  return new Intl.NumberFormat(LOCALE, { style: 'currency', currency: c, minimumFractionDigits: digits, maximumFractionDigits: digits }).format(minor / 100);
 }
 
 export function date(iso: string, opts: Intl.DateTimeFormatOptions = { day: 'numeric', month: 'short', year: 'numeric' }): string {
@@ -196,6 +218,10 @@ const PRESET_DE: Record<string, { label: string; note: string }> = {
   vinted: {
     label: 'Vinted',
     note: 'Keine Verkäufergebühren. Käufer zahlen den Käuferschutz (etwa 5 % + 0,70 €, bei Elektronik bis 8 %) und den Versand zusätzlich.',
+  },
+  ebay_uk_private: {
+    label: 'eBay.co.uk (privat)',
+    note: 'Keine Verkaufsprovision und keine Regulierungsgebühr für private Verkäufer mit Sitz in Großbritannien (außer Fahrzeuge); 300 kostenlose Angebote pro Monat. Upgrades und Versand ins Ausland können extra kosten.',
   },
   local_pickup: { label: 'Abholung / bar', note: 'Keine Gebühren, kein Versand.' },
 };

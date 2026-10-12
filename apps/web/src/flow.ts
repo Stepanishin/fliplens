@@ -92,7 +92,8 @@ export function buildRequest(d: Draft, s: Settings): ValuationRequest {
     condition: d.condition,
     // Empty price: "what is it worth, how much may I pay".
     ...(d.price.trim() !== '' && { purchasePrice: parsePrice(d.price) }),
-    currency: 'EUR',
+    currency: s.country === 'GB' ? 'GBP' : 'EUR',
+    country: s.country,
     preset: s.preset,
     shippingCost: s.shippingCost,
     targetRoiPct: s.targetRoiPct,

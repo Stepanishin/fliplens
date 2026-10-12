@@ -1,6 +1,6 @@
 import type { FastifyInstance } from 'fastify';
 import { z } from 'zod';
-import { FEE_PRESETS, money, resolveFeeProfile, valuate, type FeePresetId, type NormalizedProduct } from '@fliplens/core';
+import { FEE_PRESETS, feeProfileIn, marketFor, money, resolveFeeProfile, valuate, type FeePresetId, type NormalizedProduct } from '@fliplens/core';
 import { RecognitionError, type IdentificationResult, type OpenAIShelfScanner, type ShelfItem, type ShelfScan } from '@fliplens/recognition';
 import type { EbayAdapter, EcbFxService } from '@fliplens/sources';
 import type { Persistence } from './persistence.js';
@@ -18,6 +18,7 @@ const Body = z.object({
   preset: z.enum(presetIds).default('ebay_de_private'),
   shippingCost: z.number().min(0).max(1000).default(6),
   targetRoiPct: z.number().min(0).max(1000).default(40),
+  country: z.string().regex(/^[A-Z]{2}$/).optional(),
 });
 
 type Outcome =
@@ -76,7 +77,8 @@ export function registerShelfRoute(
     });
 
     const rates = await fx.latest();
-    const fees = (category: NormalizedProduct['category']) => resolveFeeProfile(b.preset, 'good', category);
+    const market = marketFor(b.country);
+    const fees = (category: NormalizedProduct['category']) => feeProfileIn(resolveFeeProfile(b.preset, 'good', category), market.currency, rates);
 
     async function valueItem(item: ShelfItem): Promise<Outcome> {
       const product: NormalizedProduct = {
@@ -85,7 +87,7 @@ export function registerShelfRoute(
         model: item.model,
         ...(item.capacity && { capacity: item.capacity }),
       } as NormalizedProduct;
-      const search = await ebay.searchProduct(product, { requestId: req.id });
+      const search = await ebay.searchProduct(product, { requestId: req.id, ...(market.sites && { sites: market.sites }) });
       if (search.items.length === 0 && search.warnings.some((w) => w.site)) return { status: 'not_checked', reason: 'unavailable' };
       const fee = fees(product.category);
       const at = (price: number) =>
@@ -93,13 +95,13 @@ export function registerShelfRoute(
           product,
           targetCondition: 'good',
           items: search.items,
-          targetCurrency: 'EUR',
+          targetCurrency: market.currency,
           fx: rates,
           now: new Date(),
           identificationConfidence: item.confidence,
-          purchasePrice: money(price, 'EUR'),
+          purchasePrice: money(price, market.currency),
           fees: fee,
-          shippingCost: money(b.shippingCost, 'EUR'),
+          shippingCost: money(b.shippingCost, market.currency),
           targetRoiPct: b.targetRoiPct,
           recognitionModelVersion: scan.modelVersion,
         });
@@ -110,7 +112,7 @@ export function registerShelfRoute(
         result = at(price);
       }
       const scanId = await store.recordValuation(req, {
-        body: { inputMethod: 'photo', ...(identificationId && { identificationId }), condition: 'good', purchasePrice: price, priceProvided: false, currency: 'EUR', recognitionModelVersion: scan.modelVersion },
+        body: { inputMethod: 'photo', ...(identificationId && { identificationId }), condition: 'good', purchasePrice: price, priceProvided: false, currency: market.currency, recognitionModelVersion: scan.modelVersion },
         product,
         result,
         search,

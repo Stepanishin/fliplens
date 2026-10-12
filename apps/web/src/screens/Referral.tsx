@@ -113,7 +113,7 @@ export function Referral() {
   if (!info) return <div className="screen">{error ? <div className="banner bad">{error}</div> : <p className="muted">{T.loading}</p>}</div>;
 
   const r = info.rules;
-  const min = money(r.minPayoutMinor);
+  const min = money(r.minPayoutMinor, 0, 'EUR');
   const link = `https://fliplens.eu/${LANG === 'de' ? 'de' : ''}?ref=${info.code}`;
   const b = info.balance;
 
@@ -143,7 +143,7 @@ export function Referral() {
     setNotice(null);
     try {
       const res = await api.requestPayout(method === 'paypal' ? { method, email: email.trim() } : { method, holder: holder.trim(), iban: iban.trim() });
-      setNotice(T.requestedOk(money(res.requestedMinor, 2)));
+      setNotice(T.requestedOk(money(res.requestedMinor, 2, 'EUR')));
       track('referral_payout_requested', {});
       await load();
     } catch (e) {
@@ -174,10 +174,10 @@ export function Referral() {
       </section>
 
       <div className="admin-grid">
-        <div className="stat"><span>{T.available}</span><strong>{money(b.availableMinor, 2)}</strong><small>{T.minNote(min)}</small></div>
-        <div className="stat"><span>{T.pending}</span><strong>{money(b.pendingMinor, 2)}</strong><small>{T.pendingNote(r.holdDays)}</small></div>
+        <div className="stat"><span>{T.available}</span><strong>{money(b.availableMinor, 2, 'EUR')}</strong><small>{T.minNote(min)}</small></div>
+        <div className="stat"><span>{T.pending}</span><strong>{money(b.pendingMinor, 2, 'EUR')}</strong><small>{T.pendingNote(r.holdDays)}</small></div>
         <div className="stat"><span>{T.invited}</span><strong>{info.signups}</strong><small>{T.paying}: {info.paying}</small></div>
-        <div className="stat"><span>{T.paid}</span><strong>{money(b.paidMinor, 2)}</strong><small>{b.requestedMinor > 0 ? `${T.requested}: ${money(b.requestedMinor, 2)}` : ' '}</small></div>
+        <div className="stat"><span>{T.paid}</span><strong>{money(b.paidMinor, 2, 'EUR')}</strong><small>{b.requestedMinor > 0 ? `${T.requested}: ${money(b.requestedMinor, 2, 'EUR')}` : ' '}</small></div>
       </div>
 
       {notice && <div className="banner ok">{notice}</div>}
@@ -199,7 +199,7 @@ export function Referral() {
             </>
           )}
           <button type="button" className="primary" disabled={busy || !detailsOk} onClick={() => void requestPayout()}>
-            {busy ? T.sending : T.request(money(b.availableMinor, 2))}
+            {busy ? T.sending : T.request(money(b.availableMinor, 2, 'EUR'))}
           </button>
         </section>
       )}
@@ -213,8 +213,8 @@ export function Referral() {
             <tbody>
               {info.commissions.map((c, i) => (
                 <tr key={i}>
-                  <td>{date(c.createdAt)}<br /><span className="muted small">{T.payment(money(c.baseMinor, 2))} · {T.status[c.status] ?? c.status}</span></td>
-                  <td>+{money(c.commissionMinor, 2)}</td>
+                  <td>{date(c.createdAt)}<br /><span className="muted small">{T.payment(money(c.baseMinor, 2, 'EUR'))} · {T.status[c.status] ?? c.status}</span></td>
+                  <td>+{money(c.commissionMinor, 2, 'EUR')}</td>
                 </tr>
               ))}
             </tbody>
@@ -230,7 +230,7 @@ export function Referral() {
               {info.payouts.map((p) => (
                 <tr key={p.id}>
                   <td>{date(p.requestedAt)}<br /><span className="muted small">{p.method === 'paypal' ? T.paypal : T.bank} · {T.payoutStatus[p.status] ?? p.status}{p.note ? ` · ${p.note}` : ''}</span></td>
-                  <td>{money(p.amountMinor, 2)}</td>
+                  <td>{money(p.amountMinor, 2, 'EUR')}</td>
                 </tr>
               ))}
             </tbody>

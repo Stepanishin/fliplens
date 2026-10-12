@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { api } from '../api.js';
-import { errorText, tr } from '../i18n.js';
+import { errorText, tr, currencySymbol } from '../i18n.js';
 import { track } from '../track.js';
 
 const T = tr({
@@ -68,7 +68,7 @@ export function BoughtSheet({
         <p className="muted small">{name}</p>
         <label className="field">
           <span>{T.pricePaid}</span>
-          <div className="input-affix"><span>€</span><input inputMode="decimal" value={price} onChange={(e) => setPrice(e.target.value)} /></div>
+          <div className="input-affix"><span>{currencySymbol()}</span><input inputMode="decimal" value={price} onChange={(e) => setPrice(e.target.value)} /></div>
         </label>
         <div className="field">
           <span>{T.where}</span>

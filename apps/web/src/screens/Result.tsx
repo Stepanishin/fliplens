@@ -3,7 +3,7 @@ import { computeProfit, decide, DEFAULT_PRICING_CONFIG, maxBuyPrice, type Confid
 import { track } from '../track.js';
 import type { ValuationResponse } from '../api.js';
 import { ago, FACTOR_LABEL } from '../format.js';
-import { reason, tr, presetText } from '../i18n.js';
+import { money, reason, tr, presetText } from '../i18n.js';
 import { MarketLinks } from '../MarketLinks.js';
 import { ConfidencePill, DecisionHero, eur, MarketActivity, RangeBar } from '../ui/verdict.js';
 import { IconBag, IconEdit, IconScan, IconSpark } from '../ui/icons.js';
@@ -251,7 +251,7 @@ export function Result({ resp, query, country, onNewScan, onEdit, targetRoiPct, 
           style={{ ['--pos' as string]: `${(buyMinor / sliderMax) * 100}%` }}
         />
         <div className="whatif-scale muted small">
-          <span>{T.zero}</span>
+          <span>{money(0)}</span>
           <span>{T.maxFor(targetRoiPct, eur(maxBuy.amountMinor))}</span>
           <span>{eur(sliderMax)}</span>
         </div>

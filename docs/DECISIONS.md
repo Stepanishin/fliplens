@@ -118,3 +118,10 @@ Status: accepted 2026-10-12.
 - One photo of a stall, box or shelf (`POST /api/scan/shelf`, signed-in users only). One vision call (`OpenAIShelfScanner`, the strong model; the cheap one after the AI budget) lists the products with approximate bounding boxes; clutter and unbranded goods are skipped.
 - Up to 6 recognised items (confidence at least 0.5) are valued like normal checks, from real eBay listings without a purchase price (answer: the most worth paying), three at a time, and saved to History. Each valued item counts as one check; with no checks left the request is refused before the vision call.
 - Prices never come from the model. A live AR "radar" was considered and postponed: its on-the-fly prices would be model guesses.
+
+## ADR-021: United Kingdom
+Status: accepted 2026-10-12.
+- Users whose country is the United Kingdom get market data from eBay.co.uk only (EBAY_GB) and all their amounts in pounds: estimates, profit, max price, stock, table scan, barcode lookups. Everyone else keeps the five EU eBay sites in euro. The country decides; `marketFor()` in core.
+- New fee preset `ebay_uk_private` (no final value fee for UK private sellers, eBay UK help page, checked 2026-10-12). Profile shows the presets that fit the country and switches the preset when the country changes. Fixed fees of a preset in another currency are converted with the day's ECB rate (`feeProfileIn`).
+- eBay category IDs used for search filtering are the same on EBAY_GB (verified on all mapped categories).
+- FlipLens' own prices and referral earnings stay in euro.

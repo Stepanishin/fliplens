@@ -1,4 +1,5 @@
 import type { FeeProfile } from './profit.js';
+import { convert, type CurrencyCode, type FxRateTable } from './money.js';
 import type { CategorySlug, Condition } from './types.js';
 
 /**
@@ -91,6 +92,25 @@ export const FEE_PRESETS = {
       };
     },
   },
+  ebay_uk_private: {
+    label: 'eBay.co.uk (private seller)',
+    note: 'No final value fee or regulatory fee for UK-based private sellers (vehicles excepted); 300 free listings a month. Upgrades and international delivery can cost extra.',
+    sourceUrl: 'https://www.ebay.co.uk/help/selling/fees-credits-invoices/selling-fees?id=4822',
+    sourceQuality: 'official',
+    lastVerifiedAt: '2026-10-12',
+    resolve: () => ({
+      ...base,
+      currency: 'GBP',
+      id: 'ebay_uk_private@2026-10-12',
+      marketplace: 'EBAY_GB',
+      country: 'GB',
+      sellerType: 'private',
+      percentageFeeBp: 0,
+      fixedFeeMinor: 0,
+      sellerPaysShipping: true,
+      effectiveFrom: '2026-10-12',
+    }),
+  },
   vinted: {
     label: 'Vinted',
     note: 'No seller fees. The buyer pays Buyer Protection (about 5% + €0.70, up to 8% for electronics) and shipping on top.',
@@ -131,4 +151,21 @@ export type FeePresetId = keyof typeof FEE_PRESETS;
 
 export function resolveFeeProfile(preset: FeePresetId, condition: Condition, category: CategorySlug): FeeProfile {
   return FEE_PRESETS[preset].resolve(condition, category);
+}
+
+/** Fee presets that make sense for a country: the UK has its own eBay site and currency. */
+export function presetsForCountry(country: string): FeePresetId[] {
+  return country === 'GB' ? ['ebay_uk_private', 'vinted', 'local_pickup'] : ['ebay_de_private', 'ebay_de_business', 'vinted', 'local_pickup'];
+}
+
+/** Marketplace data and money for a country: eBay.co.uk in pounds for the UK, the five EU eBay sites in euro otherwise. */
+export function marketFor(country: string | undefined): { sites: readonly string[] | undefined; currency: 'GBP' | 'EUR' } {
+  return country === 'GB' ? { sites: ['EBAY_GB'], currency: 'GBP' } : { sites: undefined, currency: 'EUR' };
+}
+
+/** A fee profile expressed in another currency (fixed fees converted; percentages unchanged). */
+export function feeProfileIn(profile: FeeProfile, currency: CurrencyCode, fx: FxRateTable): FeeProfile {
+  if (profile.currency === currency) return profile;
+  const conv = (minor: number) => (minor === 0 ? 0 : convert({ amountMinor: minor, currency: profile.currency }, currency, fx).amount.amountMinor);
+  return { ...profile, currency, fixedFeeMinor: conv(profile.fixedFeeMinor), paymentFixedFeeMinor: conv(profile.paymentFixedFeeMinor) };
 }

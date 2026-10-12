@@ -1,11 +1,11 @@
-import { FEE_PRESETS, type FeePresetId } from '@fliplens/core';
+import { FEE_PRESETS, presetsForCountry, type FeePresetId } from '@fliplens/core';
 import { api, type Account, type BillingInfo } from '../api.js';
 import { GoogleButton } from '../ui/GoogleButton.js';
 import { InstallApp } from '../ui/InstallApp.js';
 import { IconChevron } from '../ui/icons.js';
 import { LINK_COUNTRIES } from '../marketSearch.js';
 import type { Settings } from '../storage.js';
-import { LANG, LOCALE, setLang, tr, type Lang, presetText } from '../i18n.js';
+import { LANG, LOCALE, setLang, tr, type Lang, presetText, currencySymbol } from '../i18n.js';
 
 const T = tr({
   en: {
@@ -216,7 +216,15 @@ export function Profile({ billing, onOpenPlans, account, googleClientId, onGoogl
         <h2>{T.selling}</h2>
         <label className="field">
           <span>{T.country}</span>
-          <select value={settings.country} onChange={(e) => onChange({ ...settings, country: e.target.value })}>
+          <select
+            value={settings.country}
+            onChange={(e) => {
+              // The UK has its own eBay site, currency and fee presets: switch the preset when it no longer fits.
+              const country = e.target.value;
+              const allowed = presetsForCountry(country);
+              onChange({ ...settings, country, preset: allowed.includes(settings.preset) ? settings.preset : allowed[0]! });
+            }}
+          >
             {LINK_COUNTRIES.map((c) => <option key={c} value={c}>{countryName(c)}</option>)}
           </select>
           <span className="hint">{T.countryHint}</span>
@@ -224,7 +232,7 @@ export function Profile({ billing, onOpenPlans, account, googleClientId, onGoogl
         <label className="field">
           <span>{T.marketplace}</span>
           <select value={settings.preset} onChange={(e) => onChange({ ...settings, preset: e.target.value as FeePresetId })}>
-            {Object.entries(FEE_PRESETS).map(([id, p]) => <option key={id} value={id}>{presetText(id, p).label}</option>)}
+            {presetsForCountry(settings.country).map((id) => <option key={id} value={id}>{presetText(id, FEE_PRESETS[id]).label}</option>)}
           </select>
           <span className="hint">
             {presetText(settings.preset, preset).note}{T.checked(preset.lastVerifiedAt)}{preset.sourceQuality === 'secondary' ? T.secondary : ''}.
@@ -234,7 +242,7 @@ export function Profile({ billing, onOpenPlans, account, googleClientId, onGoogl
           <label className="field">
             <span>{T.shipping}</span>
             <div className="input-affix">
-              <span>€</span>
+              <span>{currencySymbol()}</span>
               <input inputMode="decimal" value={settings.shippingCost} onChange={(e) => onChange({ ...settings, shippingCost: Number(e.target.value.replace(',', '.')) || 0 })} />
             </div>
           </label>

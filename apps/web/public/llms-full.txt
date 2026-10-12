@@ -91,7 +91,7 @@ Photos are only used to identify the item and are never stored. Your checks are 
 No. FlipLens is independent and shows eBay data through the official eBay API. It does not buy, sell or ship anything.
 
 **Which countries does FlipLens cover?**
-Market data comes from eBay Germany, France, Italy, Spain and the Netherlands. Links to check prices yourself are available for Vinted, Kleinanzeigen and other marketplaces across the EU.
+Market data comes from eBay Germany, France, Italy, Spain and the Netherlands, in euro. If you set your country to the United Kingdom, FlipLens uses eBay.co.uk and shows prices in pounds, with UK private seller fees. Links to check prices yourself are available for Vinted, Kleinanzeigen and other marketplaces.
 
 **How accurate is the estimate?**
 It depends on the market. Every result shows a confidence score, how many listings it is based on and the risks. When there is not enough data, FlipLens says so instead of guessing. You can track your real sale prices in Stock and see how close the estimates were.
