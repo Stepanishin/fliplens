@@ -6,6 +6,7 @@ import { marketLinks } from '../marketSearch.js';
 import { track } from '../track.js';
 import { IconCamera, IconImage } from '../ui/icons.js';
 import { ListingResult } from '../ui/ListingResult.js';
+import { EbayPublishButton } from '../ui/EbayPublish.js';
 import { defaultListingLanguage, LANGUAGES, MARKETS, type Market } from '../ui/ListingSheet.js';
 
 const T = tr({
@@ -309,6 +310,9 @@ export function QuickListing({ country, initialPhotos = [], onUpgrade }: { count
             </div>
           )}
           <ListingResult listing={listing} marketName={MARKETS.find(([id]) => id === market)?.[1] ?? ''} busy={busy} onRegenerate={() => void generate()} />
+          {market === 'ebay' && (
+            <EbayPublishButton draft={{ title: listing.title, description: listing.description, priceMinor: null, photos, brand: listing.item.brand, conditionNote: listing.conditionText }} />
+          )}
           {vinted && (
             <p className="muted small">
               {T.priceQ} <a href={vinted.url} target="_blank" rel="noreferrer" onClick={() => track('market_link_opened', { id: 'vinted', from: 'listing' })}>{T.similar}</a>.

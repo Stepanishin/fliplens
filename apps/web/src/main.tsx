@@ -12,6 +12,17 @@ import { track, trackVisit } from './track.js';
 
 registerSW({ immediate: true });
 
+// Back from connecting eBay in a popup (/?ebay=connected|declined|error): tell the opener and close.
+const ebayResult = new URLSearchParams(window.location.search).get('ebay');
+if (ebayResult && window.opener) {
+  try {
+    (window.opener as Window).postMessage({ ebay: ebayResult }, window.location.origin);
+  } catch {
+    // opener gone or cross-origin: nothing to tell
+  }
+  window.close();
+}
+
 trackVisit();
 const legalPage = window.location.pathname === '/privacy' ? 'privacy' : window.location.pathname === '/terms' ? 'terms' : null;
 if (legalPage) track('page_view', { page: legalPage });

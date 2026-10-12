@@ -264,6 +264,30 @@ export interface RadarItem {
   confidence: number;
 }
 
+export type EbayMarket = 'EBAY_DE' | 'EBAY_IT' | 'EBAY_FR' | 'EBAY_GB';
+export interface EbayPrepare {
+  categories: { id: string; name: string; path: string }[];
+  shipping: { id: string; name: string; description: string }[];
+  postalCode: string | null;
+  username: string | null;
+}
+export interface EbayAspect { name: string; values: string[]; selectionOnly: boolean; multiple: boolean }
+export interface EbayPublishRequest {
+  marketplace: EbayMarket;
+  title: string;
+  description: string;
+  price: number;
+  condition: Condition;
+  conditionNote?: string;
+  categoryId: string;
+  aspects: Record<string, string[]>;
+  images: string[];
+  fulfillmentPolicyId: string;
+  postalCode: string;
+  country: string;
+  business: boolean;
+}
+
 export interface PhotoListing {
   title: string;
   description: string;
@@ -445,6 +469,16 @@ export const api = {
   googleLogin: (credential: string) =>
     call<{ account: Account }>('/api/auth/google', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ credential, ...(inviteCode() && { invite: inviteCode() }) }) }),
   referral: () => call<ReferralInfo>('/api/referral'),
+  ebayAvailable: () => call<{ available: boolean }>('/api/ebay/available').then((r) => r.available, () => false),
+  ebayStatus: () => call<{ connected: boolean; username: string | null; postalCode: string | null }>('/api/ebay/status'),
+  ebayConnectUrl: (lang: string) => call<{ url: string }>(`/api/ebay/connect?lang=${lang}`).then((r) => r.url),
+  ebayDisconnect: () => call<{ connected: boolean }>('/api/ebay/disconnect', { method: 'POST' }),
+  ebayPrepare: (marketplace: EbayMarket, title: string) =>
+    call<EbayPrepare>('/api/ebay/prepare', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ marketplace, title }) }),
+  ebayAspects: (marketplace: EbayMarket, categoryId: string, title: string, description: string) =>
+    call<{ aspects: EbayAspect[]; suggested: Record<string, string> }>('/api/ebay/aspects', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ marketplace, categoryId, title, description }) }),
+  ebayPublish: (body: EbayPublishRequest) =>
+    call<{ listingId: string; url: string }>('/api/ebay/publish', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }),
   radarFrame: (image: string, signal?: AbortSignal) =>
     call<{ items: RadarItem[]; latencyMs: number }>('/api/radar/frame', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ image }), ...(signal && { signal }) }),
   shelfScan: (body: { image: string; preset: string; shippingCost: number; targetRoiPct: number; country: string }) =>

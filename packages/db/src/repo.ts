@@ -1,6 +1,6 @@
 import { and, desc, eq, gte, inArray, sql } from 'drizzle-orm';
 import type { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
-import { events, inventoryItems, referralCommissions, referralPayouts, productIdentifications, scans, subscriptions, usageCosts, userDevices, userSettings, users, valuations } from './schema.js';
+import { ebayAccounts, events, inventoryItems, referralCommissions, referralPayouts, productIdentifications, scans, subscriptions, usageCosts, userDevices, userSettings, users, valuations } from './schema.js';
 import type * as schema from './schema.js';
 
 type Db = PostgresJsDatabase<typeof schema>;
@@ -950,4 +950,40 @@ export async function reverseReferralCommission(db: Db, commissionId: string): P
   const r = await db.update(referralCommissions).set({ status: 'reversed', payoutId: null })
     .where(and(eq(referralCommissions.id, commissionId), sql`${referralCommissions.status} in ('pending', 'available')`)).returning({ id: referralCommissions.id });
   return r.length > 0;
+}
+
+// ---------- connected eBay accounts (publishing) ----------
+
+export type EbayAccountRow = typeof ebayAccounts.$inferSelect;
+
+export async function getEbayAccount(db: Db, userId: string): Promise<EbayAccountRow | undefined> {
+  const [row] = await db.select().from(ebayAccounts).where(eq(ebayAccounts.userId, userId));
+  return row;
+}
+
+export async function saveEbayAccount(
+  db: Db,
+  a: { userId: string; ebayUserId: string; username: string | null; refreshTokenEnc: string; refreshExpiresAt: Date },
+): Promise<void> {
+  await db
+    .insert(ebayAccounts)
+    .values(a)
+    .onConflictDoUpdate({
+      target: ebayAccounts.userId,
+      set: { ebayUserId: a.ebayUserId, username: a.username, refreshTokenEnc: a.refreshTokenEnc, refreshExpiresAt: a.refreshExpiresAt, updatedAt: new Date() },
+    });
+}
+
+export async function setEbayPostalCode(db: Db, userId: string, postalCode: string): Promise<void> {
+  await db.update(ebayAccounts).set({ postalCode, updatedAt: new Date() }).where(eq(ebayAccounts.userId, userId));
+}
+
+export async function deleteEbayAccount(db: Db, userId: string): Promise<void> {
+  await db.delete(ebayAccounts).where(eq(ebayAccounts.userId, userId));
+}
+
+/** eBay Marketplace Account Deletion: forget every connection of that eBay user. Returns how many were removed. */
+export async function deleteEbayAccountsByEbayUser(db: Db, ebayUserId: string): Promise<number> {
+  const rows = await db.delete(ebayAccounts).where(eq(ebayAccounts.ebayUserId, ebayUserId)).returning({ userId: ebayAccounts.userId });
+  return rows.length;
 }

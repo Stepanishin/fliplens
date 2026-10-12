@@ -41,6 +41,7 @@ import { money, PLANS, RADAR_FRAMES_PER_DAY, type FxRateTable, type Insufficient
 import type { IdentificationResult } from '@fliplens/recognition';
 import type { SearchResult } from '@fliplens/sources';
 import { verifyGoogleIdToken } from './google.js';
+import { registerEbayPublishRoutes, type EbaySellConfig } from './ebay-publish.js';
 import { createBilling, limitsPlan, type BillingConfig, type Quota } from './billing.js';
 import { registerInventoryRoutes } from './inventory.js';
 import { registerListingRoutes } from './listing.js';
@@ -144,6 +145,8 @@ export interface AuthConfig {
   adminEmails?: readonly string[];
   billing?: BillingConfig;
   listingWriter?: OpenAIListingWriter;
+  /** Publishing on eBay (Sell APIs); off without EBAY_RUNAME / EBAY_TOKEN_KEY. */
+  ebaySell?: EbaySellConfig | undefined;
 }
 
 export async function initPersistence(url: string | undefined, log: FastifyBaseLogger, auth: AuthConfig = {}): Promise<Persistence> {
@@ -400,6 +403,8 @@ function enabled(db: Db, log: FastifyBaseLogger, auth: AuthConfig): Persistence 
       billing?.registerRoutes(app, { requireUser: requireSignedIn });
       registerInventoryRoutes(app, db, requireSignedIn);
       registerReferralRoutes(app, { db, requireSignedIn, requireAdmin });
+      if (auth.ebaySell) registerEbayPublishRoutes(app, { db, cfg: auth.ebaySell, requireSignedIn });
+      app.get('/api/ebay/available', async () => ({ available: Boolean(auth.ebaySell) }));
       if (auth.listingWriter) {
         registerListingRoutes(app, { db, writer: auth.listingWriter, requireSignedIn, allowTrial: allowTrial('listing'), ...(billing && { quota: (uid: string) => billing.quota(uid) }) });
       }

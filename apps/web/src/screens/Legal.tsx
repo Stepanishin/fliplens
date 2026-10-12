@@ -183,6 +183,11 @@ function PrivacyPolicyEn() {
             <td>Contract (Art. 6(1)(b)); legal obligation (Art. 6(1)(c))</td>
           </tr>
           <tr>
+            <td>If you connect your eBay account: your eBay user ID and username, an encrypted access token, and the postal code you ship from. Deleted when you disconnect, delete your account, or eBay closes your eBay account</td>
+            <td>Publish listings on your eBay account when you ask us to</td>
+            <td>Contract (Art. 6(1)(b))</td>
+          </tr>
+          <tr>
             <td>Referral programme: who invited you (if anyone); for people who invite others, their earnings and the payout details they enter (PayPal email, or account holder and IBAN)</td>
             <td>Credit and pay referral earnings, prevent abuse</td>
             <td>Contract (Art. 6(1)(b) GDPR)</td>
@@ -199,7 +204,7 @@ function PrivacyPolicyEn() {
       <ul>
         <li><strong>Neon</strong> (database hosting, servers in Frankfurt, Germany): stores the data listed above.</li>
         <li><strong>OpenAI</strong> (product recognition): receives your photos, or for barcodes the marketplace titles found for that code, and returns the product identity. We ask OpenAI not to store requests for later retrieval; OpenAI may keep API data for a limited time for abuse monitoring under its API data policy.</li>
-        <li><strong>eBay</strong> (marketplace data): receives the product name or barcode number we search for. No personal data about you is sent.</li>
+        <li><strong>eBay</strong> (marketplace data): receives the product name or barcode number we search for. No personal data about you is sent. If you connect your eBay account and publish a listing, eBay also receives the listing text, photos and price, under its own privacy policy.</li>
         <li><strong>Google</strong> (sign-in): when you use "Continue with Google", Google processes your login under its own privacy policy and may set its own cookies for the sign-in window.</li>
         <li><strong>Stripe</strong> (payments): processes your payment and billing details under its own privacy policy.</li>
         <li><strong>European Central Bank</strong> (exchange rates): we download public reference rates; no personal data is sent.</li>
@@ -423,6 +428,11 @@ function PrivacyPolicyDe() {
             <td>Vertrag (Art. 6 Abs. 1 lit. b); rechtliche Verpflichtung (Art. 6 Abs. 1 lit. c)</td>
           </tr>
           <tr>
+            <td>Wenn Sie Ihr eBay-Konto verbinden: Ihre eBay-Nutzer-ID und Ihr Nutzername, ein verschlüsseltes Zugriffstoken und die Postleitzahl, von der Sie versenden. Gelöscht, wenn Sie die Verbindung trennen, Ihr Konto löschen oder eBay Ihr eBay-Konto schließt</td>
+            <td>Angebote auf Ihrem eBay-Konto veröffentlichen, wenn Sie uns darum bitten</td>
+            <td>Vertrag (Art. 6 Abs. 1 lit. b)</td>
+          </tr>
+          <tr>
             <td>Empfehlungsprogramm: wer Sie eingeladen hat (falls zutreffend); bei Personen, die andere einladen, deren Einnahmen und die angegebenen Auszahlungsdaten (PayPal-E-Mail oder Kontoinhaber und IBAN)</td>
             <td>Einnahmen gutschreiben und auszahlen, Missbrauch verhindern</td>
             <td>Vertrag (Art. 6 Abs. 1 lit. b DSGVO)</td>
@@ -439,7 +449,7 @@ function PrivacyPolicyDe() {
       <ul>
         <li><strong>Neon</strong> (Datenbank-Hosting, Server in Frankfurt, Deutschland): speichert die oben genannten Daten.</li>
         <li><strong>OpenAI</strong> (Produkterkennung): erhält Ihre Fotos oder, bei Barcodes, die zu dieser Nummer gefundenen Angebotstitel und liefert die Produktidentität zurück. Wir weisen OpenAI an, Anfragen nicht zum späteren Abruf zu speichern; OpenAI kann API-Daten nach seinen API-Datenrichtlinien für begrenzte Zeit zur Missbrauchsüberwachung aufbewahren.</li>
-        <li><strong>eBay</strong> (Marktdaten): erhält den Produktnamen oder die Barcode-Nummer, nach der wir suchen. Personenbezogene Daten über Sie werden nicht übermittelt.</li>
+        <li><strong>eBay</strong> (Marktdaten): erhält den Produktnamen oder die Barcode-Nummer, nach der wir suchen. Personenbezogene Daten über Sie werden nicht übermittelt. Wenn Sie Ihr eBay-Konto verbinden und ein Angebot veröffentlichen, erhält eBay außerdem Angebotstext, Fotos und Preis nach seiner eigenen Datenschutzerklärung.</li>
         <li><strong>Google</strong> (Anmeldung): Wenn Sie "Mit Google fortfahren" nutzen, verarbeitet Google Ihre Anmeldung nach seiner eigenen Datenschutzerklärung und kann für das Anmeldefenster eigene Cookies setzen.</li>
         <li><strong>Stripe</strong> (Zahlungen): verarbeitet Ihre Zahlungs- und Abrechnungsdaten nach seiner eigenen Datenschutzerklärung.</li>
         <li><strong>Europäische Zentralbank</strong> (Wechselkurse): Wir laden öffentliche Referenzkurse herunter; personenbezogene Daten werden nicht übermittelt.</li>
@@ -664,6 +674,11 @@ function PrivacyPolicyIt() {
             <td>Contratto (art. 6, par. 1, lett. b); obbligo legale (art. 6, par. 1, lett. c)</td>
           </tr>
           <tr>
+            <td>Se colleghi il tuo account eBay: il tuo ID utente e nome utente eBay, un token di accesso cifrato e il CAP da cui spedisci. Cancellati quando scolleghi l'account, elimini il tuo account o eBay chiude il tuo account eBay</td>
+            <td>Pubblicare annunci sul tuo account eBay quando ce lo chiedi</td>
+            <td>Contratto (art. 6, par. 1, lett. b)</td>
+          </tr>
+          <tr>
             <td>Programma referral: chi ti ha invitato (se qualcuno lo ha fatto); per chi invita altre persone, i relativi guadagni e i dati di pagamento inseriti (email PayPal, oppure intestatario del conto e IBAN)</td>
             <td>Accreditare e pagare i guadagni da referral, prevenire gli abusi</td>
             <td>Contratto (art. 6, par. 1, lett. b, GDPR)</td>
@@ -680,7 +695,7 @@ function PrivacyPolicyIt() {
       <ul>
         <li><strong>Neon</strong> (hosting del database, server a Francoforte, Germania): conserva i dati elencati sopra.</li>
         <li><strong>OpenAI</strong> (riconoscimento dei prodotti): riceve le tue foto oppure, per i codici a barre, i titoli degli annunci trovati per quel codice, e restituisce l'identità del prodotto. Chiediamo a OpenAI di non conservare le richieste per un successivo recupero; OpenAI può conservare i dati delle API per un periodo limitato a fini di monitoraggio degli abusi, secondo la propria politica sui dati delle API.</li>
-        <li><strong>eBay</strong> (dati di mercato): riceve il nome del prodotto o il numero del codice a barre che cerchiamo. Non viene inviato alcun dato personale che ti riguarda.</li>
+        <li><strong>eBay</strong> (dati di mercato): riceve il nome del prodotto o il numero del codice a barre che cerchiamo. Non viene inviato alcun dato personale che ti riguarda. Se colleghi il tuo account eBay e pubblichi un annuncio, eBay riceve anche testo, foto e prezzo dell'annuncio, secondo la propria informativa sulla privacy.</li>
         <li><strong>Google</strong> (accesso): quando usi "Continua con Google", Google tratta il tuo accesso secondo la propria informativa sulla privacy e può impostare propri cookie per la finestra di accesso.</li>
         <li><strong>Stripe</strong> (pagamenti): tratta i tuoi dati di pagamento e di fatturazione secondo la propria informativa sulla privacy.</li>
         <li><strong>Banca centrale europea</strong> (tassi di cambio): scarichiamo i tassi di riferimento pubblici; non viene inviato alcun dato personale.</li>
@@ -903,6 +918,11 @@ function PrivacyPolicyFr() {
             <td>Contrat (art. 6, par. 1, point b) ; obligation légale (art. 6, par. 1, point c)</td>
           </tr>
           <tr>
+            <td>Si vous connectez votre compte eBay : votre identifiant et nom d'utilisateur eBay, un jeton d'accès chiffré et le code postal d'expédition. Supprimés lorsque vous déconnectez le compte, supprimez votre compte ou lorsqu'eBay ferme votre compte eBay</td>
+            <td>Publier des annonces sur votre compte eBay lorsque vous nous le demandez</td>
+            <td>Contrat (art. 6, par. 1, point b)</td>
+          </tr>
+          <tr>
             <td>Programme de parrainage : la personne qui vous a invité (le cas échéant) ; pour les personnes qui en invitent d'autres, leurs gains et les coordonnées de paiement qu'elles saisissent (adresse e-mail PayPal, ou titulaire du compte et IBAN)</td>
             <td>Créditer et verser les gains de parrainage, prévenir les abus</td>
             <td>Contrat (art. 6, par. 1, point b, RGPD)</td>
@@ -920,7 +940,7 @@ function PrivacyPolicyFr() {
       <ul>
         <li><strong>Neon</strong> (hébergement de la base de données, serveurs à Francfort, Allemagne) : conserve les données énumérées ci-dessus.</li>
         <li><strong>OpenAI</strong> (reconnaissance des produits) : reçoit vos photos ou, pour les codes-barres, les titres d'annonces trouvés pour ce code, et renvoie l'identité du produit. Nous demandons à OpenAI de ne pas conserver les requêtes en vue d'une consultation ultérieure ; OpenAI peut conserver les données de l'API pendant une durée limitée à des fins de détection des abus, conformément à sa politique relative aux données de l'API.</li>
-        <li><strong>eBay</strong> (données de marché) : reçoit le nom du produit ou le numéro de code-barres que nous recherchons. Aucune donnée personnelle vous concernant n'est transmise.</li>
+        <li><strong>eBay</strong> (données de marché) : reçoit le nom du produit ou le numéro de code-barres que nous recherchons. Aucune donnée personnelle vous concernant n'est transmise. Si vous connectez votre compte eBay et publiez une annonce, eBay reçoit aussi le texte, les photos et le prix de l'annonce, conformément à sa propre politique de confidentialité.</li>
         <li><strong>Google</strong> (connexion) : lorsque vous utilisez « Continuer avec Google », Google traite votre connexion conformément à sa propre politique de confidentialité et peut déposer ses propres cookies pour la fenêtre de connexion.</li>
         <li><strong>Stripe</strong> (paiements) : traite vos données de paiement et de facturation conformément à sa propre politique de confidentialité.</li>
         <li><strong>Banque centrale européenne</strong> (taux de change) : nous téléchargeons les taux de référence publics ; aucune donnée personnelle n'est transmise.</li>

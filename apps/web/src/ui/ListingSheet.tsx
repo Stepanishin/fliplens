@@ -3,6 +3,7 @@ import { api, ApiError, type InventoryItem } from '../api.js';
 import { errorText, LANG, tr } from '../i18n.js';
 import { track } from '../track.js';
 import { ListingResult } from './ListingResult.js';
+import { EbayPublishButton } from './EbayPublish.js';
 
 export type Market = 'ebay' | 'vinted' | 'kleinanzeigen';
 export const MARKETS: readonly [Market, string][] = [['ebay', 'eBay'], ['vinted', 'Vinted'], ['kleinanzeigen', 'Kleinanzeigen']];
@@ -139,6 +140,11 @@ export function ListingSheet({ item, country, onClose, onUpgrade }: { item: Inve
 
         {listing && (
           <ListingResult listing={listing} marketName={MARKETS.find(([id]) => id === market)?.[1] ?? ''} busy={busy} onRegenerate={() => void generate()} />
+        )}
+        {listing && market === 'ebay' && (
+          <EbayPublishButton
+            draft={{ title: listing.title, description: listing.description, priceMinor: listing.suggestedPriceMinor ?? item.expectedSaleMinor, photos: [], brand: item.brand, model: item.model, condition: item.condition, conditionNote: listing.conditionText }}
+          />
         )}
       </div>
     </div>

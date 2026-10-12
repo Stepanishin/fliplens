@@ -272,3 +272,21 @@ export const referralPayouts = pgTable(
   },
   (t) => [index('referral_payouts_user_idx').on(t.userId)],
 );
+
+/**
+ * A user's connected eBay seller account, for publishing listings with the Sell APIs (ADR-025). The refresh token is
+ * encrypted (AES-256-GCM, key EBAY_TOKEN_KEY). Deleted with the user, on disconnect, and when eBay reports the eBay
+ * account closed (Marketplace Account Deletion notifications, matched by ebay_user_id).
+ */
+export const ebayAccounts = pgTable('ebay_accounts', {
+  userId: uuid('user_id').primaryKey().references(() => users.id, { onDelete: 'cascade' }),
+  /** eBay's immutable user id (Commerce Identity API), used by account deletion notifications. */
+  ebayUserId: text('ebay_user_id').notNull(),
+  username: text('username'),
+  refreshTokenEnc: text('refresh_token_enc').notNull(),
+  refreshExpiresAt: timestamp('refresh_expires_at', { withTimezone: true }).notNull(),
+  /** Where items ship from (eBay requires an item location). */
+  postalCode: text('postal_code'),
+  createdAt: createdAt(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+});

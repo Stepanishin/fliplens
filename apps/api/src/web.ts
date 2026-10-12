@@ -21,6 +21,8 @@ const LIMITS: readonly [prefix: string, perMinute: number][] = [
   ['/api/billing/', 20],
   ['/api/scan/shelf', 6],
   ['/api/listing', 20],
+  ['/api/ebay/publish', 6],
+  ['/api/ebay/', 60],
   ['/api/', 300],
 ];
 
