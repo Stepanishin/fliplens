@@ -24,6 +24,12 @@ export interface Plan {
   readonly stripeLookupKey?: string;
 }
 
+/**
+ * Live radar: recognition frames per user and day (one cheap vision call every few seconds while the camera
+ * moves). Prices still cost one check each, so this only caps AI spend: ~$0.0003 per frame.
+ */
+export const RADAR_FRAMES_PER_DAY: Readonly<Record<PlanId, number>> = { free: 120, pro: 600, reseller: 1500 };
+
 export const PLANS: Readonly<Record<PlanId, Plan>> = {
   free: {
     id: 'free',

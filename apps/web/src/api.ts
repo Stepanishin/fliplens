@@ -254,6 +254,16 @@ export interface ShelfScanResponse {
   quota: { plan: string; used: number; limit: number; remaining: number } | null;
 }
 
+export interface RadarItem {
+  label: string;
+  brand: string;
+  model: string;
+  category: CategorySlug;
+  capacity: string | null;
+  box: { x: number; y: number; w: number; h: number };
+  confidence: number;
+}
+
 export interface PhotoListing {
   title: string;
   description: string;
@@ -435,6 +445,8 @@ export const api = {
   googleLogin: (credential: string) =>
     call<{ account: Account }>('/api/auth/google', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ credential, ...(inviteCode() && { invite: inviteCode() }) }) }),
   referral: () => call<ReferralInfo>('/api/referral'),
+  radarFrame: (image: string, signal?: AbortSignal) =>
+    call<{ items: RadarItem[]; latencyMs: number }>('/api/radar/frame', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ image }), ...(signal && { signal }) }),
   shelfScan: (body: { image: string; preset: string; shippingCost: number; targetRoiPct: number; country: string }) =>
     call<ShelfScanResponse>('/api/scan/shelf', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }),
   invite: (code: string) => call<{ name: string | null; bonusChecks: number; bonusDays: number }>(`/api/invite/${encodeURIComponent(code)}`),

@@ -3,7 +3,7 @@ import type { Account, BillingInfo, ServerScan } from '../api.js';
 import { scanPill } from '../format.js';
 import { ago, money, tr } from '../i18n.js';
 import { resizeToJpegDataUrl } from '../image.js';
-import { IconBarcode, IconCamera, IconChevron, IconEdit, IconImage, IconSpark, IconTable } from '../ui/icons.js';
+import { IconBarcode, IconCamera, IconChevron, IconEdit, IconImage, IconRadar, IconSpark, IconTable } from '../ui/icons.js';
 import { InstallApp } from '../ui/InstallApp.js';
 
 interface Props {
@@ -13,6 +13,7 @@ interface Props {
   onPhotos: (photos: string[]) => void;
   /** The "listing from a photo" tool (any item, e.g. clothes for Vinted). */
   onQuickListing: () => void;
+  onRadar: () => void;
   /** One photo of a whole stall: every item valued. */
   onShelf: (photo: string) => void;
   onCamera: () => void;
@@ -26,6 +27,8 @@ interface Props {
 
 const T = tr({
   en: {
+    radarTitle: 'Live radar',
+    radarSub: 'Keep the camera open: items get a box, tap one for its price.',
     shelfTitle: 'Scan a whole table',
     shelfSub: 'One photo of a stall or box: see what is worth buying.',
     morning: 'Good morning',
@@ -56,6 +59,8 @@ const T = tr({
     na: 'n/a',
   },
   de: {
+    radarTitle: 'Live-Radar',
+    radarSub: 'Kamera offen lassen: Artikel bekommen einen Rahmen, tippen für den Preis.',
     shelfTitle: 'Ganzen Tisch scannen',
     shelfSub: 'Ein Foto vom Stand oder der Kiste: sieh sofort, was sich lohnt.',
     morning: 'Guten Morgen',
@@ -92,7 +97,7 @@ function greeting(): string {
   return h < 12 ? T.morning : h < 18 ? T.afternoon : T.evening;
 }
 
-export function Home({ account, visionEnabled, recent, onPhotos, onQuickListing, onShelf, onCamera, onBarcode, onManual, onOpenScan, onSeeHistory, quota, onOpenPlans }: Props) {
+export function Home({ account, visionEnabled, recent, onPhotos, onQuickListing, onRadar, onShelf, onCamera, onBarcode, onManual, onOpenScan, onSeeHistory, quota, onOpenPlans }: Props) {
   const galleryRef = useRef<HTMLInputElement>(null);
   const shelfRef = useRef<HTMLInputElement>(null);
   const [error, setError] = useState<string | null>(null);
@@ -151,6 +156,14 @@ export function Home({ account, visionEnabled, recent, onPhotos, onQuickListing,
         <span style={{ flex: 1 }}>
           <strong>{T.shelfTitle}</strong>
           <span className="muted">{T.shelfSub}</span>
+        </span>
+        <IconChevron size={18} className="muted" />
+      </button>
+      <button type="button" className="home-tool" onClick={onRadar} disabled={!visionEnabled}>
+        <span className="home-tool-icon"><IconRadar size={20} /></span>
+        <span style={{ flex: 1 }}>
+          <strong>{T.radarTitle}</strong>
+          <span className="muted">{T.radarSub}</span>
         </span>
         <IconChevron size={18} className="muted" />
       </button>

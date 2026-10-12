@@ -68,6 +68,10 @@ export const IconBox = (p: P) => (
 export const IconBag = (p: P) => (
   <Svg {...p}><path d="M6 8h12l-1 12H7L6 8Z" /><path d="M9 8V6a3 3 0 0 1 6 0v2" /></Svg>
 );
+export const IconRadar = (p: P) => (
+  <Svg {...p}><path d="M4 8V5a1 1 0 0 1 1-1h3M16 4h3a1 1 0 0 1 1 1v3M20 16v3a1 1 0 0 1-1 1h-3M8 20H5a1 1 0 0 1-1-1v-3" /><rect x="8" y="9" width="8" height="6" rx="1" /></Svg>
+);
+
 export const IconTable = (p: P) => (
   <Svg {...p}><path d="M3 10h18M5 10v9M19 10v9" /><rect x="5" y="4" width="4" height="6" rx="1" /><rect x="11" y="6" width="3" height="4" rx="1" /><rect x="16" y="3" width="3" height="7" rx="1" /></Svg>
 );

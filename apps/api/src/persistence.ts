@@ -19,6 +19,8 @@ import {
   getUser,
   aiCostThisMonth,
   identificationsThisMonth,
+  radarFramesToday,
+  recordUsage,
   listingsThisMonth,
   applyReferral,
   linkGoogle,
@@ -35,7 +37,7 @@ import {
   type Db,
   type NewValuation,
 } from '@fliplens/db';
-import { money, PLANS, type FxRateTable, type InsufficientData, type NormalizedProduct, type Valuation } from '@fliplens/core';
+import { money, PLANS, RADAR_FRAMES_PER_DAY, type FxRateTable, type InsufficientData, type NormalizedProduct, type Valuation } from '@fliplens/core';
 import type { IdentificationResult } from '@fliplens/recognition';
 import type { SearchResult } from '@fliplens/sources';
 import { verifyGoogleIdToken } from './google.js';
@@ -96,6 +98,10 @@ export interface Persistence {
   requireMember(req: FastifyRequest, reply: FastifyReply): Promise<boolean>;
   /** Any visitor with a device id (guests included): for cheap helpers that must not use up the guest trial. */
   requireVisitor(req: FastifyRequest, reply: FastifyReply): Promise<boolean>;
+  /** Live radar gate: signed in with Google, frames left today, AI spend under the hard stop. Sends the error itself. */
+  requireRadar(req: FastifyRequest, reply: FastifyReply): Promise<boolean>;
+  /** One radar frame's AI cost (no identification row: frames do not use up the recognition limit). */
+  recordRadarFrame(req: FastifyRequest, x: { model: string; inputTokens: number; outputTokens: number; costUsd?: number | undefined }): Promise<void>;
   /** 'cheap' once the caller spent the plan's AI budget this month: recognition must not escalate. */
   aiMode(req: FastifyRequest): Promise<'full' | 'cheap'>;
   /** Signed-in admin (ADMIN_EMAILS). Returns false after sending the error response. */
@@ -197,6 +203,8 @@ function disabled(status: DbStatus): Persistence {
     requireVisitor: async () => true,
     requireMember: async () => true,
     aiMode: async () => 'full',
+    requireRadar: async () => true,
+    recordRadarFrame: async () => undefined,
     requireAdmin: async () => true,
   };
 }
@@ -335,6 +343,36 @@ function enabled(db: Db, log: FastifyBaseLogger, auth: AuthConfig): Persistence 
       if ((await getUser(db, uid))?.googleSub) return true;
       void reply.code(401).send({ error: 'members_only', message: 'Sign in with Google to scan whole tables.' });
       return false;
+    },
+
+    async requireRadar(req, reply) {
+      const uid = await requireUser(req, reply);
+      if (!uid) return false;
+      if (!(await getUser(db, uid))?.googleSub) {
+        void reply.code(401).send({ error: 'members_only', message: 'Sign in with Google to use the live radar.' });
+        return false;
+      }
+      if (!billing) return true;
+      const q = await billing.quota(uid);
+      const [frames, spent] = await Promise.all([radarFramesToday(db, uid), aiCostThisMonth(db, uid)]);
+      if (spent >= PLANS[q.plan].aiBudgetMicroUsd * 2) {
+        void reply.code(402).send({ error: 'ai_budget', message: 'Photo recognition is paused for this month. You can still scan barcodes or type the item.', quota: q });
+        return false;
+      }
+      if (frames >= RADAR_FRAMES_PER_DAY[q.plan]) {
+        void reply.code(429).send({ error: 'radar_limit', message: 'Live radar limit for today reached. Take a photo of the table instead.', plan: q.plan });
+        return false;
+      }
+      return true;
+    },
+
+    async recordRadarFrame(req, x) {
+      await safely(req, 'radar', async () => {
+        const uid = await userId(req);
+        if (!uid) return undefined;
+        await recordUsage(db, { userId: uid, kind: 'vision', provider: 'openai', model: x.model, inputTokens: x.inputTokens, outputTokens: x.outputTokens, ...(x.costUsd !== undefined && { costUsd: x.costUsd }) });
+        return undefined;
+      });
     },
 
     async requireVisitor(req, reply) {

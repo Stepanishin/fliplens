@@ -90,8 +90,12 @@ export class OpenAIShelfScanner {
     return this.apiKey.length > 0;
   }
 
-  /** `model` overrides the default (e.g. the cheap model once the user's AI budget is spent). */
-  async scan(imageDataUrl: string, opts: { model?: string } = {}): Promise<ShelfScan> {
+  /**
+   * `model` overrides the default (e.g. the cheap model once the user's AI budget is spent); `tag` names the use
+   * in the model version (shelf-v1, radar-v1), which is how usage is counted per feature. `fast` turns reasoning off:
+   * ~3-4 s instead of 10+ s, for the live radar where a frame is soon replaced anyway.
+   */
+  async scan(imageDataUrl: string, opts: { model?: string; tag?: string; fast?: boolean } = {}): Promise<ShelfScan> {
     if (!this.isConfigured()) throw new RecognitionError('OPENAI_API_KEY is not set', 'not_configured');
     const model = opts.model ?? this.model;
     const started = Date.now();
@@ -103,6 +107,7 @@ export class OpenAIShelfScanner {
         body: JSON.stringify({
           model,
           store: false,
+          ...(opts.fast && { reasoning: { effort: 'none' } }),
           input: [
             { role: 'system', content: PROMPT },
             { role: 'user', content: [{ type: 'input_text', text: 'List the products in this photo.' }, { type: 'input_image', image_url: imageDataUrl, detail: 'high' }] },
@@ -150,7 +155,7 @@ export class OpenAIShelfScanner {
       usage: { inputTokens, outputTokens },
       ...(price && { costUsd: (inputTokens * price[0] + outputTokens * price[1]) / 1_000_000 }),
       latencyMs: Date.now() - started,
-      modelVersion: `${this.id}@shelf-v1`,
+      modelVersion: `openai:${model}@${opts.tag ?? 'shelf-v1'}`,
     };
   }
 }

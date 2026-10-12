@@ -781,3 +781,23 @@ button.ghost.small { min-height: 34px; padding: 6px 12px; font-size: 13px; }
 .dv-4x5 .sd-big .sd-phone { width: 600px; min-height: 0; transform: scale(0.92); transform-origin: center; }
 .dv-4x5 { padding-top: 36px; padding-bottom: 44px; }
 .dv-4x5 h1 { margin: 12px 0 6px; }
+
+/* ---------- live radar ---------- */
+.radar .scanner-view { touch-action: manipulation; }
+.radar-box { position: absolute; padding: 0; border: 2px solid rgba(255, 255, 255, 0.9); border-radius: 10px; background: rgba(255, 255, 255, 0.06); box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.25); transition: left 0.07s linear, top 0.07s linear, width 0.25s, height 0.25s; animation: radar-in 0.25s ease-out; }
+.radar-box span { position: absolute; left: -2px; bottom: 100%; margin-bottom: 4px; max-width: 240px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding: 3px 8px; border-radius: 8px; font-size: 13px; font-weight: 700; color: #111; background: #fff; }
+.radar-box.good { border-color: var(--strong-buy); background: rgba(22, 163, 74, 0.12); }
+.radar-box.good span { background: var(--strong-buy); color: #fff; }
+.radar-box.grey { border-color: rgba(200, 200, 200, 0.8); }
+.radar-box.grey span { background: #6b7280; color: #fff; }
+.radar-box.loading { border-style: dashed; animation: radar-pulse 0.9s ease-in-out infinite; }
+@keyframes radar-in { from { opacity: 0; transform: scale(1.08); } }
+@keyframes radar-pulse { 50% { opacity: 0.55; } }
+.radar-status { position: absolute; top: max(16px, env(safe-area-inset-top)); left: 12px; display: inline-flex; align-items: center; gap: 8px; padding: 9px 14px; border-radius: 999px; background: rgba(0, 0, 0, 0.6); color: #fff; font-size: 14px; font-weight: 650; backdrop-filter: blur(6px); }
+.radar-dot { width: 8px; height: 8px; border-radius: 50%; background: #2dd4bf; animation: radar-pulse 0.8s infinite; }
+.radar-paused { position: absolute; inset: 0; border: 0; background: rgba(0, 0, 0, 0.55); color: #fff; font-size: 18px; font-weight: 700; }
+.radar-panel { display: grid; gap: 10px; }
+.radar-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.radar-list li { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.radar-list li > span { display: grid; }
+.radar-box.inside span { bottom: auto; margin: 0; }

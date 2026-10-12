@@ -19,6 +19,7 @@ import { CascadeVisionProvider, OpenAIListingWriter, OpenAIShelfScanner, OpenAIV
 import { compact } from '@fliplens/core';
 import { registerBenchmarkRoutes } from './benchmark.js';
 import { registerShelfRoute } from './shelf.js';
+import { registerRadarRoute } from './radar.js';
 import { initPersistence, type Persistence } from './persistence.js';
 import { billingConfigFromEnv } from './billing.js';
 import { registerSecurity, registerWebApp } from './web.js';
@@ -251,6 +252,12 @@ registerShelfRoute(app, {
   fx,
   scanner: new OpenAIShelfScanner(openaiKey, process.env.OPENAI_VISION_MODEL || 'gpt-6-sol'),
   cheapModel: process.env.OPENAI_VISION_FAST_MODEL || 'gpt-6-luna',
+});
+
+registerRadarRoute(app, {
+  store,
+  scanner: new OpenAIShelfScanner(openaiKey, process.env.OPENAI_VISION_FAST_MODEL || 'gpt-6-luna'),
+  model: process.env.OPENAI_VISION_FAST_MODEL || 'gpt-6-luna',
 });
 
 app.get('/api/presets', async () =>

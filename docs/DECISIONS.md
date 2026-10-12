@@ -125,3 +125,10 @@ Status: accepted 2026-10-12.
 - New fee preset `ebay_uk_private` (no final value fee for UK private sellers, eBay UK help page, checked 2026-10-12). Profile shows the presets that fit the country and switches the preset when the country changes. Fixed fees of a preset in another currency are converted with the day's ECB rate (`feeProfileIn`).
 - eBay category IDs used for search filtering are the same on EBAY_GB (verified on all mapped categories).
 - FlipLens' own prices and referral earnings stay in euro.
+
+## ADR-022: Live radar
+Status: accepted 2026-10-12.
+- Camera stays open; while the view changes, a 768 px frame goes to `POST /api/radar/frame` at most every 2.5 s (one at a time, not while the phone moves, not when the view is the same as the last frame). The answer is names and boxes only. Prices appear only after the user taps a box, which runs a normal check (`/api/valuation`, one check, real eBay listings). The radar never shows a guessed price.
+- Recognition uses the cheap vision model with reasoning off (`reasoning.effort: none`): about 3.5 s and $0.0002 per frame in tests, against 10 to 14 s with default reasoning.
+- Boxes follow the camera between frames with an on-device tracker: block matching on an 80 px grey thumbnail gives the global shift, boxes move by the shift since their frame was taken. No ML library is downloaded. MediaPipe/TensorFlow.js object detectors were considered: COCO classes miss most resale items (consoles, lenses, headphones), and the models add 5 to 15 MB.
+- Signed-in (Google) users only. Frames do not use up checks or the recognition limit; they are recorded in usage_costs (`@radar-v1`), count towards the AI budget and the hard stop, and are capped per day: Free 120, Pro 600, Reseller 1500 (`RADAR_FRAMES_PER_DAY`). Server floor of 1.2 s between frames per device. The radar pauses after 75 s without a touch and when the page is hidden.

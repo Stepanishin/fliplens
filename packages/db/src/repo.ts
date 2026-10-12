@@ -377,6 +377,15 @@ export async function aiCostThisMonth(db: Db, userId: string): Promise<number> {
   return row?.n ?? 0;
 }
 
+/** Live radar frames sent today (UTC): each is one cheap recognition call. */
+export async function radarFramesToday(db: Db, userId: string): Promise<number> {
+  const [row] = await db
+    .select({ n: sql<number>`count(*)::int` })
+    .from(usageCosts)
+    .where(and(eq(usageCosts.userId, userId), sql`${usageCosts.model} like '%@radar-%'`, gte(usageCosts.createdAt, sql`date_trunc('day', now())`)));
+  return row?.n ?? 0;
+}
+
 /** Generated listings this calendar month (UTC). */
 export async function listingsThisMonth(db: Db, userId: string): Promise<number> {
   const [row] = await db

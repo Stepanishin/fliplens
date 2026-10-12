@@ -9,6 +9,7 @@ import { QuickListing } from './screens/QuickListing.js';
 import { GoogleButton } from './ui/GoogleButton.js';
 import { Referral } from './screens/Referral.js';
 import { Shelf } from './screens/Shelf.js';
+import { Radar } from './screens/Radar.js';
 import { BoughtSheet } from './ui/BoughtSheet.js';
 import { ListingSheet } from './ui/ListingSheet.js';
 import type { InventoryItem } from './api.js';
@@ -129,6 +130,7 @@ export function App() {
   const [busy, setBusy] = useState(false);
   const [resp, setResp] = useState<ValuationResponse | null>(null);
   const [scanning, setScanning] = useState(false);
+  const [radar, setRadar] = useState(false);
   const [scans, setScans] = useState<ServerScan[] | null>(null);
   const [settings, setSettingsState] = useState<Settings>(loadSettings);
   const [devTools, setDevTools] = useState(() => {
@@ -587,6 +589,7 @@ export function App() {
             recent={dbOn ? scans : []}
             onPhotos={startPhotos}
             onShelf={(photo) => go({ name: 'shelf', photo })}
+            onRadar={() => setRadar(true)}
             onQuickListing={() => { track('quick_listing_opened', { from: 'home' }); go({ name: 'listing' }); }}
             onCamera={() => cameraRef.current?.click()}
             onBarcode={() => setScanning(true)}
@@ -739,6 +742,30 @@ export function App() {
       </main>
 
       {scanning && <BarcodeScanner onCode={onBarcode} onClose={closeScanner} />}
+      {radar && (
+        <Radar
+          settings={settings}
+          onClose={() => setRadar(false)}
+          onOpenScan={(id) => {
+            void api.scans().then((list) => {
+              setScans(list);
+              const s = list.find((x) => x.id === id);
+              if (s) {
+                setRadar(false);
+                go({ name: 'scan', scan: s });
+              }
+            }, () => undefined);
+          }}
+          onUpgrade={() => {
+            setRadar(false);
+            openPlans();
+          }}
+          onSignIn={() => {
+            setRadar(false);
+            tab({ name: 'profile' });
+          }}
+        />
+      )}
       {listingFor && (
         <ListingSheet
           item={listingFor}
