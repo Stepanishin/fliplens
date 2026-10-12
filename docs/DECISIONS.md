@@ -133,3 +133,7 @@ Status: accepted 2026-10-12.
 - Recognition uses the cheap vision model with reasoning off (`reasoning.effort: none`): about 3.5 s and $0.0002 per frame in tests, against 10 to 14 s with default reasoning.
 - Boxes follow the camera between frames with an on-device tracker: block matching on an 80 px grey thumbnail gives the global shift, boxes move by the shift since their frame was taken. No ML library is downloaded. MediaPipe/TensorFlow.js object detectors were considered: COCO classes miss most resale items (consoles, lenses, headphones), and the models add 5 to 15 MB.
 - Signed-in (Google) users only. Frames do not use up checks or the recognition limit; they are recorded in usage_costs (`@radar-v1`), count towards the AI budget and the hard stop, and are capped per day: Free 120, Pro 600, Reseller 1500 (`RADAR_FRAMES_PER_DAY`). Server floor of 1.2 s between frames per device. The radar pauses after 75 s without a touch and when the page is hidden.
+
+## ADR-023: Admin allowance
+Status: accepted 2026-10-12.
+- Accounts in ADMIN_EMAILS (signed in with Google) get at least 100 checks a month without a subscription (`ADMIN_MONTHLY_CHECKS`), and Pro limits for listings, AI budget and radar frames (`limitsPlan`). The plan itself stays Free: no Stripe subscription, nothing changes in billing. Paid plans keep their own, higher limits.

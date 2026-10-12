@@ -41,7 +41,7 @@ import { money, PLANS, RADAR_FRAMES_PER_DAY, type FxRateTable, type Insufficient
 import type { IdentificationResult } from '@fliplens/recognition';
 import type { SearchResult } from '@fliplens/sources';
 import { verifyGoogleIdToken } from './google.js';
-import { createBilling, type BillingConfig, type Quota } from './billing.js';
+import { createBilling, limitsPlan, type BillingConfig, type Quota } from './billing.js';
 import { registerInventoryRoutes } from './inventory.js';
 import { registerListingRoutes } from './listing.js';
 import { registerReferralRoutes } from './referrals.js';
@@ -308,7 +308,7 @@ function enabled(db: Db, log: FastifyBaseLogger, auth: AuthConfig): Persistence 
     return true;
   };
 
-  const billing = auth.billing ? createBilling(db, auth.billing, log) : undefined;
+  const billing = auth.billing ? createBilling(db, auth.billing, log, isAdmin) : undefined;
 
   return {
     status: 'connected',
@@ -328,7 +328,7 @@ function enabled(db: Db, log: FastifyBaseLogger, auth: AuthConfig): Persistence 
           return false;
         }
         // Hard stop for AI spend (abuse, bugs): 2x the plan budget. Barcode and typing still work.
-        if ((await aiCostThisMonth(db, uid)) >= PLANS[q.plan].aiBudgetMicroUsd * 2) {
+        if ((await aiCostThisMonth(db, uid)) >= PLANS[limitsPlan(q)].aiBudgetMicroUsd * 2) {
           req.log.warn({ event: 'ai_budget_exhausted', plan: q.plan }, 'AI budget exhausted');
           void reply.code(402).send({ error: 'ai_budget', message: 'Photo recognition is paused for this month. You can still scan barcodes or type the item.', quota: q });
           return false;
@@ -355,11 +355,11 @@ function enabled(db: Db, log: FastifyBaseLogger, auth: AuthConfig): Persistence 
       if (!billing) return true;
       const q = await billing.quota(uid);
       const [frames, spent] = await Promise.all([radarFramesToday(db, uid), aiCostThisMonth(db, uid)]);
-      if (spent >= PLANS[q.plan].aiBudgetMicroUsd * 2) {
+      if (spent >= PLANS[limitsPlan(q)].aiBudgetMicroUsd * 2) {
         void reply.code(402).send({ error: 'ai_budget', message: 'Photo recognition is paused for this month. You can still scan barcodes or type the item.', quota: q });
         return false;
       }
-      if (frames >= RADAR_FRAMES_PER_DAY[q.plan]) {
+      if (frames >= RADAR_FRAMES_PER_DAY[limitsPlan(q)]) {
         void reply.code(429).send({ error: 'radar_limit', message: 'Live radar limit for today reached. Take a photo of the table instead.', plan: q.plan });
         return false;
       }
@@ -385,7 +385,7 @@ function enabled(db: Db, log: FastifyBaseLogger, auth: AuthConfig): Persistence 
       if (!uid) return 'full';
       const q = await billing.quota(uid);
       const spent = await aiCostThisMonth(db, uid);
-      if (spent < PLANS[q.plan].aiBudgetMicroUsd) return 'full';
+      if (spent < PLANS[limitsPlan(q)].aiBudgetMicroUsd) return 'full';
       req.log.info({ event: 'ai_cheap_mode', plan: q.plan, spentMicroUsd: spent }, 'AI budget reached: cheap model only');
       return 'cheap';
     },

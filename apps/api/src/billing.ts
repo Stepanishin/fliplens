@@ -63,7 +63,14 @@ export interface Quota {
   used: number;
   limit: number;
   remaining: number;
+  /** Admin account (ADMIN_EMAILS): Pro limits without a subscription. */
+  admin?: true;
 }
+
+/** Monthly checks for admin accounts, whatever the plan. */
+export const ADMIN_MONTHLY_CHECKS = 100;
+/** The plan whose limits apply: Pro limits (listings, AI budget, radar) for admins without a paid plan. */
+export const limitsPlan = (q: Quota): PlanId => (q.admin && q.plan === 'free' ? 'pro' : q.plan);
 
 export interface Billing {
   readonly enabled: boolean;
@@ -73,7 +80,7 @@ export interface Billing {
   registerRoutes(app: FastifyInstance, deps: { requireUser: (req: FastifyRequest, reply: FastifyReply) => Promise<string | undefined> }): void;
 }
 
-export function createBilling(db: Db, cfg: BillingConfig, log: FastifyBaseLogger): Billing {
+export function createBilling(db: Db, cfg: BillingConfig, log: FastifyBaseLogger, isAdmin: (email: string | null | undefined) => boolean = () => false): Billing {
   let stripe: Stripe | undefined;
   if (!cfg.secretKey) log.warn({ event: 'billing_disabled' }, 'no Stripe key: billing disabled');
   else if (cfg.secretKey.startsWith('sk_live_') && !cfg.allowLive) {
@@ -104,10 +111,11 @@ export function createBilling(db: Db, cfg: BillingConfig, log: FastifyBaseLogger
     const plan = effectivePlan(await getSubscription(db, userId));
     const used = await valuationsThisMonth(db, userId);
     // Invited users get extra free checks during their first days (referral programme).
-    const u = plan === 'free' ? await getUser(db, userId) : undefined;
-    const bonus = u?.referredAt && Date.now() - u.referredAt.getTime() < REFERRAL.inviteeBonusDays * 86_400_000 ? REFERRAL.inviteeBonusChecks : 0;
-    const limit = PLANS[plan].monthlyValuations + bonus;
-    return { plan, used, limit, remaining: Math.max(0, limit - used) };
+    const u = await getUser(db, userId);
+    const bonus = plan === 'free' && u?.referredAt && Date.now() - u.referredAt.getTime() < REFERRAL.inviteeBonusDays * 86_400_000 ? REFERRAL.inviteeBonusChecks : 0;
+    const admin = Boolean(u?.googleSub) && isAdmin(u?.email);
+    const limit = Math.max(PLANS[plan].monthlyValuations + bonus, admin ? ADMIN_MONTHLY_CHECKS : 0);
+    return { plan, used, limit, remaining: Math.max(0, limit - used), ...(admin && { admin: true as const }) };
   }
 
   async function syncSubscription(sub: Stripe.Subscription): Promise<void> {

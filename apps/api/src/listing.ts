@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { FEE_PRESETS, PLANS, type FeePresetId } from '@fliplens/core';
 import { aiCostThisMonth, getInventory, getSettings, listingsThisMonth, recordUsage, type Db } from '@fliplens/db';
 import { RecognitionError, type OpenAIListingWriter } from '@fliplens/recognition';
-import type { Quota } from './billing.js';
+import { limitsPlan, type Quota } from './billing.js';
 
 /** Listing generator (spec Phase 9), paid plans only. Text to copy; we never post on the user's behalf. */
 
@@ -55,7 +55,7 @@ export function registerListingRoutes(
   async function allowed(uid: string, reply: FastifyReply): Promise<boolean> {
     if (!deps.quota) return true;
     const q = await deps.quota(uid);
-    const plan = PLANS[q.plan];
+    const plan = PLANS[limitsPlan(q)];
     const [listings, spent] = await Promise.all([listingsThisMonth(deps.db, uid), aiCostThisMonth(deps.db, uid)]);
     if (listings >= plan.monthlyListings || spent >= plan.aiBudgetMicroUsd * 2) {
       const message =
@@ -103,7 +103,7 @@ export function registerListingRoutes(
       });
       req.log.info({ event: 'photo_listing_generated', marketplace: b.marketplace, language: b.language, images: b.images.length, costUsd: text.costUsd ?? null }, 'photo listing');
       const used = await listingsThisMonth(deps.db, uid);
-      const limit = deps.quota ? PLANS[(await deps.quota(uid)).plan].monthlyListings : null;
+      const limit = deps.quota ? PLANS[limitsPlan(await deps.quota(uid))].monthlyListings : null;
       return {
         title: text.title,
         description: text.description,
