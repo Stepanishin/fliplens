@@ -13,7 +13,7 @@ import { LEGAL } from '../src/legal.js';
 import { PLAN_FEATURES_BY_LANG } from '../src/i18n.js';
 
 const SITE = 'https://fliplens.eu';
-const UPDATED = '2026-10-05';
+const UPDATED = '2026-10-12';
 const here = dirname(fileURLToPath(import.meta.url));
 const PUBLIC = resolve(here, '../public');
 const INDEX = resolve(here, '../index.html');
@@ -55,9 +55,9 @@ const plans = Object.values(PLANS);
 const paid = plans.filter((p) => p.priceMonthlyMinor > 0);
 const planLine = plans.map((p) => `${p.name} at ${p.priceMonthlyMinor ? `${eur(p.priceMonthlyMinor)}/month` : '€0'}: ${p.features[0]!.toLowerCase().replace(/\s*\((.*)\)/, ', $1')}`).join('; ');
 
-const CTA = `<p class="cta"><a class="btn" href="/">Check an item for free</a><span>10 free checks a month. Sign in with Google, no card needed.</span></p>`;
+const CTA = `<p class="cta"><a class="btn" href="/">Check an item for free</a><span>Try one check without an account, then 10 free checks a month with Google sign-in. No card needed.</span></p>`;
 
-const LISTING_CTA = `<p class="cta"><a class="btn" href="/?tool=listing">Write my listing free</a><span>${PLANS.free.monthlyListings} free listings a month. Sign in with Google, no card needed.</span></p>`;
+const LISTING_CTA = `<p class="cta"><a class="btn" href="/?tool=listing">Write my listing free</a><span>${PLANS.free.monthlyListings} free listings a month. Try one without an account. No card needed.</span></p>`;
 
 const COMMON_FAQ: Faq[] = [
   {
@@ -397,6 +397,225 @@ const PAGES: Page[] = [
       { q: 'How do I write a good Vinted description?', a: 'Give the brand, size and measurements, material, fit and an honest condition including flaws, plus a few words buyers search for.' },
     ],
   },
+  {
+    path: '/best-resale-value-apps',
+    kind: 'article',
+    crumb: 'Ways to check resale value',
+    title: 'How to check resale value in Europe: apps and methods compared (2026)',
+    description: 'An honest comparison of the ways to find what a second-hand item is worth in Europe: FlipLens, eBay sold listings, Vinted and Kleinanzeigen searches, Google Lens and trade-in offers.',
+    h1: 'How to check resale value in Europe: apps and methods compared',
+    lead: 'There is no single perfect source for second-hand prices. Each method below answers a slightly different question. Here is what each one is good at, where it falls short, and when to use it.',
+    sections: [
+      {
+        h2: 'At a glance',
+        html: '<table><thead><tr><th>Method</th><th>Speed</th><th>Data</th><th>Sold or asking prices</th><th>Countries</th><th>Cost</th></tr></thead><tbody><tr><td>FlipLens</td><td>Seconds, from a photo, barcode or model name</td><td>Active eBay listings, filtered and adjusted for condition</td><td>Asking prices, adjusted down</td><td>Germany, France, Italy, Spain, Netherlands at once</td><td>10 free checks a month, paid plans for more</td></tr><tr><td>eBay "Sold items" filter</td><td>A few minutes per item</td><td>Completed sales on one eBay site</td><td>Sold prices</td><td>One country at a time</td><td>Free</td></tr><tr><td>Vinted, Kleinanzeigen searches</td><td>A few minutes</td><td>Current local listings</td><td>Asking prices</td><td>One marketplace and region</td><td>Free</td></tr><tr><td>Google Lens, then a marketplace search</td><td>Fast to identify, slow to price</td><td>Visual match, then your own search</td><td>Whatever you find</td><td>Any</td><td>Free</td></tr><tr><td>Trade-in and buyback sites</td><td>Instant offer</td><td>The buyer\'s own price list</td><td>An offer to buy from you</td><td>Varies</td><td>Free</td></tr></tbody></table>',
+      },
+      {
+        h2: 'FlipLens',
+        html: '<p>FlipLens identifies the exact model from a photo, barcode or typed name, reads comparable active eBay listings in five EU countries, removes other variants, bundles and broken items, adjusts for condition and returns a resale range, your profit after fees and shipping and the most you should pay. <strong>Good for:</strong> fast buying decisions at flea markets and on classifieds, when you do not want to research every item by hand. <strong>Limits:</strong> it works from asking prices, not confirmed sale prices; it covers consumer electronics, gaming, cameras and power tools, not fashion; if there are too few comparable listings it says so instead of estimating. See <a href="/how-it-works">how it works</a>.</p>',
+      },
+      {
+        h2: 'eBay search with the "Sold items" filter',
+        html: '<p>On eBay you can filter a search to show items that actually sold. <strong>Better than FlipLens at:</strong> showing real final prices rather than asking prices. <strong>Drawbacks:</strong> you check one eBay site at a time, you have to read through the results yourself to remove other generations, bundles and broken items, and you still need to subtract fees and shipping to know your profit. Worth doing for expensive items before you commit.</p>',
+      },
+      {
+        h2: 'Searching Vinted or Kleinanzeigen',
+        html: '<p>Searching the marketplace you plan to sell on shows the competition you will face. <strong>Good for:</strong> local pricing and items that sell mainly through classifieds. <strong>Drawbacks:</strong> you only see asking prices, and listings that sit unsold for weeks pull the picture up. FlipLens links to these searches from every result so you can compare in a tap.</p>',
+      },
+      {
+        h2: 'Google Lens to identify an unknown item',
+        html: '<p>When you do not know what an item is, an image search can find the name or model. <strong>Good for:</strong> unusual items, vintage pieces and anything without a readable label. <strong>Drawbacks:</strong> it identifies, it does not price; you still need to search marketplaces and judge condition and variants yourself.</p>',
+      },
+      {
+        h2: 'Trade-in and buyback offers',
+        html: '<p>Some shops and websites make an instant offer to buy your used phone, console or camera. <strong>Good for:</strong> selling quickly with no effort. <strong>Drawbacks:</strong> the offer is what the buyer is willing to pay to resell it themselves, so it is usually well below what you could get selling privately. It is a floor, not a resale value.</p>',
+      },
+      {
+        h2: 'When to use which',
+        html: '<ul><li><strong>Standing at a stall, seconds to decide:</strong> FlipLens.</li><li><strong>An expensive item before you buy:</strong> FlipLens first, then the eBay sold filter to confirm.</li><li><strong>Pricing your own listing:</strong> look at what is for sale on your marketplace right now.</li><li><strong>No idea what the item is:</strong> Google Lens first.</li><li><strong>You just want it gone:</strong> a trade-in offer, knowing it is the lowest number.</li></ul>',
+      },
+    ],
+    faq: [
+      { q: 'What is the most accurate way to find resale value?', a: 'Recent sold prices for the exact model in the same condition, adjusted for fees and shipping. eBay\'s sold filter shows them for one country at a time; FlipLens gives a fast estimate across five EU countries from active listings.' },
+      { q: 'Why are trade-in offers so low?', a: 'The buyer has to resell the item and make a profit, so the offer is below the private resale price.' },
+      { q: 'Is there a free way to check resale value?', a: 'Yes. Marketplace searches and the eBay sold filter are free, and FlipLens includes 10 free checks a month.' },
+    ],
+  },
+  {
+    path: '/guides/how-much-is-my-console-worth',
+    kind: 'article',
+    crumb: 'How much is my console worth',
+    parent: { path: '/guides', name: 'Guides' },
+    title: 'How much is my console worth? Consoles, handhelds, controllers and games',
+    description: 'What decides the resale value of a used console, handheld, controller or game in Europe, the mistakes that cost money, and how to check the price in seconds.',
+    h1: 'How much is my console worth?',
+    lead: 'Gaming gear resells well, but two consoles that look the same can be worth very different amounts. These are the details that decide the price.',
+    sections: [
+      {
+        h2: 'What drives the price',
+        html: '<ul><li><strong>Exact model and revision:</strong> for example a standard model versus an OLED or Slim version, or a disc versus a digital edition. The model number on the bottom or back tells you.</li><li><strong>Storage:</strong> larger internal storage usually sells for more.</li><li><strong>Condition:</strong> scratches on screens, yellowed plastic, loud fans and controller stick drift all lower the price.</li><li><strong>Completeness:</strong> original box, controllers, dock, cables and power supply. A console without its power supply is harder to sell.</li><li><strong>Account and bans:</strong> a console still linked to someone else\'s account, or one banned from online services, is worth much less.</li></ul>',
+      },
+      {
+        h2: 'Controllers and games',
+        html: '<p>Controllers are checked for stick drift and worn buttons; official controllers sell better than third-party ones. For games, the edition matters (standard, collector\'s, region), and whether the case, manual and any codes are complete. Sealed games and complete-in-box retro games are their own market: compare like with like.</p>',
+      },
+      {
+        h2: 'Common mistakes',
+        html: '<ul><li>Comparing your item with a bundle that includes extra games or controllers.</li><li>Taking the highest asking price as the value.</li><li>Forgetting shipping: consoles are heavy and bulky.</li><li>Buying a handheld without testing the screen and buttons.</li></ul>',
+      },
+      {
+        h2: 'Quick checklist',
+        html: '<ul><li>Model number and storage noted.</li><li>Powers on, reads discs (if it has a drive), controllers connect.</li><li>Signed out of all accounts or factory reset.</li><li>Power supply and cables included.</li><li>Price compared with the same model in the same condition.</li></ul>',
+      },
+      {
+        h2: 'Where to sell and how to check quickly',
+        html: '<p>Consoles sell well on eBay and locally; see <a href="/guides/where-to-sell-used-electronics-europe">where to sell used electronics in Europe</a>. To check a console in seconds, scan its barcode or type the model in FlipLens: it compares listings in five EU countries and shows the most you should pay. <a href="/how-it-works">How it works</a>.</p>',
+      },
+    ],
+    faq: [
+      { q: 'How do I find out which console model I have?', a: 'Look for the model number on the bottom or back of the console or in the system settings. It tells you the exact version and often the storage size.' },
+      { q: 'Does the original box matter?', a: 'Yes. A complete console with box, controllers and cables usually sells faster and for more than the console alone.' },
+    ],
+  },
+  {
+    path: '/guides/resale-value-cameras-lenses',
+    kind: 'article',
+    crumb: 'Cameras and lenses',
+    parent: { path: '/guides', name: 'Guides' },
+    title: 'Resale value of used cameras and lenses: what to check before you buy',
+    description: 'What decides the resale value of a used camera body or lens in Europe: mount, shutter count, sensor and glass condition, completeness and region, plus a quick checklist.',
+    h1: 'Resale value of used cameras and lenses',
+    lead: 'Camera gear keeps its value better than most electronics, but a single problem such as fungus in a lens can make an item nearly worthless. Check these points before you pay.',
+    sections: [
+      {
+        h2: 'What drives the price of a camera body',
+        html: '<ul><li><strong>Exact model:</strong> generations of the same line differ a lot in value.</li><li><strong>Shutter count:</strong> how many photos the camera has taken. A high count lowers the value; many cameras let you read it from the files or the menu.</li><li><strong>Sensor and screen:</strong> scratches, dead pixels and dust that will not clean.</li><li><strong>Completeness:</strong> battery, charger, strap, caps and box.</li><li><strong>Region and language:</strong> some imported models have different menus or warranty terms.</li></ul>',
+      },
+      {
+        h2: 'What drives the price of a lens',
+        html: '<ul><li><strong>Mount:</strong> the same focal length exists for different mounts (for example Canon RF and EF, Sony E/FE, Nikon Z and F). Compare only the same mount.</li><li><strong>Optical condition:</strong> fungus, haze, separation and deep scratches seriously reduce the value. Shine a light through the lens from the back.</li><li><strong>Mechanics:</strong> autofocus works, zoom and focus rings are smooth, aperture blades are clean and dry.</li><li><strong>Version:</strong> many lenses exist in several versions (for example with or without stabilisation).</li></ul>',
+      },
+      {
+        h2: 'Common mistakes',
+        html: '<ul><li>Comparing a lens with the same focal length but a different mount or version.</li><li>Not testing autofocus on a body.</li><li>Missing fungus because the lens was not checked against light.</li><li>Ignoring the shutter count on a body that looks clean.</li></ul>',
+      },
+      {
+        h2: 'Quick checklist',
+        html: '<ul><li>Model, mount and version written down.</li><li>Lens checked against light for fungus and haze.</li><li>Body powers on, takes a photo, shutter count known if possible.</li><li>Battery and charger included.</li></ul>',
+      },
+      {
+        h2: 'Where to sell and how to check quickly',
+        html: '<p>Cameras and lenses sell well on eBay across Europe; see <a href="/guides/where-to-sell-used-electronics-europe">where to sell used electronics in Europe</a>. FlipLens reads the model and mount from a photo of the label or lens barrel and compares listings in five EU countries. <a href="/how-it-works">How it works</a>.</p>',
+      },
+    ],
+    faq: [
+      { q: 'How do I check a used lens for fungus?', a: 'Shine a bright light through the lens from the back and look for thread-like patterns, spots or a milky haze inside the glass.' },
+      { q: 'Does shutter count matter when reselling?', a: 'Yes. Buyers compare it with the expected life of the shutter for that model, so a low count helps the price.' },
+    ],
+  },
+  {
+    path: '/guides/resale-value-headphones',
+    kind: 'article',
+    crumb: 'Headphones',
+    parent: { path: '/guides', name: 'Guides' },
+    title: 'Resale value of used headphones and earbuds: generations, battery and hygiene',
+    description: 'What decides the resale value of used headphones and earbuds in Europe: exact generation, battery wear, ear pads, completeness and hygiene, plus a quick checklist.',
+    h1: 'Resale value of used headphones and earbuds',
+    lead: 'Popular headphones resell quickly, but generations look alike and batteries wear out. These are the details buyers check.',
+    sections: [
+      {
+        h2: 'What drives the price',
+        html: '<ul><li><strong>Exact generation:</strong> models from the same line, such as Sony WH-1000XM4 and WH-1000XM5, or different AirPods generations, sell for different prices. Check the model number on the headband, case or in the settings.</li><li><strong>Battery:</strong> wireless headphones and earbuds lose capacity over time; noticeably short battery life lowers the value.</li><li><strong>Ear pads and tips:</strong> worn or flaking pads put buyers off, but can often be replaced.</li><li><strong>Completeness:</strong> case, cable, adapter and box.</li><li><strong>Authenticity:</strong> popular earbuds are often counterfeited; serial numbers and pairing behaviour help to tell.</li></ul>',
+      },
+      {
+        h2: 'Hygiene and earbuds',
+        html: '<p>Many buyers are cautious about used in-ear products. Clean them carefully, replace silicone tips if possible and say so in the listing. A single missing earbud or a missing charging case makes a set much harder to sell.</p>',
+      },
+      {
+        h2: 'Common mistakes',
+        html: '<ul><li>Confusing two generations that look almost the same.</li><li>Not testing noise cancelling, microphones and both sides.</li><li>Buying earbuds that are still linked to someone else\'s account.</li></ul>',
+      },
+      {
+        h2: 'Quick checklist',
+        html: '<ul><li>Model number and generation confirmed.</li><li>Both sides work, noise cancelling and microphone tested.</li><li>Battery holds a charge.</li><li>Case, cable and tips included.</li><li>Removed from the previous owner\'s account.</li></ul>',
+      },
+      {
+        h2: 'Where to sell and how to check quickly',
+        html: '<p>Headphones sell well on eBay and Vinted; see <a href="/guides/where-to-sell-used-electronics-europe">where to sell used electronics in Europe</a>. In FlipLens a photo of the label or the box barcode is enough to identify the generation and compare prices in five EU countries. <a href="/how-it-works">How it works</a>.</p>',
+      },
+    ],
+    faq: [
+      { q: 'How do I tell headphone generations apart?', a: 'Read the model number printed on the headband, case or box, or in the companion app or Bluetooth settings.' },
+      { q: 'Can I sell used earbuds?', a: 'Yes, but clean them, replace the tips if you can and describe their condition honestly. Complete sets with the charging case sell best.' },
+    ],
+  },
+  {
+    path: '/guides/sell-used-phone-europe',
+    kind: 'article',
+    crumb: 'Selling a used phone',
+    parent: { path: '/guides', name: 'Guides' },
+    title: 'Selling a used phone in Europe: what decides the price and what to check',
+    description: 'What decides the resale value of a used smartphone in Europe: model, storage, battery health, account and carrier locks, condition, plus a checklist before you buy or sell.',
+    h1: 'Selling a used phone in Europe',
+    lead: 'Phones are the most common second-hand electronics, and the easiest to get wrong. A locked phone or the wrong storage size can turn a good deal into a loss.',
+    sections: [
+      {
+        h2: 'What drives the price',
+        html: '<ul><li><strong>Exact model:</strong> standard, Plus, Pro and Max versions differ a lot in value.</li><li><strong>Storage:</strong> more storage sells for more. Check it in the settings, not just on the box.</li><li><strong>Battery health:</strong> many phones show the battery condition in the settings; a weak battery lowers the price.</li><li><strong>Condition:</strong> screen scratches or cracks, back glass, frame dents, camera lenses, buttons and ports.</li><li><strong>Completeness:</strong> box and cable help a little; the phone itself matters most.</li></ul>',
+      },
+      {
+        h2: 'Account locks and carrier locks',
+        html: '<p>A phone that is still linked to the previous owner\'s account (for example Apple\'s Activation Lock or a Google account after a reset) cannot be set up by a new owner and is worth only a fraction of the price. Make sure the seller removes the account and resets the phone in front of you. Also check whether the phone is locked to a mobile network: unlocked phones sell to more buyers.</p>',
+      },
+      {
+        h2: 'Common mistakes',
+        html: '<ul><li>Buying a phone that is still signed in to an account.</li><li>Comparing prices of a different storage size or version.</li><li>Not checking for a replaced or non-original screen.</li><li>Ignoring battery health.</li></ul>',
+      },
+      {
+        h2: 'Quick checklist',
+        html: '<ul><li>Model and storage confirmed in the settings.</li><li>Signed out of all accounts and factory reset.</li><li>Not locked to a network.</li><li>Battery health checked.</li><li>Screen, cameras, speakers, microphone and charging port tested.</li></ul>',
+      },
+      {
+        h2: 'Where to sell and how to check quickly',
+        html: '<p>Phones sell on eBay, classifieds and Vinted; see <a href="/guides/where-to-sell-used-electronics-europe">where to sell used electronics in Europe</a>. FlipLens identifies the model from a photo or barcode, lets you set the storage, and compares listings in five EU countries. <a href="/how-it-works">How it works</a>.</p>',
+      },
+    ],
+    faq: [
+      { q: 'What should I check before buying a used phone?', a: 'That it is signed out of all accounts and reset, not locked to a network, has the storage you expect, a healthy battery, and a working screen, cameras and charging port.' },
+      { q: 'Does storage size change the resale value?', a: 'Yes. The same model with more storage usually sells for more, so always compare the same storage size.' },
+    ],
+  },
+  {
+    path: '/about',
+    kind: 'page',
+    crumb: 'About',
+    title: 'About FlipLens: an independent resale value checker for Europe',
+    description: 'Who runs FlipLens, where its prices come from and the principles behind it: no photos stored, no eBay data stored, honest about uncertainty, independent of eBay and Vinted.',
+    h1: 'About FlipLens',
+    lead: 'FlipLens helps people who buy second-hand to resell decide in seconds whether an item is worth it, using real marketplace data from across Europe.',
+    sections: [
+      {
+        h2: 'What it is',
+        html: '<p>A web app for resellers and bargain hunters. Take a photo, scan a barcode or type a model, and FlipLens shows the resale range, your profit after fees and shipping, the most you should pay and a clear verdict. It also writes listings for Vinted, eBay and Kleinanzeigen from a photo and tracks what you bought and sold.</p>',
+      },
+      {
+        h2: 'Who runs it',
+        html: `<p>FlipLens is run by ${esc(LEGAL.operator)} in Slovenia. Contact: <a href="mailto:${LEGAL.supportEmail}">${LEGAL.supportEmail}</a>. Creators and partners: see the <a href="/partner">partner programme</a>.</p>`,
+      },
+      {
+        h2: 'Where the data comes from',
+        html: '<p>Prices come from active eBay listings in Germany, France, Italy, Spain and the Netherlands, read through the official eBay API and converted to euro with European Central Bank exchange rates. Item recognition uses an AI vision model. Details and limits are explained in <a href="/how-it-works">how it works</a>.</p>',
+      },
+      {
+        h2: 'Principles',
+        html: '<ul><li><strong>Photos are never stored.</strong> They are only used to identify the item or write the listing.</li><li><strong>No eBay data is stored.</strong> Listings are read live and cached briefly, as the eBay API licence requires.</li><li><strong>Honest about uncertainty.</strong> Every estimate shows its confidence; with too little data FlipLens says so instead of guessing.</li><li><strong>Independent.</strong> FlipLens is not affiliated with eBay, Vinted or Kleinanzeigen and does not buy, sell or ship items.</li></ul>',
+      },
+      {
+        h2: 'Languages',
+        html: '<p>FlipLens is available in English and German. The app follows your browser language; German pages are under <a href="/de" hreflang="de" lang="de">fliplens.eu/de</a>. See also the <a href="/privacy">Privacy Policy</a> and <a href="/terms">Terms</a>.</p>',
+      },
+    ],
+  },
 ];
 
 const GUIDES = PAGES.filter((p) => p.path.startsWith('/guides/'));
@@ -483,8 +702,8 @@ const deNum = (n: number): string => n.toLocaleString('de-DE');
 /** German plan feature lines (keep in step with apps/web/src/i18n.ts). */
 const DE_FEATURES: Record<string, readonly string[]> = PLAN_FEATURES_BY_LANG.de;
 
-const CTA_DE = `<p class="cta"><a class="btn" href="/de">Kostenlos prüfen</a><span>${PLANS.free.monthlyValuations} Checks pro Monat gratis. Anmeldung mit Google, keine Karte nötig.</span></p>`;
-const LISTING_CTA_DE = `<p class="cta"><a class="btn" href="/de?tool=listing">Anzeige kostenlos schreiben</a><span>${PLANS.free.monthlyListings} Anzeigen pro Monat gratis. Anmeldung mit Google, keine Karte nötig.</span></p>`;
+const CTA_DE = `<p class="cta"><a class="btn" href="/de">Kostenlos prüfen</a><span>${PLANS.free.monthlyValuations} Checks pro Monat gratis. Einen Check kannst du ganz ohne Konto testen. Keine Karte nötig.</span></p>`;
+const LISTING_CTA_DE = `<p class="cta"><a class="btn" href="/de?tool=listing">Anzeige kostenlos schreiben</a><span>${PLANS.free.monthlyListings} Anzeigen pro Monat gratis. Eine kannst du ganz ohne Konto testen. Keine Karte nötig.</span></p>`;
 
 const COMMON_FAQ_DE: Faq[] = [
   {
@@ -825,6 +1044,225 @@ const PAGES_DE: Page[] = [
       { q: 'Wie schreibe ich eine gute Vinted-Beschreibung?', a: 'Nenn Marke, Größe und Maße, Material, Passform und einen ehrlichen Zustand inklusive Makeln, dazu ein paar Begriffe, nach denen Käufer suchen.' },
     ],
   },
+  {
+    path: '/best-resale-value-apps',
+    kind: 'article',
+    crumb: 'Wiederverkaufswert prüfen: Methoden',
+    title: 'Wiederverkaufswert in Europa prüfen: Apps und Methoden im Vergleich (2026)',
+    description: 'Ein ehrlicher Vergleich, wie du herausfindest, was ein gebrauchter Artikel in Europa wert ist: FlipLens, verkaufte Artikel auf eBay, Suche auf Vinted und Kleinanzeigen, Google Lens und Ankaufsangebote.',
+    h1: 'Wiederverkaufswert in Europa prüfen: Apps und Methoden im Vergleich',
+    lead: 'Es gibt nicht die eine perfekte Quelle für Gebrauchtpreise. Jede Methode unten beantwortet eine etwas andere Frage. Hier siehst du, wofür sie jeweils gut ist, wo sie Schwächen hat und wann du sie nutzen solltest.',
+    sections: [
+      {
+        h2: 'Auf einen Blick',
+        html: '<table><thead><tr><th>Methode</th><th>Tempo</th><th>Daten</th><th>Verkaufs- oder Angebotspreise</th><th>Länder</th><th>Kosten</th></tr></thead><tbody><tr><td>FlipLens</td><td>Sekunden, per Foto, Barcode oder Modellname</td><td>Aktive eBay-Angebote, gefiltert und an den Zustand angepasst</td><td>Angebotspreise, nach unten korrigiert</td><td>Deutschland, Frankreich, Italien, Spanien, Niederlande gleichzeitig</td><td>10 Checks pro Monat gratis, bezahlte Tarife für mehr</td></tr><tr><td>eBay-Filter „Verkaufte Artikel"</td><td>Ein paar Minuten pro Artikel</td><td>Abgeschlossene Verkäufe auf einer eBay-Seite</td><td>Verkaufspreise</td><td>Ein Land nach dem anderen</td><td>Kostenlos</td></tr><tr><td>Suche auf Vinted, Kleinanzeigen</td><td>Ein paar Minuten</td><td>Aktuelle Angebote in deiner Gegend</td><td>Angebotspreise</td><td>Ein Marktplatz, eine Region</td><td>Kostenlos</td></tr><tr><td>Google Lens, dann Marktplatz-Suche</td><td>Schnell erkannt, langsam bepreist</td><td>Bildtreffer, danach deine eigene Suche</td><td>Was du findest</td><td>Alle</td><td>Kostenlos</td></tr><tr><td>Ankaufs- und Trade-in-Seiten</td><td>Sofortangebot</td><td>Die Preisliste des Ankäufers</td><td>Ein Angebot, dir den Artikel abzukaufen</td><td>Unterschiedlich</td><td>Kostenlos</td></tr></tbody></table>',
+      },
+      {
+        h2: 'FlipLens',
+        html: '<p>FlipLens erkennt das genaue Modell per Foto, Barcode oder eingetipptem Namen, liest vergleichbare aktive eBay-Angebote aus fünf EU-Ländern, sortiert andere Varianten, Bundles und defekte Artikel aus, passt an den Zustand an und zeigt Wiederverkaufsspanne, Gewinn nach Gebühren und Versand und den Höchstpreis. <strong>Gut für:</strong> schnelle Kaufentscheidungen auf dem Flohmarkt und bei Kleinanzeigen, wenn du nicht jeden Artikel von Hand recherchieren willst. <strong>Grenzen:</strong> FlipLens arbeitet mit Angebotspreisen, nicht mit bestätigten Verkaufspreisen; es deckt Elektronik, Gaming, Kameras und Werkzeug ab, keine Mode; bei zu wenigen Vergleichsangeboten sagt es das, statt zu schätzen. Siehe <a href="/de/how-it-works">So funktioniert\'s</a>.</p>',
+      },
+      {
+        h2: 'eBay-Suche mit dem Filter „Verkaufte Artikel"',
+        html: '<p>Auf eBay kannst du die Suche auf tatsächlich verkaufte Artikel filtern. <strong>Besser als FlipLens bei:</strong> echten Endpreisen statt Angebotspreisen. <strong>Nachteile:</strong> du prüfst eine eBay-Seite nach der anderen, musst andere Generationen, Bundles und defekte Artikel selbst aussortieren und Gebühren und Versand selbst abziehen, um deinen Gewinn zu kennen. Lohnt sich bei teuren Artikeln, bevor du zuschlägst.</p>',
+      },
+      {
+        h2: 'Suche auf Vinted oder Kleinanzeigen',
+        html: '<p>Die Suche auf dem Marktplatz, auf dem du verkaufen willst, zeigt deine Konkurrenz. <strong>Gut für:</strong> lokale Preise und Artikel, die vor allem über Kleinanzeigen laufen. <strong>Nachteile:</strong> du siehst nur Angebotspreise, und Anzeigen, die wochenlang nicht verkauft werden, verzerren das Bild nach oben. FlipLens verlinkt diese Suchen in jedem Ergebnis, damit du mit einem Tipp vergleichen kannst.</p>',
+      },
+      {
+        h2: 'Google Lens, um einen unbekannten Artikel zu erkennen',
+        html: '<p>Wenn du nicht weißt, was ein Artikel ist, findet eine Bildersuche oft Name oder Modell. <strong>Gut für:</strong> ungewöhnliche Artikel, Vintage und alles ohne lesbares Etikett. <strong>Nachteile:</strong> erkennen ist nicht bepreisen; du musst danach trotzdem auf Marktplätzen suchen und Zustand und Varianten selbst beurteilen.</p>',
+      },
+      {
+        h2: 'Ankaufs- und Trade-in-Angebote',
+        html: '<p>Manche Läden und Websites machen dir ein Sofortangebot für dein gebrauchtes Handy, deine Konsole oder Kamera. <strong>Gut für:</strong> schnell und ohne Aufwand verkaufen. <strong>Nachteile:</strong> das Angebot ist das, was der Ankäufer zahlen will, um selbst weiterzuverkaufen, also meist deutlich unter dem, was du privat bekommst. Es ist eine Untergrenze, kein Wiederverkaufswert.</p>',
+      },
+      {
+        h2: 'Wann was passt',
+        html: '<ul><li><strong>Am Stand, Sekunden zum Entscheiden:</strong> FlipLens.</li><li><strong>Ein teurer Artikel vor dem Kauf:</strong> erst FlipLens, dann zur Bestätigung der eBay-Filter für verkaufte Artikel.</li><li><strong>Deine eigene Anzeige bepreisen:</strong> schau, was gerade auf deinem Marktplatz angeboten wird.</li><li><strong>Keine Ahnung, was es ist:</strong> zuerst Google Lens.</li><li><strong>Es soll einfach weg:</strong> ein Ankaufsangebot, im Wissen, dass es die niedrigste Zahl ist.</li></ul>',
+      },
+    ],
+    faq: [
+      { q: 'Wie finde ich den Wiederverkaufswert am genauesten heraus?', a: 'Mit aktuellen Verkaufspreisen für genau dieses Modell im gleichen Zustand, abzüglich Gebühren und Versand. Der eBay-Filter für verkaufte Artikel zeigt sie für ein Land nach dem anderen; FlipLens liefert eine schnelle Schätzung aus aktiven Angeboten in fünf EU-Ländern.' },
+      { q: 'Warum sind Ankaufsangebote so niedrig?', a: 'Der Ankäufer muss den Artikel weiterverkaufen und daran verdienen, deshalb liegt das Angebot unter dem privaten Wiederverkaufspreis.' },
+      { q: 'Kann ich den Wiederverkaufswert kostenlos prüfen?', a: 'Ja. Marktplatz-Suchen und der eBay-Filter sind kostenlos, und FlipLens enthält 10 kostenlose Checks pro Monat.' },
+    ],
+  },
+  {
+    path: '/guides/how-much-is-my-console-worth',
+    kind: 'article',
+    crumb: 'Was ist meine Konsole wert',
+    parent: { path: '/guides', name: 'Ratgeber' },
+    title: 'Was ist meine Konsole wert? Konsolen, Handhelds, Controller und Spiele',
+    description: 'Was den Wiederverkaufswert gebrauchter Konsolen, Handhelds, Controller und Spiele in Europa bestimmt, welche Fehler Geld kosten und wie du den Preis in Sekunden prüfst.',
+    h1: 'Was ist meine Konsole wert?',
+    lead: 'Gaming-Hardware lässt sich gut weiterverkaufen, aber zwei Konsolen, die gleich aussehen, können ganz unterschiedlich viel wert sein. Auf diese Details kommt es an.',
+    sections: [
+      {
+        h2: 'Was den Preis bestimmt',
+        html: '<ul><li><strong>Genaues Modell und Revision:</strong> zum Beispiel Standardmodell gegen OLED- oder Slim-Version, Disc- gegen Digital-Edition. Die Modellnummer auf der Unter- oder Rückseite verrät es dir.</li><li><strong>Speicher:</strong> mehr interner Speicher bringt meist mehr.</li><li><strong>Zustand:</strong> Kratzer auf dem Display, vergilbtes Plastik, laute Lüfter und Stick-Drift bei Controllern drücken den Preis.</li><li><strong>Vollständigkeit:</strong> Originalkarton, Controller, Dock, Kabel und Netzteil. Eine Konsole ohne Netzteil verkauft sich schwerer.</li><li><strong>Konto und Sperren:</strong> eine Konsole, die noch mit dem Konto einer anderen Person verbunden oder von Online-Diensten gesperrt ist, ist viel weniger wert.</li></ul>',
+      },
+      {
+        h2: 'Controller und Spiele',
+        html: '<p>Bei Controllern prüfen Käufer Stick-Drift und abgenutzte Tasten; Original-Controller verkaufen sich besser als Drittanbieter. Bei Spielen zählt die Edition (Standard, Collector\'s, Region) und ob Hülle, Anleitung und eventuelle Codes vollständig sind. Versiegelte Spiele und komplette Retro-Spiele im Originalkarton sind ein eigener Markt: vergleiche Gleiches mit Gleichem.</p>',
+      },
+      {
+        h2: 'Häufige Fehler',
+        html: '<ul><li>Den eigenen Artikel mit einem Bundle mit zusätzlichen Spielen oder Controllern vergleichen.</li><li>Den höchsten Angebotspreis für den Wert halten.</li><li>Den Versand vergessen: Konsolen sind schwer und sperrig.</li><li>Einen Handheld kaufen, ohne Display und Tasten zu testen.</li></ul>',
+      },
+      {
+        h2: 'Kurze Checkliste',
+        html: '<ul><li>Modellnummer und Speicher notiert.</li><li>Startet, liest Discs (falls Laufwerk vorhanden), Controller verbinden sich.</li><li>Aus allen Konten abgemeldet oder auf Werkseinstellungen zurückgesetzt.</li><li>Netzteil und Kabel dabei.</li><li>Preis mit dem gleichen Modell im gleichen Zustand verglichen.</li></ul>',
+      },
+      {
+        h2: 'Wo verkaufen und wie schnell prüfen',
+        html: '<p>Konsolen verkaufen sich gut auf eBay und lokal; siehe <a href="/de/guides/where-to-sell-used-electronics-europe">wo du gebrauchte Elektronik in Europa verkaufst</a>. Um eine Konsole in Sekunden zu prüfen, scann den Barcode oder tipp das Modell in FlipLens ein: es vergleicht Angebote in fünf EU-Ländern und zeigt dir den Höchstpreis. <a href="/de/how-it-works">So funktioniert\'s</a>.</p>',
+      },
+    ],
+    faq: [
+      { q: 'Wie finde ich heraus, welches Konsolenmodell ich habe?', a: 'Such die Modellnummer auf der Unter- oder Rückseite der Konsole oder in den Systemeinstellungen. Sie verrät die genaue Version und oft den Speicher.' },
+      { q: 'Ist der Originalkarton wichtig?', a: 'Ja. Eine komplette Konsole mit Karton, Controllern und Kabeln verkauft sich meist schneller und teurer als die Konsole allein.' },
+    ],
+  },
+  {
+    path: '/guides/resale-value-cameras-lenses',
+    kind: 'article',
+    crumb: 'Kameras und Objektive',
+    parent: { path: '/guides', name: 'Ratgeber' },
+    title: 'Wiederverkaufswert gebrauchter Kameras und Objektive: was du vor dem Kauf prüfst',
+    description: 'Was den Wiederverkaufswert gebrauchter Kameragehäuse und Objektive in Europa bestimmt: Bajonett, Auslösungen, Zustand von Sensor und Glas, Vollständigkeit und Region, plus Checkliste.',
+    h1: 'Wiederverkaufswert gebrauchter Kameras und Objektive',
+    lead: 'Fotoausrüstung behält ihren Wert besser als die meiste Elektronik, aber ein einziges Problem wie Pilz im Objektiv macht einen Artikel fast wertlos. Prüf diese Punkte, bevor du zahlst.',
+    sections: [
+      {
+        h2: 'Was den Preis eines Kameragehäuses bestimmt',
+        html: '<ul><li><strong>Genaues Modell:</strong> Generationen derselben Serie unterscheiden sich stark im Wert.</li><li><strong>Auslösungen:</strong> wie viele Fotos die Kamera schon gemacht hat. Viele Auslösungen drücken den Wert; bei vielen Kameras lässt sich die Zahl aus den Dateien oder dem Menü auslesen.</li><li><strong>Sensor und Display:</strong> Kratzer, tote Pixel und Staub, der sich nicht entfernen lässt.</li><li><strong>Vollständigkeit:</strong> Akku, Ladegerät, Gurt, Deckel und Karton.</li><li><strong>Region und Sprache:</strong> manche Importmodelle haben andere Menüs oder Garantiebedingungen.</li></ul>',
+      },
+      {
+        h2: 'Was den Preis eines Objektivs bestimmt',
+        html: '<ul><li><strong>Bajonett:</strong> dieselbe Brennweite gibt es für verschiedene Bajonette (zum Beispiel Canon RF und EF, Sony E/FE, Nikon Z und F). Vergleich nur gleiches Bajonett.</li><li><strong>Optischer Zustand:</strong> Pilz, Schleier, Linsentrennung und tiefe Kratzer senken den Wert stark. Leuchte von hinten mit einer Lampe durchs Objektiv.</li><li><strong>Mechanik:</strong> Autofokus funktioniert, Zoom- und Fokusring laufen sauber, Blendenlamellen sind sauber und trocken.</li><li><strong>Version:</strong> viele Objektive gibt es in mehreren Versionen (zum Beispiel mit oder ohne Bildstabilisator).</li></ul>',
+      },
+      {
+        h2: 'Häufige Fehler',
+        html: '<ul><li>Ein Objektiv mit gleicher Brennweite, aber anderem Bajonett oder anderer Version vergleichen.</li><li>Den Autofokus nicht an einem Gehäuse testen.</li><li>Pilz übersehen, weil das Objektiv nicht gegen Licht geprüft wurde.</li><li>Die Auslösungen bei einem sauber aussehenden Gehäuse ignorieren.</li></ul>',
+      },
+      {
+        h2: 'Kurze Checkliste',
+        html: '<ul><li>Modell, Bajonett und Version notiert.</li><li>Objektiv gegen Licht auf Pilz und Schleier geprüft.</li><li>Gehäuse startet, macht ein Foto, Auslösungen wenn möglich bekannt.</li><li>Akku und Ladegerät dabei.</li></ul>',
+      },
+      {
+        h2: 'Wo verkaufen und wie schnell prüfen',
+        html: '<p>Kameras und Objektive verkaufen sich europaweit gut auf eBay; siehe <a href="/de/guides/where-to-sell-used-electronics-europe">wo du gebrauchte Elektronik in Europa verkaufst</a>. FlipLens liest Modell und Bajonett aus einem Foto des Etiketts oder des Objektivtubus und vergleicht Angebote in fünf EU-Ländern. <a href="/de/how-it-works">So funktioniert\'s</a>.</p>',
+      },
+    ],
+    faq: [
+      { q: 'Wie prüfe ich ein gebrauchtes Objektiv auf Pilz?', a: 'Leuchte mit einer hellen Lampe von hinten durchs Objektiv und achte auf fadenartige Muster, Flecken oder einen milchigen Schleier im Glas.' },
+      { q: 'Spielen die Auslösungen beim Wiederverkauf eine Rolle?', a: 'Ja. Käufer vergleichen sie mit der erwarteten Lebensdauer des Verschlusses für dieses Modell, wenige Auslösungen helfen also dem Preis.' },
+    ],
+  },
+  {
+    path: '/guides/resale-value-headphones',
+    kind: 'article',
+    crumb: 'Kopfhörer',
+    parent: { path: '/guides', name: 'Ratgeber' },
+    title: 'Wiederverkaufswert gebrauchter Kopfhörer und Earbuds: Generationen, Akku und Hygiene',
+    description: 'Was den Wiederverkaufswert gebrauchter Kopfhörer und Earbuds in Europa bestimmt: genaue Generation, Akkuverschleiß, Ohrpolster, Vollständigkeit und Hygiene, plus Checkliste.',
+    h1: 'Wiederverkaufswert gebrauchter Kopfhörer und Earbuds',
+    lead: 'Beliebte Kopfhörer verkaufen sich schnell weiter, aber Generationen sehen sich ähnlich und Akkus verschleißen. Darauf achten Käufer.',
+    sections: [
+      {
+        h2: 'Was den Preis bestimmt',
+        html: '<ul><li><strong>Genaue Generation:</strong> Modelle derselben Serie, etwa Sony WH-1000XM4 und WH-1000XM5 oder verschiedene AirPods-Generationen, erzielen unterschiedliche Preise. Prüf die Modellnummer am Bügel, am Case oder in den Einstellungen.</li><li><strong>Akku:</strong> kabellose Kopfhörer und Earbuds verlieren mit der Zeit Kapazität; eine deutlich kürzere Laufzeit senkt den Wert.</li><li><strong>Ohrpolster und Aufsätze:</strong> abgenutzte oder bröselnde Polster schrecken Käufer ab, lassen sich aber oft ersetzen.</li><li><strong>Vollständigkeit:</strong> Case, Kabel, Adapter und Karton.</li><li><strong>Echtheit:</strong> beliebte Earbuds werden oft gefälscht; Seriennummern und das Kopplungsverhalten helfen bei der Prüfung.</li></ul>',
+      },
+      {
+        h2: 'Hygiene und Earbuds',
+        html: '<p>Viele Käufer sind bei gebrauchten In-Ear-Produkten vorsichtig. Reinige sie gründlich, ersetze wenn möglich die Silikonaufsätze und schreib das in die Anzeige. Ein fehlender Ohrhörer oder ein fehlendes Ladecase macht ein Set viel schwerer verkäuflich.</p>',
+      },
+      {
+        h2: 'Häufige Fehler',
+        html: '<ul><li>Zwei fast gleich aussehende Generationen verwechseln.</li><li>Geräuschunterdrückung, Mikrofone und beide Seiten nicht testen.</li><li>Earbuds kaufen, die noch mit dem Konto einer anderen Person verbunden sind.</li></ul>',
+      },
+      {
+        h2: 'Kurze Checkliste',
+        html: '<ul><li>Modellnummer und Generation bestätigt.</li><li>Beide Seiten funktionieren, Geräuschunterdrückung und Mikrofon getestet.</li><li>Akku hält die Ladung.</li><li>Case, Kabel und Aufsätze dabei.</li><li>Vom Konto des Vorbesitzers entfernt.</li></ul>',
+      },
+      {
+        h2: 'Wo verkaufen und wie schnell prüfen',
+        html: '<p>Kopfhörer verkaufen sich gut auf eBay und Vinted; siehe <a href="/de/guides/where-to-sell-used-electronics-europe">wo du gebrauchte Elektronik in Europa verkaufst</a>. In FlipLens reicht ein Foto des Etiketts oder der Barcode auf dem Karton, um die Generation zu erkennen und Preise in fünf EU-Ländern zu vergleichen. <a href="/de/how-it-works">So funktioniert\'s</a>.</p>',
+      },
+    ],
+    faq: [
+      { q: 'Wie unterscheide ich Kopfhörer-Generationen?', a: 'Lies die Modellnummer am Bügel, am Case oder auf dem Karton ab, oder in der Begleit-App bzw. den Bluetooth-Einstellungen.' },
+      { q: 'Kann ich gebrauchte Earbuds verkaufen?', a: 'Ja, aber reinige sie, ersetze wenn möglich die Aufsätze und beschreib den Zustand ehrlich. Komplette Sets mit Ladecase verkaufen sich am besten.' },
+    ],
+  },
+  {
+    path: '/guides/sell-used-phone-europe',
+    kind: 'article',
+    crumb: 'Gebrauchtes Handy verkaufen',
+    parent: { path: '/guides', name: 'Ratgeber' },
+    title: 'Gebrauchtes Handy in Europa verkaufen: was den Preis bestimmt und was du prüfst',
+    description: 'Was den Wiederverkaufswert eines gebrauchten Smartphones in Europa bestimmt: Modell, Speicher, Akkuzustand, Konto- und Netzsperren, Zustand, plus Checkliste für Kauf und Verkauf.',
+    h1: 'Gebrauchtes Handy in Europa verkaufen',
+    lead: 'Handys sind die häufigste gebrauchte Elektronik und am leichtesten falsch eingeschätzt. Ein gesperrtes Handy oder der falsche Speicher macht aus einem guten Deal schnell einen Verlust.',
+    sections: [
+      {
+        h2: 'Was den Preis bestimmt',
+        html: '<ul><li><strong>Genaues Modell:</strong> Standard-, Plus-, Pro- und Max-Versionen unterscheiden sich stark im Wert.</li><li><strong>Speicher:</strong> mehr Speicher bringt mehr. Prüf ihn in den Einstellungen, nicht nur auf dem Karton.</li><li><strong>Akkuzustand:</strong> viele Handys zeigen den Akkuzustand in den Einstellungen; ein schwacher Akku senkt den Preis.</li><li><strong>Zustand:</strong> Kratzer oder Risse im Display, Rückglas, Dellen im Rahmen, Kameralinsen, Tasten und Anschlüsse.</li><li><strong>Vollständigkeit:</strong> Karton und Kabel helfen ein wenig; entscheidend ist das Handy selbst.</li></ul>',
+      },
+      {
+        h2: 'Kontosperren und Netzsperren',
+        html: '<p>Ein Handy, das noch mit dem Konto des Vorbesitzers verbunden ist (zum Beispiel Apples Aktivierungssperre oder ein Google-Konto nach dem Zurücksetzen), kann ein neuer Besitzer nicht einrichten; es ist nur einen Bruchteil wert. Lass den Verkäufer das Konto vor deinen Augen entfernen und das Handy zurücksetzen. Prüf auch, ob das Handy an ein Mobilfunknetz gebunden ist: entsperrte Handys finden mehr Käufer.</p>',
+      },
+      {
+        h2: 'Häufige Fehler',
+        html: '<ul><li>Ein Handy kaufen, das noch in einem Konto angemeldet ist.</li><li>Preise einer anderen Speichergröße oder Version vergleichen.</li><li>Nicht prüfen, ob das Display ersetzt oder nicht original ist.</li><li>Den Akkuzustand ignorieren.</li></ul>',
+      },
+      {
+        h2: 'Kurze Checkliste',
+        html: '<ul><li>Modell und Speicher in den Einstellungen bestätigt.</li><li>Aus allen Konten abgemeldet und auf Werkseinstellungen zurückgesetzt.</li><li>Nicht an ein Netz gebunden.</li><li>Akkuzustand geprüft.</li><li>Display, Kameras, Lautsprecher, Mikrofon und Ladeanschluss getestet.</li></ul>',
+      },
+      {
+        h2: 'Wo verkaufen und wie schnell prüfen',
+        html: '<p>Handys verkaufen sich auf eBay, Kleinanzeigen und Vinted; siehe <a href="/de/guides/where-to-sell-used-electronics-europe">wo du gebrauchte Elektronik in Europa verkaufst</a>. FlipLens erkennt das Modell per Foto oder Barcode, du stellst den Speicher ein und es vergleicht Angebote in fünf EU-Ländern. <a href="/de/how-it-works">So funktioniert\'s</a>.</p>',
+      },
+    ],
+    faq: [
+      { q: 'Was prüfe ich vor dem Kauf eines gebrauchten Handys?', a: 'Dass es aus allen Konten abgemeldet und zurückgesetzt ist, nicht an ein Netz gebunden ist, den erwarteten Speicher und einen guten Akku hat und Display, Kameras und Ladeanschluss funktionieren.' },
+      { q: 'Ändert der Speicher den Wiederverkaufswert?', a: 'Ja. Dasselbe Modell mit mehr Speicher bringt meist mehr, vergleich also immer die gleiche Speichergröße.' },
+    ],
+  },
+  {
+    path: '/about',
+    kind: 'page',
+    crumb: 'Über uns',
+    title: 'Über FlipLens: ein unabhängiger Wiederverkaufswert-Check für Europa',
+    description: 'Wer FlipLens betreibt, woher die Preise kommen und welche Grundsätze gelten: keine Fotos gespeichert, keine eBay-Daten gespeichert, ehrlich bei Unsicherheit, unabhängig von eBay und Vinted.',
+    h1: 'Über FlipLens',
+    lead: 'FlipLens hilft allen, die gebraucht kaufen, um weiterzuverkaufen, in Sekunden zu entscheiden, ob sich ein Artikel lohnt, mit echten Marktplatzdaten aus ganz Europa.',
+    sections: [
+      {
+        h2: 'Was es ist',
+        html: '<p>Eine Web-App für Reseller und Schnäppchenjäger. Mach ein Foto, scann einen Barcode oder tipp ein Modell ein, und FlipLens zeigt Wiederverkaufsspanne, Gewinn nach Gebühren und Versand, den Höchstpreis und ein klares Urteil. Außerdem schreibt es aus einem Foto Anzeigen für Vinted, eBay und Kleinanzeigen und hält fest, was du gekauft und verkauft hast.</p>',
+      },
+      {
+        h2: 'Wer dahintersteht',
+        html: `<p>FlipLens wird von ${esc(LEGAL.operator)} in Slowenien betrieben. Kontakt: <a href="mailto:${LEGAL.supportEmail}">${LEGAL.supportEmail}</a>. Creator und Partner: siehe <a href="/de/partner">Partnerprogramm</a>.</p>`,
+      },
+      {
+        h2: 'Woher die Daten kommen',
+        html: '<p>Die Preise stammen aus aktiven eBay-Angeboten in Deutschland, Frankreich, Italien, Spanien und den Niederlanden, gelesen über die offizielle eBay-API und mit Wechselkursen der Europäischen Zentralbank in Euro umgerechnet. Die Artikelerkennung nutzt ein KI-Bildmodell. Details und Grenzen erklärt <a href="/de/how-it-works">So funktioniert\'s</a>.</p>',
+      },
+      {
+        h2: 'Grundsätze',
+        html: '<ul><li><strong>Fotos werden nie gespeichert.</strong> Sie dienen nur dazu, den Artikel zu erkennen oder die Anzeige zu schreiben.</li><li><strong>Keine eBay-Daten werden gespeichert.</strong> Angebote werden live gelesen und nur kurz zwischengespeichert, wie es die Lizenz der eBay-API verlangt.</li><li><strong>Ehrlich bei Unsicherheit.</strong> Jede Schätzung zeigt ihre Sicherheit; bei zu wenig Daten sagt FlipLens das, statt zu raten.</li><li><strong>Unabhängig.</strong> FlipLens gehört nicht zu eBay, Vinted oder Kleinanzeigen und kauft, verkauft oder versendet keine Artikel.</li></ul>',
+      },
+      {
+        h2: 'Sprachen',
+        html: '<p>FlipLens gibt es auf Englisch und Deutsch. Die App folgt der Sprache deines Browsers; die englischen Seiten findest du unter <a href="/" hreflang="en" lang="en">fliplens.eu</a>. Siehe auch <a href="/privacy">Datenschutz</a> und <a href="/terms">Nutzungsbedingungen</a>.</p>',
+      },
+    ],
+  },
 ];
 
 const GUIDES_DE = PAGES_DE.filter((p) => p.path.startsWith('/guides/'));
@@ -900,6 +1338,8 @@ const UI = {
     privacy: 'Privacy',
     terms: 'Terms',
     partner: 'Partner programme',
+    about: 'About',
+    compare: 'Ways to check resale value',
     disclaimer: 'FlipLens is not affiliated with eBay. eBay data shown via the eBay API.',
     questions: 'Questions',
     answers: 'Answers',
@@ -915,6 +1355,8 @@ const UI = {
     privacy: 'Datenschutz',
     terms: 'Nutzungsbedingungen',
     partner: 'Partnerprogramm',
+    about: 'Über uns',
+    compare: 'Methoden im Vergleich',
     disclaimer: 'FlipLens gehört nicht zu eBay. eBay-Daten werden über die eBay-API angezeigt.',
     questions: 'Fragen',
     answers: 'Antworten',
@@ -933,7 +1375,7 @@ function nav(lang: Lang, path: string): string {
 
 function footer(lang: Lang, path: string): string {
   const u = UI[lang];
-  const links = [...u.nav.map(([p, n]) => `<a href="${href(lang, p)}">${n}</a>`), `<a href="${href(lang, '/partner')}">${u.partner}</a>`, `<a href="/privacy">${u.privacy}</a>`, `<a href="/terms">${u.terms}</a>`, `<a href="mailto:${LEGAL.supportEmail}">${LEGAL.supportEmail}</a>`];
+  const links = [...u.nav.map(([p, n]) => `<a href="${href(lang, p)}">${n}</a>`), `<a href="${href(lang, '/partner')}">${u.partner}</a>`, `<a href="${href(lang, '/best-resale-value-apps')}">${u.compare}</a>`, `<a href="${href(lang, '/about')}">${u.about}</a>`, `<a href="/privacy">${u.privacy}</a>`, `<a href="/terms">${u.terms}</a>`, `<a href="mailto:${LEGAL.supportEmail}">${LEGAL.supportEmail}</a>`];
   const switcher = lang === 'en' ? `English | <a href="${href('de', path)}" hreflang="de" lang="de">Deutsch</a>` : `<a href="${href('en', path)}" hreflang="en" lang="en">English</a> | Deutsch`;
   return `<footer><p>${links.join(' · ')}</p><p>${switcher}</p><p>© ${new Date().getFullYear()} ${esc(LEGAL.operator)}. ${u.disclaimer}</p></footer>`;
 }
@@ -986,7 +1428,7 @@ function renderPage(p: Page, lang: Lang): string {
     { '@type': 'BreadcrumbList', itemListElement: crumbs.map((c, i) => ({ '@type': 'ListItem', position: i + 1, name: c.name, item: `${SITE}${href(lang, c.path)}` })) },
     p.kind === 'article'
       ? { '@type': 'Article', headline: p.h1, description: p.description, inLanguage: lang, datePublished: UPDATED, dateModified: UPDATED, author: { '@id': `${SITE}/#org` }, publisher: { '@id': `${SITE}/#org` }, image: `${SITE}/og.png`, mainEntityOfPage: url }
-      : { '@type': 'WebPage', name: p.title, description: p.description, inLanguage: lang, url, isPartOf: { '@id': `${SITE}/#website` } },
+      : { '@type': p.path === '/about' ? 'AboutPage' : 'WebPage', name: p.title, description: p.description, inLanguage: lang, url, isPartOf: { '@id': `${SITE}/#website` }, ...(p.path === '/about' && { about: { '@id': `${SITE}/#org` } }) },
     ...(p.faq ? [faqLd(p.faq, lang)] : []),
   ];
   const faqHtml = p.faq
@@ -1156,6 +1598,8 @@ Key facts:
 - [How it works](${SITE}/how-it-works): identification, comparables, estimate, fees, verdict and known limits
 - [Pricing](${SITE}/pricing): Free, Pro and Reseller plans
 - [FAQ](${SITE}/faq)
+- [Ways to check resale value compared](${SITE}/best-resale-value-apps): FlipLens, eBay sold listings, marketplace searches, Google Lens and trade-in offers
+- [About FlipLens](${SITE}/about): who runs it, data sources and principles
 - [Partner programme](${SITE}/partner): earn ${REFERRAL.sharePct}% of payments from invited users for ${REFERRAL.months} months
 
 ## Guides

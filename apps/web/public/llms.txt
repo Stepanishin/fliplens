@@ -17,6 +17,8 @@ Key facts:
 - [How it works](https://fliplens.eu/how-it-works): identification, comparables, estimate, fees, verdict and known limits
 - [Pricing](https://fliplens.eu/pricing): Free, Pro and Reseller plans
 - [FAQ](https://fliplens.eu/faq)
+- [Ways to check resale value compared](https://fliplens.eu/best-resale-value-apps): FlipLens, eBay sold listings, marketplace searches, Google Lens and trade-in offers
+- [About FlipLens](https://fliplens.eu/about): who runs it, data sources and principles
 - [Partner programme](https://fliplens.eu/partner): earn 20% of payments from invited users for 6 months
 
 ## Guides
@@ -25,6 +27,10 @@ Key facts:
 - [Where to sell used electronics in Europe](https://fliplens.eu/guides/where-to-sell-used-electronics-europe): Compare eBay, Vinted, Kleinanzeigen and local cash sales for second-hand electronics in Europe: who pays fees, reach, speed and when each one makes sense.
 - [Flea market reselling checklist](https://fliplens.eu/guides/flea-market-reselling-checklist): A practical checklist for buying second-hand electronics, consoles and cameras at flea markets and car boot sales to resell: identification, testing, completeness, locks and price.
 - [How to sell on Vinted](https://fliplens.eu/guides/how-to-sell-on-vinted): A practical guide to selling on Vinted in Europe: who pays the fees, how to photograph and describe items, how to price them and how to ship.
+- [How much is my console worth?](https://fliplens.eu/guides/how-much-is-my-console-worth): What decides the resale value of a used console, handheld, controller or game in Europe, the mistakes that cost money, and how to check the price in seconds.
+- [Resale value of used cameras and lenses](https://fliplens.eu/guides/resale-value-cameras-lenses): What decides the resale value of a used camera body or lens in Europe: mount, shutter count, sensor and glass condition, completeness and region, plus a quick checklist.
+- [Resale value of used headphones and earbuds](https://fliplens.eu/guides/resale-value-headphones): What decides the resale value of used headphones and earbuds in Europe: exact generation, battery wear, ear pads, completeness and hygiene, plus a quick checklist.
+- [Selling a used phone in Europe](https://fliplens.eu/guides/sell-used-phone-europe): What decides the resale value of a used smartphone in Europe: model, storage, battery health, account and carrier locks, condition, plus a checklist before you buy or sell.
 
 ## Deutsch
 - [FlipLens auf Deutsch](https://fliplens.eu/de): Start page and app in German
@@ -37,6 +43,12 @@ Key facts:
 - [Flohmarkt-Checkliste für Reseller](https://fliplens.eu/de/guides/flea-market-reselling-checklist)
 - [Vinted-Anzeigen-Generator](https://fliplens.eu/de/vinted-listing-generator)
 - [Auf Vinted verkaufen](https://fliplens.eu/de/guides/how-to-sell-on-vinted)
+- [Wiederverkaufswert in Europa prüfen: Apps und Methoden im Vergleich](https://fliplens.eu/de/best-resale-value-apps)
+- [Was ist meine Konsole wert?](https://fliplens.eu/de/guides/how-much-is-my-console-worth)
+- [Wiederverkaufswert gebrauchter Kameras und Objektive](https://fliplens.eu/de/guides/resale-value-cameras-lenses)
+- [Wiederverkaufswert gebrauchter Kopfhörer und Earbuds](https://fliplens.eu/de/guides/resale-value-headphones)
+- [Gebrauchtes Handy in Europa verkaufen](https://fliplens.eu/de/guides/sell-used-phone-europe)
+- [Über FlipLens](https://fliplens.eu/de/about)
 - [Ratgeber](https://fliplens.eu/de/guides)
 - [20 % Provision, 6 Monate lang](https://fliplens.eu/de/partner)
 

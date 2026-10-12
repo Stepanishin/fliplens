@@ -1,6 +1,6 @@
 # FlipLens: full text
 
-Source: https://fliplens.eu. Updated 2026-10-05.
+Source: https://fliplens.eu. Updated 2026-10-12.
 
 
 ## How FlipLens works
@@ -347,6 +347,266 @@ No selling fee. The buyer pays a Buyer Protection fee and shipping on top of the
 Give the brand, size and measurements, material, fit and an honest condition including flaws, plus a few words buyers search for.
 
 
+## How to check resale value in Europe: apps and methods compared
+
+URL: https://fliplens.eu/best-resale-value-apps
+
+There is no single perfect source for second-hand prices. Each method below answers a slightly different question. Here is what each one is good at, where it falls short, and when to use it.
+
+### At a glance
+
+MethodSpeedDataSold or asking pricesCountriesCost
+ | FlipLens | Seconds, from a photo, barcode or model name | Active eBay listings, filtered and adjusted for condition | Asking prices, adjusted down | Germany, France, Italy, Spain, Netherlands at once | 10 free checks a month, paid plans for more
+ | eBay "Sold items" filter | A few minutes per item | Completed sales on one eBay site | Sold prices | One country at a time | Free
+ | Vinted, Kleinanzeigen searches | A few minutes | Current local listings | Asking prices | One marketplace and region | Free
+ | Google Lens, then a marketplace search | Fast to identify, slow to price | Visual match, then your own search | Whatever you find | Any | Free
+ | Trade-in and buyback sites | Instant offer | The buyer's own price list | An offer to buy from you | Varies | Free
+
+### FlipLens
+
+FlipLens identifies the exact model from a photo, barcode or typed name, reads comparable active eBay listings in five EU countries, removes other variants, bundles and broken items, adjusts for condition and returns a resale range, your profit after fees and shipping and the most you should pay. Good for: fast buying decisions at flea markets and on classifieds, when you do not want to research every item by hand. Limits: it works from asking prices, not confirmed sale prices; it covers consumer electronics, gaming, cameras and power tools, not fashion; if there are too few comparable listings it says so instead of estimating. See how it works (/how-it-works).
+
+### eBay search with the "Sold items" filter
+
+On eBay you can filter a search to show items that actually sold. Better than FlipLens at: showing real final prices rather than asking prices. Drawbacks: you check one eBay site at a time, you have to read through the results yourself to remove other generations, bundles and broken items, and you still need to subtract fees and shipping to know your profit. Worth doing for expensive items before you commit.
+
+### Searching Vinted or Kleinanzeigen
+
+Searching the marketplace you plan to sell on shows the competition you will face. Good for: local pricing and items that sell mainly through classifieds. Drawbacks: you only see asking prices, and listings that sit unsold for weeks pull the picture up. FlipLens links to these searches from every result so you can compare in a tap.
+
+### Google Lens to identify an unknown item
+
+When you do not know what an item is, an image search can find the name or model. Good for: unusual items, vintage pieces and anything without a readable label. Drawbacks: it identifies, it does not price; you still need to search marketplaces and judge condition and variants yourself.
+
+### Trade-in and buyback offers
+
+Some shops and websites make an instant offer to buy your used phone, console or camera. Good for: selling quickly with no effort. Drawbacks: the offer is what the buyer is willing to pay to resell it themselves, so it is usually well below what you could get selling privately. It is a floor, not a resale value.
+
+### When to use which
+
+- Standing at a stall, seconds to decide: FlipLens.
+- An expensive item before you buy: FlipLens first, then the eBay sold filter to confirm.
+- Pricing your own listing: look at what is for sale on your marketplace right now.
+- No idea what the item is: Google Lens first.
+- You just want it gone: a trade-in offer, knowing it is the lowest number.
+
+**What is the most accurate way to find resale value?**
+Recent sold prices for the exact model in the same condition, adjusted for fees and shipping. eBay's sold filter shows them for one country at a time; FlipLens gives a fast estimate across five EU countries from active listings.
+
+**Why are trade-in offers so low?**
+The buyer has to resell the item and make a profit, so the offer is below the private resale price.
+
+**Is there a free way to check resale value?**
+Yes. Marketplace searches and the eBay sold filter are free, and FlipLens includes 10 free checks a month.
+
+
+## How much is my console worth?
+
+URL: https://fliplens.eu/guides/how-much-is-my-console-worth
+
+Gaming gear resells well, but two consoles that look the same can be worth very different amounts. These are the details that decide the price.
+
+### What drives the price
+
+- Exact model and revision: for example a standard model versus an OLED or Slim version, or a disc versus a digital edition. The model number on the bottom or back tells you.
+- Storage: larger internal storage usually sells for more.
+- Condition: scratches on screens, yellowed plastic, loud fans and controller stick drift all lower the price.
+- Completeness: original box, controllers, dock, cables and power supply. A console without its power supply is harder to sell.
+- Account and bans: a console still linked to someone else's account, or one banned from online services, is worth much less.
+
+### Controllers and games
+
+Controllers are checked for stick drift and worn buttons; official controllers sell better than third-party ones. For games, the edition matters (standard, collector's, region), and whether the case, manual and any codes are complete. Sealed games and complete-in-box retro games are their own market: compare like with like.
+
+### Common mistakes
+
+- Comparing your item with a bundle that includes extra games or controllers.
+- Taking the highest asking price as the value.
+- Forgetting shipping: consoles are heavy and bulky.
+- Buying a handheld without testing the screen and buttons.
+
+### Quick checklist
+
+- Model number and storage noted.
+- Powers on, reads discs (if it has a drive), controllers connect.
+- Signed out of all accounts or factory reset.
+- Power supply and cables included.
+- Price compared with the same model in the same condition.
+
+### Where to sell and how to check quickly
+
+Consoles sell well on eBay and locally; see where to sell used electronics in Europe (/guides/where-to-sell-used-electronics-europe). To check a console in seconds, scan its barcode or type the model in FlipLens: it compares listings in five EU countries and shows the most you should pay. How it works (/how-it-works).
+
+**How do I find out which console model I have?**
+Look for the model number on the bottom or back of the console or in the system settings. It tells you the exact version and often the storage size.
+
+**Does the original box matter?**
+Yes. A complete console with box, controllers and cables usually sells faster and for more than the console alone.
+
+
+## Resale value of used cameras and lenses
+
+URL: https://fliplens.eu/guides/resale-value-cameras-lenses
+
+Camera gear keeps its value better than most electronics, but a single problem such as fungus in a lens can make an item nearly worthless. Check these points before you pay.
+
+### What drives the price of a camera body
+
+- Exact model: generations of the same line differ a lot in value.
+- Shutter count: how many photos the camera has taken. A high count lowers the value; many cameras let you read it from the files or the menu.
+- Sensor and screen: scratches, dead pixels and dust that will not clean.
+- Completeness: battery, charger, strap, caps and box.
+- Region and language: some imported models have different menus or warranty terms.
+
+### What drives the price of a lens
+
+- Mount: the same focal length exists for different mounts (for example Canon RF and EF, Sony E/FE, Nikon Z and F). Compare only the same mount.
+- Optical condition: fungus, haze, separation and deep scratches seriously reduce the value. Shine a light through the lens from the back.
+- Mechanics: autofocus works, zoom and focus rings are smooth, aperture blades are clean and dry.
+- Version: many lenses exist in several versions (for example with or without stabilisation).
+
+### Common mistakes
+
+- Comparing a lens with the same focal length but a different mount or version.
+- Not testing autofocus on a body.
+- Missing fungus because the lens was not checked against light.
+- Ignoring the shutter count on a body that looks clean.
+
+### Quick checklist
+
+- Model, mount and version written down.
+- Lens checked against light for fungus and haze.
+- Body powers on, takes a photo, shutter count known if possible.
+- Battery and charger included.
+
+### Where to sell and how to check quickly
+
+Cameras and lenses sell well on eBay across Europe; see where to sell used electronics in Europe (/guides/where-to-sell-used-electronics-europe). FlipLens reads the model and mount from a photo of the label or lens barrel and compares listings in five EU countries. How it works (/how-it-works).
+
+**How do I check a used lens for fungus?**
+Shine a bright light through the lens from the back and look for thread-like patterns, spots or a milky haze inside the glass.
+
+**Does shutter count matter when reselling?**
+Yes. Buyers compare it with the expected life of the shutter for that model, so a low count helps the price.
+
+
+## Resale value of used headphones and earbuds
+
+URL: https://fliplens.eu/guides/resale-value-headphones
+
+Popular headphones resell quickly, but generations look alike and batteries wear out. These are the details buyers check.
+
+### What drives the price
+
+- Exact generation: models from the same line, such as Sony WH-1000XM4 and WH-1000XM5, or different AirPods generations, sell for different prices. Check the model number on the headband, case or in the settings.
+- Battery: wireless headphones and earbuds lose capacity over time; noticeably short battery life lowers the value.
+- Ear pads and tips: worn or flaking pads put buyers off, but can often be replaced.
+- Completeness: case, cable, adapter and box.
+- Authenticity: popular earbuds are often counterfeited; serial numbers and pairing behaviour help to tell.
+
+### Hygiene and earbuds
+
+Many buyers are cautious about used in-ear products. Clean them carefully, replace silicone tips if possible and say so in the listing. A single missing earbud or a missing charging case makes a set much harder to sell.
+
+### Common mistakes
+
+- Confusing two generations that look almost the same.
+- Not testing noise cancelling, microphones and both sides.
+- Buying earbuds that are still linked to someone else's account.
+
+### Quick checklist
+
+- Model number and generation confirmed.
+- Both sides work, noise cancelling and microphone tested.
+- Battery holds a charge.
+- Case, cable and tips included.
+- Removed from the previous owner's account.
+
+### Where to sell and how to check quickly
+
+Headphones sell well on eBay and Vinted; see where to sell used electronics in Europe (/guides/where-to-sell-used-electronics-europe). In FlipLens a photo of the label or the box barcode is enough to identify the generation and compare prices in five EU countries. How it works (/how-it-works).
+
+**How do I tell headphone generations apart?**
+Read the model number printed on the headband, case or box, or in the companion app or Bluetooth settings.
+
+**Can I sell used earbuds?**
+Yes, but clean them, replace the tips if you can and describe their condition honestly. Complete sets with the charging case sell best.
+
+
+## Selling a used phone in Europe
+
+URL: https://fliplens.eu/guides/sell-used-phone-europe
+
+Phones are the most common second-hand electronics, and the easiest to get wrong. A locked phone or the wrong storage size can turn a good deal into a loss.
+
+### What drives the price
+
+- Exact model: standard, Plus, Pro and Max versions differ a lot in value.
+- Storage: more storage sells for more. Check it in the settings, not just on the box.
+- Battery health: many phones show the battery condition in the settings; a weak battery lowers the price.
+- Condition: screen scratches or cracks, back glass, frame dents, camera lenses, buttons and ports.
+- Completeness: box and cable help a little; the phone itself matters most.
+
+### Account locks and carrier locks
+
+A phone that is still linked to the previous owner's account (for example Apple's Activation Lock or a Google account after a reset) cannot be set up by a new owner and is worth only a fraction of the price. Make sure the seller removes the account and resets the phone in front of you. Also check whether the phone is locked to a mobile network: unlocked phones sell to more buyers.
+
+### Common mistakes
+
+- Buying a phone that is still signed in to an account.
+- Comparing prices of a different storage size or version.
+- Not checking for a replaced or non-original screen.
+- Ignoring battery health.
+
+### Quick checklist
+
+- Model and storage confirmed in the settings.
+- Signed out of all accounts and factory reset.
+- Not locked to a network.
+- Battery health checked.
+- Screen, cameras, speakers, microphone and charging port tested.
+
+### Where to sell and how to check quickly
+
+Phones sell on eBay, classifieds and Vinted; see where to sell used electronics in Europe (/guides/where-to-sell-used-electronics-europe). FlipLens identifies the model from a photo or barcode, lets you set the storage, and compares listings in five EU countries. How it works (/how-it-works).
+
+**What should I check before buying a used phone?**
+That it is signed out of all accounts and reset, not locked to a network, has the storage you expect, a healthy battery, and a working screen, cameras and charging port.
+
+**Does storage size change the resale value?**
+Yes. The same model with more storage usually sells for more, so always compare the same storage size.
+
+
+## About FlipLens
+
+URL: https://fliplens.eu/about
+
+FlipLens helps people who buy second-hand to resell decide in seconds whether an item is worth it, using real marketplace data from across Europe.
+
+### What it is
+
+A web app for resellers and bargain hunters. Take a photo, scan a barcode or type a model, and FlipLens shows the resale range, your profit after fees and shipping, the most you should pay and a clear verdict. It also writes listings for Vinted, eBay and Kleinanzeigen from a photo and tracks what you bought and sold.
+
+### Who runs it
+
+FlipLens is run by Evgenii Stepanishin in Slovenia. Contact: support@fliplens.eu (mailto:support@fliplens.eu). Creators and partners: see the partner programme (/partner).
+
+### Where the data comes from
+
+Prices come from active eBay listings in Germany, France, Italy, Spain and the Netherlands, read through the official eBay API and converted to euro with European Central Bank exchange rates. Item recognition uses an AI vision model. Details and limits are explained in how it works (/how-it-works).
+
+### Principles
+
+- Photos are never stored. They are only used to identify the item or write the listing.
+- No eBay data is stored. Listings are read live and cached briefly, as the eBay API licence requires.
+- Honest about uncertainty. Every estimate shows its confidence; with too little data FlipLens says so instead of guessing.
+- Independent. FlipLens is not affiliated with eBay, Vinted or Kleinanzeigen and does not buy, sell or ship items.
+
+### Languages
+
+FlipLens is available in English and German. The app follows your browser language; German pages are under fliplens.eu/de. See also the Privacy Policy (/privacy) and Terms (/terms).
+
+
 ## Reselling guides
 
 URL: https://fliplens.eu/guides
@@ -360,6 +620,10 @@ Short, practical guides for sourcing and reselling second-hand items in Europe.
 - Where to sell used electronics in Europe (/guides/where-to-sell-used-electronics-europe)Compare eBay, Vinted, Kleinanzeigen and local cash sales for second-hand electronics in Europe: who pays fees, reach, speed and when each one makes sense.
 - Flea market reselling checklist (/guides/flea-market-reselling-checklist)A practical checklist for buying second-hand electronics, consoles and cameras at flea markets and car boot sales to resell: identification, testing, completeness, locks and price.
 - How to sell on Vinted (/guides/how-to-sell-on-vinted)A practical guide to selling on Vinted in Europe: who pays the fees, how to photograph and describe items, how to price them and how to ship.
+- How much is my console worth? (/guides/how-much-is-my-console-worth)What decides the resale value of a used console, handheld, controller or game in Europe, the mistakes that cost money, and how to check the price in seconds.
+- Resale value of used cameras and lenses (/guides/resale-value-cameras-lenses)What decides the resale value of a used camera body or lens in Europe: mount, shutter count, sensor and glass condition, completeness and region, plus a quick checklist.
+- Resale value of used headphones and earbuds (/guides/resale-value-headphones)What decides the resale value of used headphones and earbuds in Europe: exact generation, battery wear, ear pads, completeness and hygiene, plus a quick checklist.
+- Selling a used phone in Europe (/guides/sell-used-phone-europe)What decides the resale value of a used smartphone in Europe: model, storage, battery health, account and carrier locks, condition, plus a checklist before you buy or sell.
 
 
 ## Earn 20% for 6 months
