@@ -232,6 +232,26 @@ export interface AdminCommission {
   stripeInvoiceId: string;
 }
 
+export type ShelfItemResult = {
+  label: string;
+  brand: string;
+  model: string;
+  category: CategorySlug;
+  capacity: string | null;
+  box: { x: number; y: number; w: number; h: number };
+  recognition: number;
+} & (
+  | { status: 'ok'; scanId?: string; maxBuyMinor: number; expectedMinor: number; fastMinor: number; confidence: 'high' | 'medium' | 'low'; count: number }
+  | { status: 'insufficient'; scanId?: string; count: number }
+  | { status: 'not_checked'; reason: 'quota' | 'low_confidence' | 'limit' | 'unavailable' }
+);
+
+export interface ShelfScanResponse {
+  items: ShelfItemResult[];
+  valued: number;
+  quota: { plan: string; used: number; limit: number; remaining: number } | null;
+}
+
 export interface PhotoListing {
   title: string;
   description: string;
@@ -413,6 +433,8 @@ export const api = {
   googleLogin: (credential: string) =>
     call<{ account: Account }>('/api/auth/google', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ credential, ...(inviteCode() && { invite: inviteCode() }) }) }),
   referral: () => call<ReferralInfo>('/api/referral'),
+  shelfScan: (body: { image: string; preset: string; shippingCost: number; targetRoiPct: number }) =>
+    call<ShelfScanResponse>('/api/scan/shelf', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }),
   invite: (code: string) => call<{ name: string | null; bonusChecks: number; bonusDays: number }>(`/api/invite/${encodeURIComponent(code)}`),
   requestPayout: (body: { method: 'paypal'; email: string } | { method: 'iban'; holder: string; iban: string }) =>
     call<{ requestedMinor: number }>('/api/referral/payout', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }),

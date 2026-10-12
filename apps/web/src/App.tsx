@@ -8,6 +8,7 @@ import { Inventory } from './screens/Inventory.js';
 import { QuickListing } from './screens/QuickListing.js';
 import { GoogleButton } from './ui/GoogleButton.js';
 import { Referral } from './screens/Referral.js';
+import { Shelf } from './screens/Shelf.js';
 import { BoughtSheet } from './ui/BoughtSheet.js';
 import { ListingSheet } from './ui/ListingSheet.js';
 import type { InventoryItem } from './api.js';
@@ -23,6 +24,7 @@ import {
   type Draft,
   type Identification,
   type ProductDraft,
+  EMPTY_PRODUCT,
 } from './flow.js';
 import { loadSettings, resetDeviceId, saveSettings, type Settings } from './storage.js';
 
@@ -54,14 +56,15 @@ type Route =
   | { name: 'admin' }
   | { name: 'inventory' }
   | { name: 'listing'; photos?: string[] }
-  | { name: 'referral' };
+  | { name: 'referral' }
+  | { name: 'shelf'; photo: string };
 
 const T = tr({
   en: {
     guestTitle: 'Save your checks',
     guestText: 'Sign in with Google to keep this check and get 10 free checks every month. No password, no card.',
     guestGate: 'Sign in to see your checks and stock.',
-    titles: { confirm: 'Identify', price: 'Price', result: 'Verdict', scan: 'Saved scan', profile: 'Profile', admin: 'Admin', listing: 'Write listing', referral: 'Invite friends' } as Partial<Record<string, string>>,
+    titles: { confirm: 'Identify', price: 'Price', result: 'Verdict', scan: 'Saved scan', profile: 'Profile', admin: 'Admin', listing: 'Write listing', referral: 'Invite friends', shelf: 'Table scan' } as Partial<Record<string, string>>,
     steps: ['Identify', 'Price', 'Verdict'] as readonly string[],
     step: (n: number, of: number) => `Step ${n} of ${of}`,
     subActivating: 'Thanks! Your subscription is being activated.',
@@ -84,7 +87,7 @@ const T = tr({
     guestTitle: 'Speicher deine Checks',
     guestText: 'Melde dich mit Google an, um diesen Check zu behalten und jeden Monat 10 kostenlose Checks zu bekommen. Kein Passwort, keine Karte.',
     guestGate: 'Melde dich an, um deine Checks und dein Lager zu sehen.',
-    titles: { confirm: 'Erkennen', price: 'Preis', result: 'Ergebnis', scan: 'Gespeicherter Scan', profile: 'Profil', admin: 'Admin', listing: 'Anzeige schreiben', referral: 'Freunde einladen' } as Partial<Record<string, string>>,
+    titles: { confirm: 'Erkennen', price: 'Preis', result: 'Ergebnis', scan: 'Gespeicherter Scan', profile: 'Profil', admin: 'Admin', listing: 'Anzeige schreiben', referral: 'Freunde einladen', shelf: 'Tisch-Scan' } as Partial<Record<string, string>>,
     steps: ['Erkennen', 'Preis', 'Ergebnis'] as readonly string[],
     step: (n: number, of: number) => `Schritt ${n} von ${of}`,
     subActivating: 'Danke! Dein Abo wird gerade aktiviert.',
@@ -456,7 +459,7 @@ export function App() {
     .filter((x) => x.trim())
     .join(' ');
   const visionOn = health?.vision.configured ?? false;
-  const inFlow = ['confirm', 'price', 'result', 'scan', 'admin', 'listing', 'referral'].includes(route.name) || (route.name === 'plans' && stack.length > 2) || (route.name === 'profile' && stack.length > 2);
+  const inFlow = ['confirm', 'price', 'result', 'scan', 'admin', 'listing', 'referral', 'shelf'].includes(route.name) || (route.name === 'plans' && stack.length > 2) || (route.name === 'profile' && stack.length > 2);
   const activeTab = route.name === 'history' || route.name === 'scan' ? 'history' : route.name === 'profile' ? 'profile' : route.name === 'plans' ? 'plans' : route.name === 'inventory' ? 'inventory' : 'home';
 
   // Signed-in only: without an account the start page is all there is (with a database; local dev without one stays open).
@@ -581,6 +584,7 @@ export function App() {
             visionEnabled={visionOn}
             recent={dbOn ? scans : []}
             onPhotos={startPhotos}
+            onShelf={(photo) => go({ name: 'shelf', photo })}
             onQuickListing={() => { track('quick_listing_opened', { from: 'home' }); go({ name: 'listing' }); }}
             onCamera={() => cameraRef.current?.click()}
             onBarcode={() => setScanning(true)}
@@ -592,6 +596,29 @@ export function App() {
           />
         )}
         {route.name === 'referral' && <Referral />}
+        {route.name === 'shelf' && (
+          <Shelf
+            key={route.photo.length}
+            photo={route.photo}
+            settings={settings}
+            onOpenScan={(id) => {
+              void api.scans().then((list) => {
+                setScans(list);
+                const s = list.find((x) => x.id === id);
+                if (s) go({ name: 'scan', scan: s });
+              }, () => undefined);
+            }}
+            onCheckItem={(item) => {
+              setDraft({ ...newDraft('manual'), product: { ...EMPTY_PRODUCT, category: item.category, brand: item.brand, model: item.model, capacity: item.capacity ?? '' } });
+              setResp(null);
+              setFlowError(null);
+              go({ name: 'price' });
+            }}
+            onUpgrade={() => openPlans()}
+            onSignIn={() => tab({ name: 'profile' })}
+            onAgain={() => back()}
+          />
+        )}
         {route.name === 'listing' && <QuickListing country={settings.country} initialPhotos={route.photos ?? []} onUpgrade={() => openPlans()} />}
         {route.name === 'confirm' && (
           <Confirm

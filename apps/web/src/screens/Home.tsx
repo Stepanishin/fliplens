@@ -3,7 +3,7 @@ import type { Account, BillingInfo, ServerScan } from '../api.js';
 import { scanPill } from '../format.js';
 import { ago, money, tr } from '../i18n.js';
 import { resizeToJpegDataUrl } from '../image.js';
-import { IconBarcode, IconCamera, IconChevron, IconEdit, IconImage, IconSpark } from '../ui/icons.js';
+import { IconBarcode, IconCamera, IconChevron, IconEdit, IconImage, IconSpark, IconTable } from '../ui/icons.js';
 import { InstallApp } from '../ui/InstallApp.js';
 
 interface Props {
@@ -13,6 +13,8 @@ interface Props {
   onPhotos: (photos: string[]) => void;
   /** The "listing from a photo" tool (any item, e.g. clothes for Vinted). */
   onQuickListing: () => void;
+  /** One photo of a whole stall: every item valued. */
+  onShelf: (photo: string) => void;
   onCamera: () => void;
   onBarcode: () => void;
   onManual: () => void;
@@ -24,6 +26,8 @@ interface Props {
 
 const T = tr({
   en: {
+    shelfTitle: 'Scan a whole table',
+    shelfSub: 'One photo of a stall or box: see what is worth buying.',
     morning: 'Good morning',
     afternoon: 'Good afternoon',
     evening: 'Good evening',
@@ -52,6 +56,8 @@ const T = tr({
     na: 'n/a',
   },
   de: {
+    shelfTitle: 'Ganzen Tisch scannen',
+    shelfSub: 'Ein Foto vom Stand oder der Kiste: sieh sofort, was sich lohnt.',
     morning: 'Guten Morgen',
     afternoon: 'Guten Tag',
     evening: 'Guten Abend',
@@ -86,10 +92,24 @@ function greeting(): string {
   return h < 12 ? T.morning : h < 18 ? T.afternoon : T.evening;
 }
 
-export function Home({ account, visionEnabled, recent, onPhotos, onQuickListing, onCamera, onBarcode, onManual, onOpenScan, onSeeHistory, quota, onOpenPlans }: Props) {
+export function Home({ account, visionEnabled, recent, onPhotos, onQuickListing, onShelf, onCamera, onBarcode, onManual, onOpenScan, onSeeHistory, quota, onOpenPlans }: Props) {
   const galleryRef = useRef<HTMLInputElement>(null);
+  const shelfRef = useRef<HTMLInputElement>(null);
   const [error, setError] = useState<string | null>(null);
   const firstName = account?.name?.split(' ')[0];
+
+  async function onShelfFile(e: ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    e.target.value = '';
+    if (!file) return;
+    setError(null);
+    try {
+      // More pixels than a single item: small things on a table must stay readable.
+      onShelf(await resizeToJpegDataUrl(file, 1600, 0.85));
+    } catch (err) {
+      setError(err instanceof Error ? err.message : T.photoError);
+    }
+  }
 
   async function onFiles(e: ChangeEvent<HTMLInputElement>) {
     const files = [...(e.target.files ?? [])].slice(0, 3);
@@ -125,6 +145,16 @@ export function Home({ account, visionEnabled, recent, onPhotos, onQuickListing,
       <input ref={galleryRef} type="file" accept="image/*" multiple hidden onChange={onFiles} />
       {!visionEnabled && <p className="muted small center">{T.visionOff}</p>}
       {error && <div className="banner bad">{error}</div>}
+
+      <button type="button" className="home-tool" onClick={() => shelfRef.current?.click()} disabled={!visionEnabled}>
+        <span className="home-tool-icon"><IconTable size={20} /></span>
+        <span style={{ flex: 1 }}>
+          <strong>{T.shelfTitle}</strong>
+          <span className="muted">{T.shelfSub}</span>
+        </span>
+        <IconChevron size={18} className="muted" />
+      </button>
+      <input ref={shelfRef} type="file" accept="image/*" capture="environment" hidden onChange={(e) => void onShelfFile(e)} />
 
       <button type="button" className="home-tool" onClick={onQuickListing} disabled={!visionEnabled}>
         <span className="home-tool-icon"><IconSpark size={20} /></span>

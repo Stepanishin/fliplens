@@ -19,6 +19,7 @@ const LIMITS: readonly [prefix: string, perMinute: number][] = [
   ['/api/valuation', 30],
   ['/api/category', 60],
   ['/api/billing/', 20],
+  ['/api/scan/shelf', 6],
   ['/api/listing', 20],
   ['/api/', 300],
 ];

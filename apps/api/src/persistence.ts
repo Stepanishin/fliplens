@@ -92,6 +92,8 @@ export interface Persistence {
    * at IDENTIFY_FACTOR x the plan's monthly checks. Returns false after sending the error response.
    */
   requireAccount(req: FastifyRequest, reply: FastifyReply, kind: 'valuation' | 'identification'): Promise<boolean>;
+  /** Signed-in users only; guests get 401 members_only (the app shows sign-in). */
+  requireMember(req: FastifyRequest, reply: FastifyReply): Promise<boolean>;
   /** Any visitor with a device id (guests included): for cheap helpers that must not use up the guest trial. */
   requireVisitor(req: FastifyRequest, reply: FastifyReply): Promise<boolean>;
   /** 'cheap' once the caller spent the plan's AI budget this month: recognition must not escalate. */
@@ -116,7 +118,7 @@ const EVENT_NAMES = [
   'scan_started', 'image_uploaded', 'barcode_scanned', 'product_detected', 'product_corrected',
   'valuation_started', 'valuation_completed', 'valuation_failed', 'comparables_opened', 'item_marked_bought',
   'subscription_viewed', 'subscription_started', 'inventory_added', 'item_sold', 'market_link_opened', 'signed_in', 'app_installed', 'app_install_prompt', 'whatif_used', 'confirm_skipped',
-  'item_status_changed', 'listing_generated', 'listing_copied', 'visit', 'page_view', 'cta_clicked', 'signin_started', 'quick_listing_opened', 'find_shared', 'referral_link_copied', 'referral_link_shared', 'referral_payout_requested', 'inapp_link_copied', 'inapp_open_chrome', 'guest_started', 'trial_used',
+  'item_status_changed', 'listing_generated', 'listing_copied', 'visit', 'page_view', 'cta_clicked', 'signin_started', 'quick_listing_opened', 'find_shared', 'referral_link_copied', 'referral_link_shared', 'referral_payout_requested', 'shelf_scan_started', 'shelf_scan_done', 'inapp_link_copied', 'inapp_open_chrome', 'guest_started', 'trial_used',
 ] as const;
 const EventsBody = z.object({
   events: z
@@ -193,6 +195,7 @@ function disabled(status: DbStatus): Persistence {
     // Without a database there are no accounts: local development only.
     requireAccount: async () => true,
     requireVisitor: async () => true,
+    requireMember: async () => true,
     aiMode: async () => 'full',
     requireAdmin: async () => true,
   };
@@ -324,6 +327,14 @@ function enabled(db: Db, log: FastifyBaseLogger, auth: AuthConfig): Persistence 
         }
       }
       return true;
+    },
+
+    async requireMember(req, reply) {
+      const uid = await requireUser(req, reply);
+      if (!uid) return false;
+      if ((await getUser(db, uid))?.googleSub) return true;
+      void reply.code(401).send({ error: 'members_only', message: 'Sign in with Google to scan whole tables.' });
+      return false;
     },
 
     async requireVisitor(req, reply) {

@@ -112,3 +112,9 @@ Status: accepted 2026-10-12.
 - **Invitee bonus.** People who sign up through an invite link get `REFERRAL.inviteeBonusChecks` (10) extra free checks for `inviteeBonusDays` (30). The landing page names the inviter by first name only (`GET /api/invite/:code`).
 - **Share your find.** The result screen renders a 1080x1350 card in the browser (no upload) with the user's invite link, shared via the system share sheet or downloaded.
 - **Partner page** `/partner` and `/de/partner` explain the programme for creators.
+
+## ADR-020: Table scan
+Status: accepted 2026-10-12.
+- One photo of a stall, box or shelf (`POST /api/scan/shelf`, signed-in users only). One vision call (`OpenAIShelfScanner`, the strong model; the cheap one after the AI budget) lists the products with approximate bounding boxes; clutter and unbranded goods are skipped.
+- Up to 6 recognised items (confidence at least 0.5) are valued like normal checks, from real eBay listings without a purchase price (answer: the most worth paying), three at a time, and saved to History. Each valued item counts as one check; with no checks left the request is refused before the vision call.
+- Prices never come from the model. A live AR "radar" was considered and postponed: its on-the-fly prices would be model guesses.

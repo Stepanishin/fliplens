@@ -13,9 +13,10 @@ import {
   type NormalizedProduct,
 } from '@fliplens/core';
 import { EbayAdapter, EcbFxService } from '@fliplens/sources';
-import { CascadeVisionProvider, OpenAIListingWriter, OpenAIVisionProvider, RecognitionError, gtinSearchVariants, isPlaceholderGtin, normalizeGtin } from '@fliplens/recognition';
+import { CascadeVisionProvider, OpenAIListingWriter, OpenAIShelfScanner, OpenAIVisionProvider, RecognitionError, gtinSearchVariants, isPlaceholderGtin, normalizeGtin } from '@fliplens/recognition';
 import { compact } from '@fliplens/core';
 import { registerBenchmarkRoutes } from './benchmark.js';
+import { registerShelfRoute } from './shelf.js';
 import { initPersistence, type Persistence } from './persistence.js';
 import { billingConfigFromEnv } from './billing.js';
 import { registerSecurity, registerWebApp } from './web.js';
@@ -237,6 +238,14 @@ app.post('/api/identify/barcode', async (req, reply) => {
     }
     throw e;
   }
+});
+
+registerShelfRoute(app, {
+  store,
+  ebay,
+  fx,
+  scanner: new OpenAIShelfScanner(openaiKey, process.env.OPENAI_VISION_MODEL || 'gpt-6-sol'),
+  cheapModel: process.env.OPENAI_VISION_FAST_MODEL || 'gpt-6-luna',
 });
 
 app.get('/api/presets', async () =>
