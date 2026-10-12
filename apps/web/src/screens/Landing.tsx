@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { PLANS } from '@fliplens/core';
 import { GoogleButton } from '../ui/GoogleButton.js';
+import { ShelfDemo } from '../ui/ShelfDemo.js';
 import { api } from '../api.js';
 import { inviteCode } from '../track.js';
 import { track } from '../track.js';
@@ -25,6 +26,10 @@ const page = (path: string): string => (LANG === 'de' ? `/de${path}` : path);
 
 const T = tr({
   en: {
+    shelfBadge: 'New',
+    shelfTitle: 'Scan the whole table in one photo',
+    shelfText: 'Point your phone at a stall, a box or a shelf. FlipLens finds the items, checks each one against real eBay listings and shows what is worth buying, best deals first. Tap one for the full check.',
+    shelfPoints: ['Finds up to 6 items per photo, skips the clutter', 'Prices from real listings, never guessed', 'Best buys first, with the most you should pay'] as readonly string[],
     invited: (name: string | null, n: number) => `${name ? `${name} recommends FlipLens` : 'You were invited to FlipLens'}: sign up now and get +${n} free checks in your first month.`,
     tryNow: 'Try it now, no sign-in',
     tryNote: 'One free check or listing, no account needed.',
@@ -97,6 +102,10 @@ const T = tr({
     language: 'Language',
   },
   de: {
+    shelfBadge: 'Neu',
+    shelfTitle: 'Den ganzen Tisch mit einem Foto scannen',
+    shelfText: 'Halte dein Handy über einen Stand, eine Kiste oder ein Regal. FlipLens findet die Artikel, prüft jeden mit echten eBay-Angeboten und zeigt, was sich lohnt, die besten Deals zuerst. Tipp auf einen Artikel für den vollständigen Check.',
+    shelfPoints: ['Findet bis zu 6 Artikel pro Foto, ignoriert Krimskrams', 'Preise aus echten Angeboten, nie geschätzt', 'Die besten Käufe zuerst, mit Höchstpreis'] as readonly string[],
     invited: (name: string | null, n: number) => `${name ? `${name} empfiehlt FlipLens` : 'Du wurdest zu FlipLens eingeladen'}: Melde dich jetzt an und bekomm +${n} kostenlose Checks im ersten Monat.`,
     tryNow: 'Jetzt ausprobieren, ohne Anmeldung',
     tryNote: 'Ein kostenloser Check oder eine Anzeige, ganz ohne Konto.',
@@ -262,6 +271,18 @@ export function Landing({ signedIn, onOpenApp, googleClientId, authError, onGoog
             </div>
           </div>
         </div>
+      </section>
+
+      <section className="lp-section lp-shelf">
+        <div className="lp-shelf-copy">
+          <span className="lp-badge"><IconSpark size={14} /> {T.shelfBadge}</span>
+          <h2>{T.shelfTitle}</h2>
+          <p className="lp-lead">{T.shelfText}</p>
+          <ul className="lp-trust">
+            {T.shelfPoints.map((pt) => <li key={pt}><IconCheck size={16} /> {pt}</li>)}
+          </ul>
+        </div>
+        <ShelfDemo />
       </section>
 
       <section id="how" className="lp-section">
