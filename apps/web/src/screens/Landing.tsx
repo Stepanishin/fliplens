@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { PLANS } from '@fliplens/core';
 import { GoogleButton } from '../ui/GoogleButton.js';
 import { ShelfDemo } from '../ui/ShelfDemo.js';
+import { RadarDemo } from '../ui/RadarDemo.js';
 import { api } from '../api.js';
 import { inviteCode } from '../track.js';
 import { track } from '../track.js';
@@ -75,6 +76,12 @@ const T = tr({
     f3Text: 'Marketplace fees, shipping and your purchase price are taken off. You also get the maximum price worth paying.',
     f4: 'Honest about uncertainty',
     f4Text: 'Every verdict shows its confidence and risks. Not enough data? We say so instead of inventing a number.',
+    radarBadge: 'Live radar',
+    radarTitle: 'Or just keep the camera open',
+    radarText: 'Walk along the stalls with the live radar on. Items on the table get a box with their name as you move. Tap one and FlipLens checks it against real eBay listings: the price appears only then, never guessed.',
+    radarPoints: ['Boxes follow the items as you move', 'Price after a real check, 1 check per item', 'For Google sign-in accounts, Free included'] as readonly string[],
+    f6: 'A whole stall at once',
+    f6Text: 'Photograph a table or a box, or keep the camera open with the live radar. Every item gets a box, the best buys come first.',
     f5: 'Listings written for you',
     f5Text: 'Selling on Vinted, eBay or Kleinanzeigen? Turn a photo of any item, clothes included, into a title and description in your language.',
     pricingTitle: 'Simple pricing',
@@ -151,6 +158,12 @@ const T = tr({
     f3Text: 'Marktplatzgebühren, Versand und dein Einkaufspreis werden abgezogen. Außerdem bekommst du den Höchstpreis, der sich noch lohnt.',
     f4: 'Ehrlich bei Unsicherheit',
     f4Text: 'Jedes Ergebnis zeigt, wie sicher es ist und welche Risiken es gibt. Zu wenig Daten? Dann sagen wir das, statt eine Zahl zu erfinden.',
+    radarBadge: 'Live-Radar',
+    radarTitle: 'Oder lass einfach die Kamera offen',
+    radarText: 'Geh mit dem Live-Radar an den Ständen entlang. Artikel auf dem Tisch bekommen beim Bewegen einen Rahmen mit Namen. Tipp auf einen, und FlipLens prüft ihn mit echten eBay-Angeboten: erst dann erscheint der Preis, nie geschätzt.',
+    radarPoints: ['Die Rahmen folgen den Artikeln beim Bewegen', 'Preis nach echtem Check, 1 Check pro Artikel', 'Für Konten mit Google-Anmeldung, auch im Free-Tarif'] as readonly string[],
+    f6: 'Ein ganzer Stand auf einmal',
+    f6Text: 'Fotografier einen Tisch oder eine Kiste, oder lass die Kamera mit dem Live-Radar offen. Jeder Artikel bekommt einen Rahmen, die besten Käufe zuerst.',
     f5: 'Anzeigen für dich geschrieben',
     f5Text: 'Du verkaufst auf Vinted, eBay oder Kleinanzeigen? Mach aus einem Foto von jedem Artikel, auch Kleidung, einen Titel und eine Beschreibung in deiner Sprache.',
     pricingTitle: 'Einfache Preise',
@@ -285,6 +298,18 @@ export function Landing({ signedIn, onOpenApp, googleClientId, authError, onGoog
         <ShelfDemo />
       </section>
 
+      <section className="lp-section lp-shelf lp-radar">
+        <div className="lp-shelf-copy">
+          <span className="lp-badge"><IconSpark size={14} /> {T.radarBadge}</span>
+          <h2>{T.radarTitle}</h2>
+          <p className="lp-lead">{T.radarText}</p>
+          <ul className="lp-trust">
+            {T.radarPoints.map((pt) => <li key={pt}><IconCheck size={16} /> {pt}</li>)}
+          </ul>
+        </div>
+        <RadarDemo />
+      </section>
+
       <section id="how" className="lp-section">
         <h2>{T.howTitle}</h2>
         <div className="lp-steps">
@@ -333,6 +358,11 @@ export function Landing({ signedIn, onOpenApp, googleClientId, authError, onGoog
             <IconEdit />
             <h3>{T.f5}</h3>
             <p>{T.f5Text}</p>
+          </div>
+          <div className="lp-feature">
+            <IconScan />
+            <h3>{T.f6}</h3>
+            <p>{T.f6Text}</p>
           </div>
         </div>
       </section>

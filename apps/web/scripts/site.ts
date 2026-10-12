@@ -159,6 +159,7 @@ const PAGES: Page[] = [
     sections: [],
     faq: [
       ...COMMON_FAQ,
+      { q: 'Can FlipLens check a whole table at once?', a: 'Yes. Take one photo of a stall, a box or a shelf and FlipLens finds up to 6 items, checks each against real eBay listings (one check per item) and lists the best buys first. Or keep the camera open with the live radar: items get a box with their name as you move, and a tap checks the price. Prices only ever come from a real check, never from a guess. Both need a Google sign-in.' },
       { q: 'Which countries does FlipLens cover?', a: 'Market data comes from eBay Germany, France, Italy, Spain and the Netherlands, in euro. If you set your country to the United Kingdom, FlipLens uses eBay.co.uk and shows prices in pounds, with UK private seller fees. Links to check prices yourself are available for Vinted, Kleinanzeigen and other marketplaces.' },
       { q: 'How accurate is the estimate?', a: 'It depends on the market. Every result shows a confidence score, how many listings it is based on and the risks. When there is not enough data, FlipLens says so instead of guessing. You can track your real sale prices in Stock and see how close the estimates were.' },
       { q: 'Which marketplaces are the fees calculated for?', a: 'eBay.de for private and business sellers, Vinted and local pickup with cash. Each fee profile shows when it was last checked.' },
@@ -806,6 +807,7 @@ const PAGES_DE: Page[] = [
     sections: [],
     faq: [
       ...COMMON_FAQ_DE,
+      { q: 'Kann FlipLens einen ganzen Tisch auf einmal prüfen?', a: 'Ja. Mach ein Foto von einem Stand, einer Kiste oder einem Regal, und FlipLens findet bis zu 6 Artikel, prüft jeden mit echten eBay-Angeboten (ein Check pro Artikel) und zeigt die besten Käufe zuerst. Oder lass die Kamera mit dem Live-Radar offen: Artikel bekommen beim Bewegen einen Rahmen mit Namen, ein Tipp prüft den Preis. Preise kommen immer aus einem echten Check, nie aus einer Schätzung. Beides braucht eine Google-Anmeldung.' },
       { q: 'Welche Länder deckt FlipLens ab?', a: 'Die Marktdaten kommen von eBay Deutschland, Frankreich, Italien, Spanien und den Niederlanden, in Euro. Wenn du als Land Großbritannien wählst, nutzt FlipLens eBay.co.uk und zeigt Preise in Pfund, mit den Gebühren für private Verkäufer in Großbritannien. Links, um Preise selbst zu prüfen, gibt es für Vinted, Kleinanzeigen und weitere Marktplätze.' },
       { q: 'Wie genau ist die Schätzung?', a: 'Das hängt vom Markt ab. Jedes Ergebnis zeigt einen Sicherheitswert, auf wie vielen Angeboten es beruht und die Risiken. Gibt es nicht genug Daten, sagt FlipLens das, statt zu raten. Im Lager kannst du deine echten Verkaufspreise festhalten und sehen, wie nah die Schätzungen lagen.' },
       { q: 'Für welche Marktplätze werden die Gebühren berechnet?', a: 'eBay.de für private und gewerbliche Verkäufer, Vinted und Abholung gegen Bargeld. Jedes Gebührenprofil zeigt, wann es zuletzt geprüft wurde.' },
@@ -1587,6 +1589,7 @@ Key facts:
 - Works best for consumer electronics, gaming and cameras (headphones, phones, tablets, laptops, consoles, controllers, games, camera bodies, lenses) and power tools. Fashion is not supported yet.
 - The purchase price is optional: without it FlipLens shows the maximum price worth paying for the user's target ROI.
 - Fee profiles: eBay.de private and business sellers, eBay.co.uk private sellers, Vinted, local pickup. Each shows when it was last checked.
+- Table scan: one photo of a stall, box or shelf finds up to 6 items and checks each against eBay listings, best buys first. Live radar: with the camera open, items get boxes with their names as the phone moves; a tap runs a real check before any price is shown. Both for Google sign-in accounts, Free included.
 - UK users (country set to United Kingdom) get eBay.co.uk data and prices in pounds.
 - When fewer than 5 comparable listings remain it says "not enough market data" instead of guessing.
 - Pricing (EUR, final prices): ${planLine}.

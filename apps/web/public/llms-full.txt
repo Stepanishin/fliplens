@@ -90,6 +90,9 @@ Photos are only used to identify the item and are never stored. Your checks are 
 **Is FlipLens affiliated with eBay?**
 No. FlipLens is independent and shows eBay data through the official eBay API. It does not buy, sell or ship anything.
 
+**Can FlipLens check a whole table at once?**
+Yes. Take one photo of a stall, a box or a shelf and FlipLens finds up to 6 items, checks each against real eBay listings (one check per item) and lists the best buys first. Or keep the camera open with the live radar: items get a box with their name as you move, and a tap checks the price. Prices only ever come from a real check, never from a guess. Both need a Google sign-in.
+
 **Which countries does FlipLens cover?**
 Market data comes from eBay Germany, France, Italy, Spain and the Netherlands, in euro. If you set your country to the United Kingdom, FlipLens uses eBay.co.uk and shows prices in pounds, with UK private seller fees. Links to check prices yourself are available for Vinted, Kleinanzeigen and other marketplaces.
 
