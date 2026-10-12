@@ -35,7 +35,7 @@ function pushSettings(s: Settings): Promise<unknown> {
     .catch(() => undefined);
 }
 import { track } from './track.js';
-import { currencyForCountry, errorText, setCurrency, tr } from './i18n.js';
+import { currencyFor, errorText, setCurrency, tr } from './i18n.js';
 import { IconBack, IconBox, IconCamera, IconClock, IconHome, IconUser } from './ui/icons.js';
 import { resizeToJpegDataUrl } from './image.js';
 import { Confirm } from './screens/Confirm.js';
@@ -222,7 +222,7 @@ export function App() {
             shippingCost: s.shippingCostMinor / 100,
             targetRoiPct: s.targetRoiPct,
           };
-          setCurrency(currencyForCountry(merged.country));
+          setCurrency(currencyFor(merged));
           setSettingsState(merged);
           saveSettings(merged);
         }
@@ -311,7 +311,7 @@ export function App() {
 
   const saveTimer = useRef<number | undefined>(undefined);
   const setSettings = (s: Settings) => {
-    setCurrency(currencyForCountry(s.country));
+    setCurrency(currencyFor(s));
     setSettingsState(s);
     saveSettings(s);
     if (!dbOn) return;

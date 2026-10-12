@@ -1,4 +1,4 @@
-import type { CategorySlug, Condition } from '@fliplens/core';
+import { marketFor, type CategorySlug, type Condition } from '@fliplens/core';
 import type { IdentificationCandidate } from '@fliplens/recognition';
 import type { BarcodeResult, IdentificationResult, ServerScan, ValuationRequest } from './api.js';
 import type { Settings } from './storage.js';
@@ -92,7 +92,7 @@ export function buildRequest(d: Draft, s: Settings): ValuationRequest {
     condition: d.condition,
     // Empty price: "what is it worth, how much may I pay".
     ...(d.price.trim() !== '' && { purchasePrice: parsePrice(d.price) }),
-    currency: s.country === 'GB' ? 'GBP' : 'EUR',
+    currency: marketFor(s.country, s.preset).currency,
     country: s.country,
     preset: s.preset,
     shippingCost: s.shippingCost,

@@ -478,7 +478,7 @@ export const api = {
     call<BarcodeResult>('/api/identify/barcode', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ gtin, country: loadSettings().country }),
+      body: JSON.stringify({ gtin, country: loadSettings().country, preset: loadSettings().preset }),
     }),
   valuation: (req: ValuationRequest) =>
     call<ValuationResponse>('/api/valuation', {

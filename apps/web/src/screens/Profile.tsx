@@ -219,10 +219,11 @@ export function Profile({ billing, onOpenPlans, account, googleClientId, onGoogl
           <select
             value={settings.country}
             onChange={(e) => {
-              // The UK has its own eBay site, currency and fee presets: switch the preset when it no longer fits.
+              // Moving between the UK and the EU suggests that side's eBay; any preset can still be picked after.
               const country = e.target.value;
-              const allowed = presetsForCountry(country);
-              onChange({ ...settings, country, preset: allowed.includes(settings.preset) ? settings.preset : allowed[0]! });
+              const wasUk = settings.country === 'GB';
+              const switchSide = (country === 'GB') !== wasUk && settings.preset.startsWith('ebay_');
+              onChange({ ...settings, country, preset: switchSide ? presetsForCountry(country)[0]! : settings.preset });
             }}
           >
             {LINK_COUNTRIES.map((c) => <option key={c} value={c}>{countryName(c)}</option>)}

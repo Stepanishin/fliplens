@@ -125,6 +125,7 @@ Status: accepted 2026-10-12.
 - New fee preset `ebay_uk_private` (no final value fee for UK private sellers, eBay UK help page, checked 2026-10-12). Profile shows the presets that fit the country and switches the preset when the country changes. Fixed fees of a preset in another currency are converted with the day's ECB rate (`feeProfileIn`).
 - eBay category IDs used for search filtering are the same on EBAY_GB (verified on all mapped categories).
 - FlipLens' own prices and referral earnings stay in euro.
+- Update 2026-10-12: the selected eBay preset decides the market, not the country. eBay.co.uk = UK data in pounds, eBay.de (private or business) = EU sites in euro, from any country. Vinted and local pickup follow the country. The country only suggests the default preset (switching between the UK and the EU suggests that side's eBay) and decides marketplace links. All presets are offered everywhere.
 
 ## ADR-022: Live radar
 Status: accepted 2026-10-12.

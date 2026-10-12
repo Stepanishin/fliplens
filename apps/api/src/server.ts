@@ -173,7 +173,7 @@ app.get('/api/category', async (req, reply) => {
   }
 });
 
-const BarcodeBody = z.object({ gtin: z.string().trim().min(8).max(20), country: z.string().regex(/^[A-Z]{2}$/).optional() });
+const BarcodeBody = z.object({ gtin: z.string().trim().min(8).max(20), country: z.string().regex(/^[A-Z]{2}$/).optional(), preset: z.string().max(40).optional() });
 
 app.post('/api/identify/barcode', async (req, reply) => {
   const parsed = BarcodeBody.safeParse(req.body);
@@ -185,7 +185,7 @@ app.post('/api/identify/barcode', async (req, reply) => {
   if (!ebay.isConfigured()) return reply.code(409).send({ error: 'source_not_configured', message: 'eBay keys are not configured' });
   if (!titleIdentifier.isConfigured()) return reply.code(409).send({ error: 'vision_not_configured', message: 'Set OPENAI_API_KEY in .env' });
 
-  const sites = marketFor(parsed.data.country).sites;
+  const sites = marketFor(parsed.data.country, parsed.data.preset).sites;
   const found = await ebay.titlesForGtin(gtinSearchVariants(gtin), sites ? { sites } : {});
   for (const w of found.warnings) req.log.warn({ event: 'source_fetch_failed', site: w.site }, w.message);
   if (found.titles.length === 0) {
@@ -267,7 +267,7 @@ app.get('/api/presets', async () =>
 app.post('/api/valuation', async (req, reply) => {
   const parsed = ValuationBody.safeParse(req.body);
   if (!parsed.success) return reply.code(400).send({ error: 'invalid_request', issues: parsed.error.issues });
-  const market = marketFor(parsed.data.country);
+  const market = marketFor(parsed.data.country, parsed.data.preset);
   const b = { ...parsed.data, currency: market.currency };
 
   if (!(await store.requireAccount(req, reply, 'valuation'))) return reply;

@@ -153,14 +153,21 @@ export function resolveFeeProfile(preset: FeePresetId, condition: Condition, cat
   return FEE_PRESETS[preset].resolve(condition, category);
 }
 
-/** Fee presets that make sense for a country: the UK has its own eBay site and currency. */
+/** All fee presets, the ones for the user's country first (the first one is the default for that country). */
 export function presetsForCountry(country: string): FeePresetId[] {
-  return country === 'GB' ? ['ebay_uk_private', 'vinted', 'local_pickup'] : ['ebay_de_private', 'ebay_de_business', 'vinted', 'local_pickup'];
+  return country === 'GB'
+    ? ['ebay_uk_private', 'vinted', 'local_pickup', 'ebay_de_private', 'ebay_de_business']
+    : ['ebay_de_private', 'ebay_de_business', 'vinted', 'local_pickup', 'ebay_uk_private'];
 }
 
-/** Marketplace data and money for a country: eBay.co.uk in pounds for the UK, the five EU eBay sites in euro otherwise. */
-export function marketFor(country: string | undefined): { sites: readonly string[] | undefined; currency: 'GBP' | 'EUR' } {
-  return country === 'GB' ? { sites: ['EBAY_GB'], currency: 'GBP' } : { sites: undefined, currency: 'EUR' };
+/**
+ * Marketplace data and money. Where the user sells decides: the eBay.co.uk preset means UK listings in pounds, the
+ * eBay.de presets mean the five EU eBay sites in euro, whatever the country. Vinted and local pickup follow the
+ * country (United Kingdom: eBay.co.uk in pounds).
+ */
+export function marketFor(country: string | undefined, preset?: string): { sites: readonly string[] | undefined; currency: 'GBP' | 'EUR' } {
+  const uk = preset === 'ebay_uk_private' || (!preset?.startsWith('ebay_') && country === 'GB');
+  return uk ? { sites: ['EBAY_GB'], currency: 'GBP' } : { sites: undefined, currency: 'EUR' };
 }
 
 /** A fee profile expressed in another currency (fixed fees converted; percentages unchanged). */

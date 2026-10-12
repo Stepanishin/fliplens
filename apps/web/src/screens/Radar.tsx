@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { marketFor } from '@fliplens/core';
 import { api, type RadarItem, type ValuationResponse } from '../api.js';
 import { errorText, money, tr } from '../i18n.js';
 import type { Settings } from '../storage.js';
@@ -281,7 +282,7 @@ export function Radar({ settings, onClose, onOpenScan, onUpgrade, onSignIn }: Pr
       const r: ValuationResponse = await api.valuation({
         product: { category: i.category, brand: i.brand, model: i.model, ...(i.capacity && { capacity: i.capacity }) },
         condition: 'good',
-        currency: settings.country === 'GB' ? 'GBP' : 'EUR',
+        currency: marketFor(settings.country, settings.preset).currency,
         country: settings.country,
         preset: settings.preset,
         shippingCost: settings.shippingCost,

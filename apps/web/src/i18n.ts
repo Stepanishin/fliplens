@@ -1,4 +1,4 @@
-import { PLANS, type PlanId } from '@fliplens/core';
+import { marketFor, PLANS, type PlanId } from '@fliplens/core';
 
 /**
  * Two languages: English and German. Chosen once per page load:
@@ -60,20 +60,21 @@ export function setLang(l: Lang): void {
 // ---------- formatting ----------
 
 /**
- * The user's money: pounds for the UK (eBay.co.uk), euro everywhere else. Follows the country in the settings;
+ * The user's money: pounds when selling on eBay.co.uk (or in the UK on Vinted / locally), euro otherwise. Follows the settings;
  * FlipLens' own prices and referral payouts stay in euro (pass 'EUR').
  */
 export type Currency = 'EUR' | 'GBP';
 function initialCurrency(): Currency {
   try {
     const raw = typeof localStorage === 'undefined' ? null : localStorage.getItem('fliplens.settings.v1');
-    return raw && (JSON.parse(raw) as { country?: string }).country === 'GB' ? 'GBP' : 'EUR';
+    const s = raw ? (JSON.parse(raw) as { country?: string; preset?: string }) : {};
+    return marketFor(s.country, s.preset).currency;
   } catch {
     return 'EUR';
   }
 }
 let currency: Currency = initialCurrency();
-export const currencyForCountry = (country: string): Currency => (country === 'GB' ? 'GBP' : 'EUR');
+export const currencyFor = (s: { country: string; preset: string }): Currency => marketFor(s.country, s.preset).currency;
 export function setCurrency(c: Currency): void {
   currency = c;
 }

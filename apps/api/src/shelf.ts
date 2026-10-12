@@ -77,7 +77,7 @@ export function registerShelfRoute(
     });
 
     const rates = await fx.latest();
-    const market = marketFor(b.country);
+    const market = marketFor(b.country, b.preset);
     const fees = (category: NormalizedProduct['category']) => feeProfileIn(resolveFeeProfile(b.preset, 'good', category), market.currency, rates);
 
     async function valueItem(item: ShelfItem): Promise<Outcome> {
