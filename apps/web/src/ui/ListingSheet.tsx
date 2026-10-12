@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { api, ApiError, type InventoryItem } from '../api.js';
+import { errorText, LANG, tr } from '../i18n.js';
 import { track } from '../track.js';
 import { ListingResult } from './ListingResult.js';
 
@@ -13,6 +14,36 @@ export const LANG_BY_COUNTRY: Record<string, string> = {
   DE: 'de', AT: 'de', CH: 'de', FR: 'fr', BE: 'fr', LU: 'fr', IT: 'it', ES: 'es', NL: 'nl', PL: 'pl', SI: 'sl', HR: 'hr', CZ: 'cs', PT: 'pt', SE: 'sv',
 };
 
+const T = tr({
+  en: {
+    failed: 'Could not write the listing',
+    title: 'Write listing',
+    marketplace: 'Marketplace',
+    language: 'Language',
+    notes: 'Notes (optional)',
+    notesPh: 'box, charger, small scratch',
+    writing: 'Writing…',
+    write: 'Write listing',
+    plans: 'See plans',
+  },
+  de: {
+    failed: 'Die Anzeige konnte nicht geschrieben werden',
+    title: 'Anzeige schreiben',
+    marketplace: 'Marktplatz',
+    language: 'Sprache',
+    notes: 'Notizen (optional)',
+    notesPh: 'OVP, Ladekabel, kleiner Kratzer',
+    writing: 'Schreibe…',
+    write: 'Anzeige schreiben',
+    plans: 'Tarife ansehen',
+  },
+});
+
+/** Default language of the listing: the country's language, else the UI language. */
+export function defaultListingLanguage(country: string): string {
+  return LANG_BY_COUNTRY[country] ?? (LANG === 'de' ? 'de' : 'en');
+}
+
 interface Listing {
   title: string;
   description: string;
@@ -25,7 +56,7 @@ interface Listing {
 /** Listing generator: marketplace-style text to copy, plus a link to the marketplace's "sell" page. */
 export function ListingSheet({ item, country, onClose, onUpgrade }: { item: InventoryItem; country: string; onClose: () => void; onUpgrade: () => void }) {
   const [market, setMarket] = useState<Market>(country === 'DE' ? 'kleinanzeigen' : 'ebay');
-  const [language, setLanguage] = useState(LANG_BY_COUNTRY[country] ?? 'en');
+  const [language, setLanguage] = useState(defaultListingLanguage(country));
   const [notes, setNotes] = useState(item.notes ?? '');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<{ text: string; upgrade: boolean } | null>(null);
@@ -39,7 +70,7 @@ export function ListingSheet({ item, country, onClose, onUpgrade }: { item: Inve
       setListing(r);
       track('listing_generated', { marketplace: market, language });
     } catch (e) {
-      setError({ text: e instanceof ApiError ? e.message : 'Could not write the listing', upgrade: e instanceof ApiError && e.code === 'upgrade_required' });
+      setError({ text: errorText(e, T.failed), upgrade: e instanceof ApiError && e.code === 'upgrade_required' });
     } finally {
       setBusy(false);
     }
@@ -48,11 +79,11 @@ export function ListingSheet({ item, country, onClose, onUpgrade }: { item: Inve
 
   return (
     <div className="sheet-backdrop" role="presentation" onClick={onClose}>
-      <div className="sheet" role="dialog" aria-label="Write listing" onClick={(e) => e.stopPropagation()}>
-        <h2>Write listing</h2>
+      <div className="sheet" role="dialog" aria-label={T.title} onClick={(e) => e.stopPropagation()}>
+        <h2>{T.title}</h2>
         <p className="muted small">{item.brand} {item.model}{item.capacity ? ` ${item.capacity}` : ''}</p>
 
-        <div className="seg" role="radiogroup" aria-label="Marketplace">
+        <div className="seg" role="radiogroup" aria-label={T.marketplace}>
           {MARKETS.map(([id, label]) => (
             <button key={id} type="button" role="radio" aria-checked={market === id} className={market === id ? 'on' : ''} onClick={() => { setMarket(id); setListing(null); }}>
               {label}
@@ -61,26 +92,26 @@ export function ListingSheet({ item, country, onClose, onUpgrade }: { item: Inve
         </div>
         <div className="row2">
           <label className="field">
-            <span>Language</span>
+            <span>{T.language}</span>
             <select value={language} onChange={(e) => { setLanguage(e.target.value); setListing(null); }}>
               {LANGUAGES.map(([code, name]) => <option key={code} value={code}>{name}</option>)}
             </select>
           </label>
           <label className="field">
-            <span>Notes (optional)</span>
-            <input value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="box, charger, small scratch" />
+            <span>{T.notes}</span>
+            <input value={notes} onChange={(e) => setNotes(e.target.value)} placeholder={T.notesPh} />
           </label>
         </div>
 
         {!listing && (
           <button type="button" className="primary" disabled={busy} onClick={() => void generate()}>
-            {busy ? <><span className="spinner light" aria-hidden="true" /> Writing…</> : 'Write listing'}
+            {busy ? <><span className="spinner light" aria-hidden="true" /> {T.writing}</> : T.write}
           </button>
         )}
         {error && (
           <div className="banner bad">
             {error.text}
-            {error.upgrade && <> <button type="button" className="link" onClick={onUpgrade}>See plans</button></>}
+            {error.upgrade && <> <button type="button" className="link" onClick={onUpgrade}>{T.plans}</button></>}
           </div>
         )}
 

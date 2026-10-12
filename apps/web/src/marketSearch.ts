@@ -3,6 +3,7 @@
  * We never fetch, store or parse these pages (no legal access to that data, see docs/DATA_SOURCES.md).
  * URL patterns checked 2026-09-23.
  */
+import { LANG } from './i18n.js';
 
 export interface MarketLink {
   readonly id: string;
@@ -47,10 +48,10 @@ const MARKETS: readonly MarketDef[] = [
   },
   {
     id: 'ebay_sold',
-    name: 'eBay sold',
+    name: LANG === 'de' ? 'eBay verkauft' : 'eBay sold',
     countries: Object.keys(EBAY_DOMAIN),
     url: (q, c) => `https://www.${EBAY_DOMAIN[c] ?? 'ebay.de'}/sch/i.html?_nkw=${plus(q)}&LH_Sold=1&LH_Complete=1`,
-    note: 'login required',
+    note: LANG === 'de' ? 'Login nötig' : 'login required',
   },
   { id: 'kleinanzeigen', name: 'Kleinanzeigen', countries: ['DE'], url: (q) => `https://www.kleinanzeigen.de/s-${dashes(q)}/k0` },
   { id: 'willhaben', name: 'willhaben', countries: ['AT'], url: (q) => `https://www.willhaben.at/iad/kaufen-und-verkaufen/marktplatz?keyword=${enc(q)}` },

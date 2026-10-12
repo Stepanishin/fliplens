@@ -1,8 +1,31 @@
 import { useState } from 'react';
-import { api, ApiError } from '../api.js';
+import { api } from '../api.js';
+import { errorText, tr } from '../i18n.js';
 import { track } from '../track.js';
 
-const SOURCES = ['Flea market', 'Charity shop', 'Second-hand shop', 'Garage sale', 'Online', 'Auction'] as const;
+const T = tr({
+  en: {
+    sources: ['Flea market', 'Charity shop', 'Second-hand shop', 'Garage sale', 'Online', 'Auction'] as readonly string[],
+    saveFailed: 'Could not save',
+    aria: 'I bought it',
+    title: 'Nice find! Add to Stock',
+    pricePaid: 'Price you paid',
+    where: 'Where did you buy it? (optional)',
+    saving: 'Saving…',
+    add: 'Add to Stock',
+  },
+  de: {
+    sources: ['Flohmarkt', 'Sozialkaufhaus', 'Second-Hand-Laden', 'Hofflohmarkt', 'Online', 'Auktion'] as readonly string[],
+    saveFailed: 'Speichern fehlgeschlagen',
+    aria: 'Gekauft',
+    title: 'Guter Fund! Ins Lager legen',
+    pricePaid: 'Bezahlter Preis',
+    where: 'Wo hast du es gekauft? (optional)',
+    saving: 'Speichern…',
+    add: 'Ins Lager legen',
+  },
+});
+const SOURCES = T.sources;
 
 /** "I bought it": moves the checked item into Stock with the price actually paid. */
 export function BoughtSheet({
@@ -33,22 +56,22 @@ export function BoughtSheet({
       track('inventory_added', { from: 'result' });
       onAdded();
     } catch (e) {
-      setError(e instanceof ApiError ? e.message : 'Could not save');
+      setError(errorText(e, T.saveFailed));
       setBusy(false);
     }
   }
 
   return (
     <div className="sheet-backdrop" role="presentation" onClick={onClose}>
-      <div className="sheet" role="dialog" aria-label="I bought it" onClick={(e) => e.stopPropagation()}>
-        <h2>Nice find! Add to Stock</h2>
+      <div className="sheet" role="dialog" aria-label={T.aria} onClick={(e) => e.stopPropagation()}>
+        <h2>{T.title}</h2>
         <p className="muted small">{name}</p>
         <label className="field">
-          <span>Price you paid</span>
+          <span>{T.pricePaid}</span>
           <div className="input-affix"><span>€</span><input inputMode="decimal" value={price} onChange={(e) => setPrice(e.target.value)} /></div>
         </label>
         <div className="field">
-          <span>Where did you buy it? (optional)</span>
+          <span>{T.where}</span>
           <div className="chips-row">
             {SOURCES.map((s) => (
               <button key={s} type="button" className={`chip-btn ${source === s ? 'on' : ''}`} onClick={() => setSource(source === s ? null : s)}>{s}</button>
@@ -57,7 +80,7 @@ export function BoughtSheet({
         </div>
         {error && <div className="banner bad">{error}</div>}
         <button type="button" className="primary" disabled={busy || !(value >= 0) || price === ''} onClick={() => void save()}>
-          {busy ? 'Saving…' : 'Add to Stock'}
+          {busy ? T.saving : T.add}
         </button>
       </div>
     </div>

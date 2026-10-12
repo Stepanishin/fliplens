@@ -1,5 +1,21 @@
 import type { IdentificationResult } from './api.js';
 import { CATEGORY_NAME, CONDITION_LABEL } from './format.js';
+import { tr } from './i18n.js';
+
+const T = tr({
+  en: {
+    isThis: 'Is this:',
+    detected: 'Detected:',
+    mount: (m: string) => `${m} mount`,
+    guess: (c: string, notes: string | null) => `Condition guess: ${c}${notes ? ` (${notes})` : ''}. Please confirm below.`,
+  },
+  de: {
+    isThis: 'Ist das:',
+    detected: 'Erkannt:',
+    mount: (m: string) => `${m}-Anschluss`,
+    guess: (c: string, notes: string | null) => `Geschätzter Zustand: ${c}${notes ? ` (${notes})` : ''}. Bitte unten bestätigen.`,
+  },
+});
 
 interface Props {
   result: IdentificationResult;
@@ -18,14 +34,14 @@ export function Candidates({ result, picked, onChoose, evidenceLabel, emptyText,
         <div className="banner warn">{emptyText}</div>
       ) : (
         <>
-          <p className="muted small">{result.candidates.length > 1 ? 'Is this:' : 'Detected:'}</p>
+          <p className="muted small">{result.candidates.length > 1 ? T.isThis : T.detected}</p>
           {result.candidates.map((c, i) => (
             <button key={i} type="button" className={`candidate ${picked === i ? 'on' : ''}`} onClick={() => onChoose(i)}>
               <span>
                 <strong>{c.brand} {c.model}</strong>
                 <span className="muted small">
                   {' '}
-                  {[c.capacity, c.mount && `${c.mount} mount`, c.colour, CATEGORY_NAME[c.category] ?? c.category].filter(Boolean).join(' · ')}
+                  {[c.capacity, c.mount && T.mount(c.mount), c.colour, CATEGORY_NAME[c.category] ?? c.category].filter(Boolean).join(' · ')}
                 </span>
               </span>
               <span className={`conf ${c.confidence >= 0.85 ? 'c-high' : c.confidence >= 0.6 ? 'c-medium' : 'c-low'}`}>
@@ -37,8 +53,7 @@ export function Candidates({ result, picked, onChoose, evidenceLabel, emptyText,
       )}
       {result.conditionGuess && (
         <p className="muted small">
-          Condition guess: {CONDITION_LABEL[result.conditionGuess]}
-          {result.conditionNotes ? ` (${result.conditionNotes})` : ''}. Please confirm below.
+          {T.guess(CONDITION_LABEL[result.conditionGuess], result.conditionNotes ?? null)}
         </p>
       )}
       {result.identifyingText.length > 0 && <p className="muted small">{evidenceLabel}: {result.identifyingText.join(' · ')}</p>}

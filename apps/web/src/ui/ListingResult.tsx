@@ -1,6 +1,35 @@
 import { useState } from 'react';
+import { money as eur, tr } from '../i18n.js';
 import { track } from '../track.js';
-import { eur } from './verdict.js';
+
+const T = tr({
+  en: {
+    copied: 'Copied',
+    copy: 'Copy',
+    title: 'Title',
+    chars: (n: number) => `${n} characters`,
+    description: 'Description',
+    condition: 'Condition',
+    suggested: 'Suggested price',
+    keywords: 'Keywords',
+    copyAll: 'Copy title + text',
+    open: (m: string) => `Open ${m}`,
+    again: 'Write another version',
+  },
+  de: {
+    copied: 'Kopiert',
+    copy: 'Kopieren',
+    title: 'Titel',
+    chars: (n: number) => `${n} Zeichen`,
+    description: 'Beschreibung',
+    condition: 'Zustand',
+    suggested: 'Preisvorschlag',
+    keywords: 'Suchbegriffe',
+    copyAll: 'Titel + Text kopieren',
+    open: (m: string) => `${m} öffnen`,
+    again: 'Andere Version schreiben',
+  },
+});
 
 export interface ListingOut {
   title: string;
@@ -42,7 +71,7 @@ export function ListingResult({ listing, marketName, busy, onRegenerate }: { lis
     <div className="listing-field">
       <div className="card-head">
         <strong>{label}</strong>
-        <button type="button" className="link" onClick={() => void copy(name, text)}>{copied === name ? 'Copied' : 'Copy'}</button>
+        <button type="button" className="link" onClick={() => void copy(name, text)}>{copied === name ? T.copied : T.copy}</button>
       </div>
       <p className={pre ? 'listing-desc' : undefined}>{text}</p>
       {extra && <span className="muted small">{extra}</span>}
@@ -51,18 +80,18 @@ export function ListingResult({ listing, marketName, busy, onRegenerate }: { lis
 
   return (
     <div className="listing-out">
-      {field('Title', 'title', listing.title, `${listing.title.length} characters`)}
-      {field('Description', 'description', listing.description, undefined, true)}
-      {field('Condition', 'condition', listing.conditionText)}
+      {field(T.title, 'title', listing.title, T.chars(listing.title.length))}
+      {field(T.description, 'description', listing.description, undefined, true)}
+      {field(T.condition, 'condition', listing.conditionText)}
       {listing.suggestedPriceMinor != null && (
-        <div className="maxbuy"><span>Suggested price</span><strong>{eur(listing.suggestedPriceMinor)}</strong></div>
+        <div className="maxbuy"><span>{T.suggested}</span><strong>{eur(listing.suggestedPriceMinor)}</strong></div>
       )}
-      {listing.keywords.length > 0 && <p className="muted small">Keywords: {listing.keywords.join(', ')}</p>}
+      {listing.keywords.length > 0 && <p className="muted small">{T.keywords}: {listing.keywords.join(', ')}</p>}
       <div className="sheet-actions">
-        <button type="button" className="ghost" onClick={() => void copy('all', `${listing.title}\n\n${listing.description}`)}>{copied === 'all' ? 'Copied' : 'Copy title + text'}</button>
-        <a className="primary" href={listing.sellUrl} target="_blank" rel="noreferrer">Open {marketName}</a>
+        <button type="button" className="ghost" onClick={() => void copy('all', `${listing.title}\n\n${listing.description}`)}>{copied === 'all' ? T.copied : T.copyAll}</button>
+        <a className="primary" href={listing.sellUrl} target="_blank" rel="noreferrer">{T.open(marketName)}</a>
       </div>
-      <button type="button" className="link" disabled={busy} onClick={onRegenerate}>Write another version</button>
+      <button type="button" className="link" disabled={busy} onClick={onRegenerate}>{T.again}</button>
     </div>
   );
 }

@@ -9,6 +9,7 @@ import type {
 } from '@fliplens/core';
 import type { IdentificationResult as BaseIdentification } from '@fliplens/recognition';
 import { deviceId } from './storage.js';
+import { LANG } from './i18n.js';
 
 /** JSON turns Dates into strings; the UI only displays them. */
 type Jsonify<T> = T extends Date
@@ -334,13 +335,13 @@ export const api = {
       { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) },
     ),
   photoListing: (body: { images: string[]; marketplace: 'ebay' | 'vinted' | 'kleinanzeigen'; language: string; condition?: string; notes?: string }) =>
-    call<PhotoListing>('/api/listing/photo', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }),
+    call<PhotoListing>('/api/listing/photo', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...body, uiLanguage: LANG }) }),
   deleteInventory: (id: string) => call<{ deleted: boolean }>(`/api/inventory/${id}`, { method: 'DELETE' }),
   detectCategory: (brand: string, model: string) =>
     call<{ category: CategorySlug | null }>(`/api/category?${new URLSearchParams({ brand, model })}`),
   checkout: (plan: 'pro' | 'reseller') =>
-    call<{ url: string }>('/api/billing/checkout', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ plan }) }),
-  portal: () => call<{ url: string }>('/api/billing/portal', { method: 'POST' }),
+    call<{ url: string }>('/api/billing/checkout', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ plan, locale: LANG }) }),
+  portal: () => call<{ url: string }>('/api/billing/portal', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ locale: LANG }) }),
   me: () => call<{ account: Account | null; authAvailable: boolean; isAdmin: boolean }>('/api/me'),
   adminOverview: (days: number) => call<AdminOverview>(`/api/admin/overview?days=${days}`),
   adminTraffic: (days: number) => call<AdminTraffic>(`/api/admin/traffic?days=${days}`),

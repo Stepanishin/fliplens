@@ -3,10 +3,98 @@ import { computeProfit, decide, DEFAULT_PRICING_CONFIG, maxBuyPrice, type Confid
 import { track } from '../track.js';
 import type { ValuationResponse } from '../api.js';
 import { ago, FACTOR_LABEL } from '../format.js';
+import { reason, tr, presetText } from '../i18n.js';
 import { MarketLinks } from '../MarketLinks.js';
 import { ConfidencePill, DecisionHero, eur, MarketActivity, RangeBar } from '../ui/verdict.js';
 import { IconBag, IconEdit, IconScan, IconSpark } from '../ui/icons.js';
 import { Comparables } from './Comparables.js';
+
+const T = tr({
+  en: {
+    notEnough: 'Not enough market data',
+    tooFew: (n: number) => `Only ${n} matching listings after filtering (5 needed). We don't guess.`,
+    uncertain: 'The product identification is too uncertain to value.',
+    writeTitle: 'Selling it? Write the listing from your photo',
+    writeSub: 'Clothes and other items without price data work too: title and description for Vinted, eBay or Kleinanzeigen.',
+    whatYouCanDo: 'What you can do',
+    tip1: 'Check the model name, storage and mount: a wrong detail hides the market.',
+    tip2: 'Scan the barcode on the box, or add a photo of the label.',
+    tip3: 'Look it up yourself with the links below.',
+    payAtMost: (p: string) => `Pay at most ${p}`,
+    forRoi: (n: number) => `for ${n}% ROI after fees and shipping`,
+    sellsFor: 'Sells for',
+    quickSale: 'Quick sale',
+    youKeep: 'You keep',
+    tryPrice: 'Try a price',
+    whatIfPay: 'What if you pay',
+    purchasePrice: 'Purchase price',
+    zero: '€0',
+    maxFor: (n: number, p: string) => `max for ${n}% ROI: ${p}`,
+    backMax: (p: string) => `Back to max price ${p}`,
+    backAsking: (p: string) => `Back to asking price ${p}`,
+    bought: (p: string) => `I bought it for ${p}`,
+    resaleValue: 'Resale value',
+    basedOn: (n: number, sold: boolean, age: string) => `Based on ${n} ${sold ? 'sold items' : 'active eBay listings (asking prices, adjusted down)'} · data ${age}`,
+    why: 'Why',
+    risks: 'Risks',
+    market: 'Market',
+    supplyOnly: "Supply only: we can't see how fast items actually sell yet.",
+    breakdown: 'Money breakdown',
+    net: (p: string) => `net ${p}`,
+    expectedSale: 'Expected sale',
+    fee: (pct: number, fixed: string | null) => `Marketplace fee (${pct}%${fixed ? ` + ${fixed}` : ''})`,
+    shipping: 'Shipping',
+    netRow: 'Net',
+    purchase: 'Purchase',
+    profit: 'Profit',
+    checked: (d: string, secondary: boolean) => `checked ${d}${secondary ? ' (secondary source)' : ''}`,
+    confDetails: 'Confidence details',
+    edit: 'Edit',
+    newScan: 'New scan',
+  },
+  de: {
+    notEnough: 'Nicht genug Marktdaten',
+    tooFew: (n: number) => `Nur ${n} passende Angebote nach dem Filtern (5 nötig). Wir raten nicht.`,
+    uncertain: 'Das Produkt ist zu unsicher erkannt, um es zu bewerten.',
+    writeTitle: 'Willst du es verkaufen? Schreib die Anzeige aus deinem Foto',
+    writeSub: 'Klappt auch mit Kleidung und anderen Artikeln ohne Preisdaten: Titel und Beschreibung für Vinted, eBay oder Kleinanzeigen.',
+    whatYouCanDo: 'Was du tun kannst',
+    tip1: 'Prüf Modellname, Speicher und Anschluss: ein falsches Detail versteckt den Markt.',
+    tip2: 'Scan den Barcode auf der Verpackung oder füg ein Foto vom Etikett hinzu.',
+    tip3: 'Schau selbst nach über die Links unten.',
+    payAtMost: (p: string) => `Zahl höchstens ${p}`,
+    forRoi: (n: number) => `für ${n} % ROI nach Gebühren und Versand`,
+    sellsFor: 'Verkauft für',
+    quickSale: 'Schnellverkauf',
+    youKeep: 'Bleibt dir',
+    tryPrice: 'Probier einen Preis',
+    whatIfPay: 'Was, wenn du zahlst',
+    purchasePrice: 'Kaufpreis',
+    zero: '0 €',
+    maxFor: (n: number, p: string) => `Höchstpreis für ${n} % ROI: ${p}`,
+    backMax: (p: string) => `Zurück zum Höchstpreis ${p}`,
+    backAsking: (p: string) => `Zurück zum Angebotspreis ${p}`,
+    bought: (p: string) => `Gekauft für ${p}`,
+    resaleValue: 'Wiederverkaufswert',
+    basedOn: (n: number, sold: boolean, age: string) => `Basierend auf ${n} ${sold ? 'verkauften Artikeln' : 'aktiven eBay-Angeboten (Angebotspreise, nach unten korrigiert)'} · Daten ${age}`,
+    why: 'Warum',
+    risks: 'Risiken',
+    market: 'Markt',
+    supplyOnly: 'Nur Angebotsdaten: wie schnell Artikel wirklich verkauft werden, sehen wir noch nicht.',
+    breakdown: 'Rechnung im Detail',
+    net: (p: string) => `netto ${p}`,
+    expectedSale: 'Erwarteter Verkauf',
+    fee: (pct: number, fixed: string | null) => `Plattformgebühr (${pct} %${fixed ? ` + ${fixed}` : ''})`,
+    shipping: 'Versand',
+    netRow: 'Netto',
+    purchase: 'Einkauf',
+    profit: 'Gewinn',
+    checked: (d: string, secondary: boolean) => `geprüft am ${d}${secondary ? ' (Sekundärquelle)' : ''}`,
+    confDetails: 'Details zur Sicherheit',
+    edit: 'Bearbeiten',
+    newScan: 'Neuer Scan',
+  },
+});
 
 interface Props {
   resp: ValuationResponse;
@@ -34,28 +122,26 @@ export function Result({ resp, query, country, onNewScan, onEdit, targetRoiPct, 
     return (
       <div className="screen">
         <div className="hero d-insufficient">
-          <div className="hero-title">Not enough market data</div>
+          <div className="hero-title">{T.notEnough}</div>
           <div className="hero-sub">
-            {r.reason === 'too_few_comparables'
-              ? `Only ${r.includedCount} matching listings after filtering (5 needed). We don't guess.`
-              : 'The product identification is too uncertain to value.'}
+            {r.reason === 'too_few_comparables' ? T.tooFew(r.includedCount) : T.uncertain}
           </div>
         </div>
         {onWriteListing && (
           <button type="button" className="home-tool" onClick={onWriteListing}>
             <span className="home-tool-icon"><IconSpark size={20} /></span>
             <span style={{ flex: 1 }}>
-              <strong>Selling it? Write the listing from your photo</strong>
-              <span className="muted">Clothes and other items without price data work too: title and description for Vinted, eBay or Kleinanzeigen.</span>
+              <strong>{T.writeTitle}</strong>
+              <span className="muted">{T.writeSub}</span>
             </span>
           </button>
         )}
         <section className="card">
-          <h2>What you can do</h2>
+          <h2>{T.whatYouCanDo}</h2>
           <ul className="list">
-            <li>Check the model name, storage and mount: a wrong detail hides the market.</li>
-            <li>Scan the barcode on the box, or add a photo of the label.</li>
-            <li>Look it up yourself with the links below.</li>
+            <li>{T.tip1}</li>
+            <li>{T.tip2}</li>
+            <li>{T.tip3}</li>
           </ul>
         </section>
         <MarketLinks query={query} country={country} />
@@ -120,21 +206,21 @@ export function Result({ resp, query, country, onNewScan, onEdit, targetRoiPct, 
         <div className="hero d-value">
           <div className="hero-top">
             <div>
-              <div className="hero-title">Pay at most {eur(maxBuy.amountMinor)}</div>
-              <div className="hero-sub">for {targetRoiPct}% ROI after fees and shipping</div>
+              <div className="hero-title">{T.payAtMost(eur(maxBuy.amountMinor))}</div>
+              <div className="hero-sub">{T.forRoi(targetRoiPct)}</div>
             </div>
           </div>
           <div className="hero-numbers">
-            <div><span>Sells for</span><strong>{eur(e.expected.amountMinor)}</strong></div>
-            <div><span>Quick sale</span><strong>{eur(e.fast.amountMinor)}</strong></div>
-            <div><span>You keep</span><strong>{eur(base.net.amountMinor)}</strong></div>
+            <div><span>{T.sellsFor}</span><strong>{eur(e.expected.amountMinor)}</strong></div>
+            <div><span>{T.quickSale}</span><strong>{eur(e.fast.amountMinor)}</strong></div>
+            <div><span>{T.youKeep}</span><strong>{eur(base.net.amountMinor)}</strong></div>
           </div>
         </div>
       )}
 
       <section className="card whatif">
         <div className="card-head">
-          <h2>{noPrice && !showVerdict ? 'Try a price' : 'What if you pay'}</h2>
+          <h2>{noPrice && !showVerdict ? T.tryPrice : T.whatIfPay}</h2>
           <strong className="whatif-price">{eur(buyMinor)}</strong>
         </div>
         <input
@@ -143,7 +229,7 @@ export function Result({ resp, query, country, onNewScan, onEdit, targetRoiPct, 
           max={sliderMax}
           step={100}
           value={buyMinor}
-          aria-label="Purchase price"
+          aria-label={T.purchasePrice}
           onChange={(ev) => {
             setBuyMinor(Number(ev.target.value));
             if (!tried) {
@@ -154,25 +240,25 @@ export function Result({ resp, query, country, onNewScan, onEdit, targetRoiPct, 
           style={{ ['--pos' as string]: `${(buyMinor / sliderMax) * 100}%` }}
         />
         <div className="whatif-scale muted small">
-          <span>€0</span>
-          <span>max for {targetRoiPct}% ROI: {eur(maxBuy.amountMinor)}</span>
+          <span>{T.zero}</span>
+          <span>{T.maxFor(targetRoiPct, eur(maxBuy.amountMinor))}</span>
           <span>{eur(sliderMax)}</span>
         </div>
         {buyMinor !== askedMinor && (
           <button type="button" className="link" onClick={() => setBuyMinor(askedMinor)}>
-            {noPrice ? `Back to max price ${eur(askedMinor)}` : `Back to asking price ${eur(askedMinor)}`}
+            {noPrice ? T.backMax(eur(askedMinor)) : T.backAsking(eur(askedMinor))}
           </button>
         )}
         {onBought && showVerdict && (
           <button type="button" className="bought-btn" onClick={() => onBought(buyMinor)}>
-            <IconBag size={20} /> I bought it for {eur(buyMinor)}
+            <IconBag size={20} /> {T.bought(eur(buyMinor))}
           </button>
         )}
       </section>
 
       <section className="card">
         <div className="card-head">
-          <h2>Resale value</h2>
+          <h2>{T.resaleValue}</h2>
           <ConfidencePill level={e.confidence.level} score={e.confidence.score} />
         </div>
         <RangeBar
@@ -186,7 +272,7 @@ export function Result({ resp, query, country, onNewScan, onEdit, targetRoiPct, 
           breakEven={breakEven}
         />
         <p className="muted small">
-          Based on {d.count} {e.dataKind === 'sold' ? 'sold items' : 'active eBay listings (asking prices, adjusted down)'} · data {ago(resp.dataFetchedAt)}
+          {T.basedOn(d.count, e.dataKind === 'sold', ago(resp.dataFetchedAt))}
         </p>
       </section>
 
@@ -194,46 +280,46 @@ export function Result({ resp, query, country, onNewScan, onEdit, targetRoiPct, 
 
       {showVerdict && (
         <section className="card">
-          <h2>Why</h2>
-          <ul className="list">{decision.factors.map((f) => <li key={f}>{f}</li>)}</ul>
+          <h2>{T.why}</h2>
+          <ul className="list">{decision.factors.map((f) => <li key={f}>{reason(f)}</li>)}</ul>
           {decision.risks.length > 0 && (
             <>
-              <h3>Risks</h3>
-              <ul className="list risks">{decision.risks.map((f) => <li key={f}>{f}</li>)}</ul>
+              <h3>{T.risks}</h3>
+              <ul className="list risks">{decision.risks.map((f) => <li key={f}>{reason(f)}</li>)}</ul>
             </>
           )}
         </section>
       )}
 
       <section className="card">
-        <h2>Market</h2>
+        <h2>{T.market}</h2>
         <MarketActivity m={e.market} />
-        <p className="muted small">Supply only: we can't see how fast items actually sell yet.</p>
+        <p className="muted small">{T.supplyOnly}</p>
       </section>
 
       <section className="card">
         <details className="adv flat">
           <summary>
-            <span>Money breakdown</span>
-            <span className="muted">net {eur(p.net.amountMinor, 2)}</span>
+            <span>{T.breakdown}</span>
+            <span className="muted">{T.net(eur(p.net.amountMinor, 2))}</span>
           </summary>
           <table className="breakdown">
             <tbody>
-              <tr><td>Expected sale</td><td>{eur(p.salePrice.amountMinor, 2)}</td></tr>
-              <tr><td>Marketplace fee ({fee.percentageFeeBp / 100}%{fee.fixedFeeMinor ? ` + ${eur(fee.fixedFeeMinor, 2)}` : ''})</td><td>−{eur(p.marketplaceFee.amountMinor + p.paymentFee.amountMinor, 2)}</td></tr>
-              <tr><td>Shipping</td><td>−{eur(shipping, 2)}</td></tr>
-              <tr className="sum"><td>Net</td><td>{eur(p.net.amountMinor, 2)}</td></tr>
-              <tr><td>Purchase</td><td>−{eur(p.purchasePrice.amountMinor, 2)}</td></tr>
-              <tr className="sum"><td>Profit</td><td>{eur(p.profit.amountMinor, 2)}</td></tr>
+              <tr><td>{T.expectedSale}</td><td>{eur(p.salePrice.amountMinor, 2)}</td></tr>
+              <tr><td>{T.fee(fee.percentageFeeBp / 100, fee.fixedFeeMinor ? eur(fee.fixedFeeMinor, 2) : null)}</td><td>−{eur(p.marketplaceFee.amountMinor + p.paymentFee.amountMinor, 2)}</td></tr>
+              <tr><td>{T.shipping}</td><td>−{eur(shipping, 2)}</td></tr>
+              <tr className="sum"><td>{T.netRow}</td><td>{eur(p.net.amountMinor, 2)}</td></tr>
+              <tr><td>{T.purchase}</td><td>−{eur(p.purchasePrice.amountMinor, 2)}</td></tr>
+              <tr className="sum"><td>{T.profit}</td><td>{eur(p.profit.amountMinor, 2)}</td></tr>
             </tbody>
           </table>
           <p className="muted small">
-            {fee.label}: {fee.profileId}, checked {fee.lastVerifiedAt}{fee.sourceQuality === 'secondary' ? ' (secondary source)' : ''}.
+            {presetText(fee.id, { label: fee.label }).label}: {fee.profileId}, {T.checked(fee.lastVerifiedAt, fee.sourceQuality === 'secondary')}.
           </p>
         </details>
         <details className="adv flat">
           <summary>
-            <span>Confidence details</span>
+            <span>{T.confDetails}</span>
             <span className="muted">{Math.round(e.confidence.score * 100)} / 100</span>
           </summary>
           <ul className="factors">
@@ -259,8 +345,8 @@ export function Result({ resp, query, country, onNewScan, onEdit, targetRoiPct, 
 function Actions({ onNewScan, onEdit }: { onNewScan: () => void; onEdit: () => void }) {
   return (
     <div className="actions">
-      <button type="button" className="ghost" onClick={onEdit}><IconEdit size={18} /> Edit</button>
-      <button type="button" className="primary" onClick={onNewScan}><IconScan size={20} /> New scan</button>
+      <button type="button" className="ghost" onClick={onEdit}><IconEdit size={18} /> {T.edit}</button>
+      <button type="button" className="primary" onClick={onNewScan}><IconScan size={20} /> {T.newScan}</button>
     </div>
   );
 }

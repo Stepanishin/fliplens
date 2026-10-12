@@ -88,3 +88,12 @@ Status: accepted 2026-10-05.
 - The server gives `/privacy` and `/terms` their own title and canonical, serves content pages without `.html`, redirects trailing slashes, and answers unknown paths with 404 plus `noindex` (they used to return 200).
 - No ratings or reviews in structured data: we have none, and fabricated ones are against Google's rules.
 - IndexNow (`pnpm --filter @fliplens/web indexnow`) notifies Bing, which ChatGPT search uses, after content changes.
+
+## ADR-017: English and German
+Status: accepted 2026-10-12.
+- The whole user-facing product is bilingual (English, German); the admin screen stays English.
+- Language per page load: `/de` always German; otherwise the choice saved on the device (Profile, landing footer); otherwise the browser language (`de-*` gives German). Switching reloads the page, so modules read `LANG` as a constant (`apps/web/src/i18n.ts`).
+- Strings live next to their code as `tr({ en, de })`; TypeScript enforces the same keys in both languages. Money and dates use the UI locale. Verdict reasons are built in English by `@fliplens/core` and translated on the client (`reason()`); fee preset texts via `presetText()`.
+- Content pages exist under `/de/...` with hreflang pairs, a bilingual sitemap and German crawler text for `/de`. Privacy and Terms have a German translation; the English version prevails.
+- Stripe Checkout, Customer Portal and receipts use the UI language. Photo listings return the "missing" hints in the UI language.
+- German uses informal "du" in the app and on content pages, "Sie" in legal texts. Glossary: Check, Anzeige, Lager, Tarife, Wiederverkaufswert, Höchstpreis, Vergleichsangebote; verdicts Klarer Kauf, Kaufen, Grenzwertig, Finger weg.

@@ -1,20 +1,75 @@
 import type { JSX } from 'react';
 import type { MarketActivityJson } from '../api.js';
+import { money, tr } from '../i18n.js';
 import { IconAlert, IconCheck, IconX } from './icons.js';
 
 /** Shared result building blocks, used by the live Result and by saved scans. */
 
 export type DecisionKey = 'strong_buy' | 'buy' | 'borderline' | 'skip';
 
-const DECISION_TEXT: Record<DecisionKey, { title: string; sub: string }> = {
-  strong_buy: { title: 'Strong buy', sub: 'Good margin and enough market data.' },
-  buy: { title: 'Buy', sub: 'Profitable at this price.' },
-  borderline: { title: 'Borderline', sub: 'Thin margin or uncertain data.' },
-  skip: { title: 'Skip', sub: 'Not worth it at this price.' },
-};
+const DECISION_TEXT: Record<DecisionKey, { title: string; sub: string }> = tr<Record<DecisionKey, { title: string; sub: string }>>({
+  en: {
+    strong_buy: { title: 'Strong buy', sub: 'Good margin and enough market data.' },
+    buy: { title: 'Buy', sub: 'Profitable at this price.' },
+    borderline: { title: 'Borderline', sub: 'Thin margin or uncertain data.' },
+    skip: { title: 'Skip', sub: 'Not worth it at this price.' },
+  },
+  de: {
+    strong_buy: { title: 'Klarer Kauf', sub: 'Gute Marge und genug Marktdaten.' },
+    buy: { title: 'Kaufen', sub: 'Lohnt sich zu diesem Preis.' },
+    borderline: { title: 'Grenzwertig', sub: 'Knappe Marge oder unsichere Daten.' },
+    skip: { title: 'Finger weg', sub: 'Lohnt sich zu diesem Preis nicht.' },
+  },
+});
 
-const eur = (minor: number, digits = 0): string =>
-  new Intl.NumberFormat('en-IE', { style: 'currency', currency: 'EUR', minimumFractionDigits: digits, maximumFractionDigits: digits }).format(minor / 100);
+const T = tr({
+  en: {
+    worthUpTo: (p: string) => `Worth it up to ${p}`,
+    profit: 'Profit',
+    roi: 'ROI',
+    na: 'n/a',
+    sellsFor: 'Sells for',
+    rangeLabel: (e: string, f: string, h: string, be: string | null) => `Expected sale ${e}, fast ${f}, high ${h}${be ? `, break-even ${be}` : ''}`,
+    fastSale: 'Fast sale',
+    expected: 'Expected',
+    highAsk: 'High ask',
+    breakEven: (p: string, below: boolean) => `Break-even at ${p}${below ? ', well below the market' : ''} · shaded: where most listings sit`,
+    lots: 'Lots of',
+    some: 'Some',
+    few: 'Few',
+    forSaleNow: 'For sale now',
+    listingsIn: (level: string, n: number) => `${level} listings · ${n} countries`,
+    typicalAge: 'Typical listing age',
+    days: (n: number) => `${n} d`,
+    noDates: 'no dates',
+    stale: (pct: number) => `${pct}% listed 60+ days`,
+    conf: (level: 'high' | 'medium' | 'low') => `${level === 'high' ? 'High' : level === 'medium' ? 'Medium' : 'Low'} confidence`,
+  },
+  de: {
+    worthUpTo: (p: string) => `Lohnt sich bis ${p}`,
+    profit: 'Gewinn',
+    roi: 'ROI',
+    na: 'n. v.',
+    sellsFor: 'Verkauft für',
+    rangeLabel: (e: string, f: string, h: string, be: string | null) => `Erwarteter Verkauf ${e}, schnell ${f}, hoch ${h}${be ? `, Gewinnschwelle ${be}` : ''}`,
+    fastSale: 'Schnellverkauf',
+    expected: 'Erwartet',
+    highAsk: 'Hoher Angebotspreis',
+    breakEven: (p: string, below: boolean) => `Gewinnschwelle bei ${p}${below ? ', weit unter dem Markt' : ''} · schattiert: dort liegen die meisten Angebote`,
+    lots: 'Viele',
+    some: 'Einige',
+    few: 'Wenige',
+    forSaleNow: 'Gerade im Angebot',
+    listingsIn: (level: string, n: number) => `${level} Angebote · ${n} Länder`,
+    typicalAge: 'Typisches Angebotsalter',
+    days: (n: number) => `${n} T.`,
+    noDates: 'keine Daten',
+    stale: (pct: number) => `${pct} % seit 60+ Tagen online`,
+    conf: (level: 'high' | 'medium' | 'low') => `${level === 'high' ? 'Hohe' : level === 'medium' ? 'Mittlere' : 'Geringe'} Sicherheit`,
+  },
+});
+
+const eur = (minor: number, digits = 0): string => money(minor, digits);
 
 const DECISION_ICON: Record<DecisionKey, (p: { size?: number }) => JSX.Element> = {
   strong_buy: IconCheck,
@@ -44,21 +99,21 @@ export function DecisionHero({
         <span className="hero-icon"><Icon size={26} /></span>
         <div>
           <div className="hero-title">{t.title}</div>
-          <div className="hero-sub">{maxBuyMinor !== undefined ? `Worth it up to ${eur(maxBuyMinor)}` : t.sub}</div>
+          <div className="hero-sub">{maxBuyMinor !== undefined ? T.worthUpTo(eur(maxBuyMinor)) : t.sub}</div>
         </div>
       </div>
       <div className="hero-numbers">
         <div>
-          <span>Profit</span>
+          <span>{T.profit}</span>
           <strong>{profitMinor >= 0 ? '+' : '−'}{eur(Math.abs(profitMinor))}</strong>
         </div>
         <div>
-          <span>ROI</span>
-          <strong>{roiPct === null ? 'n/a' : `${Math.round(roiPct)}%`}</strong>
+          <span>{T.roi}</span>
+          <strong>{roiPct === null ? T.na : `${Math.round(roiPct)}%`}</strong>
         </div>
         {expectedMinor !== undefined && (
           <div>
-            <span>Sells for</span>
+            <span>{T.sellsFor}</span>
             <strong>{eur(expectedMinor)}</strong>
           </div>
         )}
@@ -89,7 +144,7 @@ export function RangeBar({ p10, p25, p75, p90, fast, expected, high, breakEven }
   const lo = Math.min(marketLo, beOnScale ? breakEven : marketLo) * 0.95;
   const hi = marketHi * 1.03;
   const x = (v: number): string => `${Math.min(100, Math.max(0, ((v - lo) / (hi - lo)) * 100))}%`;
-  const label = `Expected sale ${eur(expected)}, fast ${eur(fast)}, high ${eur(high)}${breakEven !== undefined ? `, break-even ${eur(breakEven)}` : ''}`;
+  const label = T.rangeLabel(eur(expected), eur(fast), eur(high), breakEven !== undefined ? eur(breakEven) : null);
   return (
     <div className="range-bar" role="img" aria-label={label}>
       <div className="range-track">
@@ -101,14 +156,14 @@ export function RangeBar({ p10, p25, p75, p90, fast, expected, high, breakEven }
         <div className="range-dot" style={{ left: x(expected) }} />
       </div>
       <div className="triple">
-        <div><span>Fast sale</span><strong>{eur(fast)}</strong></div>
-        <div className="main"><span>Expected</span><strong>{eur(expected)}</strong></div>
-        <div><span>High ask</span><strong>{eur(high)}</strong></div>
+        <div><span>{T.fastSale}</span><strong>{eur(fast)}</strong></div>
+        <div className="main"><span>{T.expected}</span><strong>{eur(expected)}</strong></div>
+        <div><span>{T.highAsk}</span><strong>{eur(high)}</strong></div>
       </div>
       {breakEven !== undefined && (
         <p className="muted small">
           {beOnScale && <span className="legend-breakeven" />}
-          Break-even at {eur(breakEven)}{beOnScale ? '' : ', well below the market'} · shaded: where most listings sit
+          {T.breakEven(eur(breakEven), !beOnScale)}
         </p>
       )}
     </div>
@@ -116,18 +171,18 @@ export function RangeBar({ p10, p25, p75, p90, fast, expected, high, breakEven }
 }
 
 export function MarketActivity({ m }: { m: MarketActivityJson }) {
-  const level = m.activeListings >= 40 ? 'Lots of' : m.activeListings >= 10 ? 'Some' : 'Few';
+  const level = m.activeListings >= 40 ? T.lots : m.activeListings >= 10 ? T.some : T.few;
   return (
     <div className="stat-grid">
       <div>
-        <span>For sale now</span>
+        <span>{T.forSaleNow}</span>
         <strong>{m.activeListings}</strong>
-        <small>{level} listings · {m.countries} countries</small>
+        <small>{T.listingsIn(level, m.countries)}</small>
       </div>
       <div>
-        <span>Typical listing age</span>
-        <strong>{m.medianListingAgeDays === null ? 'n/a' : `${m.medianListingAgeDays} d`}</strong>
-        <small>{m.staleShare === null ? 'no dates' : `${Math.round(m.staleShare * 100)}% listed 60+ days`}</small>
+        <span>{T.typicalAge}</span>
+        <strong>{m.medianListingAgeDays === null ? T.na : T.days(m.medianListingAgeDays)}</strong>
+        <small>{m.staleShare === null ? T.noDates : T.stale(Math.round(m.staleShare * 100))}</small>
       </div>
     </div>
   );
@@ -136,7 +191,7 @@ export function MarketActivity({ m }: { m: MarketActivityJson }) {
 export function ConfidencePill({ level, score }: { level: 'high' | 'medium' | 'low'; score?: number }) {
   return (
     <span className={`conf-pill c-${level}`}>
-      {level === 'high' ? 'High' : level === 'medium' ? 'Medium' : 'Low'} confidence{score !== undefined ? ` · ${Math.round(score * 100)}` : ''}
+      {T.conf(level)}{score !== undefined ? ` · ${Math.round(score * 100)}` : ''}
     </span>
   );
 }

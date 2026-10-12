@@ -24,6 +24,7 @@ const PhotoBody = z.object({
   language: LANGUAGE,
   condition: z.string().trim().max(40).optional(),
   notes: z.string().trim().max(600).optional(),
+  uiLanguage: LANGUAGE.optional(),
 });
 
 const Body = z.object({
@@ -86,6 +87,7 @@ export function registerListingRoutes(
         images: b.images,
         ...(b.condition && { condition: b.condition }),
         ...(b.notes && { notes: b.notes }),
+        ...(b.uiLanguage && { uiLanguage: b.uiLanguage }),
         sellerType,
       });
       await recordUsage(deps.db, {

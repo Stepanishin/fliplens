@@ -30,6 +30,7 @@ function pushSettings(s: Settings): Promise<unknown> {
     .catch(() => undefined);
 }
 import { track } from './track.js';
+import { errorText, tr } from './i18n.js';
 import { IconBack, IconBox, IconCamera, IconClock, IconHome, IconUser } from './ui/icons.js';
 import { resizeToJpegDataUrl } from './image.js';
 import { Confirm } from './screens/Confirm.js';
@@ -52,11 +53,53 @@ type Route =
   | { name: 'inventory' }
   | { name: 'listing'; photos?: string[] };
 
-const TITLES: Partial<Record<Route['name'], string>> = { confirm: 'Identify', price: 'Price', result: 'Verdict', scan: 'Saved scan', profile: 'Profile', admin: 'Admin', listing: 'Write listing' };
+const T = tr({
+  en: {
+    titles: { confirm: 'Identify', price: 'Price', result: 'Verdict', scan: 'Saved scan', profile: 'Profile', admin: 'Admin', listing: 'Write listing' } as Partial<Record<string, string>>,
+    steps: ['Identify', 'Price', 'Verdict'] as readonly string[],
+    step: (n: number, of: number) => `Step ${n} of ${of}`,
+    subActivating: 'Thanks! Your subscription is being activated.',
+    checkoutCancelled: 'Checkout cancelled. Nothing was charged.',
+    signInFailed: 'Sign-in failed',
+    recognitionFailed: 'Recognition failed. Type the model instead.',
+    barcodeFailed: 'Barcode lookup failed. Type the model instead.',
+    valuationFailed: 'Valuation failed.',
+    deleteScan: 'Delete this scan?',
+    back: 'Back',
+    profile: 'Profile',
+    serverDown: 'Server not reachable. Run',
+    mainNav: 'Main',
+    home: 'Home',
+    history: 'History',
+    stock: 'Stock',
+    scanCamera: 'Scan item with the camera',
+  },
+  de: {
+    titles: { confirm: 'Erkennen', price: 'Preis', result: 'Ergebnis', scan: 'Gespeicherter Scan', profile: 'Profil', admin: 'Admin', listing: 'Anzeige schreiben' } as Partial<Record<string, string>>,
+    steps: ['Erkennen', 'Preis', 'Ergebnis'] as readonly string[],
+    step: (n: number, of: number) => `Schritt ${n} von ${of}`,
+    subActivating: 'Danke! Dein Abo wird gerade aktiviert.',
+    checkoutCancelled: 'Bezahlung abgebrochen. Es wurde nichts berechnet.',
+    signInFailed: 'Anmeldung fehlgeschlagen',
+    recognitionFailed: 'Erkennung fehlgeschlagen. Tipp das Modell stattdessen ein.',
+    barcodeFailed: 'Barcode-Suche fehlgeschlagen. Tipp das Modell stattdessen ein.',
+    valuationFailed: 'Bewertung fehlgeschlagen.',
+    deleteScan: 'Diesen Scan löschen?',
+    back: 'Zurück',
+    profile: 'Profil',
+    serverDown: 'Server nicht erreichbar. Starte',
+    mainNav: 'Hauptmenü',
+    home: 'Start',
+    history: 'Verlauf',
+    stock: 'Lager',
+    scanCamera: 'Artikel mit der Kamera scannen',
+  },
+});
+const TITLES = T.titles;
 const DEV_KEY = 'fliplens.devtools.v1';
 /** Position of the scan-flow screens in the stepper. */
 const STEP: Partial<Record<Route['name'], number>> = { confirm: 0, price: 1, result: 2 };
-const STEP_LABELS = ['Identify', 'Price', 'Verdict'] as const;
+const STEP_LABELS = T.steps;
 
 const AUTO_PICK_CONFIDENCE = 0.6;
 /** Confident enough to skip the confirm screen (the user can still go back and edit). */
@@ -183,7 +226,7 @@ export function App() {
     if (!status) return;
     window.history.replaceState(null, '', window.location.pathname);
     if (status === 'success') {
-      setPlansNotice('Thanks! Your subscription is being activated.');
+      setPlansNotice(T.subActivating);
       track('subscription_started', { step: 'returned' });
       void api.syncBilling().then(refreshBilling, () => undefined);
       let n = 0;
@@ -191,7 +234,7 @@ export function App() {
         refreshBilling();
         if (++n >= 5) window.clearInterval(t);
       }, 1500);
-    } else setPlansNotice('Checkout cancelled. Nothing was charged.');
+    } else setPlansNotice(T.checkoutCancelled);
     go({ name: 'plans' });
   }, [go, refreshBilling]);
 
@@ -212,7 +255,7 @@ export function App() {
       track('signed_in', { provider: 'google' });
       loadAccountState();
     } catch (e) {
-      setAuthError(e instanceof ApiError ? e.message : 'Sign-in failed');
+      setAuthError(errorText(e, T.signInFailed));
     }
   }
 
@@ -269,7 +312,7 @@ export function App() {
       setDraft((d) => withIdentification({ ...d, photos }, r));
       if (autoAdvance) maybeAdvance(r);
     } catch (e) {
-      setFlowError(e instanceof ApiError ? e.message : 'Recognition failed. Type the model instead.');
+      setFlowError(errorText(e, T.recognitionFailed));
     } finally {
       setIdentifying(false);
     }
@@ -302,7 +345,7 @@ export function App() {
         setDraft((d) => withIdentification(d, r));
         maybeAdvance(r);
       } catch (e) {
-        setFlowError(e instanceof ApiError ? e.message : 'Barcode lookup failed. Type the model instead.');
+        setFlowError(errorText(e, T.barcodeFailed));
       } finally {
         setIdentifying(false);
       }
@@ -359,11 +402,11 @@ export function App() {
     } catch (e) {
       if (e instanceof ApiError && e.code === 'quota_exceeded') {
         track('valuation_failed', { reason: 'quota' });
-        openPlans(e.message);
+        openPlans(errorText(e));
         return;
       }
       track('valuation_failed', { reason: 'error' });
-      setFlowError(e instanceof ApiError ? e.message : 'Valuation failed.');
+      setFlowError(errorText(e, T.valuationFailed));
     } finally {
       setBusy(false);
     }
@@ -443,14 +486,14 @@ export function App() {
     <div className="shell">
       <header className={`appbar ${STEP[route.name] !== undefined ? 'with-progress' : ''}`}>
         {inFlow ? (
-          <button type="button" className="back-btn" onClick={back} aria-label="Back"><IconBack size={20} /></button>
+          <button type="button" className="back-btn" onClick={back} aria-label={T.back}><IconBack size={20} /></button>
         ) : (
           <div className="logo"><img src="/icons/icon.svg" alt="" width={26} height={26} /> FlipLens</div>
         )}
         <div className="appbar-title">
           {STEP[route.name] !== undefined ? (
             <div className="flow-head">
-              <span className="flow-step">Step {STEP[route.name]! + 1} of 3</span>
+              <span className="flow-step">{T.step(STEP[route.name]! + 1, 3)}</span>
               <span className="flow-name">{STEP_LABELS[STEP[route.name]!]}</span>
             </div>
           ) : inFlow ? (
@@ -461,7 +504,7 @@ export function App() {
         </div>
         <div className="appbar-end">
           {!inFlow && (
-            <button type="button" className="avatar-btn" onClick={() => tab({ name: 'profile' })} aria-label="Profile">
+            <button type="button" className="avatar-btn" onClick={() => tab({ name: 'profile' })} aria-label={T.profile}>
               {account?.picture ? <img src={account.picture} alt="" referrerPolicy="no-referrer" /> : <IconUser size={20} />}
             </button>
           )}
@@ -473,7 +516,7 @@ export function App() {
         )}
       </header>
 
-      {health === null && <div className="banner warn inset">Server not reachable. Run <code>pnpm dev</code>.</div>}
+      {health === null && <div className="banner warn inset">{T.serverDown} <code>pnpm dev</code>.</div>}
       {health && !health.sources.ebay && <div className="banner warn inset">eBay keys missing on the server: valuations will fail.</div>}
 
       <main className="content">
@@ -562,7 +605,7 @@ export function App() {
               void runValuation(d);
             }}
             onDelete={() => {
-              if (!window.confirm('Delete this scan?')) return;
+              if (!window.confirm(T.deleteScan)) return;
               void api.deleteScan(route.scan.id).then(() => {
                 refreshScans();
                 back();
@@ -645,25 +688,25 @@ export function App() {
       />
 
       {
-        <nav className="tabbar" aria-label="Main">
+        <nav className="tabbar" aria-label={T.mainNav}>
           <button type="button" className={activeTab === 'home' ? 'on' : ''} onClick={() => tab({ name: 'home' })}>
             <IconHome />
-            <span>Home</span>
+            <span>{T.home}</span>
           </button>
           <button type="button" className={activeTab === 'history' ? 'on' : ''} onClick={() => tab({ name: 'history' })}>
             <IconClock />
-            <span>History</span>
+            <span>{T.history}</span>
           </button>
-          <button type="button" className="fab" onClick={() => cameraRef.current?.click()} disabled={!visionOn} aria-label="Scan item with the camera">
+          <button type="button" className="fab" onClick={() => cameraRef.current?.click()} disabled={!visionOn} aria-label={T.scanCamera}>
             <IconCamera size={26} />
           </button>
           <button type="button" className={activeTab === 'inventory' ? 'on' : ''} onClick={() => tab({ name: 'inventory' })}>
             <IconBox />
-            <span>Stock</span>
+            <span>{T.stock}</span>
           </button>
           <button type="button" className={activeTab === 'profile' ? 'on' : ''} onClick={() => tab({ name: 'profile' })}>
             <IconUser />
-            <span>Profile</span>
+            <span>{T.profile}</span>
           </button>
         </nav>
       }

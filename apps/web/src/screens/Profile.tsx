@@ -5,6 +5,78 @@ import { InstallApp } from '../ui/InstallApp.js';
 import { IconChevron } from '../ui/icons.js';
 import { LINK_COUNTRIES } from '../marketSearch.js';
 import type { Settings } from '../storage.js';
+import { LANG, LOCALE, setLang, tr, type Lang, presetText } from '../i18n.js';
+
+const T = tr({
+  en: {
+    profile: 'Profile',
+    deleteConfirm: 'Delete all your scans and data on the server? This cannot be undone.',
+    signOut: 'Sign out',
+    signIn: 'Sign in',
+    signInLead: 'Keep your scans and settings across devices. Your current scans move into your account.',
+    agreeA: 'By continuing you agree to the ',
+    terms: 'Terms',
+    and: ' and ',
+    privacy: 'Privacy Policy',
+    signInOff: 'Sign-in is not configured on the server.',
+    plan: 'Plan',
+    used: (u: number, l: number) => `${u} of ${l} checks used this month.`,
+    seePlans: 'See plans',
+    managePlan: 'Manage plan',
+    language: 'Language',
+    selling: 'Selling',
+    country: 'Your country',
+    countryHint: 'Decides which marketplaces we link to.',
+    marketplace: 'Default marketplace',
+    checked: (d: string) => ` Checked ${d}`,
+    secondary: ' (secondary source)',
+    shipping: 'Typical shipping',
+    roi: 'Target ROI',
+    savedAccount: 'Saved to your account on this device.',
+    savedDevice: 'Saved on this device only.',
+    data: 'Your data',
+    dataLead: 'Photos are never stored. Scans are kept until you delete them.',
+    exportBtn: 'Export',
+    deleteAll: 'Delete all',
+    about: 'About FlipLens',
+    termsFull: 'Terms of Service',
+  },
+  de: {
+    profile: 'Profil',
+    deleteConfirm: 'Alle deine Scans und Daten auf dem Server löschen? Das kann nicht rückgängig gemacht werden.',
+    signOut: 'Abmelden',
+    signIn: 'Anmelden',
+    signInLead: 'Behalte deine Scans und Einstellungen auf allen Geräten. Deine bisherigen Scans wandern in dein Konto.',
+    agreeA: 'Mit dem Fortfahren stimmst du den ',
+    terms: 'Nutzungsbedingungen',
+    and: ' und der ',
+    privacy: 'Datenschutzerklärung',
+    signInOff: 'Die Anmeldung ist auf dem Server nicht eingerichtet.',
+    plan: 'Tarif',
+    used: (u: number, l: number) => `${u} von ${l} Checks diesen Monat genutzt.`,
+    seePlans: 'Tarife ansehen',
+    managePlan: 'Tarif verwalten',
+    language: 'Sprache',
+    selling: 'Verkaufen',
+    country: 'Dein Land',
+    countryHint: 'Bestimmt, auf welche Marktplätze wir verlinken.',
+    marketplace: 'Standard-Marktplatz',
+    checked: (d: string) => ` Geprüft am ${d}`,
+    secondary: ' (Sekundärquelle)',
+    shipping: 'Übliche Versandkosten',
+    roi: 'Ziel-ROI',
+    savedAccount: 'In deinem Konto auf diesem Gerät gespeichert.',
+    savedDevice: 'Nur auf diesem Gerät gespeichert.',
+    data: 'Deine Daten',
+    dataLead: 'Fotos werden nie gespeichert. Scans bleiben, bis du sie löschst.',
+    exportBtn: 'Exportieren',
+    deleteAll: 'Alles löschen',
+    about: 'Über FlipLens',
+    termsFull: 'Nutzungsbedingungen',
+  },
+});
+
+const LANGS: readonly [Lang, string][] = [['en', 'English'], ['de', 'Deutsch']];
 
 interface Props {
   billing: BillingInfo | null;
@@ -32,6 +104,16 @@ const COUNTRY_NAMES: Record<string, string> = {
   PL: 'Poland', PT: 'Portugal', RO: 'Romania', SE: 'Sweden', SI: 'Slovenia', SK: 'Slovakia', GB: 'United Kingdom',
 };
 
+/** Country names in the UI language (English keeps the list above). */
+function countryName(code: string): string {
+  if (LANG === 'en') return COUNTRY_NAMES[code] ?? code;
+  try {
+    return new Intl.DisplayNames([LOCALE], { type: 'region' }).of(code) ?? code;
+  } catch {
+    return COUNTRY_NAMES[code] ?? code;
+  }
+}
+
 export function Profile({ billing, onOpenPlans, account, googleClientId, onGoogleCredential, onSignOut, authError, settings, onChange, dbOn, version, devTools, onDevTools, onDataDeleted, onOpenWelcome, isAdmin, onOpenAdmin }: Props) {
   const preset = FEE_PRESETS[settings.preset];
 
@@ -46,14 +128,14 @@ export function Profile({ billing, onOpenPlans, account, googleClientId, onGoogl
   }
 
   async function deleteData() {
-    if (!window.confirm('Delete all your scans and data on the server? This cannot be undone.')) return;
+    if (!window.confirm(T.deleteConfirm)) return;
     await api.deleteMyData();
     onDataDeleted();
   }
 
   return (
     <div className="screen">
-      <h1 className="screen-title">Profile</h1>
+      <h1 className="screen-title">{T.profile}</h1>
 
       {isAdmin && (
         <button type="button" className="context-row admin-entry" onClick={onOpenAdmin}>
@@ -75,14 +157,14 @@ export function Profile({ billing, onOpenPlans, account, googleClientId, onGoogl
                 <strong>{account.name ?? account.email}</strong>
                 <span className="muted small">{account.email}</span>
               </span>
-              <button type="button" className="ghost" onClick={onSignOut}>Sign out</button>
+              <button type="button" className="ghost" onClick={onSignOut}>{T.signOut}</button>
             </div>
           ) : (
             <>
-              <h2>Sign in</h2>
-              <p className="muted small">Keep your scans and settings across devices. Your current scans move into your account.</p>
-              <p className="muted small">By continuing you agree to the <a href="/terms">Terms</a> and <a href="/privacy">Privacy Policy</a>.</p>
-              {googleClientId ? <GoogleButton clientId={googleClientId} onCredential={onGoogleCredential} /> : <p className="muted small">Sign-in is not configured on the server.</p>}
+              <h2>{T.signIn}</h2>
+              <p className="muted small">{T.signInLead}</p>
+              <p className="muted small">{T.agreeA}<a href="/terms">{T.terms}</a>{T.and}<a href="/privacy">{T.privacy}</a>{LANG === 'de' ? ' zu' : ''}.</p>
+              {googleClientId ? <GoogleButton clientId={googleClientId} onCredential={onGoogleCredential} /> : <p className="muted small">{T.signInOff}</p>}
             </>
           )}
           {authError && <div className="banner bad">{authError}</div>}
@@ -92,60 +174,71 @@ export function Profile({ billing, onOpenPlans, account, googleClientId, onGoogl
       {billing && (
         <section className="card">
           <div className="card-head">
-            <h2>Plan</h2>
+            <h2>{T.plan}</h2>
             <span className="pill soft">{billing.plans.find((p) => p.id === billing.quota.plan)?.name}</span>
           </div>
-          <p className="muted small">{billing.quota.used} of {billing.quota.limit} checks used this month.</p>
-          <button type="button" className="ghost wide" onClick={onOpenPlans}>{billing.quota.plan === 'free' ? 'See plans' : 'Manage plan'}</button>
+          <p className="muted small">{T.used(billing.quota.used, billing.quota.limit)}</p>
+          <button type="button" className="ghost wide" onClick={onOpenPlans}>{billing.quota.plan === 'free' ? T.seePlans : T.managePlan}</button>
         </section>
       )}
 
       <InstallApp variant="row" />
 
       <section className="card">
-        <h2>Selling</h2>
+        <h2>{T.language}</h2>
+        <div className="seg" role="radiogroup" aria-label={T.language}>
+          {LANGS.map(([id, name]) => (
+            <button key={id} type="button" role="radio" aria-checked={LANG === id} className={LANG === id ? 'on' : ''} onClick={() => id !== LANG && setLang(id)} lang={id}>
+              {name}
+            </button>
+          ))}
+        </div>
+      </section>
+
+      <section className="card">
+        <h2>{T.selling}</h2>
         <label className="field">
-          <span>Your country</span>
+          <span>{T.country}</span>
           <select value={settings.country} onChange={(e) => onChange({ ...settings, country: e.target.value })}>
-            {LINK_COUNTRIES.map((c) => <option key={c} value={c}>{COUNTRY_NAMES[c] ?? c}</option>)}
+            {LINK_COUNTRIES.map((c) => <option key={c} value={c}>{countryName(c)}</option>)}
           </select>
-          <span className="hint">Decides which marketplaces we link to.</span>
+          <span className="hint">{T.countryHint}</span>
         </label>
         <label className="field">
-          <span>Default marketplace</span>
+          <span>{T.marketplace}</span>
           <select value={settings.preset} onChange={(e) => onChange({ ...settings, preset: e.target.value as FeePresetId })}>
-            {Object.entries(FEE_PRESETS).map(([id, p]) => <option key={id} value={id}>{p.label}</option>)}
+            {Object.entries(FEE_PRESETS).map(([id, p]) => <option key={id} value={id}>{presetText(id, p).label}</option>)}
           </select>
           <span className="hint">
-            {preset.note} Checked {preset.lastVerifiedAt}{preset.sourceQuality === 'secondary' ? ' (secondary source)' : ''}.
+            {presetText(settings.preset, preset).note}{T.checked(preset.lastVerifiedAt)}{preset.sourceQuality === 'secondary' ? T.secondary : ''}.
           </span>
         </label>
         <div className="row2">
           <label className="field">
-            <span>Typical shipping</span>
+            <span>{T.shipping}</span>
             <div className="input-affix">
               <span>€</span>
               <input inputMode="decimal" value={settings.shippingCost} onChange={(e) => onChange({ ...settings, shippingCost: Number(e.target.value.replace(',', '.')) || 0 })} />
             </div>
           </label>
           <label className="field">
-            <span>Target ROI</span>
+            <span>{T.roi}</span>
             <div className="input-affix">
               <input inputMode="numeric" value={settings.targetRoiPct} onChange={(e) => onChange({ ...settings, targetRoiPct: Number(e.target.value) || 0 })} />
               <span>%</span>
             </div>
           </label>
         </div>
-        <p className="muted small">{dbOn ? 'Saved to your account on this device.' : 'Saved on this device only.'}</p>
+        <p className="muted small">{dbOn ? T.savedAccount : T.savedDevice}</p>
       </section>
 
       {dbOn && (
         <section className="card">
-          <h2>Your data</h2>
-          <p className="muted small">Photos are never stored. Scans are kept until you delete them.</p>
+          <h2>{T.data}</h2>
+          <p className="muted small">{T.dataLead}</p>
           <div className="row2">
-            <button type="button" className="ghost" onClick={() => void exportData()}>Export</button>
-            <button type="button" className="ghost danger" onClick={() => void deleteData()}>Delete all</button>
+            <button type="button" className="ghost" onClick={() => void exportData()}>{T.exportBtn}</button>
+            <button type="button" className="ghost danger" onClick={() => void deleteData()}>{T.deleteAll}</button>
           </div>
         </section>
       )}
@@ -163,7 +256,7 @@ export function Profile({ billing, onOpenPlans, account, googleClientId, onGoogl
       )}
 
       <p className="muted small center">
-        <button type="button" className="link" onClick={onOpenWelcome}>About FlipLens</button> · <a href="/privacy">Privacy Policy</a> · <a href="/terms">Terms of Service</a>
+        <button type="button" className="link" onClick={onOpenWelcome}>{T.about}</button> · <a href="/privacy">{T.privacy}</a> · <a href="/terms">{T.termsFull}</a>
         <br />
         FlipLens · {version}
       </p>

@@ -5,7 +5,81 @@ import { api } from '../api.js';
 import { CAPACITY_OPTIONS, hasIdentity, MOUNT_CATEGORIES, showsCapacity, type Draft, type ProductDraft } from '../flow.js';
 import { CATEGORY_NAME, CONDITION_HINT, CONDITION_LABEL } from '../format.js';
 import { resizeToJpegDataUrl } from '../image.js';
+import { tr } from '../i18n.js';
 import { IconCamera } from '../ui/icons.js';
+
+const T = tr({
+  en: {
+    whatIsIt: 'What is it?',
+    isRight: 'Is this right?',
+    photo: (n: number) => `Photo ${n}`,
+    removePhoto: 'Remove photo',
+    addLabel: 'Add a photo of the label',
+    label: 'Label',
+    barcodeLookup: 'Looking up the barcode…',
+    identifying: 'Identifying the model…',
+    matching: 'Matching listings',
+    readOn: 'Read on item',
+    barcodeUnclear: 'Barcode found, but the product is unclear. Type the model below.',
+    noneRecognised: 'No product recognised. Add a photo of the label or type the model below.',
+    eanExtra: (gtin: string, n: number | undefined) => `EAN ${gtin} · ${n} eBay listings`,
+    corrected: 'Corrected by you. Corrections help recognition get better.',
+    brand: 'Brand',
+    category: 'Category',
+    auto: 'Auto-detect',
+    model: 'Model',
+    detecting: 'Detecting category…',
+    detected: "Category detected automatically. Change it if it's wrong.",
+    storage: 'Storage',
+    notSure: 'Not sure',
+    other: 'Other',
+    otherPlaceholder: 'e.g. 32GB',
+    otherStorage: 'Other storage size',
+    storageOnly: 'Only listings with this storage are compared.',
+    storageAll: 'All storage versions are compared. Pick one if you know it for a more precise price.',
+    mount: 'Mount',
+    exclude: 'Similar models to exclude',
+    comma: 'Comma separated',
+    condition: 'Condition',
+    suggested: (c: string) => ` (suggested: ${c})`,
+    cont: 'Continue',
+  },
+  de: {
+    whatIsIt: 'Was ist es?',
+    isRight: 'Stimmt das?',
+    photo: (n: number) => `Foto ${n}`,
+    removePhoto: 'Foto entfernen',
+    addLabel: 'Foto vom Etikett hinzufügen',
+    label: 'Etikett',
+    barcodeLookup: 'Barcode wird gesucht…',
+    identifying: 'Modell wird erkannt…',
+    matching: 'Passende Angebote',
+    readOn: 'Auf dem Artikel gelesen',
+    barcodeUnclear: 'Barcode gefunden, aber das Produkt ist unklar. Gib das Modell unten ein.',
+    noneRecognised: 'Kein Produkt erkannt. Füg ein Foto vom Etikett hinzu oder gib das Modell unten ein.',
+    eanExtra: (gtin: string, n: number | undefined) => `EAN ${gtin} · ${n} eBay-Angebote`,
+    corrected: 'Von dir korrigiert. Korrekturen verbessern die Erkennung.',
+    brand: 'Marke',
+    category: 'Kategorie',
+    auto: 'Automatisch erkennen',
+    model: 'Modell',
+    detecting: 'Kategorie wird erkannt…',
+    detected: 'Kategorie automatisch erkannt. Ändere sie, falls sie falsch ist.',
+    storage: 'Speicher',
+    notSure: 'Weiß nicht',
+    other: 'Andere',
+    otherPlaceholder: 'z. B. 32GB',
+    otherStorage: 'Andere Speichergröße',
+    storageOnly: 'Nur Angebote mit diesem Speicher werden verglichen.',
+    storageAll: 'Alle Speichervarianten werden verglichen. Wähl eine aus, wenn du sie kennst, für einen genaueren Preis.',
+    mount: 'Anschluss',
+    exclude: 'Ähnliche Modelle ausschließen',
+    comma: 'Durch Komma getrennt',
+    condition: 'Zustand',
+    suggested: (c: string) => ` (Vorschlag: ${c})`,
+    cont: 'Weiter',
+  },
+});
 
 interface Props {
   draft: Draft;
@@ -61,20 +135,20 @@ export function Confirm({ draft, identifying, error, onChangeProduct, onDetected
 
   return (
     <div className="screen">
-      <h1 className="screen-title">{draft.method === 'manual' ? 'What is it?' : 'Is this right?'}</h1>
+      <h1 className="screen-title">{draft.method === 'manual' ? T.whatIsIt : T.isRight}</h1>
 
       {draft.method === 'photo' && (
         <div className="thumbs">
           {draft.photos.map((src, i) => (
             <div key={i} className="thumb">
-              <img src={src} alt={`Photo ${i + 1}`} />
-              <button type="button" aria-label="Remove photo" onClick={() => onRemovePhoto(i)}>×</button>
+              <img src={src} alt={T.photo(i + 1)} />
+              <button type="button" aria-label={T.removePhoto} onClick={() => onRemovePhoto(i)}>×</button>
             </div>
           ))}
           {draft.photos.length < 3 && (
-            <button type="button" className="thumb add" onClick={() => addRef.current?.click()} aria-label="Add a photo of the label">
+            <button type="button" className="thumb add" onClick={() => addRef.current?.click()} aria-label={T.addLabel}>
               <IconCamera size={20} />
-              <span>Label</span>
+              <span>{T.label}</span>
             </button>
           )}
           <input ref={addRef} type="file" accept="image/*" capture="environment" hidden onChange={onFiles} />
@@ -84,7 +158,7 @@ export function Confirm({ draft, identifying, error, onChangeProduct, onDetected
       {identifying && (
         <div className="identifying" role="status">
           <span className="spinner" aria-hidden="true" />
-          {draft.method === 'barcode' ? 'Looking up the barcode…' : 'Identifying the model…'}
+          {draft.method === 'barcode' ? T.barcodeLookup : T.identifying}
         </div>
       )}
       {error && <div className="banner bad">{error}</div>}
@@ -94,43 +168,39 @@ export function Confirm({ draft, identifying, error, onChangeProduct, onDetected
           result={r}
           picked={draft.chosenIndex}
           onChoose={onPickCandidate}
-          evidenceLabel={r.gtin ? 'Matching listings' : 'Read on item'}
-          emptyText={
-            r.gtin
-              ? 'Barcode found, but the product is unclear. Type the model below.'
-              : 'No product recognised. Add a photo of the label or type the model below.'
-          }
-          {...(r.gtin && { extra: `EAN ${r.gtin} · ${r.listingCount} eBay listings` })}
+          evidenceLabel={r.gtin ? T.matching : T.readOn}
+          emptyText={r.gtin ? T.barcodeUnclear : T.noneRecognised}
+          {...(r.gtin && { extra: T.eanExtra(r.gtin, r.listingCount) })}
         />
       )}
 
       <section className="card form-card">
-        {draft.edited && <p className="muted small">Corrected by you. Corrections help recognition get better.</p>}
+        {draft.edited && <p className="muted small">{T.corrected}</p>}
         <div className="row2">
           <label className="field">
-            <span>Brand</span>
+            <span>{T.brand}</span>
             <input value={p.brand} onChange={(e) => onChangeProduct({ brand: e.target.value })} placeholder="Sony" autoCapitalize="words" />
           </label>
           <label className="field">
-            <span>Category</span>
+            <span>{T.category}</span>
             <select value={p.category} onChange={(e) => onChangeProduct({ category: e.target.value as CategorySlug | '', categoryAuto: false })}>
-              <option value="">Auto-detect</option>
+              <option value="">{T.auto}</option>
               {CATEGORIES.map((c) => <option key={c} value={c}>{CATEGORY_LABEL(c)}</option>)}
             </select>
           </label>
         </div>
         <label className="field">
-          <span>Model</span>
+          <span>{T.model}</span>
           <input value={p.model} onChange={(e) => onChangeProduct({ model: e.target.value })} placeholder="WH-1000XM4" />
         </label>
-        {detecting && <p className="hint">Detecting category…</p>}
-        {!detecting && p.categoryAuto && <p className="hint">Category detected automatically. Change it if it's wrong.</p>}
+        {detecting && <p className="hint">{T.detecting}</p>}
+        {!detecting && p.categoryAuto && <p className="hint">{T.detected}</p>}
         {showsCapacity(p.category) && (
           <div className="field">
-            <span id="cap-label">Storage</span>
+            <span id="cap-label">{T.storage}</span>
             <div className="chips-row" role="radiogroup" aria-labelledby="cap-label">
               <button type="button" role="radio" aria-checked={p.capacity === '' && !otherCapacity} className={`chip-btn ${p.capacity === '' && !otherCapacity ? 'on' : ''}`} onClick={() => { setOtherCapacity(false); onChangeProduct({ capacity: '' }); }}>
-                Not sure
+                {T.notSure}
               </button>
               {capacityOptions.map((c) => (
                 <button key={c} type="button" role="radio" aria-checked={p.capacity === c} className={`chip-btn ${p.capacity === c ? 'on' : ''}`} onClick={() => { setOtherCapacity(false); onChangeProduct({ capacity: c }); }}>
@@ -138,31 +208,31 @@ export function Confirm({ draft, identifying, error, onChangeProduct, onDetected
                 </button>
               ))}
               <button type="button" role="radio" aria-checked={otherCapacity || capacityIsOther} className={`chip-btn ${otherCapacity || capacityIsOther ? 'on' : ''}`} onClick={() => setOtherCapacity(true)}>
-                Other
+                {T.other}
               </button>
             </div>
             {(otherCapacity || capacityIsOther) && (
-              <input value={p.capacity} onChange={(e) => onChangeProduct({ capacity: e.target.value })} placeholder="e.g. 32GB" aria-label="Other storage size" />
+              <input value={p.capacity} onChange={(e) => onChangeProduct({ capacity: e.target.value })} placeholder={T.otherPlaceholder} aria-label={T.otherStorage} />
             )}
-            <span className="hint">{p.capacity ? 'Only listings with this storage are compared.' : 'All storage versions are compared. Pick one if you know it for a more precise price.'}</span>
+            <span className="hint">{p.capacity ? T.storageOnly : T.storageAll}</span>
           </div>
         )}
         {p.category !== '' && MOUNT_CATEGORIES.includes(p.category) && (
           <label className="field">
-            <span>Mount</span>
+            <span>{T.mount}</span>
             <input value={p.mount} onChange={(e) => onChangeProduct({ mount: e.target.value })} placeholder="RF, EF, EF-S, FE" />
           </label>
         )}
         <details className="adv">
-          <summary>Similar models to exclude{p.excludeModels ? `: ${p.excludeModels}` : ''}</summary>
+          <summary>{T.exclude}{p.excludeModels ? `: ${p.excludeModels}` : ''}</summary>
           <label className="field">
-            <span>Comma separated</span>
+            <span>{T.comma}</span>
             <input value={p.excludeModels} onChange={(e) => onChangeProduct({ excludeModels: e.target.value })} placeholder="WH-1000XM5, WH-1000XM3" />
           </label>
         </details>
 
         <div className="field">
-          <span id="cond-label">Condition{r?.conditionGuess ? ` (suggested: ${CONDITION_LABEL[r.conditionGuess]})` : ''}</span>
+          <span id="cond-label">{T.condition}{r?.conditionGuess ? T.suggested(CONDITION_LABEL[r.conditionGuess]) : ''}</span>
           <div className="condition-scale" role="radiogroup" aria-labelledby="cond-label">
             {CONDITIONS.map((c) => (
               <button
@@ -184,7 +254,7 @@ export function Confirm({ draft, identifying, error, onChangeProduct, onDetected
 
       <div className="sticky-cta">
         <button type="button" className="primary" disabled={!hasIdentity(p) || identifying} onClick={onContinue}>
-          Continue
+          {T.cont}
         </button>
       </div>
     </div>

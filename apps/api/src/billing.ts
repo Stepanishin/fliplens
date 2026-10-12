@@ -30,6 +30,9 @@ export interface BillingConfig {
   allowLive: boolean;
 }
 
+/** UI languages; Stripe Checkout, Customer Portal and receipts follow them. */
+const LOCALE = z.enum(['en', 'de']);
+
 export function billingConfigFromEnv(env: NodeJS.ProcessEnv): BillingConfig {
   return {
     // Local development uses the test key even if a live key is also present in .env.
@@ -171,7 +174,7 @@ export function createBilling(db: Db, cfg: BillingConfig, log: FastifyBaseLogger
         const uid = await requireUser(req, reply);
         if (!uid) return;
         if (!stripe) return reply.code(503).send({ error: 'billing_disabled', message: 'Payments are not configured' });
-        const body = z.object({ plan: z.enum(['pro', 'reseller']) }).safeParse(req.body);
+        const body = z.object({ plan: z.enum(['pro', 'reseller']), locale: LOCALE.optional() }).safeParse(req.body);
         if (!body.success) return reply.code(400).send({ error: 'invalid_plan' });
         const base = publicUrl(req);
         const user = await getUser(db, uid);
@@ -184,19 +187,21 @@ export function createBilling(db: Db, cfg: BillingConfig, log: FastifyBaseLogger
 
         let customerId = await existingCustomer(stripe, user.stripeCustomerId);
         if (!customerId) {
-          const c = await stripe.customers.create({ ...(user.email && { email: user.email }), ...(user.name && { name: user.name }), metadata: { userId: uid } });
+          // preferred_locales: Stripe receipts and invoices in the user's language.
+          const c = await stripe.customers.create({ ...(user.email && { email: user.email }), ...(user.name && { name: user.name }), ...(body.data.locale && { preferred_locales: [body.data.locale] }), metadata: { userId: uid } });
           customerId = c.id;
           await setStripeCustomer(db, uid, customerId);
         }
         const params = (withConsent: boolean): Stripe.Checkout.SessionCreateParams => ({
           mode: 'subscription',
+          ...(body.data.locale && { locale: body.data.locale }),
           customer: customerId,
           client_reference_id: uid,
           line_items: [{ price: price.id, quantity: 1 }],
           subscription_data: { metadata: { userId: uid, plan: body.data.plan } },
           allow_promotion_codes: true,
           custom_text: {
-            submit: { message: `By subscribing you agree to the FlipLens Terms (${base}/terms). EU consumers have a 14-day right of withdrawal.` },
+            submit: { message: `${body.data.locale === 'de' ? `Mit dem Abo stimmst du den FlipLens-Nutzungsbedingungen zu (${base}/terms). Verbraucher in der EU haben ein 14-tägiges Widerrufsrecht.` : `By subscribing you agree to the FlipLens Terms (${base}/terms). EU consumers have a 14-day right of withdrawal.`}` },
           },
           ...(withConsent && { consent_collection: { terms_of_service: 'required' as const } }),
           ...(cfg.automaticTax && { automatic_tax: { enabled: true }, customer_update: { address: 'auto' as const }, billing_address_collection: 'required' as const }),
@@ -240,7 +245,8 @@ export function createBilling(db: Db, cfg: BillingConfig, log: FastifyBaseLogger
         const user = await getUser(db, uid);
         const customerId = await existingCustomer(stripe, user?.stripeCustomerId);
         if (!customerId) return reply.code(400).send({ error: 'no_customer', message: 'No subscription yet' });
-        const session = await stripe.billingPortal.sessions.create({ customer: customerId, return_url: `${publicUrl(req)}/` });
+        const locale = LOCALE.safeParse((req.body as { locale?: unknown } | undefined)?.locale);
+        const session = await stripe.billingPortal.sessions.create({ customer: customerId, return_url: `${publicUrl(req)}/`, ...(locale.success && { locale: locale.data }) });
         return { url: session.url };
       });
 

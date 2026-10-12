@@ -10,6 +10,7 @@ Key facts:
 - Pricing (EUR, final prices): Free at €0: 10 checks per month; Pro at €9.99/month: 100 checks per month; Reseller at €19.99/month: unlimited checks, fair use 1,000/month.
 - Also: a listing writer that turns a photo of any item (clothes included) into a Vinted, eBay or Kleinanzeigen title and description (3 free per month), and stock tracking with real profit.
 - Installs on phones as a web app (PWA). Sign-in with Google. Photos are never stored.
+- Available in English and German (the app follows the browser language; German pages under https://fliplens.eu/de).
 - Operator: Evgenii Stepanishin, Slovenia. Contact: support@fliplens.eu.
 
 ## Product
@@ -23,6 +24,19 @@ Key facts:
 - [Where to sell used electronics in Europe](https://fliplens.eu/guides/where-to-sell-used-electronics-europe): Compare eBay, Vinted, Kleinanzeigen and local cash sales for second-hand electronics in Europe: who pays fees, reach, speed and when each one makes sense.
 - [Flea market reselling checklist](https://fliplens.eu/guides/flea-market-reselling-checklist): A practical checklist for buying second-hand electronics, consoles and cameras at flea markets and car boot sales to resell: identification, testing, completeness, locks and price.
 - [How to sell on Vinted](https://fliplens.eu/guides/how-to-sell-on-vinted): A practical guide to selling on Vinted in Europe: who pays the fees, how to photograph and describe items, how to price them and how to ship.
+
+## Deutsch
+- [FlipLens auf Deutsch](https://fliplens.eu/de): Start page and app in German
+- [So funktioniert's](https://fliplens.eu/de/how-it-works)
+- [Einfache Preise](https://fliplens.eu/de/pricing)
+- [Häufige Fragen](https://fliplens.eu/de/faq)
+- [Wiederverkaufswert vor dem Kauf prüfen](https://fliplens.eu/de/guides/how-to-check-resale-value)
+- [eBay.de-Gebühren 2026: privat vs. gewerblich](https://fliplens.eu/de/guides/ebay-fees-germany)
+- [Wo du gebrauchte Elektronik in Europa verkaufst](https://fliplens.eu/de/guides/where-to-sell-used-electronics-europe)
+- [Flohmarkt-Checkliste für Reseller](https://fliplens.eu/de/guides/flea-market-reselling-checklist)
+- [Vinted-Anzeigen-Generator](https://fliplens.eu/de/vinted-listing-generator)
+- [Auf Vinted verkaufen](https://fliplens.eu/de/guides/how-to-sell-on-vinted)
+- [Ratgeber](https://fliplens.eu/de/guides)
 
 ## Legal
 - [Privacy Policy](https://fliplens.eu/privacy)

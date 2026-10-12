@@ -1,5 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
 import { track } from '../track.js';
+import { LANG, tr } from '../i18n.js';
+
+const T = tr({
+  en: { unavailable: 'Google sign-in is unavailable. Check your connection or ad blocker and reload.' },
+  de: { unavailable: 'Die Google-Anmeldung ist nicht verfügbar. Prüf deine Verbindung oder deinen Werbeblocker und lade neu.' },
+});
 
 /** "Sign in with Google" via Google Identity Services. Returns an ID token (credential) to verify on the server. */
 
@@ -94,14 +100,14 @@ export function GoogleButton({
           initializedFor = clientId;
         }
         if (compact) {
-          g.accounts.id.renderButton(ref.current, { theme: 'outline', size: 'medium', text: 'signin_with', shape: 'pill', locale: 'en' });
+          g.accounts.id.renderButton(ref.current, { theme: 'outline', size: 'medium', text: 'signin_with', shape: 'pill', locale: LANG });
         } else {
           // A zero-width container (e.g. inside a centred flex column) makes Google render nothing: always pass a real width.
           const w = ref.current.parentElement?.clientWidth || 320;
-          g.accounts.id.renderButton(ref.current, { theme: 'outline', size: 'large', text: 'continue_with', shape: 'pill', locale: 'en', width: Math.max(240, Math.min(360, w)) });
+          g.accounts.id.renderButton(ref.current, { theme: 'outline', size: 'large', text: 'continue_with', shape: 'pill', locale: LANG, width: Math.max(240, Math.min(360, w)) });
         }
       },
-      (e: unknown) => setError(e instanceof Error ? e.message : 'Google sign-in unavailable'),
+      () => setError(T.unavailable),
     );
     return () => {
       cancelled = true;

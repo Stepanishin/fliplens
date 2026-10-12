@@ -10,6 +10,7 @@ import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { PLANS } from '@fliplens/core';
 import { LEGAL } from '../src/legal.js';
+import { PLAN_FEATURES_BY_LANG } from '../src/i18n.js';
 
 const SITE = 'https://fliplens.eu';
 const UPDATED = '2026-10-05';
@@ -415,23 +416,447 @@ PAGES.push({
   ],
 });
 
+// ---------- German ----------
+
+type Lang = 'en' | 'de';
+
+/** Public URL of a page in a language: English at the root, German under /de. */
+const href = (lang: Lang, path: string): string => (lang === 'de' ? (path === '/' ? '/de' : `/de${path}`) : path);
+/** German money: "9,99 €". */
+const deEur = (minor: number): string => `${(minor / 100).toFixed(2).replace('.', ',').replace(/,00$/, '')} €`;
+const deNum = (n: number): string => n.toLocaleString('de-DE');
+
+/** German plan feature lines (keep in step with apps/web/src/i18n.ts). */
+const DE_FEATURES: Record<string, readonly string[]> = PLAN_FEATURES_BY_LANG.de;
+
+const CTA_DE = `<p class="cta"><a class="btn" href="/de">Kostenlos prüfen</a><span>${PLANS.free.monthlyValuations} Checks pro Monat gratis. Anmeldung mit Google, keine Karte nötig.</span></p>`;
+const LISTING_CTA_DE = `<p class="cta"><a class="btn" href="/de?tool=listing">Anzeige kostenlos schreiben</a><span>${PLANS.free.monthlyListings} Anzeigen pro Monat gratis. Anmeldung mit Google, keine Karte nötig.</span></p>`;
+
+const COMMON_FAQ_DE: Faq[] = [
+  {
+    q: 'Was ist FlipLens?',
+    a: 'FlipLens ist eine Web-App für Reseller in Europa. Mach ein Foto, scann den Barcode oder tipp das Modell ein: FlipLens zeigt dir, wofür der Artikel auf eBay in Deutschland, Frankreich, Italien, Spanien und den Niederlanden weiterverkauft wird, deinen Gewinn nach Gebühren und Versand, den Höchstpreis, den du zahlen solltest, und ein klares Urteil: Klarer Kauf, Kaufen, Grenzwertig oder Finger weg.',
+  },
+  {
+    q: 'Woher kommen die Preise?',
+    a: 'Aus aktiven eBay-Angeboten in fünf EU-Ländern, abgerufen über die offizielle eBay-API und mit EZB-Wechselkursen in Euro umgerechnet. Angebotspreise liegen meist über dem, wofür Artikel am Ende verkauft werden. Deshalb rechnet FlipLens sie herunter und zeigt immer, auf wie vielen Angeboten eine Schätzung beruht. Du kannst jedes verwendete Angebot öffnen.',
+  },
+  {
+    q: 'Welche Artikel funktionieren am besten?',
+    a: 'Unterhaltungselektronik, Gaming und Kameras: Kopfhörer, Smartphones, Tablets, Laptops, Smartwatches, Lautsprecher, Konsolen, Handhelds, Controller, Spiele, Kameragehäuse, Objektive, Action- und Kompaktkameras sowie Elektrowerkzeuge. Für Mode gibt es noch keine Preisprüfung.',
+  },
+  {
+    q: 'Muss ich einen Preis eingeben?',
+    a: 'Nein. Ohne Preis zeigt FlipLens, wofür der Artikel verkauft wird und wie viel du für deine Zielrendite höchstens zahlen solltest. Mit Preis bekommst du Urteil, Gewinn und ROI für genau diesen Deal.',
+  },
+  {
+    q: 'Was passiert mit meinen Fotos und Daten?',
+    a: 'Fotos werden nur zur Erkennung des Artikels verwendet und nie gespeichert. Deine Checks bleiben gespeichert, bis du sie löschst. In deinem Profil kannst du jederzeit alles exportieren oder löschen.',
+  },
+  {
+    q: 'Gehört FlipLens zu eBay?',
+    a: 'Nein. FlipLens ist unabhängig und zeigt eBay-Daten über die offizielle eBay-API. FlipLens kauft, verkauft und versendet nichts.',
+  },
+];
+
+/** German versions, same base paths as PAGES (published under /de). Links inside point to German pages. */
+const PAGES_DE: Page[] = [
+  {
+    path: '/how-it-works',
+    kind: 'page',
+    crumb: "So funktioniert's",
+    title: 'So schätzt FlipLens Wiederverkaufswert und Gewinn',
+    description: 'Wie FlipLens das genaue Produkt erkennt, Vergleichsangebote auf eBay in fünf EU-Ländern findet, den Wiederverkaufswert schätzt, Gebühren und Versand abzieht und zwischen Klarer Kauf, Kaufen, Grenzwertig und Finger weg entscheidet.',
+    h1: "So funktioniert's",
+    lead: 'FlipLens beantwortet eine Frage: "Ich kann das für X € kaufen. Lohnt es sich zum Weiterverkaufen?" Hier steht genau, wie die Antwort entsteht, auch wo sie danebenliegen kann.',
+    sections: [
+      {
+        h2: '1. Das genaue Produkt erkennen',
+        html: '<p>Du fotografierst den Artikel oder sein Typenschild, scannst den Barcode auf der Verpackung oder tippst das Modell ein. Fotos erkennt ein KI-Bildmodell; Barcodes (EAN und UPC) werden mit Marktplatz-Angeboten abgeglichen. FlipLens achtet auf die Details, die den Preis verändern: Modellgeneration (WH-1000XM4 ist nicht XM5), Speicher (128 GB ist nicht 256 GB), Objektivanschluss (RF ist nicht EF) und Zustand. Vor dem Check kannst du alles korrigieren.</p>',
+      },
+      {
+        h2: '2. Vergleichsangebote finden',
+        html: '<p>FlipLens durchsucht aktuelle eBay-Angebote in Deutschland, Frankreich, Italien, Spanien und den Niederlanden über die offizielle eBay-API und rechnet die Preise mit Kursen der Europäischen Zentralbank in Euro um. Danach fliegt raus, was den Preis verfälschen würde: andere Modelle und Varianten, einzeln verkauftes Zubehör, Bundles, defekte Artikel und Bastlerware, Duplikate und Angebote in einem ganz anderen Zustand. Du siehst jedes verwendete Angebot und warum andere aussortiert wurden.</p>',
+      },
+      {
+        h2: '3. Den Wiederverkaufswert schätzen',
+        html: '<p>Aus den übrigen Angeboten baut FlipLens eine Preisverteilung, angepasst an den Zustand deines Artikels, und nennt drei Werte: einen Schnellverkaufspreis, den erwarteten Verkaufspreis und einen hohen Angebotspreis. Weil Angebotspreise meist über den tatsächlichen Verkaufspreisen liegen, wird die Schätzung nach unten korrigiert. Jede Schätzung hat einen Sicherheitswert: wie viele Angebote passen, wie einig sie sich sind und wie gut das Produkt erkannt wurde.</p>',
+      },
+      {
+        h2: '4. Gewinn nach Gebühren berechnen',
+        html: '<p>FlipLens zieht die Verkaufsgebühren deines Marktplatzes ab (zum Beispiel eBay.de privat oder gewerblich, Vinted oder Abholung vor Ort), dazu deine Versandkosten und den Einkaufspreis. Ergebnis: Gewinn, Rendite (ROI) und der <strong>Höchstpreis, der sich noch lohnt</strong>, für deine Zielrendite: Höchstpreis = was dir nach Gebühren und Versand bleibt ÷ (1 + Zielrendite).</p>',
+      },
+      {
+        h2: '5. Ein Urteil geben oder zugeben, dass die Daten fehlen',
+        html: '<p>Das Urteil lautet Klarer Kauf, Kaufen, Grenzwertig oder Finger weg, mit den Gründen und Risiken dahinter. Bleiben weniger als fünf passende Angebote übrig oder ist die Erkennung zu unsicher, sagt FlipLens "nicht genug Marktdaten", statt eine Zahl zu erfinden.</p>',
+      },
+      {
+        h2: 'Bekannte Grenzen',
+        html: '<ul><li>Die Preise beruhen auf aktiven Angeboten (Angebotspreisen), nicht auf bestätigten Verkaufspreisen.</li><li>Das Angebot ist sichtbar (wie viele Artikel wie lange angeboten werden), das Verkaufstempo noch nicht.</li><li>Mode, Sammlerstücke und Einzelstücke werden nicht unterstützt.</li><li>Gebühren ändern sich: Jedes Gebührenprofil zeigt, wann es zuletzt geprüft wurde, und verlinkt seine Quelle.</li></ul>',
+      },
+    ],
+  },
+  {
+    path: '/pricing',
+    kind: 'page',
+    crumb: 'Preise',
+    title: `FlipLens Preise: kostenlose Checks, Pro ${deEur(PLANS.pro.priceMonthlyMinor)}, Reseller ${deEur(PLANS.reseller.priceMonthlyMinor)}`,
+    description: `Free: ${PLANS.free.monthlyValuations} Checks pro Monat. Pro ${deEur(PLANS.pro.priceMonthlyMinor)}: ${PLANS.pro.monthlyValuations} Checks und Anzeigen-Generator. Reseller ${deEur(PLANS.reseller.priceMonthlyMinor)}: bis zu ${deNum(PLANS.reseller.monthlyValuations)} Checks. Endpreise, jederzeit kündbar.`,
+    h1: 'Einfache Preise',
+    lead: 'Starte kostenlos. Upgrade, wenn sich FlipLens bezahlt macht: Ein guter Fund deckt meist einen ganzen Monat.',
+    sections: [
+      {
+        h2: 'Tarife',
+        html: `<table><thead><tr><th>Tarif</th><th>Preis</th><th>Enthalten</th></tr></thead><tbody>${plans
+          .map((p) => `<tr><td><strong>${esc(p.name)}</strong></td><td>${p.priceMonthlyMinor ? `${deEur(p.priceMonthlyMinor)} / Monat` : 'Kostenlos'}</td><td>${(DE_FEATURES[p.id] ?? []).map(esc).join('<br>')}</td></tr>`)
+          .join('')}</tbody></table><p>Endpreise, keine versteckten Kosten. Die Zahlung läuft über Stripe. Du kannst jederzeit im Kundenportal kündigen. Verbraucher in der EU haben ein 14-tägiges Widerrufsrecht, siehe die <a href="/terms">Nutzungsbedingungen</a>.</p>`,
+      },
+      {
+        h2: 'Was als Check zählt',
+        html: '<p>Ein Check ist eine Bewertung: FlipLens schaut sich den Markt an und berechnet Wiederverkaufswert, Gewinn und Urteil. Die Erkennung per Foto oder Barcode ist inklusive. Die Checks werden am 1. jedes Monats zurückgesetzt.</p>',
+      },
+    ],
+    faq: [
+      { q: 'Gibt es einen kostenlosen Tarif?', a: `Ja. ${PLANS.free.name} enthält ${PLANS.free.monthlyValuations} Checks pro Monat mit Foto- und Barcode-Erkennung, Gewinn und ROI, Lager und ${PLANS.free.monthlyListings} KI-Anzeigen. Keine Karte nötig.` },
+      { q: 'Was bringen die bezahlten Tarife?', a: paid.map((p) => `${p.name} (${deEur(p.priceMonthlyMinor)}/Monat): ${(DE_FEATURES[p.id] ?? []).join(', ')}.`).join(' ') },
+      { q: 'Kann ich jederzeit kündigen?', a: 'Ja. Kündige im Kundenportal über dein Profil; der Tarif bleibt bis zum Ende des bezahlten Monats aktiv.' },
+    ],
+  },
+  {
+    path: '/faq',
+    kind: 'page',
+    crumb: 'FAQ',
+    title: 'FlipLens FAQ: Wiederverkaufswert-Checks für Reseller in Europa',
+    description: 'Antworten zu FlipLens: woher die Preise kommen, welche Artikel und Länder unterstützt werden, Genauigkeit, Datenschutz, Preise und Installation der App.',
+    h1: 'Häufige Fragen',
+    lead: 'Kurze Antworten dazu, wie FlipLens funktioniert und was es kann und nicht kann.',
+    sections: [],
+    faq: [
+      ...COMMON_FAQ_DE,
+      { q: 'Welche Länder deckt FlipLens ab?', a: 'Die Marktdaten kommen von eBay Deutschland, Frankreich, Italien, Spanien und den Niederlanden. Links, um Preise selbst zu prüfen, gibt es für Vinted, Kleinanzeigen und weitere Marktplätze in der EU.' },
+      { q: 'Wie genau ist die Schätzung?', a: 'Das hängt vom Markt ab. Jedes Ergebnis zeigt einen Sicherheitswert, auf wie vielen Angeboten es beruht und die Risiken. Gibt es nicht genug Daten, sagt FlipLens das, statt zu raten. Im Lager kannst du deine echten Verkaufspreise festhalten und sehen, wie nah die Schätzungen lagen.' },
+      { q: 'Für welche Marktplätze werden die Gebühren berechnet?', a: 'eBay.de für private und gewerbliche Verkäufer, Vinted und Abholung gegen Bargeld. Jedes Gebührenprofil zeigt, wann es zuletzt geprüft wurde.' },
+      { q: 'Kann FlipLens meine Anzeige schreiben?', a: `Ja. Fotografier einen beliebigen Artikel, auch Kleidung, und FlipLens schreibt Titel, Beschreibung und Zustandstext im Stil von Vinted, eBay oder Kleinanzeigen, in deiner Sprache und fertig zum Kopieren. Free enthält ${PLANS.free.monthlyListings} Anzeigen pro Monat, Pro ${PLANS.pro.monthlyListings}. FlipLens veröffentlicht nie etwas in deinem Namen.` },
+      { q: 'Gibt es eine App fürs Handy?', a: 'FlipLens ist eine Web-App, die du auf dem Handy installieren kannst: Öffne fliplens.eu und wähle "Zum Home-Bildschirm" (iPhone) oder "App installieren" (Android). Danach startet sie im Vollbild wie eine normale App.' },
+      { q: 'Warum muss ich mich anmelden?', a: 'Deine kostenlosen Checks, dein Verlauf und dein Tarif gehören zu deinem Konto und funktionieren so auf allen Geräten. Die Anmeldung mit Google geht mit einem Tipp, ein Passwort brauchst du nicht.' },
+    ],
+  },
+  {
+    path: '/guides/how-to-check-resale-value',
+    kind: 'article',
+    crumb: 'Wiederverkaufswert prüfen',
+    parent: { path: '/guides', name: 'Ratgeber' },
+    title: 'Wiederverkaufswert vor dem Kauf prüfen: so geht\'s (Europa)',
+    description: 'Eine Schritt-für-Schritt-Methode, um herauszufinden, wofür sich ein gebrauchter Artikel in Europa wirklich weiterverkaufen lässt, Gebühren und Versand abzuziehen und den Höchstpreis zu berechnen.',
+    h1: 'Wiederverkaufswert vor dem Kauf prüfen',
+    lead: 'Auf dem Flohmarkt oder bei Kleinanzeigen hast du meist eine Minute für die Entscheidung. Das ist die Methode, die Reseller nutzen, und genau die automatisiert FlipLens.',
+    sections: [
+      {
+        h2: '1. Das genaue Modell festnageln',
+        html: '<p>Die Preisunterschiede zwischen Varianten sind oft größer als zwischen Zuständen. Lies die Modellnummer auf dem Typenschild, der Verpackung oder in den Einstellungen ab. Prüf Speichergröße, Modellgeneration, Farbe, wo sie zählt, und bei Objektiven den Anschluss. "Sony Kopfhörer" ist kein Preis; "Sony WH-1000XM4" schon.</p>',
+      },
+      {
+        h2: '2. Vergleichsangebote ansehen, nicht den ersten Treffer',
+        html: '<p>Such das genaue Modell auf eBay und sortier aus, was nicht vergleichbar ist: andere Generationen, einzeln verkauftes Zubehör, Bundles mit Spielen oder Zusatzobjektiven, Bastlerware und Angebote von weit weg mit teurem Versand. Schau in mehrere Länder: Derselbe Artikel kann in Deutschland, Frankreich oder Italien spürbar unterschiedlich viel bringen.</p>',
+      },
+      {
+        h2: '3. Angebotspreis und Zustand berücksichtigen',
+        html: '<p>Die meisten Anzeigen zeigen Angebotspreise, und verkauft wird meist darunter. Nimm die Mitte der realistischen Spanne, nicht das teuerste Angebot, und berücksichtige den Zustand: Ein "guter" Artikel bringt keinen "wie neu"-Preis. Gibt es nur eine Handvoll Vergleichsangebote, sei bei jeder Schätzung vorsichtig.</p>',
+      },
+      {
+        h2: '4. Gebühren und Versand abziehen',
+        html: '<p>Dir bleibt der Verkaufspreis minus Marktplatzgebühren und den Versand, den du zahlst. Auf eBay.de zahlen private Verkäufer innerhalb Deutschlands keine Verkaufsgebühren, gewerbliche schon; auf Vinted zahlt der Käufer die Gebühren. Siehe <a href="/de/guides/ebay-fees-germany">eBay.de-Gebühren für private und gewerbliche Verkäufer</a> und <a href="/de/guides/where-to-sell-used-electronics-europe">wo du gebrauchte Elektronik in Europa verkaufst</a>.</p>',
+      },
+      {
+        h2: '5. Deinen Höchstpreis ausrechnen',
+        html: '<p>Leg deine Wunschrendite fest und teil das, was dir bleibt, durch 1 plus diese Rendite. Beispiel: Eine Nintendo Switch OLED wird voraussichtlich für 176 € verkauft, keine Verkaufsgebühr, 6 € Versand, also bleiben dir 170 €. Für 40 % Rendite zahlst du höchstens 170 € ÷ 1,4 = <strong>121 €</strong>. Alles darunter ist ein Kauf; darüber verhandelst du oder gehst weiter.</p>',
+      },
+      {
+        h2: 'In Sekunden mit FlipLens',
+        html: '<p>FlipLens erledigt alle fünf Schritte aus einem Foto, einem Barcode oder einem eingetippten Modell: Es erkennt die genaue Variante, liest Vergleichsangebote auf eBay in fünf EU-Ländern, berücksichtigt Zustand und Angebotspreise, zieht deine Marktplatzgebühren und den Versand ab und zeigt den Höchstpreis, der sich noch lohnt. Den Preis des Verkäufers musst du dafür nicht einmal kennen.</p>',
+      },
+    ],
+    faq: [
+      { q: 'Woher weiß ich, wofür sich etwas weiterverkaufen lässt?', a: 'Erkenn das genaue Modell, vergleich es mit ähnlichen Angeboten im gleichen Zustand, nimm die realistische Mitte der Spanne statt des höchsten Angebotspreises und zieh dann Verkaufsgebühren und Versand ab.' },
+      { q: 'Wie viel sollte ich für einen Artikel zahlen, den ich weiterverkaufen will?', a: 'Teil das, was dir nach Gebühren und Versand bleibt, durch 1 plus deine Zielrendite. Bei 170 € und 40 % Ziel zahlst du höchstens 121 €.' },
+    ],
+  },
+  {
+    path: '/guides/ebay-fees-germany',
+    kind: 'article',
+    crumb: 'eBay.de-Gebühren',
+    parent: { path: '/guides', name: 'Ratgeber' },
+    title: 'eBay.de-Gebühren 2026: privat vs. gewerblich',
+    description: 'Was Verkaufen auf eBay Deutschland private und gewerbliche Verkäufer kostet, mit einem Beispiel, wie Gebühren deinen Gewinn und deinen Einkaufspreis verändern.',
+    h1: 'eBay.de-Gebühren 2026: privat vs. gewerblich',
+    lead: 'Ob du privat oder gewerblich verkaufst, verändert deine Marge bei jedem Artikel. Hier ist der Unterschied und wie du ihn einrechnest. Prüf die aktuellen Gebühren immer auf den Seiten von eBay, bevor du dich darauf verlässt.',
+    sections: [
+      {
+        h2: 'Private Verkäufer',
+        html: '<p>Seit dem 1. März 2023 zahlen private Verkäufer auf eBay.de für Verkäufe innerhalb Deutschlands <strong>keine Verkaufsgebühren</strong>. Optionale Extras, etwa manche Angebotsupgrades und der Verkauf ins Ausland, können trotzdem Geld kosten. Quelle: <a href="https://www.ebay.de/help/selling/fees-credits-invoices/gebhren-fr-private-verkufer-die-der-zahlungsabwicklung-teilnehmen?id=4822">eBay.de-Hilfe: Gebühren für private Verkäufer</a>.</p>',
+      },
+      {
+        h2: 'Gewerbliche Verkäufer',
+        html: '<p>Gewerbliche Verkäufer zahlen eine Verkaufsprovision, die von der Kategorie abhängt und davon, ob der Artikel neu oder gebraucht ist. Bei unserer letzten Prüfung (September 2026) lagen die Sätze für die Kategorien, die FlipLens abdeckt, ungefähr bei:</p><table><thead><tr><th>Artikel</th><th>Gebühr</th></tr></thead><tbody><tr><td>Gebrauchte oder generalüberholte Elektronik</td><td>5 %</td></tr><tr><td>Neue Elektronik</td><td>7 %</td></tr><tr><td>Zubehör</td><td>12 %</td></tr><tr><td>Werkzeug</td><td>13 %</td></tr><tr><td>Pro Bestellung über 10 €</td><td>+ 0,45 €</td></tr></tbody></table><p>Diese Werte stammen aus einer Sekundärquelle und die Kategorien haben Ausnahmen. Prüf deshalb die aktuelle Gebührentabelle von eBay für deine Kategorie.</p>',
+      },
+      {
+        h2: 'Beispiel: derselbe Artikel, zwei Verkäufertypen',
+        html: '<p>Eine gebrauchte Nintendo Switch OLED wird für 176 € verkauft und du zahlst 6 € Versand.</p><ul><li>Privat: keine Verkaufsgebühr, dir bleiben 170 €. Für 40 % Rendite kannst du bis zu 121 € zahlen.</li><li>Gewerblich: etwa 5 % (8,80 €) plus 0,45 €, dir bleiben etwa 160,75 €. Für 40 % Rendite kannst du bis zu etwa 114 € zahlen.</li></ul><p>Ein paar Euro Unterschied pro Artikel summieren sich über einen Monat Einkauf. Stell deinen Verkäufertyp in FlipLens deshalb richtig ein: Dann nutzt jeder Check die passenden Gebühren.</p>',
+      },
+      {
+        h2: 'Privat oder gewerblich: was bin ich?',
+        html: '<p>Wenn du Artikel mit der Absicht kaufst, sie regelmäßig weiterzuverkaufen, gilt das steuer- und verbraucherrechtlich meist als gewerbliche Tätigkeit, auch wenn du nebenbei angefangen hast. Das ist eine allgemeine Information, keine Rechts- oder Steuerberatung: Prüf die Regeln in deinem Land oder frag eine Steuerberatung.</p>',
+      },
+    ],
+    faq: [
+      { q: 'Zahlen private Verkäufer Gebühren auf eBay.de?', a: 'Seit dem 1. März 2023 keine Verkaufsgebühren für Verkäufe innerhalb Deutschlands. Optionale Extras und der Verkauf ins Ausland können Geld kosten.' },
+      { q: 'Was zahlen gewerbliche Verkäufer auf eBay.de?', a: 'Eine Verkaufsprovision nach Kategorie und Zustand; Stand September 2026 etwa 5 % für gebrauchte und 7 % für neue Elektronik, plus 0,45 € pro Bestellung über 10 €. Prüf die aktuelle Gebührentabelle von eBay.' },
+    ],
+  },
+  {
+    path: '/guides/where-to-sell-used-electronics-europe',
+    kind: 'article',
+    crumb: 'Wo Elektronik verkaufen',
+    parent: { path: '/guides', name: 'Ratgeber' },
+    title: 'Gebrauchte Elektronik in Europa verkaufen: eBay, Vinted, Kleinanzeigen oder vor Ort',
+    description: 'eBay, Vinted, Kleinanzeigen und Barverkauf vor Ort im Vergleich für gebrauchte Elektronik in Europa: wer Gebühren zahlt, Reichweite, Tempo und wann sich was lohnt.',
+    h1: 'Wo du gebrauchte Elektronik in Europa verkaufst',
+    lead: 'Der beste Marktplatz hängt vom Artikel ab, davon, wie schnell du verkaufen willst, und wer die Gebühren zahlt. Ein schneller Vergleich für Reseller in der EU.',
+    sections: [
+      {
+        h2: 'eBay: die größte Reichweite',
+        html: '<p>eBay hat Länderseiten in ganz Europa (Deutschland, Frankreich, Italien, Spanien, die Niederlande und mehr) und Käufer, die nach dem genauen Modell suchen. Das passt für Artikel mit klarer Modellnummer: Konsolen, Handys, Kopfhörer, Kameras und Objektive. Private Verkäufer zahlen innerhalb Deutschlands keine Verkaufsgebühren; gewerbliche zahlen eine Gebühr je nach Kategorie. Siehe <a href="/de/guides/ebay-fees-germany">eBay.de-Gebühren</a>.</p>',
+      },
+      {
+        h2: 'Vinted: keine Gebühren für Verkäufer',
+        html: '<p>Auf Vinted zahlt der Verkäufer keine Gebühr: Der Käufer zahlt eine Käuferschutzgebühr und den Versand obendrauf. Für den Käufer wirkt dein Preis dadurch höher, deshalb solltest du Artikel eventuell etwas günstiger einstellen. Gut geeignet für kleine, leicht zu versendende Elektronik und Gaming.</p>',
+      },
+      {
+        h2: 'Kleinanzeigen: lokal in Deutschland',
+        html: '<p>Kleinanzeigen ist die große Kleinanzeigen-Plattform in Deutschland. Einfache Anzeigen sind für private Verkäufer kostenlos, viele Käufer holen lieber ab und rechnen mit Verhandeln. Starte also etwas über deinem Zielpreis. Gut für sperrige oder schwere Artikel, bei denen der Versand die Marge auffressen würde.</p>',
+      },
+      {
+        h2: 'Abholung und Bargeld',
+        html: '<p>Keine Gebühren und kein Versand, aber weniger Interessenten und langsamere Verkäufe. Lohnt sich bei großen Artikeln oder wenn du schon einen Käufer hast.</p>',
+      },
+      {
+        h2: 'Vor dem Kauf vergleichen',
+        html: '<p>Stell in FlipLens den Marktplatz ein, auf dem du meist verkaufst, dann nutzt jeder Check dessen Gebühren und Versandregeln. Das Ergebnis verlinkt außerdem Vinted, Kleinanzeigen und weitere Marktplätze, damit du lokale Preise selbst ansehen kannst.</p>',
+      },
+    ],
+    faq: [
+      { q: 'Elektronik besser auf eBay oder Vinted verkaufen?', a: 'eBay erreicht mehr Käufer, die nach dem genauen Modell suchen, und passt zu teureren Artikeln; auf Vinted zahlt der Verkäufer keine Gebühr, weil der Käufer den Käuferschutz zahlt. Das funktioniert gut für kleine Artikel. Vergleich, was dir nach Gebühren und Versand bleibt.' },
+      { q: 'Wer zahlt auf Vinted die Gebühren?', a: 'Der Käufer. Vinted berechnet dem Käufer eine Käuferschutzgebühr und den Versand; der Verkäufer bekommt den eingestellten Preis.' },
+    ],
+  },
+  {
+    path: '/guides/flea-market-reselling-checklist',
+    kind: 'article',
+    crumb: 'Flohmarkt-Checkliste',
+    parent: { path: '/guides', name: 'Ratgeber' },
+    title: 'Flohmarkt-Checkliste für Reseller: was du vor dem Elektronik-Kauf prüfen solltest',
+    description: 'Eine praktische Checkliste für den Kauf gebrauchter Elektronik, Konsolen und Kameras auf Flohmärkten zum Weiterverkauf: Erkennung, Test, Vollständigkeit, Sperren und Preis.',
+    h1: 'Flohmarkt-Checkliste für Reseller',
+    lead: 'Die meisten Fehlkäufe sind nicht zu teuer, sondern die falsche Variante, unvollständig oder gesperrt. Geh das hier durch, bevor du das Geld rüberreichst.',
+    sections: [
+      {
+        h2: 'Bevor du losgehst',
+        html: '<ul><li>Lad dein Handy auf und nimm eine Powerbank mit: Du prüfst Preise direkt vor Ort.</li><li>Nimm kleine Scheine und Münzen mit, frühmorgens haben Verkäufer selten Wechselgeld.</li><li>Kenn deinen Höchstpreis pro Artikeltyp oder prüf ihn in wenigen Sekunden mit FlipLens.</li></ul>',
+      },
+      {
+        h2: 'Den genauen Artikel erkennen',
+        html: '<ul><li>Such die Modellnummer auf dem Typenschild, im Batteriefach oder auf der Verpackung. Mach ein Foto davon.</li><li>Prüf Speichergröße, Generation und bei Objektiven den Anschluss.</li><li>Barcodes auf der Verpackung erkennen die genaue Variante am schnellsten.</li></ul>',
+      },
+      {
+        h2: 'Testen, was geht',
+        html: '<ul><li>Geht das Gerät an? Frag nach einer Steckdose oder nimm Powerbank und Kabel mit.</li><li>Displays: Pixelfehler, Einbrennen, Risse. Anschlüsse: Wackelige Ladebuchsen sind häufig.</li><li>Controller und Joy-Cons: auf Stick-Drift prüfen.</li><li>Kameras und Objektive: gegen das Licht durchs Objektiv schauen (Schleier, Pilz, Kratzer); prüfen, ob der Verschluss auslöst.</li><li>Handys und Tablets: wenn möglich den Akkuzustand in den Einstellungen prüfen.</li></ul>',
+      },
+      {
+        h2: 'Prüfen, dass nichts gesperrt ist',
+        html: '<p>Handys, Tablets, Laptops und Smartwatches können an das Konto des Vorbesitzers gebunden sein (zum Beispiel die Aktivierungssperre von Apple). Ein gesperrtes Gerät ist nur einen Bruchteil wert. Lass dir zeigen, dass es abgemeldet oder vor deinen Augen zurückgesetzt ist.</p>',
+      },
+      {
+        h2: 'Vollständigkeit bringt Geld',
+        html: '<p>Originalverpackung, Ladegerät, Kabel, Objektivdeckel und Anleitungen helfen, schneller und teurer zu verkaufen. Fehlende Ladegeräte und spezielle Kabel kosten dich beim Nachkauf Geld.</p>',
+      },
+      {
+        h2: 'Nach den Zahlen entscheiden',
+        html: '<p>Vergleich den Preis des Verkäufers mit dem Höchstpreis nach Gebühren und Versand. Liegt er darüber, handle ihn darauf herunter oder geh weiter. Siehe <a href="/de/guides/how-to-check-resale-value">Wiederverkaufswert prüfen</a>.</p>',
+      },
+    ],
+    faq: [
+      { q: 'Was sollte ich vor dem Kauf gebrauchter Elektronik zum Weiterverkauf prüfen?', a: 'Genaues Modell und Variante, ob das Gerät angeht und funktioniert, Zustand von Display und Anschlüssen, dass es nicht an ein fremdes Konto gebunden ist, welches Zubehör dabei ist und ob der Preis unter deinem Höchstpreis nach Gebühren und Versand liegt.' },
+    ],
+  },
+  {
+    path: '/vinted-listing-generator',
+    kind: 'page',
+    crumb: 'Vinted-Anzeigen-Generator',
+    cta: LISTING_CTA_DE,
+    title: 'Vinted-Anzeigen-Generator: Titel und Beschreibung aus einem Foto',
+    description: `Fotografier alles, was du verkaufst, auch Kleidung, und bekomm Titel, Beschreibung und Hashtags für Vinted in deiner Sprache. ${PLANS.free.monthlyListings} Anzeigen pro Monat gratis.`,
+    h1: 'Vinted-Anzeigen-Generator',
+    lead: 'Fotografier den Artikel und bekomm Titel, Beschreibung und Hashtags, fertig zum Einfügen in Vinted. Funktioniert für Kleidung, Schuhe, Taschen, Wohnen, Spielzeug und Technik, in deiner Sprache.',
+    sections: [
+      {
+        h2: "So funktioniert's",
+        html: '<ol><li>Mach ein bis drei Fotos: Vorderseite, Rückseite und das Marken- oder Größenetikett funktionieren am besten.</li><li>Wähl den Zustand und ergänz, was Fotos nicht zeigen, etwa Größe, Material oder einen kleinen Makel.</li><li>Kopier Titel und Beschreibung, öffne Vinted und füg sie ein.</li></ol>',
+      },
+      {
+        h2: 'Was geschrieben wird',
+        html: '<p>Für Vinted: ein kurzer, natürlicher Titel (Marke, Artikel und ein wichtiges Detail), eine freundliche und ehrliche Beschreibung, ein Satz zum Zustand und ein paar passende Suchbegriffe und Hashtags. Aus demselben Foto kann auch eine eBay-Anzeige werden (Titel mit Suchbegriffen zuerst, strukturierte Beschreibung) oder eine Kleinanzeigen-Anzeige (direkt, mit dem üblichen Hinweis zum Privatverkauf).</p>',
+      },
+      {
+        h2: 'Ehrlich von Anfang an',
+        html: '<p>Der Generator beschreibt nur, was auf deinen Fotos zu sehen ist oder in deinen Angaben steht. Er erfindet keine Größe, kein Material, keine Marke und keine Maße. Fehlt etwas, wonach Käufer meist fragen, etwa Größe oder Maße, sagt er dir das, damit du es vor dem Einstellen ergänzen kannst.</p>',
+      },
+      {
+        h2: 'Und der Preis?',
+        html: '<p>FlipLens liest keine Vinted-Daten. Nach dem Schreiben verlinkt es ähnliche Artikel auf Vinted, damit du Preise mit einem Tipp vergleichen kannst. Für Elektronik, Spiele und Kameras kann FlipLens außerdem den <a href="/de/how-it-works">Wiederverkaufswert schätzen</a>, anhand von eBay-Angeboten in fünf EU-Ländern.</p>',
+      },
+      {
+        h2: 'Tarife',
+        html: `<p>Free: ${PLANS.free.monthlyListings} Anzeigen pro Monat. Pro (${deEur(PLANS.pro.priceMonthlyMinor)}/Monat): ${PLANS.pro.monthlyListings} Anzeigen und ${PLANS.pro.monthlyValuations} Preis-Checks. Reseller (${deEur(PLANS.reseller.priceMonthlyMinor)}/Monat): bis zu ${deNum(PLANS.reseller.monthlyListings)}. Siehe <a href="/de/pricing">Preise</a>.</p>`,
+      },
+    ],
+    faq: [
+      { q: 'Ist der Vinted-Anzeigen-Generator kostenlos?', a: `Ja, ${PLANS.free.monthlyListings} Anzeigen pro Monat sind nach der Anmeldung mit Google kostenlos. Pro enthält ${PLANS.pro.monthlyListings} pro Monat.` },
+      { q: 'In welchen Sprachen schreibt er?', a: 'Englisch, Deutsch, Französisch, Italienisch, Spanisch, Niederländisch, Polnisch, Slowenisch, Kroatisch, Tschechisch, Portugiesisch und Schwedisch.' },
+      { q: 'Stellt er die Anzeige für mich auf Vinted ein?', a: 'Nein. Du kopierst den Text und fügst ihn selbst in Vinted ein. FlipLens ist unabhängig und gehört nicht zu Vinted.' },
+      { q: 'Werden meine Fotos gespeichert?', a: 'Nein. Fotos werden nur zum Schreiben der Anzeige verwendet und nicht gespeichert.' },
+    ],
+  },
+  {
+    path: '/guides/how-to-sell-on-vinted',
+    kind: 'article',
+    crumb: 'Auf Vinted verkaufen',
+    parent: { path: '/guides', name: 'Ratgeber' },
+    cta: LISTING_CTA_DE,
+    title: 'Auf Vinted verkaufen: Gebühren, Anzeigen, die verkaufen, und Preise',
+    description: 'Ein praktischer Ratgeber zum Verkaufen auf Vinted in Europa: wer die Gebühren zahlt, wie du Artikel fotografierst und beschreibst, wie du Preise setzt und wie du versendest.',
+    h1: 'Auf Vinted verkaufen',
+    lead: 'Vinted ist der größte Second-Hand-Marktplatz für Kleidung in Europa und funktioniert auch für kleine Elektronik und Wohnartikel. Klare Fotos, eine ehrliche Beschreibung und der richtige Preis erledigen den Großteil der Arbeit.',
+    sections: [
+      {
+        h2: 'Wer die Gebühren zahlt',
+        html: '<p>Verkäufer zahlen auf Vinted keine Verkaufsgebühr. Der Käufer zahlt eine Käuferschutzgebühr und den Versand zusätzlich zu deinem Preis, die Summe für ihn ist also höher als das, was du verlangst. Optionale bezahlte Hervorhebungen, etwa das Pushen eines Artikels, gibt es für Verkäufer. Gebühren können je nach Land unterschiedlich sein und sich ändern. Prüf deshalb die aktuellen Regeln im Hilfe-Center von Vinted.</p>',
+      },
+      {
+        h2: 'Fotos, die angeklickt werden',
+        html: '<ul><li>Nutz Tageslicht und einen ruhigen Hintergrund.</li><li>Zeig Vorderseite, Rückseite, Markenetikett und Größenetikett.</li><li>Fotografier Makel aus der Nähe: Käufer vertrauen Verkäufern, die sie zeigen.</li><li>Dein erstes Foto sehen die Leute in der Suche, also nimm das klarste.</li></ul>',
+      },
+      {
+        h2: 'Titel und Beschreibung',
+        html: '<p>Beginn den Titel mit Marke und Artikel, dann ein wichtiges Detail wie Größe oder Farbe: "Levi\'s 501 Jeans W32 L32, dunkelblau". In der Beschreibung nennst du die Größe und bei Kleidung die Maße (zum Beispiel Brustumfang und Länge), das Material laut Pflegeetikett, die Passform und den Zustand inklusive Makeln. Ergänz ein paar Begriffe, nach denen Leute suchen, etwa den Stil oder den Anlass.</p>',
+      },
+      {
+        h2: 'Den Zustand ehrlich wählen',
+        html: '<p>Vinted lässt dich einen Zustand wählen, von "Neu mit Etikett" bis "Zufriedenstellend". Einen besseren Zustand anzugeben, als der Artikel hat, ist ein häufiger Grund für Streit und Rücksendungen. Im Zweifel nimm den schlechteren und erklär es in der Beschreibung.</p>',
+      },
+      {
+        h2: 'Preise',
+        html: '<p>Such auf Vinted nach derselben Marke und demselben Artikel in ähnlichem Zustand und setz deinen Preis in diese Spanne. Viele Käufer machen Angebote, lass also etwas Luft. Bündelrabatte bringen Käufer dazu, mehrere Artikel in einem Paket zu nehmen, und sparen dir Wege zur Post.</p>',
+      },
+      {
+        h2: 'Versand',
+        html: '<p>Verpack Artikel sicher, versende innerhalb der Frist, die Vinted dir gibt, und heb den Einlieferungsbeleg auf, bis der Käufer die Bestellung bestätigt hat.</p>',
+      },
+      {
+        h2: 'Anzeigen schneller schreiben',
+        html: '<p>Der <a href="/de/vinted-listing-generator">FlipLens-Anzeigen-Generator</a> macht aus einem Foto Titel und Beschreibung für Vinted in deiner Sprache und sagt dir, wonach Käufer fragen werden, etwa Größe oder Maße.</p>',
+      },
+    ],
+    faq: [
+      { q: 'Zahlen Verkäufer auf Vinted Gebühren?', a: 'Keine Verkaufsgebühr. Der Käufer zahlt eine Käuferschutzgebühr und den Versand zusätzlich zum Preis. Optionale Hervorhebungen kosten extra.' },
+      { q: 'Wie schreibe ich eine gute Vinted-Beschreibung?', a: 'Nenn Marke, Größe und Maße, Material, Passform und einen ehrlichen Zustand inklusive Makeln, dazu ein paar Begriffe, nach denen Käufer suchen.' },
+    ],
+  },
+];
+
+const GUIDES_DE = PAGES_DE.filter((p) => p.path.startsWith('/guides/'));
+PAGES_DE.push({
+  path: '/guides',
+  kind: 'page',
+  crumb: 'Ratgeber',
+  title: 'Reseller-Ratgeber für Europa: Preise, Gebühren und Einkauf',
+  description: 'Praktische Ratgeber für Reseller in Europa: Wiederverkaufswert prüfen, eBay.de-Gebühren, wo du gebrauchte Elektronik verkaufst, Verkaufen auf Vinted und eine Flohmarkt-Checkliste.',
+  h1: 'Ratgeber',
+  lead: 'Kurze, praktische Ratgeber zum Einkaufen und Weiterverkaufen gebrauchter Artikel in Europa.',
+  sections: [
+    {
+      h2: 'Alle Ratgeber',
+      html: `<ul class="guide-list">${GUIDES_DE.map((g) => `<li><a href="${href('de', g.path)}">${esc(g.h1)}</a><br><span>${esc(g.description)}</span></li>`).join('')}</ul>`,
+    },
+  ],
+});
+
 // ---------- rendering ----------
 
-const NAV = `<header class="top"><a class="brand" href="/"><img src="/icons/icon.svg" alt="" width="28" height="28"> FlipLens</a><nav><a href="/how-it-works">How it works</a><a href="/pricing">Pricing</a><a href="/guides">Guides</a><a href="/faq">FAQ</a><a class="btn small" href="/">Try free</a></nav></header>`;
-const FOOTER = `<footer><p><a href="/how-it-works">How it works</a> · <a href="/pricing">Pricing</a> · <a href="/guides">Guides</a> · <a href="/faq">FAQ</a> · <a href="/privacy">Privacy</a> · <a href="/terms">Terms</a> · <a href="mailto:${LEGAL.supportEmail}">${LEGAL.supportEmail}</a></p><p>© ${new Date().getFullYear()} ${esc(LEGAL.operator)}. FlipLens is not affiliated with eBay. eBay data shown via the eBay API.</p></footer>`;
+const UI = {
+  en: {
+    nav: [['/how-it-works', 'How it works'], ['/pricing', 'Pricing'], ['/guides', 'Guides'], ['/faq', 'FAQ']] as const,
+    tryFree: 'Try free',
+    privacy: 'Privacy',
+    terms: 'Terms',
+    disclaimer: 'FlipLens is not affiliated with eBay. eBay data shown via the eBay API.',
+    questions: 'Questions',
+    answers: 'Answers',
+    updated: (d: string) => `Updated ${d} · by FlipLens`,
+    other: 'Deutsch',
+    otherLang: 'de' as Lang,
+    locale: 'en_GB',
+    cta: CTA,
+  },
+  de: {
+    nav: [['/how-it-works', "So funktioniert's"], ['/pricing', 'Preise'], ['/guides', 'Ratgeber'], ['/faq', 'FAQ']] as const,
+    tryFree: 'Gratis testen',
+    privacy: 'Datenschutz',
+    terms: 'Nutzungsbedingungen',
+    disclaimer: 'FlipLens gehört nicht zu eBay. eBay-Daten werden über die eBay-API angezeigt.',
+    questions: 'Fragen',
+    answers: 'Antworten',
+    updated: (d: string) => `Aktualisiert am ${d.split('-').reverse().join('.')} · von FlipLens`,
+    other: 'English',
+    otherLang: 'en' as Lang,
+    locale: 'de_DE',
+    cta: CTA_DE,
+  },
+} as const;
+
+function nav(lang: Lang, path: string): string {
+  const u = UI[lang];
+  return `<header class="top"><a class="brand" href="${href(lang, '/')}"><img src="/icons/icon.svg" alt="" width="28" height="28"> FlipLens</a><nav>${u.nav.map(([p, n]) => `<a href="${href(lang, p)}">${n}</a>`).join('')}<a href="${href(u.otherLang, path)}" hreflang="${u.otherLang}" lang="${u.otherLang}">${u.other}</a><a class="btn small" href="${href(lang, '/')}">${u.tryFree}</a></nav></header>`;
+}
+
+function footer(lang: Lang, path: string): string {
+  const u = UI[lang];
+  const links = [...u.nav.map(([p, n]) => `<a href="${href(lang, p)}">${n}</a>`), `<a href="/privacy">${u.privacy}</a>`, `<a href="/terms">${u.terms}</a>`, `<a href="mailto:${LEGAL.supportEmail}">${LEGAL.supportEmail}</a>`];
+  const switcher = lang === 'en' ? `English | <a href="${href('de', path)}" hreflang="de" lang="de">Deutsch</a>` : `<a href="${href('en', path)}" hreflang="en" lang="en">English</a> | Deutsch`;
+  return `<footer><p>${links.join(' · ')}</p><p>${switcher}</p><p>© ${new Date().getFullYear()} ${esc(LEGAL.operator)}. ${u.disclaimer}</p></footer>`;
+}
 
 const ORG = { '@type': 'Organization', '@id': `${SITE}/#org`, name: 'FlipLens', url: SITE, logo: `${SITE}/icons/icon-512.png`, email: LEGAL.supportEmail };
 
-function faqLd(faq: Faq[]) {
-  return { '@type': 'FAQPage', mainEntity: faq.map((f) => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.a } })) };
+function faqLd(faq: Faq[], lang: Lang) {
+  return { '@type': 'FAQPage', inLanguage: lang, mainEntity: faq.map((f) => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.a } })) };
 }
 
-function head(o: { title: string; description: string; path: string; type: 'website' | 'article'; ld: unknown[] }): string {
-  const url = `${SITE}${o.path === '/' ? '/' : o.path}`;
+/** hreflang alternates: every page exists in English (also the default) and German. */
+function alternates(path: string): string[] {
+  return [
+    `<link rel="alternate" hreflang="en" href="${SITE}${href('en', path)}">`,
+    `<link rel="alternate" hreflang="de" href="${SITE}${href('de', path)}">`,
+    `<link rel="alternate" hreflang="x-default" href="${SITE}${href('en', path)}">`,
+  ];
+}
+
+function head(o: { title: string; description: string; path: string; lang: Lang; type: 'website' | 'article'; ld: unknown[] }): string {
+  const url = `${SITE}${href(o.lang, o.path)}`;
   return [
     `<title>${esc(o.title)}</title>`,
     `<meta name="description" content="${esc(o.description)}">`,
     `<link rel="canonical" href="${url}">`,
+    ...alternates(o.path),
     `<meta property="og:type" content="${o.type}">`,
     `<meta property="og:site_name" content="FlipLens">`,
     `<meta property="og:title" content="${esc(o.title)}">`,
@@ -440,7 +865,7 @@ function head(o: { title: string; description: string; path: string; type: 'webs
     `<meta property="og:image" content="${SITE}/og.png">`,
     `<meta property="og:image:width" content="1200">`,
     `<meta property="og:image:height" content="630">`,
-    `<meta property="og:locale" content="en_GB">`,
+    `<meta property="og:locale" content="${UI[o.lang].locale}">`,
     `<meta name="twitter:card" content="summary_large_image">`,
     `<meta name="twitter:title" content="${esc(o.title)}">`,
     `<meta name="twitter:description" content="${esc(o.description)}">`,
@@ -449,22 +874,24 @@ function head(o: { title: string; description: string; path: string; type: 'webs
   ].join('\n    ');
 }
 
-function renderPage(p: Page): string {
+function renderPage(p: Page, lang: Lang): string {
+  const u = UI[lang];
   const crumbs = [{ path: '/', name: 'FlipLens' }, ...(p.parent ? [p.parent] : []), { path: p.path, name: p.crumb }];
+  const url = `${SITE}${href(lang, p.path)}`;
   const ld: unknown[] = [
     ORG,
-    { '@type': 'BreadcrumbList', itemListElement: crumbs.map((c, i) => ({ '@type': 'ListItem', position: i + 1, name: c.name, item: `${SITE}${c.path}` })) },
+    { '@type': 'BreadcrumbList', itemListElement: crumbs.map((c, i) => ({ '@type': 'ListItem', position: i + 1, name: c.name, item: `${SITE}${href(lang, c.path)}` })) },
     p.kind === 'article'
-      ? { '@type': 'Article', headline: p.h1, description: p.description, datePublished: UPDATED, dateModified: UPDATED, author: { '@id': `${SITE}/#org` }, publisher: { '@id': `${SITE}/#org` }, image: `${SITE}/og.png`, mainEntityOfPage: `${SITE}${p.path}` }
-      : { '@type': 'WebPage', name: p.title, description: p.description, url: `${SITE}${p.path}`, isPartOf: { '@id': `${SITE}/#website` } },
-    ...(p.faq ? [faqLd(p.faq)] : []),
+      ? { '@type': 'Article', headline: p.h1, description: p.description, inLanguage: lang, datePublished: UPDATED, dateModified: UPDATED, author: { '@id': `${SITE}/#org` }, publisher: { '@id': `${SITE}/#org` }, image: `${SITE}/og.png`, mainEntityOfPage: url }
+      : { '@type': 'WebPage', name: p.title, description: p.description, inLanguage: lang, url, isPartOf: { '@id': `${SITE}/#website` } },
+    ...(p.faq ? [faqLd(p.faq, lang)] : []),
   ];
   const faqHtml = p.faq
-    ? `<section><h2>${p.sections.length ? 'Questions' : 'Answers'}</h2>${p.faq.map((f) => `<details open><summary>${esc(f.q)}</summary><p>${esc(f.a)}</p></details>`).join('')}</section>`
+    ? `<section><h2>${p.sections.length ? u.questions : u.answers}</h2>${p.faq.map((f) => `<details open><summary>${esc(f.q)}</summary><p>${esc(f.a)}</p></details>`).join('')}</section>`
     : '';
   return `<!doctype html>
 <!-- Generated by apps/web/scripts/site.ts. Edit the script, not this file. -->
-<html lang="en">
+<html lang="${lang}">
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -472,22 +899,22 @@ function renderPage(p: Page): string {
     <link rel="icon" href="/icons/icon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="/icons/icon-192.png">
     <link rel="stylesheet" href="/site.css">
-    ${head({ title: p.title, description: p.description, path: p.path, type: p.kind === 'article' ? 'article' : 'website', ld })}
+    ${head({ title: p.title, description: p.description, path: p.path, lang, type: p.kind === 'article' ? 'article' : 'website', ld })}
   </head>
   <body>
-    ${NAV}
+    ${nav(lang, p.path)}
     <main>
-      <nav class="crumbs" aria-label="Breadcrumb">${crumbs.map((c, i) => (i === crumbs.length - 1 ? `<span>${esc(c.name)}</span>` : `<a href="${c.path}">${esc(c.name)}</a>`)).join(' / ')}</nav>
+      <nav class="crumbs" aria-label="Breadcrumb">${crumbs.map((c, i) => (i === crumbs.length - 1 ? `<span>${esc(c.name)}</span>` : `<a href="${href(lang, c.path)}">${esc(c.name)}</a>`)).join(' / ')}</nav>
       <article>
         <h1>${esc(p.h1)}</h1>
         <p class="lead">${esc(p.lead)}</p>
-        ${p.kind === 'article' ? `<p class="meta">Updated ${UPDATED} · by FlipLens</p>` : ''}
+        ${p.kind === 'article' ? `<p class="meta">${u.updated(UPDATED)}</p>` : ''}
         ${p.sections.map((s) => `<section><h2>${esc(s.h2)}</h2>${s.html}</section>`).join('\n        ')}
         ${faqHtml}
-        ${p.cta ?? CTA}
+        ${p.cta ?? u.cta}
       </article>
     </main>
-    ${FOOTER}
+    ${footer(lang, p.path)}
   </body>
 </html>
 `;
@@ -503,10 +930,11 @@ function homeHead(): string {
     title: HOME_TITLE,
     description: HOME_DESC,
     path: '/',
+    lang: 'en',
     type: 'website',
     ld: [
       ORG,
-      { '@type': 'WebSite', '@id': `${SITE}/#website`, name: 'FlipLens', url: SITE, publisher: { '@id': `${SITE}/#org` }, inLanguage: 'en' },
+      { '@type': 'WebSite', '@id': `${SITE}/#website`, name: 'FlipLens', url: SITE, publisher: { '@id': `${SITE}/#org` }, inLanguage: ['en', 'de'] },
       {
         '@type': 'WebApplication',
         name: 'FlipLens',
@@ -514,10 +942,11 @@ function homeHead(): string {
         applicationCategory: 'BusinessApplication',
         operatingSystem: 'Web, iOS, Android',
         description: HOME_DESC,
+        inLanguage: ['en', 'de'],
         publisher: { '@id': `${SITE}/#org` },
         offers: plans.map((p) => ({ '@type': 'Offer', name: p.name, price: (p.priceMonthlyMinor / 100).toFixed(2), priceCurrency: 'EUR', description: p.features.join('; '), url: `${SITE}/pricing` })),
       },
-      faqLd(COMMON_FAQ),
+      faqLd(COMMON_FAQ, 'en'),
     ],
   });
 }
@@ -525,7 +954,7 @@ function homeHead(): string {
 /** Text of the start page for crawlers without JavaScript. React replaces it on load; keep in step with screens/Landing.tsx. */
 function homePrerender(): string {
   return `<div class="prerender">
-      <header><strong>FlipLens</strong> · <a href="/how-it-works">How it works</a> · <a href="/pricing">Pricing</a> · <a href="/guides">Guides</a> · <a href="/faq">FAQ</a></header>
+      <header><strong>FlipLens</strong> · <a href="/how-it-works">How it works</a> · <a href="/pricing">Pricing</a> · <a href="/guides">Guides</a> · <a href="/faq">FAQ</a> · <a href="/de" hreflang="de" lang="de">Deutsch</a></header>
       <h1>Know what it's worth before you buy it.</h1>
       <p>For resellers in Europe. Take a photo, scan the barcode or type the model: FlipLens shows what the item resells for on eBay in Germany, France, Italy, Spain and the Netherlands, your profit after fees and shipping, the most you should pay, and a clear verdict: strong buy, buy, borderline or skip.</p>
       <h2>Three taps, a few seconds</h2>
@@ -542,6 +971,26 @@ function homePrerender(): string {
     </div>`;
 }
 
+/** German start-page text for crawlers on /de; the API swaps it into the shell (apps/api/src/web.ts). */
+function homePrerenderDe(): string {
+  return `<div class="prerender" lang="de">
+      <header><strong>FlipLens</strong> · <a href="/de/how-it-works">So funktioniert's</a> · <a href="/de/pricing">Preise</a> · <a href="/de/guides">Ratgeber</a> · <a href="/de/faq">FAQ</a> · <a href="/" hreflang="en" lang="en">English</a></header>
+      <h1>Wisse, was es wert ist, bevor du es kaufst.</h1>
+      <p>Für Reseller in Europa. Mach ein Foto, scann den Barcode oder tipp das Modell ein: FlipLens zeigt, wofür der Artikel auf eBay in Deutschland, Frankreich, Italien, Spanien und den Niederlanden weiterverkauft wird, deinen Gewinn nach Gebühren und Versand, den Höchstpreis, den du zahlen solltest, und ein klares Urteil: Klarer Kauf, Kaufen, Grenzwertig oder Finger weg.</p>
+      <h2>Drei Tipps, ein paar Sekunden</h2>
+      <ol><li>Scannen: Foto vom Artikel oder Typenschild, Barcode auf der Verpackung oder einfach das Modell eintippen.</li><li>Preis eingeben (optional): Ohne Preis bekommst du den Höchstpreis, der sich noch lohnt.</li><li>Urteil bekommen, mit den Zahlen und den Gründen dahinter.</li></ol>
+      <h2>Gebaut für Kaufentscheidungen, nicht fürs Raten</h2>
+      <ul><li>Genaues Modell statt "Kopfhörer": falsche Varianten, Zubehör, Bundles und defekte Artikel werden aussortiert.</li><li>Aktuelle Marktdaten von eBay in fünf EU-Ländern, in Euro umgerechnet. Du siehst jedes verwendete Angebot.</li><li>Gewinn nach Marktplatzgebühren und Versand, dazu der Höchstpreis, der sich noch lohnt.</li><li>Ehrlich bei Unsicherheit: Jedes Urteil zeigt seine Sicherheit; zu wenig Daten heißt keine Zahl.</li><li>Du verkaufst? Mach aus dem Foto eines beliebigen Artikels, auch Kleidung, eine Anzeige für Vinted, eBay oder Kleinanzeigen: <a href="/de/vinted-listing-generator">Anzeigen-Generator</a>.</li></ul>
+      <h2>Preise</h2>
+      <ul>${plans.map((p) => `<li>${esc(p.name)}: ${p.priceMonthlyMinor ? `${deEur(p.priceMonthlyMinor)} pro Monat` : 'kostenlos'}. ${(DE_FEATURES[p.id] ?? []).map(esc).join(', ')}.</li>`).join('')}</ul>
+      <h2>Fragen</h2>
+      ${COMMON_FAQ_DE.map((f) => `<h3>${esc(f.q)}</h3><p>${esc(f.a)}</p>`).join('')}
+      <h2>Ratgeber</h2>
+      <ul>${GUIDES_DE.map((g) => `<li><a href="${href('de', g.path)}">${esc(g.h1)}</a></li>`).join('')}</ul>
+      <p><a href="/privacy">Datenschutz</a> · <a href="/terms">Nutzungsbedingungen</a> · FlipLens gehört nicht zu eBay.</p>
+    </div>`;
+}
+
 function replaceBetween(src: string, name: string, content: string): string {
   const re = new RegExp(`(<!-- ${name}:start -->)[\\s\\S]*?(<!-- ${name}:end -->)`);
   if (!re.test(src)) throw new Error(`index.html is missing the ${name} markers`);
@@ -550,12 +999,21 @@ function replaceBetween(src: string, name: string, content: string): string {
 
 // ---------- sitemap, robots, llms ----------
 
-const URLS = ['/', ...PAGES.map((p) => p.path).sort(), '/privacy', '/terms'];
+/** Base paths that exist in both languages. */
+const BILINGUAL = ['/', ...PAGES.map((p) => p.path).sort()];
+const URLS = [...BILINGUAL.flatMap((p) => [href('en', p), href('de', p)]), '/privacy', '/terms'];
 
 function sitemap(): string {
+  const alt = (p: string) =>
+    ['en', 'de'].map((l) => `<xhtml:link rel="alternate" hreflang="${l}" href="${SITE}${href(l as Lang, p)}"/>`).join('') +
+    `<xhtml:link rel="alternate" hreflang="x-default" href="${SITE}${href('en', p)}"/>`;
+  const entries = [
+    ...BILINGUAL.flatMap((p) => (['en', 'de'] as const).map((l) => `  <url><loc>${SITE}${href(l, p)}</loc><lastmod>${UPDATED}</lastmod>${alt(p)}</url>`)),
+    ...['/privacy', '/terms'].map((u) => `  <url><loc>${SITE}${u}</loc><lastmod>${UPDATED}</lastmod></url>`),
+  ];
   return `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-${URLS.map((u) => `  <url><loc>${SITE}${u}</loc><lastmod>${UPDATED}</lastmod></url>`).join('\n')}
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
+${entries.join('\n')}
 </urlset>
 `;
 }
@@ -567,6 +1025,7 @@ User-agent: *
 Allow: /
 Disallow: /api/
 Disallow: /admin
+Disallow: /prerender-de.html
 
 ${aiBots.map((b) => `User-agent: ${b}\nAllow: /\nDisallow: /api/`).join('\n\n')}
 
@@ -587,6 +1046,7 @@ Key facts:
 - Pricing (EUR, final prices): ${planLine}.
 - Also: a listing writer that turns a photo of any item (clothes included) into a Vinted, eBay or Kleinanzeigen title and description (${PLANS.free.monthlyListings} free per month), and stock tracking with real profit.
 - Installs on phones as a web app (PWA). Sign-in with Google. Photos are never stored.
+- Available in English and German (the app follows the browser language; German pages under ${SITE}/de).
 - Operator: ${LEGAL.operator}, Slovenia. Contact: ${LEGAL.supportEmail}.
 
 ## Product
@@ -596,6 +1056,10 @@ Key facts:
 
 ## Guides
 ${GUIDES.map((g) => `- [${g.h1}](${SITE}${g.path}): ${g.description}`).join('\n')}
+
+## Deutsch
+- [FlipLens auf Deutsch](${SITE}/de): Start page and app in German
+${PAGES_DE.map((p) => `- [${p.h1}](${SITE}${href('de', p.path)})`).join('\n')}
 
 ## Legal
 - [Privacy Policy](${SITE}/privacy)
@@ -627,7 +1091,12 @@ function write(path: string, content: string): void {
   writeFileSync(full, content);
 }
 
-for (const p of PAGES) write(`${p.path.slice(1)}.html`, renderPage(p));
+const missing = PAGES.filter((p) => !PAGES_DE.some((d) => d.path === p.path)).map((p) => p.path);
+if (missing.length) throw new Error(`German version missing for: ${missing.join(', ')}`);
+
+for (const p of PAGES) write(`${p.path.slice(1)}.html`, renderPage(p, 'en'));
+for (const p of PAGES_DE) write(`de${p.path}.html`, renderPage(p, 'de'));
+write('prerender-de.html', `${homePrerenderDe()}\n`);
 write('sitemap.xml', sitemap());
 write('robots.txt', robots());
 write('llms.txt', llms());
@@ -638,4 +1107,4 @@ index = replaceBetween(index, 'seo', homeHead());
 index = replaceBetween(index, 'prerender', homePrerender());
 writeFileSync(INDEX, index);
 
-console.log(`site: ${PAGES.length} pages, ${URLS.length} sitemap URLs, llms.txt, robots.txt, index.html updated`);
+console.log(`site: ${PAGES.length} + ${PAGES_DE.length} (de) pages, ${URLS.length} sitemap URLs, llms.txt, robots.txt, prerender-de.html, index.html updated`);

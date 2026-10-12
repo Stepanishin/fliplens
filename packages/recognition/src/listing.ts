@@ -33,6 +33,8 @@ export interface PhotoListingInput {
   /** Size, brand, flaws, what is included ... Facts the photos cannot show. */
   notes?: string;
   sellerType: 'private' | 'business';
+  /** Language of the app UI (ISO 639-1) for the "missing" hints shown to the seller. */
+  uiLanguage?: string;
 }
 
 export interface PhotoListingText extends ListingText {
@@ -119,7 +121,7 @@ Rules:
 - condition_text: one honest sentence; use the seller's condition if given, otherwise describe visible wear.
 - keywords: 5-10 search terms buyers would type (brand, item type, colour, style).
 - item: brand (null if not visible), a short item type in English (e.g. "denim jacket", "running shoes", "table lamp"), colour (null if unclear).
-- missing: up to 4 short English phrases for facts buyers usually ask about that are not visible or given (e.g. "size", "measurements", "material", "flaws"). Empty when nothing important is missing.
+- missing: up to 4 short phrases in the language with ISO code "${input.uiLanguage ?? 'en'}" for facts buyers usually ask about that are not visible or given (e.g. "size", "measurements", "material", "flaws"). Empty when nothing important is missing.
 - Do not mention the price.`;
     const facts = [
       `Seller: ${input.sellerType}`,

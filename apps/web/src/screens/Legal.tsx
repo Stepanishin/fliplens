@@ -1,6 +1,38 @@
 import type { ReactNode } from 'react';
 import { PLANS } from '@fliplens/core';
 import { LEGAL, LEGAL_IS_DRAFT } from '../legal.js';
+import { LANG, money, tr } from '../i18n.js';
+
+const T = tr({
+  en: {
+    privacy: 'Privacy',
+    terms: 'Terms',
+    openApp: 'Open app',
+    draft: 'Draft: the operator details below are placeholders. Fill them in (apps/web/src/legal.ts) and have this document reviewed by a lawyer before launch.',
+    effective: 'Effective',
+    privacyPolicy: 'Privacy Policy',
+    termsOfService: 'Terms of Service',
+    support: 'Support',
+    privacyContact: 'Privacy',
+    note: '',
+  },
+  de: {
+    privacy: 'Datenschutz',
+    terms: 'Nutzungsbedingungen',
+    openApp: 'App öffnen',
+    draft: 'Entwurf: Die Angaben zum Betreiber unten sind Platzhalter. Bitte ergänzen (apps/web/src/legal.ts) und das Dokument vor dem Start anwaltlich prüfen lassen.',
+    effective: 'Gültig ab',
+    privacyPolicy: 'Datenschutzerklärung',
+    termsOfService: 'Nutzungsbedingungen',
+    support: 'Support',
+    privacyContact: 'Datenschutz',
+    note: 'Diese Übersetzung dient dem besseren Verständnis. Bei Abweichungen gilt die englische Fassung.',
+  },
+});
+
+/** Country names used in the governing-law clause. */
+const COUNTRY_DE: Record<string, string> = { Slovenia: 'Slowenien', Germany: 'Deutschland', Austria: 'Österreich' };
+const country = LANG === 'de' ? (COUNTRY_DE[LEGAL.governingCountry] ?? LEGAL.governingCountry) : LEGAL.governingCountry;
 
 /**
  * Privacy Policy and Terms of Service. The texts describe what the code actually does
@@ -13,24 +45,25 @@ function LegalLayout({ title, children }: { title: string; children: ReactNode }
       <header className="lp-nav">
         <a className="logo" href="/"><img src="/icons/icon.svg" alt="" width={28} height={28} /> FlipLens</a>
         <nav>
-          <a href="/privacy">Privacy</a>
-          <a href="/terms">Terms</a>
-          <a className="ghost small-btn" href="/">Open app</a>
+          <a href="/privacy">{T.privacy}</a>
+          <a href="/terms">{T.terms}</a>
+          <a className="ghost small-btn" href="/">{T.openApp}</a>
         </nav>
       </header>
       <article className="legal-body">
         {LEGAL_IS_DRAFT && (
           <div className="banner warn">
-            Draft: the operator details below are placeholders. Fill them in (apps/web/src/legal.ts) and have this document reviewed by a lawyer before launch.
+            {T.draft}
           </div>
         )}
         <h1>{title}</h1>
-        <p className="muted">Effective {LEGAL.effectiveDate}</p>
+        {T.note && <p className="muted small">{T.note}</p>}
+        <p className="muted">{T.effective} {LEGAL.effectiveDate}</p>
         {children}
       </article>
       <footer className="lp-footer">
         <span>© {new Date().getFullYear()} {LEGAL.operator}</span>
-        <span><a href="/privacy">Privacy Policy</a> · <a href="/terms">Terms of Service</a></span>
+        <span><a href="/privacy">{T.privacyPolicy}</a> · <a href="/terms">{T.termsOfService}</a></span>
       </footer>
     </div>
   );
@@ -42,13 +75,17 @@ const Operator = () => (
     <br />
     {LEGAL.address && <>{LEGAL.address}<br /></>}
     {LEGAL.registration && <>{LEGAL.registration}<br /></>}
-    Support: <a href={`mailto:${LEGAL.supportEmail}`}>{LEGAL.supportEmail}</a>
+    {T.support}: <a href={`mailto:${LEGAL.supportEmail}`}>{LEGAL.supportEmail}</a>
     <br />
-    Privacy: <a href={`mailto:${LEGAL.email}`}>{LEGAL.email}</a>
+    {T.privacyContact}: <a href={`mailto:${LEGAL.email}`}>{LEGAL.email}</a>
   </p>
 );
 
 export function PrivacyPolicy() {
+  return LANG === 'de' ? <PrivacyPolicyDe /> : <PrivacyPolicyEn />;
+}
+
+function PrivacyPolicyEn() {
   return (
     <LegalLayout title="Privacy Policy">
       <p>
@@ -127,7 +164,7 @@ export function PrivacyPolicy() {
         <li><strong>Google</strong> (sign-in): when you use "Continue with Google", Google processes your login under its own privacy policy and may set its own cookies for the sign-in window.</li>
         <li><strong>Stripe</strong> (payments): processes your payment and billing details under its own privacy policy.</li>
         <li><strong>European Central Bank</strong> (exchange rates): we download public reference rates; no personal data is sent.</li>
-        <li><strong>Hosting provider</strong> of the app and API: [to be named at launch].</li>
+        <li><strong>DigitalOcean</strong> (hosting of the app and API, App Platform, data centre in Frankfurt, Germany). Web traffic passes through its content delivery network, Cloudflare.</li>
       </ul>
       <p>
         Links to other marketplaces (for example Vinted, Kleinanzeigen) only open their websites in your browser; we send them nothing.
@@ -169,9 +206,13 @@ export function PrivacyPolicy() {
   );
 }
 
-const eur = (minor: number): string => new Intl.NumberFormat('en-IE', { style: 'currency', currency: 'EUR' }).format(minor / 100);
+const eur = (minor: number): string => money(minor, 2);
 
 export function TermsOfService() {
+  return LANG === 'de' ? <TermsOfServiceDe /> : <TermsOfServiceEn />;
+}
+
+function TermsOfServiceEn() {
   return (
     <LegalLayout title="Terms of Service">
       <p>These terms apply to your use of FlipLens, the app and website that estimates the resale value of second-hand items. FlipLens is provided by:</p>
@@ -250,7 +291,7 @@ export function TermsOfService() {
 
       <h2>11. Law and disputes</h2>
       <p>
-        These terms are governed by the law of {LEGAL.governingCountry}. If you are a consumer, you also keep the protection of the mandatory laws of the country
+        These terms are governed by the law of {country}. If you are a consumer, you also keep the protection of the mandatory laws of the country
         where you live, and you can bring claims in your local courts. Please contact us first at <a href={`mailto:${LEGAL.supportEmail}`}>{LEGAL.supportEmail}</a>; we try to
         solve every issue directly.
       </p>
@@ -259,6 +300,229 @@ export function TermsOfService() {
       <p>
         We may update these terms. We will tell you in the app at least 30 days before significant changes take effect. If you do not agree, you can cancel
         before then.
+      </p>
+    </LegalLayout>
+  );
+}
+
+// ---------- German translation (the English version prevails, see the note under the title) ----------
+
+function PrivacyPolicyDe() {
+  return (
+    <LegalLayout title="Datenschutzerklärung">
+      <p>
+        Diese Erklärung beschreibt, welche personenbezogenen Daten FlipLens erhebt, zu welchem Zweck, an wen sie weitergegeben werden und welche Rechte Sie nach
+        der Datenschutz-Grundverordnung der EU (DSGVO) haben. Wir erheben so wenig Daten wie möglich, um Ihnen eine Einschätzung zum Wiederverkauf zu geben.
+      </p>
+
+      <h2>1. Verantwortlicher</h2>
+      <p>Verantwortlich für die Verarbeitung Ihrer personenbezogenen Daten ist:</p>
+      <Operator />
+
+      <h2>2. Welche Daten wir erheben und warum</h2>
+      <table className="legal-table">
+        <thead>
+          <tr><th>Daten</th><th>Zweck</th><th>Rechtsgrundlage</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Eine zufällige Gerätekennung, die von der App erzeugt und im Speicher Ihres Browsers abgelegt wird</td>
+            <td>Dieses Gerät mit Ihrem Konto angemeldet halten</td>
+            <td>Vertrag (Art. 6 Abs. 1 lit. b DSGVO)</td>
+          </tr>
+          <tr>
+            <td>Ihre Google-Kontodaten: Name, E-Mail-Adresse, Link zum Profilbild und Google-Konto-ID</td>
+            <td>Ihr Konto anlegen und Ihre Daten auf allen Ihren Geräten bereitstellen</td>
+            <td>Vertrag (Art. 6 Abs. 1 lit. b)</td>
+          </tr>
+          <tr>
+            <td>Ihre Checks und Erkennungsversuche: Marke, Modell und Variante des Produkts, Zustand, der von Ihnen eingegebene Einkaufspreis, das Bewertungsergebnis (auch wenn nicht genügend Daten vorlagen), die Art der Erkennung (Foto, Barcode, eingetippt), nicht gefundene Barcodes sowie Ihre Korrekturen</td>
+            <td>Ergebnisse und Verlauf anzeigen; die Nutzung auf die monatlichen Limits Ihres Tarifs anrechnen; die Erkennung anhand von Korrekturen verbessern</td>
+            <td>Vertrag (Art. 6 Abs. 1 lit. b); berechtigtes Interesse an der Verbesserung des Dienstes (Art. 6 Abs. 1 lit. f)</td>
+          </tr>
+          <tr>
+            <td>Fotos, die Sie aufnehmen oder hochladen</td>
+            <td>Das Produkt erkennen. Fotos werden auf Ihrem Gerät verkleinert, zur Erkennung übermittelt und von uns <strong>nicht gespeichert</strong></td>
+            <td>Vertrag (Art. 6 Abs. 1 lit. b)</td>
+          </tr>
+          <tr>
+            <td>Barcode-Nummern, die Sie scannen</td>
+            <td>Das Produkt in Marktplatz-Angeboten finden</td>
+            <td>Vertrag (Art. 6 Abs. 1 lit. b)</td>
+          </tr>
+          <tr>
+            <td>Ihre Einstellungen: Land, bevorzugter Marktplatz, übliche Versandkosten, Ziel-ROI</td>
+            <td>Den Gewinn so berechnen, wie Sie verkaufen</td>
+            <td>Vertrag (Art. 6 Abs. 1 lit. b)</td>
+          </tr>
+          <tr>
+            <td>Nutzungsereignisse in der App (zum Beispiel "Check gestartet", "Bewertung abgeschlossen", "Vergleichsangebote geöffnet", welche Bildschirme geöffnet werden) mit wenigen nicht identifizierenden Angaben wie Produktkategorie oder Ergebnis. Bei Besuchen erfassen wir außerdem die verweisende Website, utm_source, ob das Gerät ein Smartphone ist, und die Browsersprache, gezählt unter einem Einweg-Hash der zufälligen Gerätekennung (kein Cookie, keine Analysedienste Dritter)</td>
+            <td>Verstehen, welche Funktionen funktionieren, und Fehler beheben. Nur eigene Auswertung: keine Tracker oder Werbung Dritter</td>
+            <td>Berechtigtes Interesse (Art. 6 Abs. 1 lit. f)</td>
+          </tr>
+          <tr>
+            <td>Technische Aufzeichnungen: ungefähre Kosten jeder Erkennungsanfrage, Serverprotokolle einschließlich Ihrer IP-Adresse</td>
+            <td>Den Dienst betreiben, absichern und bezahlbar halten; Missbrauch verhindern</td>
+            <td>Berechtigtes Interesse (Art. 6 Abs. 1 lit. f)</td>
+          </tr>
+          <tr>
+            <td>Wenn Sie ein Abo abschließen: Ihre Stripe-Kunden-ID, Tarif, Abo-Status und Abrechnungszeitraum. Kartendaten geben Sie auf der Seite von Stripe ein; sie erreichen uns nie</td>
+            <td>Den kostenpflichtigen Tarif bereitstellen; gesetzlich vorgeschriebene Buchhaltungsunterlagen führen</td>
+            <td>Vertrag (Art. 6 Abs. 1 lit. b); rechtliche Verpflichtung (Art. 6 Abs. 1 lit. c)</td>
+          </tr>
+        </tbody>
+      </table>
+      <p>
+        Wir verkaufen Ihre Daten nicht, nutzen sie nicht für Werbung und erstellen keine Profile über Sie, die über die Anzeige Ihres eigenen Verlaufs hinausgehen.
+        Die Einschätzungen sind Informationen, die Ihnen bei der Entscheidung helfen; sie sind keine automatisierten Entscheidungen mit rechtlicher Wirkung für Sie.
+      </p>
+
+      <h2>3. An wen wir Daten weitergeben</h2>
+      <p>Wir nutzen die folgenden Dienstleister. Sie verarbeiten Daten in unserem Auftrag oder, wo angegeben, als eigenständige Anbieter für den Teil, den Sie direkt nutzen:</p>
+      <ul>
+        <li><strong>Neon</strong> (Datenbank-Hosting, Server in Frankfurt, Deutschland): speichert die oben genannten Daten.</li>
+        <li><strong>OpenAI</strong> (Produkterkennung): erhält Ihre Fotos oder, bei Barcodes, die zu dieser Nummer gefundenen Angebotstitel und liefert die Produktidentität zurück. Wir weisen OpenAI an, Anfragen nicht zum späteren Abruf zu speichern; OpenAI kann API-Daten nach seinen API-Datenrichtlinien für begrenzte Zeit zur Missbrauchsüberwachung aufbewahren.</li>
+        <li><strong>eBay</strong> (Marktdaten): erhält den Produktnamen oder die Barcode-Nummer, nach der wir suchen. Personenbezogene Daten über Sie werden nicht übermittelt.</li>
+        <li><strong>Google</strong> (Anmeldung): Wenn Sie "Mit Google fortfahren" nutzen, verarbeitet Google Ihre Anmeldung nach seiner eigenen Datenschutzerklärung und kann für das Anmeldefenster eigene Cookies setzen.</li>
+        <li><strong>Stripe</strong> (Zahlungen): verarbeitet Ihre Zahlungs- und Abrechnungsdaten nach seiner eigenen Datenschutzerklärung.</li>
+        <li><strong>Europäische Zentralbank</strong> (Wechselkurse): Wir laden öffentliche Referenzkurse herunter; personenbezogene Daten werden nicht übermittelt.</li>
+        <li><strong>DigitalOcean</strong> (Hosting der App und API, App Platform, Rechenzentrum in Frankfurt, Deutschland). Der Webverkehr läuft über dessen Content-Delivery-Netzwerk Cloudflare.</li>
+      </ul>
+      <p>
+        Links zu anderen Marktplätzen (zum Beispiel Vinted, Kleinanzeigen) öffnen nur deren Websites in Ihrem Browser; wir übermitteln ihnen nichts.
+      </p>
+
+      <h2>4. Übermittlungen außerhalb der EU</h2>
+      <p>
+        OpenAI, Google und Stripe können Daten in den Vereinigten Staaten verarbeiten. In diesem Fall erfolgt die Übermittlung auf Grundlage des EU-US Data Privacy
+        Framework oder der Standardvertragsklauseln der Europäischen Kommission.
+      </p>
+
+      <h2>5. Wie lange wir Daten speichern</h2>
+      <ul>
+        <li>Fotos: werden von uns nicht gespeichert.</li>
+        <li>Checks, Korrekturen, Einstellungen und Nutzungsereignisse: bis Sie sie oder Ihr Konto löschen.</li>
+        <li>Serverprotokolle: bis zu 30 Tage.</li>
+        <li>Zahlungs- und Rechnungsunterlagen: so lange, wie es das Steuer- und Handelsrecht verlangt.</li>
+      </ul>
+
+      <h2>6. Ihre Rechte</h2>
+      <p>
+        Sie haben das Recht auf Auskunft, Berichtigung, Löschung, Einschränkung der Verarbeitung und Datenübertragbarkeit sowie das Recht, einer Verarbeitung auf
+        Grundlage berechtigter Interessen zu widersprechen. In der App können Sie unter Profil jederzeit <strong>alle Ihre Daten exportieren</strong> und{' '}
+        <strong>alle Ihre Daten löschen</strong>; einzelne Checks können Sie ebenfalls löschen. Für alles Weitere schreiben Sie an{' '}
+        <a href={`mailto:${LEGAL.email}`}>{LEGAL.email}</a>. Sie können sich außerdem bei Ihrer Datenschutz-Aufsichtsbehörde beschweren.
+      </p>
+
+      <h2>7. Speicherung auf Ihrem Gerät</h2>
+      <p>
+        Die App speichert Ihre Gerätekennung, Ihre Einstellungen und einige Oberflächeneinstellungen im lokalen Speicher Ihres Browsers. Sie sind für das Funktionieren
+        der App erforderlich und werden nicht zum Tracking verwendet. Wir verwenden keine Werbe- oder Analyse-Cookies.
+      </p>
+
+      <h2>8. Kinder</h2>
+      <p>FlipLens ist nicht für Kinder unter 16 Jahren bestimmt.</p>
+
+      <h2>9. Änderungen</h2>
+      <p>Wenn wir den Umgang mit Daten ändern, aktualisieren wir diese Seite und ihr Gültigkeitsdatum und informieren Sie bei wesentlichen Änderungen in der App.</p>
+    </LegalLayout>
+  );
+}
+
+function TermsOfServiceDe() {
+  return (
+    <LegalLayout title="Nutzungsbedingungen">
+      <p>Diese Bedingungen gelten für Ihre Nutzung von FlipLens, der App und Website, die den Wiederverkaufswert gebrauchter Artikel schätzt. FlipLens wird angeboten von:</p>
+      <Operator />
+
+      <h2>1. Was FlipLens leistet und was nicht</h2>
+      <p>
+        FlipLens erkennt ein Produkt anhand eines Fotos, eines Barcodes oder eines Modellnamens, sucht vergleichbare Marktplatz-Angebote und berechnet einen geschätzten
+        Wiederverkaufswert, den Gewinn nach Gebühren und eine Kaufempfehlung. <strong>Dies sind Schätzungen, die nur der Information dienen.</strong> Sie beruhen auf Daten
+        Dritter, vor allem auf aktuellen eBay-Angebotspreisen, die von dem tatsächlich erzielten Verkaufspreis abweichen können. Die Produkterkennung kann fehlerhaft sein.
+        Sie entscheiden, was Sie zu welchem Preis kaufen, und sind dafür verantwortlich, den Artikel zu prüfen. FlipLens ist kein Marktplatz: Wir kaufen, verkaufen,
+        versenden oder bezahlen keine Waren.
+      </p>
+
+      <h2>2. Wer FlipLens nutzen darf</h2>
+      <p>Sie müssen mindestens 18 Jahre alt oder an Ihrem Wohnort volljährig sein. Sie können FlipLens als Verbraucher oder für Ihr Unternehmen nutzen.</p>
+
+      <h2>3. Konto</h2>
+      <p>
+        Für die Nutzung von FlipLens müssen Sie sich mit Google anmelden. Ihre Checks, Ihr Verlauf und Ihr Tarif sind mit diesem Konto verknüpft und auf allen Ihren
+        Geräten verfügbar. Schützen Sie Ihre Geräte; jeder mit Zugriff auf Ihre angemeldete App kann Ihre Checks sehen. Sie können sich jederzeit unter Profil abmelden,
+        Ihre Daten exportieren und Ihr Konto löschen.
+      </p>
+
+      <h2>4. Tarife und Zahlung</h2>
+      <ul>
+        {Object.values(PLANS).map((p) => (
+          <li key={p.id}>
+            <strong>{p.name}</strong>: {p.priceMonthlyMinor === 0 ? 'kostenlos' : `${eur(p.priceMonthlyMinor)} pro Monat`}, {p.monthlyValuations.toLocaleString('de-DE')} Checks pro Kalendermonat
+            {p.id === 'reseller' ? ' (als unbegrenzt dargestellt, vorbehaltlich dieses Fair-Use-Limits)' : ''}.
+          </li>
+        ))}
+      </ul>
+      <p>
+        Jede Bewertung zählt als Check, auch wenn nicht genügend Marktdaten vorliegen. Die Foto- und Barcode-Erkennung ist auf das Eineinhalbfache der monatlichen Checks
+        Ihres Tarifs begrenzt. Die angezeigten Preise sind Endpreise; beim Bezahlen kommen keine Gebühren oder Steuern hinzu. Kostenpflichtige Tarife werden monatlich im
+        Voraus über Stripe abgerechnet und verlängern sich automatisch bis zur Kündigung. Sie können jederzeit unter "Abo verwalten" kündigen; der Tarif bleibt dann bis
+        zum Ende des bezahlten Zeitraums aktiv und wird nicht verlängert. Nicht genutzte Checks verfallen. Wir können die Preise für künftige Abrechnungszeiträume mit
+        einer Frist von mindestens 30 Tagen ändern; Sie können vor Inkrafttreten der Änderung kündigen.
+      </p>
+
+      <h2>5. Widerrufsrecht (Verbraucher in der EU)</h2>
+      <p>
+        Wenn Sie Verbraucher in der EU sind, können Sie ein kostenpflichtiges Abo innerhalb von 14 Tagen nach Abschluss ohne Angabe von Gründen widerrufen, indem Sie an{' '}
+        <a href={`mailto:${LEGAL.supportEmail}`}>{LEGAL.supportEmail}</a> schreiben. Wenn Sie verlangt haben, dass wir mit der Leistung während dieser Frist beginnen,
+        zahlen Sie nur für den bereits erbrachten Teil des Zeitraums; der Rest wird erstattet.
+      </p>
+
+      <h2>6. Faire Nutzung</h2>
+      <p>
+        Missbrauchen Sie FlipLens nicht: keine automatisierten oder massenhaften Anfragen, keine Versuche, Daten zu kopieren oder weiterzuverkaufen, kein Reverse
+        Engineering, keine Eingriffe in die Sicherheit und keine Nutzung für illegale Waren. Wir können Konten, die gegen diese Regeln verstoßen, einschränken oder
+        sperren, soweit zumutbar nach vorheriger Warnung.
+      </p>
+
+      <h2>7. Dienste Dritter</h2>
+      <p>
+        FlipLens nutzt Daten und Dienste Dritter wie eBay, OpenAI, Google und Stripe. FlipLens ist weder mit eBay noch mit einem der verlinkten Marktplätze verbunden,
+        wird von ihnen nicht unterstützt und nicht gesponsert. Links zu anderen Marktplätzen öffnen deren Websites, für die eigene Bedingungen gelten.
+      </p>
+
+      <h2>8. Verfügbarkeit und Änderungen</h2>
+      <p>
+        Wir bemühen uns, FlipLens verfügbar und genau zu halten, können aber keinen unterbrechungsfreien Betrieb und nicht die Richtigkeit jeder Schätzung garantieren.
+        Wir können Funktionen verbessern oder ändern. Entfällt durch eine Änderung ein wesentlicher Bestandteil eines kostenpflichtigen Tarifs, können Sie kündigen und
+        erhalten eine Erstattung für den nicht genutzten Teil des Zeitraums.
+      </p>
+
+      <h2>9. Haftung</h2>
+      <p>
+        Wir haften unbeschränkt bei Vorsatz und grober Fahrlässigkeit, bei Verletzung von Leben, Körper oder Gesundheit sowie soweit zwingendes Recht, einschließlich des
+        Verbraucherrechts, dies vorsieht. Im Übrigen haften wir für leichte Fahrlässigkeit nur bei Verletzung einer wesentlichen Vertragspflicht und dann nur für den
+        typischen, vorhersehbaren Schaden. Wir haften nicht für Kauf- oder Verkaufsentscheidungen, die Sie auf Grundlage einer Schätzung treffen, oder für Verluste aus
+        ungenauen Daten Dritter, außer wie oben angegeben.
+      </p>
+
+      <h2>10. Beendigung</h2>
+      <p>
+        Sie können die Nutzung von FlipLens jederzeit beenden und Ihre Daten löschen. Wir können den Dienst für Sie mit einer Frist von 30 Tagen beenden oder bei einem
+        schweren Verstoß gegen diese Bedingungen fristlos. Bereits bezahlte Zeiträume werden anteilig erstattet, wenn wir den Dienst ohne wichtigen Grund beenden.
+      </p>
+
+      <h2>11. Anwendbares Recht und Streitigkeiten</h2>
+      <p>
+        Für diese Bedingungen gilt das Recht von {country}. Als Verbraucher behalten Sie zusätzlich den Schutz der zwingenden Vorschriften des Landes, in dem Sie wohnen,
+        und können Ansprüche vor den Gerichten an Ihrem Wohnort geltend machen. Bitte wenden Sie sich zuerst an{' '}
+        <a href={`mailto:${LEGAL.supportEmail}`}>{LEGAL.supportEmail}</a>; wir versuchen, jedes Anliegen direkt zu lösen.
+      </p>
+
+      <h2>12. Änderungen dieser Bedingungen</h2>
+      <p>
+        Wir können diese Bedingungen aktualisieren. Über wesentliche Änderungen informieren wir Sie in der App mindestens 30 Tage vor ihrem Inkrafttreten. Wenn Sie nicht
+        einverstanden sind, können Sie vorher kündigen.
       </p>
     </LegalLayout>
   );

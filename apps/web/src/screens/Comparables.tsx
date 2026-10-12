@@ -1,7 +1,37 @@
 import { useMemo, useState } from 'react';
 import type { ComparableJson } from '../api.js';
 import { ago, CONDITION_LABEL, fmt, REASON_LABEL } from '../format.js';
+import { tr } from '../i18n.js';
 import { track } from '../track.js';
+
+const T = tr({
+  en: {
+    show: (n: number) => `Show ${n} comparable listings`,
+    ebay: 'eBay listings',
+    comparables: 'Comparables',
+    used: (n: number) => `${n} used for the estimate, cheapest first`,
+    inYourCondition: (p: string) => `≈ ${p} in your condition`,
+    condNa: 'condition n/a',
+    listed: (age: string) => `listed ${age}`,
+    match: (pct: number) => `match ${pct}%`,
+    less: 'Show less',
+    all: (n: number) => `Show all ${n}`,
+    filtered: (n: number) => `Filtered out ${n}`,
+  },
+  de: {
+    show: (n: number) => `${n} Vergleichsangebote anzeigen`,
+    ebay: 'eBay-Angebote',
+    comparables: 'Vergleichsangebote',
+    used: (n: number) => `${n} für die Schätzung genutzt, günstigste zuerst`,
+    inYourCondition: (p: string) => `≈ ${p} in deinem Zustand`,
+    condNa: 'Zustand unbekannt',
+    listed: (age: string) => `eingestellt ${age}`,
+    match: (pct: number) => `Übereinstimmung ${pct} %`,
+    less: 'Weniger anzeigen',
+    all: (n: number) => `Alle ${n} anzeigen`,
+    filtered: (n: number) => `${n} aussortiert`,
+  },
+});
 
 /** "Why do we think it is worth €105": the listings the estimate is built from, and what was filtered out. */
 export function Comparables({ items, defaultOpen = false }: { items: ComparableJson[]; defaultOpen?: boolean }) {
@@ -32,7 +62,7 @@ export function Comparables({ items, defaultOpen = false }: { items: ComparableJ
           track('comparables_opened', { count: included.length });
         }}
       >
-        Show {included.length} comparable listings
+        {T.show(included.length)}
       </button>
     );
   }
@@ -40,8 +70,8 @@ export function Comparables({ items, defaultOpen = false }: { items: ComparableJ
   return (
     <section className="section">
       <div className="section-head">
-        <h2>{defaultOpen ? 'eBay listings' : 'Comparables'}</h2>
-        <span className="muted small">{included.length} used for the estimate, cheapest first</span>
+        <h2>{defaultOpen ? T.ebay : T.comparables}</h2>
+        <span className="muted small">{T.used(included.length)}</span>
       </div>
       <ul className="list-card comps">
         {shown.map((c) => (
@@ -55,14 +85,14 @@ export function Comparables({ items, defaultOpen = false }: { items: ComparableJ
             <div className="comp-price">
               <strong>{c.priceTarget ? fmt(c.priceTarget) : '?'}</strong>
               {c.adjustedPrice && c.priceTarget && c.adjustedPrice.amountMinor !== c.priceTarget.amountMinor && (
-                <span className="muted small">≈ {fmt(c.adjustedPrice)} in your condition</span>
+                <span className="muted small">{T.inYourCondition(fmt(c.adjustedPrice))}</span>
               )}
             </div>
             <div className="comp-title">
               {c.item.url ? <a href={c.item.url} target="_blank" rel="noreferrer">{c.item.title}</a> : c.item.title}
             </div>
             <div className="muted small">
-              {c.item.country ?? c.item.marketplaceSite} · {c.item.condition ? CONDITION_LABEL[c.item.condition] : 'condition n/a'} · listed {ago(c.item.listedAt ?? null)} · match {Math.round(c.similarity * 100)}%
+              {c.item.country ?? c.item.marketplaceSite} · {c.item.condition ? CONDITION_LABEL[c.item.condition] : T.condNa} · {T.listed(ago(c.item.listedAt ?? null))} · {T.match(Math.round(c.similarity * 100))}
             </div>
             </div>
           </li>
@@ -77,12 +107,12 @@ export function Comparables({ items, defaultOpen = false }: { items: ComparableJ
             setShowAll((s) => !s);
           }}
         >
-          {showAll ? 'Show less' : `Show all ${included.length}`}
+          {showAll ? T.less : T.all(included.length)}
         </button>
       )}
       {excluded.length > 0 && (
         <details className="adv">
-          <summary>Filtered out {excluded.length}: {byReason.slice(0, 4).map(([k, n]) => `${REASON_LABEL[k] ?? k} ${n}`).join(', ')}{byReason.length > 4 ? ', …' : ''}</summary>
+          <summary>{T.filtered(excluded.length)}: {byReason.slice(0, 4).map(([k, n]) => `${REASON_LABEL[k] ?? k} ${n}`).join(', ')}{byReason.length > 4 ? ', …' : ''}</summary>
           <ul className="list-card comps excluded">
             {excluded.slice(0, 80).map((c) => (
               <li key={`${c.item.source}:${c.item.externalId}`} className="comp">
