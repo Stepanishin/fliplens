@@ -5,7 +5,7 @@ import { InstallApp } from '../ui/InstallApp.js';
 import { IconChevron } from '../ui/icons.js';
 import { LINK_COUNTRIES } from '../marketSearch.js';
 import type { Settings } from '../storage.js';
-import { LANG, LOCALE, setLang, tr, type Lang, presetText, currencySymbol } from '../i18n.js';
+import { LANG, LANG_NAMES, LANGS, LOCALE, setLang, tr, presetText, currencySymbol } from '../i18n.js';
 
 const T = tr({
   en: {
@@ -20,6 +20,7 @@ const T = tr({
     terms: 'Terms',
     and: ' and ',
     privacy: 'Privacy Policy',
+    agreeEnd: '',
     signInOff: 'Sign-in is not configured on the server.',
     plan: 'Plan',
     used: (u: number, l: number) => `${u} of ${l} checks used this month.`,
@@ -55,6 +56,7 @@ const T = tr({
     terms: 'Nutzungsbedingungen',
     and: ' und der ',
     privacy: 'Datenschutzerklärung',
+    agreeEnd: ' zu',
     signInOff: 'Die Anmeldung ist auf dem Server nicht eingerichtet.',
     plan: 'Tarif',
     used: (u: number, l: number) => `${u} von ${l} Checks diesen Monat genutzt.`,
@@ -78,9 +80,79 @@ const T = tr({
     about: 'Über FlipLens',
     termsFull: 'Nutzungsbedingungen',
   },
+  it: {
+    inviteTitle: 'Invita amici, guadagna il 20 %',
+    inviteSub: 'Ricevi il 20 % di quello che pagano per 6 mesi',
+    profile: 'Profilo',
+    deleteConfirm: 'Eliminare tutte le tue scansioni e i tuoi dati dal server? Non si può annullare.',
+    signOut: 'Esci',
+    signIn: 'Accedi',
+    signInLead: 'Conserva scansioni e impostazioni su tutti i tuoi dispositivi. Le scansioni attuali passano nel tuo account.',
+    agreeA: 'Continuando accetti i ',
+    terms: 'Termini di utilizzo',
+    and: " e l'",
+    privacy: 'Informativa sulla privacy',
+    agreeEnd: '',
+    signInOff: "L'accesso non è configurato sul server.",
+    plan: 'Piano',
+    used: (u: number, l: number) => `${u} di ${l} controlli usati questo mese.`,
+    seePlans: 'Vedi i piani',
+    managePlan: 'Gestisci piano',
+    language: 'Lingua',
+    selling: 'Vendita',
+    country: 'Il tuo paese',
+    countryHint: 'Decide a quali marketplace rimandiamo.',
+    marketplace: 'Marketplace predefinito',
+    checked: (d: string) => ` Verificato il ${d}`,
+    secondary: ' (fonte secondaria)',
+    shipping: 'Spedizione tipica',
+    roi: 'ROI obiettivo',
+    savedAccount: 'Salvato nel tuo account su questo dispositivo.',
+    savedDevice: 'Salvato solo su questo dispositivo.',
+    data: 'I tuoi dati',
+    dataLead: 'Le foto non vengono mai salvate. Le scansioni restano finché non le elimini.',
+    exportBtn: 'Esporta',
+    deleteAll: 'Elimina tutto',
+    about: 'Info su FlipLens',
+    termsFull: 'Termini di servizio',
+  },
+  fr: {
+    inviteTitle: 'Invite tes amis, gagne 20 %',
+    inviteSub: 'Reçois 20 % de ce qu’ils paient pendant 6 mois',
+    profile: 'Profil',
+    deleteConfirm: 'Supprimer tous tes scans et tes données sur le serveur ? Impossible de revenir en arrière.',
+    signOut: 'Se déconnecter',
+    signIn: 'Se connecter',
+    signInLead: 'Garde tes scans et réglages sur tous tes appareils. Tes scans actuels sont transférés dans ton compte.',
+    agreeA: 'En continuant, tu acceptes les ',
+    terms: "Conditions d'utilisation",
+    and: ' et la ',
+    privacy: 'Politique de confidentialité',
+    agreeEnd: '',
+    signInOff: "La connexion n'est pas configurée sur le serveur.",
+    plan: 'Offre',
+    used: (u: number, l: number) => `${u} vérifications sur ${l} utilisées ce mois-ci.`,
+    seePlans: 'Voir les offres',
+    managePlan: "Gérer l'offre",
+    language: 'Langue',
+    selling: 'Vente',
+    country: 'Ton pays',
+    countryHint: 'Détermine vers quelles plateformes nous renvoyons.',
+    marketplace: 'Plateforme par défaut',
+    checked: (d: string) => ` Vérifié le ${d}`,
+    secondary: ' (source secondaire)',
+    shipping: 'Frais de port habituels',
+    roi: 'ROI visé',
+    savedAccount: 'Enregistré dans ton compte sur cet appareil.',
+    savedDevice: 'Enregistré uniquement sur cet appareil.',
+    data: 'Tes données',
+    dataLead: "Les photos ne sont jamais stockées. Les scans sont conservés jusqu'à ce que tu les supprimes.",
+    exportBtn: 'Exporter',
+    deleteAll: 'Tout supprimer',
+    about: 'À propos de FlipLens',
+    termsFull: "Conditions d'utilisation",
+  },
 });
-
-const LANGS: readonly [Lang, string][] = [['en', 'English'], ['de', 'Deutsch']];
 
 interface Props {
   billing: BillingInfo | null;
@@ -180,7 +252,7 @@ export function Profile({ billing, onOpenPlans, account, googleClientId, onGoogl
             <>
               <h2>{T.signIn}</h2>
               <p className="muted small">{T.signInLead}</p>
-              <p className="muted small">{T.agreeA}<a href="/terms">{T.terms}</a>{T.and}<a href="/privacy">{T.privacy}</a>{LANG === 'de' ? ' zu' : ''}.</p>
+              <p className="muted small">{T.agreeA}<a href="/terms">{T.terms}</a>{T.and}<a href="/privacy">{T.privacy}</a>{T.agreeEnd}.</p>
               {googleClientId ? <GoogleButton clientId={googleClientId} onCredential={onGoogleCredential} /> : <p className="muted small">{T.signInOff}</p>}
             </>
           )}
@@ -204,9 +276,9 @@ export function Profile({ billing, onOpenPlans, account, googleClientId, onGoogl
       <section className="card">
         <h2>{T.language}</h2>
         <div className="seg" role="radiogroup" aria-label={T.language}>
-          {LANGS.map(([id, name]) => (
+          {LANGS.map((id) => (
             <button key={id} type="button" role="radio" aria-checked={LANG === id} className={LANG === id ? 'on' : ''} onClick={() => id !== LANG && setLang(id)} lang={id}>
-              {name}
+              {LANG_NAMES[id]}
             </button>
           ))}
         </div>
@@ -219,11 +291,9 @@ export function Profile({ billing, onOpenPlans, account, googleClientId, onGoogl
           <select
             value={settings.country}
             onChange={(e) => {
-              // Moving between the UK and the EU suggests that side's eBay; any preset can still be picked after.
+              // A new country suggests its own eBay (eBay.it for Italy, eBay.co.uk for the UK...); any preset can be picked after.
               const country = e.target.value;
-              const wasUk = settings.country === 'GB';
-              const switchSide = (country === 'GB') !== wasUk && settings.preset.startsWith('ebay_');
-              onChange({ ...settings, country, preset: switchSide ? presetsForCountry(country)[0]! : settings.preset });
+              onChange({ ...settings, country, preset: settings.preset.startsWith('ebay_') ? presetsForCountry(country)[0]! : settings.preset });
             }}
           >
             {LINK_COUNTRIES.map((c) => <option key={c} value={c}>{countryName(c)}</option>)}

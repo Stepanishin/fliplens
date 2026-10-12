@@ -5,6 +5,8 @@ import { ShelfDemo } from '../ui/ShelfDemo.js';
 const T = tr({
   en: { title: 'One photo. Every deal on the table.', sub: 'Real eBay prices · max price to pay', cta: 'Try free at fliplens.eu' },
   de: { title: 'Ein Foto. Jeder Deal auf dem Tisch.', sub: 'Echte eBay-Preise · Höchstpreis sofort', cta: 'Kostenlos testen: fliplens.eu' },
+  it: { title: 'Una foto. Ogni affare sul tavolo.', sub: 'Prezzi eBay reali · prezzo massimo subito', cta: 'Provalo gratis: fliplens.eu' },
+  fr: { title: 'Une photo. Chaque affaire sur la table.', sub: 'Vrais prix eBay · prix maximum immédiat', cta: 'Essaie gratuitement : fliplens.eu' },
 });
 
 export function DemoVideo() {

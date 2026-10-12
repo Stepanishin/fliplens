@@ -22,6 +22,24 @@ const T = tr({
     copy: 'Link kopieren',
     copied: 'Link kopiert. Füg ihn in deinem Browser ein.',
   },
+  it: {
+    title: 'Apri FlipLens nel tuo browser',
+    text: (app: string | null) => `L'accesso con Google non funziona dentro ${app ?? 'questa app'}. Apri questa pagina nel tuo browser per accedere:`,
+    ios: 'Tocca ⋯ o l\'icona di condivisione (in alto o in basso a destra), poi "Apri nel browser" o "Apri in Safari".',
+    android: 'Tocca ⋮ (in alto a destra), poi "Apri nel browser" o "Apri in Chrome".',
+    chrome: 'Apri in Chrome',
+    copy: 'Copia link',
+    copied: 'Link copiato. Incollalo nel tuo browser.',
+  },
+  fr: {
+    title: 'Ouvre FlipLens dans ton navigateur',
+    text: (app: string | null) => `La connexion avec Google ne fonctionne pas dans ${app ?? 'cette app'}. Ouvre cette page dans ton navigateur pour te connecter :`,
+    ios: 'Touche ⋯ ou l\'icône de partage (en haut ou en bas à droite), puis « Ouvrir dans le navigateur » ou « Ouvrir dans Safari ».',
+    android: 'Touche ⋮ (en haut à droite), puis « Ouvrir dans le navigateur » ou « Ouvrir dans Chrome ».',
+    chrome: 'Ouvrir dans Chrome',
+    copy: 'Copier le lien',
+    copied: 'Lien copié. Colle-le dans ton navigateur.',
+  },
 });
 
 /** Shown instead of the Google button inside TikTok, Instagram and other in-app browsers. */

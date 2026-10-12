@@ -4,6 +4,9 @@ Allow: /
 Disallow: /api/
 Disallow: /admin
 Disallow: /prerender-de.html
+Disallow: /prerender-it.html
+Disallow: /prerender-fr.html
+Disallow: /home-meta.json
 
 User-agent: GPTBot
 Allow: /

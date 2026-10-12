@@ -37,11 +37,33 @@ const T = tr({
     write: 'Anzeige schreiben',
     plans: 'Tarife ansehen',
   },
+  it: {
+    failed: 'Impossibile scrivere l’annuncio',
+    title: 'Scrivi annuncio',
+    marketplace: 'Marketplace',
+    language: 'Lingua',
+    notes: 'Note (facoltative)',
+    notesPh: 'scatola, caricatore, piccolo graffio',
+    writing: 'Scrivo…',
+    write: 'Scrivi annuncio',
+    plans: 'Vedi i piani',
+  },
+  fr: {
+    failed: 'Impossible de rédiger l’annonce',
+    title: 'Rédiger l’annonce',
+    marketplace: 'Plateforme',
+    language: 'Langue',
+    notes: 'Notes (facultatif)',
+    notesPh: 'boîte, chargeur, petite rayure',
+    writing: 'Rédaction…',
+    write: 'Rédiger l’annonce',
+    plans: 'Voir les offres',
+  },
 });
 
 /** Default language of the listing: the country's language, else the UI language. */
 export function defaultListingLanguage(country: string): string {
-  return LANG_BY_COUNTRY[country] ?? (LANG === 'de' ? 'de' : 'en');
+  return LANG_BY_COUNTRY[country] ?? (LANGUAGES.some(([code]) => code === LANG) ? LANG : 'en');
 }
 
 interface Listing {

@@ -32,6 +32,30 @@ const T = tr({
     sellsFor: 'Verkauft für',
     paid: (m: string) => `wenn du ${m} zahlst`,
   },
+  it: {
+    finding: 'Cerco gli articoli…',
+    checking: 'Controllo eBay in 5 paesi…',
+    found: '4 articoli trovati',
+    payAtMost: (m: string) => `Paga al massimo ${m}`,
+    sells: (m: string) => `si vende a ca. ${m}`,
+    verdict: 'Compra',
+    worth: (m: string) => `Conviene fino a ${m}`,
+    profit: 'Profitto',
+    sellsFor: 'Si vende a',
+    paid: (m: string) => `se paghi ${m}`,
+  },
+  fr: {
+    finding: 'Recherche des articles…',
+    checking: 'Vérification sur eBay dans 5 pays…',
+    found: '4 articles trouvés',
+    payAtMost: (m: string) => `Paie au maximum ${m}`,
+    sells: (m: string) => `se vend env. ${m}`,
+    verdict: 'Acheter',
+    worth: (m: string) => `Rentable jusqu'à ${m}`,
+    profit: 'Bénéfice',
+    sellsFor: 'Se vend',
+    paid: (m: string) => `si tu paies ${m}`,
+  },
 });
 
 /** Boxes in the 360x270 scene, best first. */

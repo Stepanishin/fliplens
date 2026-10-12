@@ -137,3 +137,8 @@ Status: accepted 2026-10-12.
 ## ADR-023: Admin allowance
 Status: accepted 2026-10-12.
 - Accounts in ADMIN_EMAILS (signed in with Google) get at least 100 checks a month without a subscription (`ADMIN_MONTHLY_CHECKS`), and Pro limits for listings, AI budget and radar frames (`limitsPlan`). The plan itself stays Free: no Stripe subscription, nothing changes in billing. Paid plans keep their own, higher limits.
+
+## ADR-024: Italian and French
+Status: accepted 2026-10-12.
+- Four UI languages: English, German, Italian, French. Same rules as ADR-017: /de, /it, /fr start pages force their language, otherwise the stored choice, otherwise the browser language; `tr()` requires all four, so TypeScript catches missing strings. Static pages under /it and /fr come from language packs (apps/web/scripts/site-it.ts, site-fr.ts, contract in site-common.ts); start-page meta and crawler text per language are generated (home-meta.json, prerender-<lang>.html) and served by the API. Legal texts in IT and FR are courtesy translations; the English version prevails. Stripe checkout and portal get the it/fr locale.
+- New fee presets eBay.it and eBay.fr for private sellers: no selling fees for EEA private sellers since 2026-09-01 (official eBay pages, checked 2026-10-12); the buyer pays a protection fee. Market data stays the five EU eBay sites in euro. Italy defaults to eBay.it, France and Belgium to eBay.fr; every preset can be picked from any country.

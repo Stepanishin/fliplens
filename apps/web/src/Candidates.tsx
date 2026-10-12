@@ -15,6 +15,18 @@ const T = tr({
     mount: (m: string) => `${m}-Anschluss`,
     guess: (c: string, notes: string | null) => `Geschätzter Zustand: ${c}${notes ? ` (${notes})` : ''}. Bitte unten bestätigen.`,
   },
+  it: {
+    isThis: 'È questo?',
+    detected: 'Rilevato:',
+    mount: (m: string) => `attacco ${m}`,
+    guess: (c: string, notes: string | null) => `Condizione stimata: ${c}${notes ? ` (${notes})` : ''}. Confermala qui sotto.`,
+  },
+  fr: {
+    isThis: 'Est-ce :',
+    detected: 'Détecté :',
+    mount: (m: string) => `monture ${m}`,
+    guess: (c: string, notes: string | null) => `État estimé : ${c}${notes ? ` (${notes})` : ''}. Confirme ci-dessous.`,
+  },
 });
 
 interface Props {

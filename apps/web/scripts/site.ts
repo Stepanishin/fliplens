@@ -11,14 +11,14 @@ import { fileURLToPath } from 'node:url';
 import { PLANS, REFERRAL } from '@fliplens/core';
 import { LEGAL } from '../src/legal.js';
 import { PLAN_FEATURES_BY_LANG } from '../src/i18n.js';
+import { EXAMPLE_PEOPLE, INVITE_BONUS_CHECKS, LANG_NAMES, LANGS, SITE, UPDATED, esc, exampleMinor, href, type Faq, type Lang, type LangPack, type Page, type UiStrings } from './site-common.js';
+import { IT } from './site-it.js';
+import { FR } from './site-fr.js';
 
-const SITE = 'https://fliplens.eu';
-const UPDATED = '2026-10-12';
 const here = dirname(fileURLToPath(import.meta.url));
 const PUBLIC = resolve(here, '../public');
 const INDEX = resolve(here, '../index.html');
 
-const esc = (s: string): string => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 const eur = (minor: number): string => `€${(minor / 100).toFixed(2).replace(/\.00$/, '')}`;
 const strip = (html: string): string =>
   html
@@ -34,22 +34,6 @@ const strip = (html: string): string =>
     .replace(/\n{3,}/g, '\n\n')
     .trim();
 
-interface Faq { q: string; a: string }
-interface Section { h2: string; html: string }
-interface Page {
-  path: string;
-  title: string;
-  description: string;
-  h1: string;
-  lead: string;
-  sections: Section[];
-  faq?: Faq[];
-  kind: 'page' | 'article';
-  crumb: string;
-  /** Call to action at the end; defaults to the price-check CTA. */
-  cta?: string;
-  parent?: { path: string; name: string };
-}
 
 const plans = Object.values(PLANS);
 const paid = plans.filter((p) => p.priceMonthlyMinor > 0);
@@ -613,7 +597,7 @@ const PAGES: Page[] = [
       },
       {
         h2: 'Languages',
-        html: '<p>FlipLens is available in English and German. The app follows your browser language; German pages are under <a href="/de" hreflang="de" lang="de">fliplens.eu/de</a>. See also the <a href="/privacy">Privacy Policy</a> and <a href="/terms">Terms</a>.</p>',
+        html: '<p>FlipLens is available in English, German, Italian and French. The app follows your browser language; German pages are under <a href="/de" hreflang="de" lang="de">fliplens.eu/de</a>, Italian under <a href="/it" hreflang="it" lang="it">fliplens.eu/it</a> and French under <a href="/fr" hreflang="fr" lang="fr">fliplens.eu/fr</a>. See also the <a href="/privacy">Privacy Policy</a> and <a href="/terms">Terms</a>.</p>',
       },
     ],
   },
@@ -640,10 +624,6 @@ PAGES.push({
 
 // ---------- partner programme (referrals) ----------
 
-/** Example earnings: 50 invited people on Pro. */
-const EXAMPLE_PEOPLE = 50;
-const exampleMinor = Math.round((EXAMPLE_PEOPLE * PLANS.pro.priceMonthlyMinor * REFERRAL.sharePct) / 100);
-const INVITE_BONUS_CHECKS = REFERRAL.inviteeBonusChecks;
 
 PAGES.push({
   path: '/partner',
@@ -692,10 +672,6 @@ PAGES.push({
   ],
 });
 
-type Lang = 'en' | 'de';
-
-/** Public URL of a page in a language: English at the root, German under /de. */
-const href = (lang: Lang, path: string): string => (lang === 'de' ? (path === '/' ? '/de' : `/de${path}`) : path);
 /** German money: "9,99 €". */
 const deEur = (minor: number): string => `${(minor / 100).toFixed(2).replace('.', ',').replace(/,00$/, '')} €`;
 const deNum = (n: number): string => n.toLocaleString('de-DE');
@@ -1261,7 +1237,7 @@ const PAGES_DE: Page[] = [
       },
       {
         h2: 'Sprachen',
-        html: '<p>FlipLens gibt es auf Englisch und Deutsch. Die App folgt der Sprache deines Browsers; die englischen Seiten findest du unter <a href="/" hreflang="en" lang="en">fliplens.eu</a>. Siehe auch <a href="/privacy">Datenschutz</a> und <a href="/terms">Nutzungsbedingungen</a>.</p>',
+        html: '<p>FlipLens gibt es auf Englisch, Deutsch, Italienisch und Französisch. Die App folgt der Sprache deines Browsers; die englischen Seiten findest du unter <a href="/" hreflang="en" lang="en">fliplens.eu</a>, die italienischen unter <a href="/it" hreflang="it" lang="it">fliplens.eu/it</a> und die französischen unter <a href="/fr" hreflang="fr" lang="fr">fliplens.eu/fr</a>. Siehe auch <a href="/privacy">Datenschutz</a> und <a href="/terms">Nutzungsbedingungen</a>.</p>',
       },
     ],
   },
@@ -1333,9 +1309,9 @@ PAGES_DE.push({
   ],
 });
 
-const UI = {
+const UI: Record<'en' | 'de', UiStrings> = {
   en: {
-    nav: [['/how-it-works', 'How it works'], ['/pricing', 'Pricing'], ['/guides', 'Guides'], ['/faq', 'FAQ']] as const,
+    nav: [['/how-it-works', 'How it works'], ['/pricing', 'Pricing'], ['/guides', 'Guides'], ['/faq', 'FAQ']],
     tryFree: 'Try free',
     privacy: 'Privacy',
     terms: 'Terms',
@@ -1346,13 +1322,11 @@ const UI = {
     questions: 'Questions',
     answers: 'Answers',
     updated: (d: string) => `Updated ${d} · by FlipLens`,
-    other: 'Deutsch',
-    otherLang: 'de' as Lang,
     locale: 'en_GB',
     cta: CTA,
   },
   de: {
-    nav: [['/how-it-works', "So funktioniert's"], ['/pricing', 'Preise'], ['/guides', 'Ratgeber'], ['/faq', 'FAQ']] as const,
+    nav: [['/how-it-works', "So funktioniert's"], ['/pricing', 'Preise'], ['/guides', 'Ratgeber'], ['/faq', 'FAQ']],
     tryFree: 'Gratis testen',
     privacy: 'Datenschutz',
     terms: 'Nutzungsbedingungen',
@@ -1363,22 +1337,24 @@ const UI = {
     questions: 'Fragen',
     answers: 'Antworten',
     updated: (d: string) => `Aktualisiert am ${d.split('-').reverse().join('.')} · von FlipLens`,
-    other: 'English',
-    otherLang: 'en' as Lang,
     locale: 'de_DE',
     cta: CTA_DE,
   },
-} as const;
+};
+
+/** Links to the same page in the other languages. */
+const otherLangs = (lang: Lang, path: string): string =>
+  LANGS.filter((l) => l !== lang).map((l) => `<a href="${href(l, path)}" hreflang="${l}" lang="${l}">${LANG_NAMES[l]}</a>`).join(' ');
 
 function nav(lang: Lang, path: string): string {
-  const u = UI[lang];
-  return `<header class="top"><a class="brand" href="${href(lang, '/')}"><img src="/icons/icon.svg" alt="" width="28" height="28"> FlipLens</a><nav>${u.nav.map(([p, n]) => `<a href="${href(lang, p)}">${n}</a>`).join('')}<a href="${href(u.otherLang, path)}" hreflang="${u.otherLang}" lang="${u.otherLang}">${u.other}</a><a class="btn small" href="${href(lang, '/')}">${u.tryFree}</a></nav></header>`;
+  const u = PACKS[lang].ui;
+  return `<header class="top"><a class="brand" href="${href(lang, '/')}"><img src="/icons/icon.svg" alt="" width="28" height="28"> FlipLens</a><nav>${u.nav.map(([p, n]) => `<a href="${href(lang, p)}">${n}</a>`).join('')}<span class="langs">${otherLangs(lang, path)}</span><a class="btn small" href="${href(lang, '/')}">${u.tryFree}</a></nav></header>`;
 }
 
 function footer(lang: Lang, path: string): string {
-  const u = UI[lang];
+  const u = PACKS[lang].ui;
   const links = [...u.nav.map(([p, n]) => `<a href="${href(lang, p)}">${n}</a>`), `<a href="${href(lang, '/partner')}">${u.partner}</a>`, `<a href="${href(lang, '/best-resale-value-apps')}">${u.compare}</a>`, `<a href="${href(lang, '/about')}">${u.about}</a>`, `<a href="/privacy">${u.privacy}</a>`, `<a href="/terms">${u.terms}</a>`, `<a href="mailto:${LEGAL.supportEmail}">${LEGAL.supportEmail}</a>`];
-  const switcher = lang === 'en' ? `English | <a href="${href('de', path)}" hreflang="de" lang="de">Deutsch</a>` : `<a href="${href('en', path)}" hreflang="en" lang="en">English</a> | Deutsch`;
+  const switcher = LANGS.map((l) => (l === lang ? LANG_NAMES[l] : `<a href="${href(l, path)}" hreflang="${l}" lang="${l}">${LANG_NAMES[l]}</a>`)).join(' | ');
   return `<footer><p>${links.join(' · ')}</p><p>${switcher}</p><p>© ${new Date().getFullYear()} ${esc(LEGAL.operator)}. ${u.disclaimer}</p></footer>`;
 }
 
@@ -1388,11 +1364,10 @@ function faqLd(faq: Faq[], lang: Lang) {
   return { '@type': 'FAQPage', inLanguage: lang, mainEntity: faq.map((f) => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.a } })) };
 }
 
-/** hreflang alternates: every page exists in English (also the default) and German. */
+/** hreflang alternates: every page exists in all languages, English is the default. */
 function alternates(path: string): string[] {
   return [
-    `<link rel="alternate" hreflang="en" href="${SITE}${href('en', path)}">`,
-    `<link rel="alternate" hreflang="de" href="${SITE}${href('de', path)}">`,
+    ...LANGS.map((l) => `<link rel="alternate" hreflang="${l}" href="${SITE}${href(l, path)}">`),
     `<link rel="alternate" hreflang="x-default" href="${SITE}${href('en', path)}">`,
   ];
 }
@@ -1412,7 +1387,7 @@ function head(o: { title: string; description: string; path: string; lang: Lang;
     `<meta property="og:image" content="${SITE}/og.png">`,
     `<meta property="og:image:width" content="1200">`,
     `<meta property="og:image:height" content="630">`,
-    `<meta property="og:locale" content="${UI[o.lang].locale}">`,
+    `<meta property="og:locale" content="${PACKS[o.lang].ui.locale}">`,
     `<meta name="twitter:card" content="summary_large_image">`,
     `<meta name="twitter:title" content="${esc(o.title)}">`,
     `<meta name="twitter:description" content="${esc(o.description)}">`,
@@ -1422,7 +1397,7 @@ function head(o: { title: string; description: string; path: string; lang: Lang;
 }
 
 function renderPage(p: Page, lang: Lang): string {
-  const u = UI[lang];
+  const u = PACKS[lang].ui;
   const crumbs = [{ path: '/', name: 'FlipLens' }, ...(p.parent ? [p.parent] : []), { path: p.path, name: p.crumb }];
   const url = `${SITE}${href(lang, p.path)}`;
   const ld: unknown[] = [
@@ -1481,7 +1456,7 @@ function homeHead(): string {
     type: 'website',
     ld: [
       ORG,
-      { '@type': 'WebSite', '@id': `${SITE}/#website`, name: 'FlipLens', url: SITE, publisher: { '@id': `${SITE}/#org` }, inLanguage: ['en', 'de'] },
+      { '@type': 'WebSite', '@id': `${SITE}/#website`, name: 'FlipLens', url: SITE, publisher: { '@id': `${SITE}/#org` }, inLanguage: [...LANGS] },
       {
         '@type': 'WebApplication',
         name: 'FlipLens',
@@ -1489,7 +1464,7 @@ function homeHead(): string {
         applicationCategory: 'BusinessApplication',
         operatingSystem: 'Web, iOS, Android',
         description: HOME_DESC,
-        inLanguage: ['en', 'de'],
+        inLanguage: [...LANGS],
         publisher: { '@id': `${SITE}/#org` },
         offers: plans.map((p) => ({ '@type': 'Offer', name: p.name, price: (p.priceMonthlyMinor / 100).toFixed(2), priceCurrency: 'EUR', description: p.features.join('; '), url: `${SITE}/pricing` })),
       },
@@ -1501,7 +1476,7 @@ function homeHead(): string {
 /** Text of the start page for crawlers without JavaScript. React replaces it on load; keep in step with screens/Landing.tsx. */
 function homePrerender(): string {
   return `<div class="prerender">
-      <header><strong>FlipLens</strong> · <a href="/how-it-works">How it works</a> · <a href="/pricing">Pricing</a> · <a href="/guides">Guides</a> · <a href="/faq">FAQ</a> · <a href="/de" hreflang="de" lang="de">Deutsch</a></header>
+      <header><strong>FlipLens</strong> · <a href="/how-it-works">How it works</a> · <a href="/pricing">Pricing</a> · <a href="/guides">Guides</a> · <a href="/faq">FAQ</a> · <a href="/de" hreflang="de" lang="de">Deutsch</a> · <a href="/it" hreflang="it" lang="it">Italiano</a> · <a href="/fr" hreflang="fr" lang="fr">Français</a></header>
       <h1>Know what it's worth before you buy it.</h1>
       <p>For resellers in Europe. Take a photo, scan the barcode or type the model: FlipLens shows what the item resells for on eBay in Germany, France, Italy, Spain and the Netherlands, your profit after fees and shipping, the most you should pay, and a clear verdict: strong buy, buy, borderline or skip.</p>
       <h2>Three taps, a few seconds</h2>
@@ -1521,7 +1496,7 @@ function homePrerender(): string {
 /** German start-page text for crawlers on /de; the API swaps it into the shell (apps/api/src/web.ts). */
 function homePrerenderDe(): string {
   return `<div class="prerender" lang="de">
-      <header><strong>FlipLens</strong> · <a href="/de/how-it-works">So funktioniert's</a> · <a href="/de/pricing">Preise</a> · <a href="/de/guides">Ratgeber</a> · <a href="/de/faq">FAQ</a> · <a href="/" hreflang="en" lang="en">English</a></header>
+      <header><strong>FlipLens</strong> · <a href="/de/how-it-works">So funktioniert's</a> · <a href="/de/pricing">Preise</a> · <a href="/de/guides">Ratgeber</a> · <a href="/de/faq">FAQ</a> · <a href="/" hreflang="en" lang="en">English</a> · <a href="/it" hreflang="it" lang="it">Italiano</a> · <a href="/fr" hreflang="fr" lang="fr">Français</a></header>
       <h1>Wisse, was es wert ist, bevor du es kaufst.</h1>
       <p>Für Reseller in Europa. Mach ein Foto, scann den Barcode oder tipp das Modell ein: FlipLens zeigt, wofür der Artikel auf eBay in Deutschland, Frankreich, Italien, Spanien und den Niederlanden weiterverkauft wird, deinen Gewinn nach Gebühren und Versand, den Höchstpreis, den du zahlen solltest, und ein klares Urteil: Klarer Kauf, Kaufen, Grenzwertig oder Finger weg.</p>
       <h2>Drei Tipps, ein paar Sekunden</h2>
@@ -1538,6 +1513,22 @@ function homePrerenderDe(): string {
     </div>`;
 }
 
+const PACKS: Record<Lang, LangPack> = {
+  en: { pages: PAGES, commonFaq: COMMON_FAQ, ui: UI.en, home: { title: HOME_TITLE, description: HOME_DESC, prerender: '' } },
+  de: {
+    pages: PAGES_DE,
+    commonFaq: COMMON_FAQ_DE,
+    ui: UI.de,
+    home: {
+      title: 'FlipLens: Lohnt sich der Kauf zum Wiederverkauf? Wiederverkaufswert-Check für Europa',
+      description: 'Foto, Barcode oder Modellname: FlipLens zeigt, wofür gebrauchte Elektronik, Konsolen und Kameras auf eBay in 5 EU-Ländern verkauft werden, deinen Gewinn nach Gebühren und den Höchstpreis. Mit KI-Anzeigen für Vinted und Kleinanzeigen. 10 Checks pro Monat gratis.',
+      prerender: homePrerenderDe(),
+    },
+  },
+  it: IT,
+  fr: FR,
+};
+
 function replaceBetween(src: string, name: string, content: string): string {
   const re = new RegExp(`(<!-- ${name}:start -->)[\\s\\S]*?(<!-- ${name}:end -->)`);
   if (!re.test(src)) throw new Error(`index.html is missing the ${name} markers`);
@@ -1546,16 +1537,16 @@ function replaceBetween(src: string, name: string, content: string): string {
 
 // ---------- sitemap, robots, llms ----------
 
-/** Base paths that exist in both languages. */
+/** Base paths that exist in every language. */
 const BILINGUAL = ['/', ...PAGES.map((p) => p.path).sort()];
-const URLS = [...BILINGUAL.flatMap((p) => [href('en', p), href('de', p)]), '/privacy', '/terms'];
+const URLS = [...BILINGUAL.flatMap((p) => LANGS.map((l) => href(l, p))), '/privacy', '/terms'];
 
 function sitemap(): string {
   const alt = (p: string) =>
-    ['en', 'de'].map((l) => `<xhtml:link rel="alternate" hreflang="${l}" href="${SITE}${href(l as Lang, p)}"/>`).join('') +
+    LANGS.map((l) => `<xhtml:link rel="alternate" hreflang="${l}" href="${SITE}${href(l, p)}"/>`).join('') +
     `<xhtml:link rel="alternate" hreflang="x-default" href="${SITE}${href('en', p)}"/>`;
   const entries = [
-    ...BILINGUAL.flatMap((p) => (['en', 'de'] as const).map((l) => `  <url><loc>${SITE}${href(l, p)}</loc><lastmod>${UPDATED}</lastmod>${alt(p)}</url>`)),
+    ...BILINGUAL.flatMap((p) => LANGS.map((l) => `  <url><loc>${SITE}${href(l, p)}</loc><lastmod>${UPDATED}</lastmod>${alt(p)}</url>`)),
     ...['/privacy', '/terms'].map((u) => `  <url><loc>${SITE}${u}</loc><lastmod>${UPDATED}</lastmod></url>`),
   ];
   return `<?xml version="1.0" encoding="UTF-8"?>
@@ -1573,6 +1564,9 @@ Allow: /
 Disallow: /api/
 Disallow: /admin
 Disallow: /prerender-de.html
+Disallow: /prerender-it.html
+Disallow: /prerender-fr.html
+Disallow: /home-meta.json
 
 ${aiBots.map((b) => `User-agent: ${b}\nAllow: /\nDisallow: /api/`).join('\n\n')}
 
@@ -1588,14 +1582,14 @@ function llms(): string {
 Key facts:
 - Works best for consumer electronics, gaming and cameras (headphones, phones, tablets, laptops, consoles, controllers, games, camera bodies, lenses) and power tools. Fashion is not supported yet.
 - The purchase price is optional: without it FlipLens shows the maximum price worth paying for the user's target ROI.
-- Fee profiles: eBay.de private and business sellers, eBay.co.uk private sellers, Vinted, local pickup. Each shows when it was last checked.
+- Fee profiles: eBay.de private and business sellers, eBay.it and eBay.fr private sellers, eBay.co.uk private sellers, Vinted, local pickup. Each shows when it was last checked.
 - Table scan: one photo of a stall, box or shelf finds up to 6 items and checks each against eBay listings, best buys first. Live radar: with the camera open, items get boxes with their names as the phone moves; a tap runs a real check before any price is shown. Both for Google sign-in accounts, Free included.
 - Users selling on eBay.co.uk (the default for the United Kingdom, selectable from any country) get eBay.co.uk data and prices in pounds; eBay.de sellers get the five EU sites in euro.
 - When fewer than 5 comparable listings remain it says "not enough market data" instead of guessing.
 - Pricing (EUR, final prices): ${planLine}.
 - Also: a listing writer that turns a photo of any item (clothes included) into a Vinted, eBay or Kleinanzeigen title and description (${PLANS.free.monthlyListings} free per month), and stock tracking with real profit.
 - Installs on phones as a web app (PWA). Sign-in with Google. Photos are never stored.
-- Available in English and German (the app follows the browser language; German pages under ${SITE}/de).
+- Available in English, German, Italian and French (the app follows the browser language; German pages under ${SITE}/de, Italian under ${SITE}/it, French under ${SITE}/fr).
 - Operator: ${LEGAL.operator}, Slovenia. Contact: ${LEGAL.supportEmail}.
 
 ## Product
@@ -1612,6 +1606,14 @@ ${GUIDES.map((g) => `- [${g.h1}](${SITE}${g.path}): ${g.description}`).join('\n'
 ## Deutsch
 - [FlipLens auf Deutsch](${SITE}/de): Start page and app in German
 ${PAGES_DE.map((p) => `- [${p.h1}](${SITE}${href('de', p.path)})`).join('\n')}
+
+## Italiano
+- [FlipLens in italiano](${SITE}/it): Start page and app in Italian
+${IT.pages.map((p) => `- [${p.h1}](${SITE}${href('it', p.path)})`).join('\n')}
+
+## Français
+- [FlipLens en français](${SITE}/fr): Start page and app in French
+${FR.pages.map((p) => `- [${p.h1}](${SITE}${href('fr', p.path)})`).join('\n')}
 
 ## Legal
 - [Privacy Policy](${SITE}/privacy)
@@ -1643,12 +1645,15 @@ function write(path: string, content: string): void {
   writeFileSync(full, content);
 }
 
-const missing = PAGES.filter((p) => !PAGES_DE.some((d) => d.path === p.path)).map((p) => p.path);
-if (missing.length) throw new Error(`German version missing for: ${missing.join(', ')}`);
-
-for (const p of PAGES) write(`${p.path.slice(1)}.html`, renderPage(p, 'en'));
-for (const p of PAGES_DE) write(`de${p.path}.html`, renderPage(p, 'de'));
-write('prerender-de.html', `${homePrerenderDe()}\n`);
+for (const lang of LANGS) {
+  const pack = PACKS[lang];
+  const missing = PAGES.filter((p) => !pack.pages.some((d) => d.path === p.path)).map((p) => p.path);
+  if (missing.length) throw new Error(`${lang} version missing for: ${missing.join(', ')}`);
+  for (const p of pack.pages) write(lang === 'en' ? `${p.path.slice(1)}.html` : `${lang}${p.path}.html`, renderPage(p, lang));
+  if (lang !== 'en') write(`prerender-${lang}.html`, `${pack.home.prerender}\n`);
+}
+// Meta of the start pages /de, /it, /fr for the API (apps/api/src/web.ts).
+write('home-meta.json', `${JSON.stringify(Object.fromEntries(LANGS.filter((l) => l !== 'en').map((l) => [l, { title: PACKS[l].home.title, description: PACKS[l].home.description, locale: PACKS[l].ui.locale }])), null, 2)}\n`);
 write('sitemap.xml', sitemap());
 write('robots.txt', robots());
 write('llms.txt', llms());

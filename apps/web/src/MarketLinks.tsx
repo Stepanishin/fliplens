@@ -14,6 +14,16 @@ const T = tr({
     opens: (q: string) => `Öffnet die Suche nach „${q}“ auf dem Marktplatz. Diese Preise fließen nicht in die Schätzung oben ein.`,
     other: 'Andere Länder',
   },
+  it: {
+    title: 'Controlla i prezzi da te',
+    opens: (q: string) => `Apre la ricerca di “${q}” sul marketplace. Questi prezzi non fanno parte della stima qui sopra.`,
+    other: 'Altri paesi',
+  },
+  fr: {
+    title: 'Vérifie les prix toi-même',
+    opens: (q: string) => `Ouvre la recherche de « ${q} » sur la plateforme. Ces prix ne sont pas inclus dans l’estimation ci-dessus.`,
+    other: 'Autres pays',
+  },
 });
 
 export function MarketLinks({ query, country }: { query: string; country: string }) {

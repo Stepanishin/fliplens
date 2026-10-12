@@ -607,7 +607,7 @@ Prices come from active eBay listings in Germany, France, Italy, Spain and the N
 
 ### Languages
 
-FlipLens is available in English and German. The app follows your browser language; German pages are under fliplens.eu/de. See also the Privacy Policy (/privacy) and Terms (/terms).
+FlipLens is available in English, German, Italian and French. The app follows your browser language; German pages are under fliplens.eu/de, Italian under fliplens.eu/it and French under fliplens.eu/fr. See also the Privacy Policy (/privacy) and Terms (/terms).
 
 
 ## Reselling guides

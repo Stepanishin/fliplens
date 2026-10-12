@@ -111,6 +111,42 @@ export const FEE_PRESETS = {
       effectiveFrom: '2026-10-12',
     }),
   },
+  ebay_it_private: {
+    label: 'eBay.it (private seller)',
+    note: 'No selling fees for private sellers based in the EEA since 2026-09-01; the buyer pays a purchase protection fee. Optional upgrades and shipping outside the eurozone can cost extra.',
+    sourceUrl: 'https://www.ebay.it/help/selling/fees-credits-invoices/servizi-di-pagamento-tariffe-per-venditori-non-professionali?id=4822',
+    sourceQuality: 'official',
+    lastVerifiedAt: '2026-10-12',
+    resolve: () => ({
+      ...base,
+      id: 'ebay_it_private@2026-09-01',
+      marketplace: 'EBAY_IT',
+      country: 'IT',
+      sellerType: 'private',
+      percentageFeeBp: 0,
+      fixedFeeMinor: 0,
+      sellerPaysShipping: true,
+      effectiveFrom: '2026-09-01',
+    }),
+  },
+  ebay_fr_private: {
+    label: 'eBay.fr (private seller)',
+    note: 'No selling fees for private sellers based in the EEA since 2026-09-01 (up to 150 listings a month, then €0.35 each); the buyer pays a protection fee. Shipping outside the eurozone can cost extra.',
+    sourceUrl: 'https://www.ebayinc.com/stories/press-room/fr/ebay-supprime-les-frais-de-vente/',
+    sourceQuality: 'official',
+    lastVerifiedAt: '2026-10-12',
+    resolve: () => ({
+      ...base,
+      id: 'ebay_fr_private@2026-09-01',
+      marketplace: 'EBAY_FR',
+      country: 'FR',
+      sellerType: 'private',
+      percentageFeeBp: 0,
+      fixedFeeMinor: 0,
+      sellerPaysShipping: true,
+      effectiveFrom: '2026-09-01',
+    }),
+  },
   vinted: {
     label: 'Vinted',
     note: 'No seller fees. The buyer pays Buyer Protection (about 5% + €0.70, up to 8% for electronics) and shipping on top.',
@@ -155,9 +191,17 @@ export function resolveFeeProfile(preset: FeePresetId, condition: Condition, cat
 
 /** All fee presets, the ones for the user's country first (the first one is the default for that country). */
 export function presetsForCountry(country: string): FeePresetId[] {
-  return country === 'GB'
-    ? ['ebay_uk_private', 'vinted', 'local_pickup', 'ebay_de_private', 'ebay_de_business']
-    : ['ebay_de_private', 'ebay_de_business', 'vinted', 'local_pickup', 'ebay_uk_private'];
+  const own: Partial<Record<string, FeePresetId[]>> = {
+    GB: ['ebay_uk_private'],
+    DE: ['ebay_de_private', 'ebay_de_business'],
+    AT: ['ebay_de_private', 'ebay_de_business'],
+    IT: ['ebay_it_private'],
+    FR: ['ebay_fr_private'],
+    BE: ['ebay_fr_private'],
+  };
+  const first = own[country] ?? ['ebay_de_private', 'ebay_de_business'];
+  const order: FeePresetId[] = [...first, 'vinted', 'local_pickup', 'ebay_de_private', 'ebay_de_business', 'ebay_it_private', 'ebay_fr_private', 'ebay_uk_private'];
+  return [...new Set(order)];
 }
 
 /**

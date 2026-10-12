@@ -24,6 +24,26 @@ const T = tr({
     saving: 'Speichern…',
     add: 'Ins Lager legen',
   },
+  it: {
+    sources: ['Mercatino delle pulci', 'Negozio dell’usato solidale', 'Negozio dell’usato', 'Svuota cantine', 'Online', 'Asta'] as readonly string[],
+    saveFailed: 'Salvataggio non riuscito',
+    aria: 'L’ho comprato',
+    title: 'Bel colpo! Aggiungi al magazzino',
+    pricePaid: 'Prezzo pagato',
+    where: 'Dove l’hai comprato? (facoltativo)',
+    saving: 'Salvataggio…',
+    add: 'Aggiungi al magazzino',
+  },
+  fr: {
+    sources: ['Marché aux puces', 'Ressourcerie', 'Friperie / dépôt-vente', 'Vide-grenier', 'En ligne', 'Enchères'] as readonly string[],
+    saveFailed: 'Échec de l’enregistrement',
+    aria: 'Je l’ai acheté',
+    title: 'Belle trouvaille ! Ajouter au stock',
+    pricePaid: 'Prix payé',
+    where: 'Où l’as-tu acheté ? (facultatif)',
+    saving: 'Enregistrement…',
+    add: 'Ajouter au stock',
+  },
 });
 const SOURCES = T.sources;
 

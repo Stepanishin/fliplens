@@ -1,6 +1,6 @@
 import { api } from '../api.js';
 import { DECISION_LABEL } from '../format.js';
-import { LANG, money, tr } from '../i18n.js';
+import { LANG, langHome, money, tr } from '../i18n.js';
 import { track } from '../track.js';
 
 /** "Share this find": a 1080x1350 image drawn on a canvas in the browser, shared or downloaded with the user's invite link. */
@@ -37,6 +37,26 @@ const T = tr({
     saved: 'Bild gespeichert, Link kopiert',
     savedOnly: 'Bild gespeichert',
   },
+  it: {
+    bought: 'Comprato a',
+    worth: 'Vale circa',
+    profit: 'Profitto',
+    roi: 'ROI',
+    footer: 'Controllato con FlipLens',
+    text: (product: string, bought: string, worth: string) => `${product}: comprato a ${bought}, vale circa ${worth}. L’ho controllato con FlipLens prima di comprarlo.`,
+    saved: 'Immagine salvata, link copiato',
+    savedOnly: 'Immagine salvata',
+  },
+  fr: {
+    bought: 'Acheté',
+    worth: 'Vaut environ',
+    profit: 'Bénéfice',
+    roi: 'ROI',
+    footer: 'Vérifié avec FlipLens',
+    text: (product: string, bought: string, worth: string) => `${product} : acheté ${bought}, vaut environ ${worth}. Je l’ai vérifié avec FlipLens avant de l’acheter.`,
+    saved: 'Image enregistrée, lien copié',
+    savedOnly: 'Image enregistrée',
+  },
 });
 
 const COLOR: Record<DecisionKey, string> = { strong_buy: '#16a34a', buy: '#4d9f24', borderline: '#d08a0b', skip: '#e0472f' };
@@ -59,9 +79,9 @@ export function prefetchShareLink(): void {
 async function shareLink(): Promise<string> {
   const timeout = new Promise<null>((r) => window.setTimeout(() => r(null), 1500));
   const code = await Promise.race([inviteCode(), timeout]);
-  const base = LANG === 'de' ? 'fliplens.eu/de' : 'fliplens.eu';
-  if (!code) return base;
-  return LANG === 'de' ? `fliplens.eu/de?ref=${code}` : `fliplens.eu/?ref=${code}`;
+  const base = `fliplens.eu${langHome(LANG)}`;
+  if (!code) return LANG === 'en' ? 'fliplens.eu' : base;
+  return `${base}?ref=${code}`;
 }
 
 // ---------- drawing ----------
@@ -199,7 +219,7 @@ function draw(find: ShareFind, link: string): HTMLCanvasElement {
   ctx.font = `800 72px ${FONT}`;
   ctx.fillText(`${sign}${money(Math.abs(find.profitMinor))}`, cx + pad + 40, y + 74);
   ctx.fillStyle = '#0e1116';
-  ctx.fillText(find.roiPct === null ? 'n/a' : LANG === 'de' ? `${Math.round(find.roiPct)} %` : `${Math.round(find.roiPct)}%`, cx + pad + half + 20, y + 74);
+  ctx.fillText(find.roiPct === null ? 'n/a' : LANG === 'en' ? `${Math.round(find.roiPct)}%` : `${Math.round(find.roiPct)} %`, cx + pad + half + 20, y + 74);
 
   // footer
   ctx.fillStyle = '#ffffff';

@@ -48,10 +48,10 @@ const MARKETS: readonly MarketDef[] = [
   },
   {
     id: 'ebay_sold',
-    name: LANG === 'de' ? 'eBay verkauft' : 'eBay sold',
+    name: ({ en: 'eBay sold', de: 'eBay verkauft', it: 'eBay venduti', fr: 'eBay vendus' } as const)[LANG],
     countries: Object.keys(EBAY_DOMAIN),
     url: (q, c) => `https://www.${EBAY_DOMAIN[c] ?? 'ebay.de'}/sch/i.html?_nkw=${plus(q)}&LH_Sold=1&LH_Complete=1`,
-    note: LANG === 'de' ? 'Login nötig' : 'login required',
+    note: ({ en: 'login required', de: 'Login nötig', it: 'accesso richiesto', fr: 'connexion requise' } as const)[LANG],
   },
   { id: 'kleinanzeigen', name: 'Kleinanzeigen', countries: ['DE'], url: (q) => `https://www.kleinanzeigen.de/s-${dashes(q)}/k0` },
   { id: 'willhaben', name: 'willhaben', countries: ['AT'], url: (q) => `https://www.willhaben.at/iad/kaufen-und-verkaufen/marktplatz?keyword=${enc(q)}` },

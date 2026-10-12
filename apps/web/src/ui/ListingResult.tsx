@@ -29,6 +29,32 @@ const T = tr({
     open: (m: string) => `${m} öffnen`,
     again: 'Andere Version schreiben',
   },
+  it: {
+    copied: 'Copiato',
+    copy: 'Copia',
+    title: 'Titolo',
+    chars: (n: number) => `${n} caratteri`,
+    description: 'Descrizione',
+    condition: 'Condizione',
+    suggested: 'Prezzo consigliato',
+    keywords: 'Parole chiave',
+    copyAll: 'Copia titolo + testo',
+    open: (m: string) => `Apri ${m}`,
+    again: 'Scrivi un’altra versione',
+  },
+  fr: {
+    copied: 'Copié',
+    copy: 'Copier',
+    title: 'Titre',
+    chars: (n: number) => `${n} caractères`,
+    description: 'Description',
+    condition: 'État',
+    suggested: 'Prix suggéré',
+    keywords: 'Mots-clés',
+    copyAll: 'Copier titre + texte',
+    open: (m: string) => `Ouvrir ${m}`,
+    again: 'Rédiger une autre version',
+  },
 });
 
 export interface ListingOut {

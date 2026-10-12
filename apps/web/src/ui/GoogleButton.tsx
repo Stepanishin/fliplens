@@ -7,6 +7,8 @@ import { LANG, tr } from '../i18n.js';
 const T = tr({
   en: { unavailable: 'Google sign-in is unavailable. Check your connection or ad blocker and reload.' },
   de: { unavailable: 'Die Google-Anmeldung ist nicht verfügbar. Prüf deine Verbindung oder deinen Werbeblocker und lade neu.' },
+  it: { unavailable: "L'accesso con Google non è disponibile. Controlla la connessione o il blocco pubblicità e ricarica la pagina." },
+  fr: { unavailable: "La connexion avec Google n'est pas disponible. Vérifie ta connexion ou ton bloqueur de pub, puis recharge la page." },
 });
 
 /** "Sign in with Google" via Google Identity Services. Returns an ID token (credential) to verify on the server. */

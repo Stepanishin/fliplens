@@ -31,6 +31,32 @@ const T = tr({
     all: (n: number) => `Alle ${n} anzeigen`,
     filtered: (n: number) => `${n} aussortiert`,
   },
+  it: {
+    show: (n: number) => `Mostra ${n} annunci comparabili`,
+    ebay: 'Annunci eBay',
+    comparables: 'Annunci comparabili',
+    used: (n: number) => `${n} usati per la stima, dal più economico`,
+    inYourCondition: (p: string) => `≈ ${p} nella tua condizione`,
+    condNa: 'condizione n.d.',
+    listed: (age: string) => `pubblicato ${age}`,
+    match: (pct: number) => `corrispondenza ${pct} %`,
+    less: 'Mostra meno',
+    all: (n: number) => `Mostra tutti i ${n}`,
+    filtered: (n: number) => `${n} esclusi`,
+  },
+  fr: {
+    show: (n: number) => `Afficher ${n} annonces comparables`,
+    ebay: 'Annonces eBay',
+    comparables: 'Annonces comparables',
+    used: (n: number) => `${n} utilisées pour l’estimation, les moins chères d’abord`,
+    inYourCondition: (p: string) => `≈ ${p} dans ton état`,
+    condNa: 'état inconnu',
+    listed: (age: string) => `publiée ${age}`,
+    match: (pct: number) => `correspondance ${pct} %`,
+    less: 'Afficher moins',
+    all: (n: number) => `Afficher les ${n}`,
+    filtered: (n: number) => `${n} écartées`,
+  },
 });
 
 /** "Why do we think it is worth €105": the listings the estimate is built from, and what was filtered out. */

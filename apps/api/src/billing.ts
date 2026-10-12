@@ -34,7 +34,22 @@ export interface BillingConfig {
 }
 
 /** UI languages; Stripe Checkout, Customer Portal and receipts follow them. */
-const LOCALE = z.enum(['en', 'de']);
+const LOCALE = z.enum(['en', 'de', 'it', 'fr']);
+
+/** Checkout consent line under the pay button, in the user's language. */
+function termsConsent(locale: string | undefined, base: string): string {
+  const terms = `${base}/terms`;
+  switch (locale) {
+    case 'de':
+      return `Mit dem Abo stimmst du den FlipLens-Nutzungsbedingungen zu (${terms}). Verbraucher in der EU haben ein 14-tägiges Widerrufsrecht.`;
+    case 'it':
+      return `Abbonandoti accetti i Termini di FlipLens (${terms}). I consumatori nell'UE hanno un diritto di recesso di 14 giorni.`;
+    case 'fr':
+      return `En t'abonnant, tu acceptes les Conditions de FlipLens (${terms}). Les consommateurs de l'UE disposent d'un droit de rétractation de 14 jours.`;
+    default:
+      return `By subscribing you agree to the FlipLens Terms (${terms}). EU consumers have a 14-day right of withdrawal.`;
+  }
+}
 
 export function billingConfigFromEnv(env: NodeJS.ProcessEnv): BillingConfig {
   return {
@@ -247,7 +262,7 @@ export function createBilling(db: Db, cfg: BillingConfig, log: FastifyBaseLogger
           subscription_data: { metadata: { userId: uid, plan: body.data.plan } },
           allow_promotion_codes: true,
           custom_text: {
-            submit: { message: `${body.data.locale === 'de' ? `Mit dem Abo stimmst du den FlipLens-Nutzungsbedingungen zu (${base}/terms). Verbraucher in der EU haben ein 14-tägiges Widerrufsrecht.` : `By subscribing you agree to the FlipLens Terms (${base}/terms). EU consumers have a 14-day right of withdrawal.`}` },
+            submit: { message: termsConsent(body.data.locale, base) },
           },
           ...(withConsent && { consent_collection: { terms_of_service: 'required' as const } }),
           ...(cfg.automaticTax && { automatic_tax: { enabled: true }, customer_update: { address: 'auto' as const }, billing_address_collection: 'required' as const }),

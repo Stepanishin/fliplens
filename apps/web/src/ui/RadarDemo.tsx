@@ -23,6 +23,22 @@ const T = tr({
     sells: (m: string) => `verkauft für ca. ${m}`,
     details: 'Details',
   },
+  it: {
+    looking: 'Cerco…',
+    items: (n: number) => (n === 1 ? '1 articolo' : `${n} articoli`),
+    hint: 'Tocca un articolo per vedere il prezzo',
+    checking: 'Controllo…',
+    sells: (m: string) => `si vende a ca. ${m}`,
+    details: 'Dettagli',
+  },
+  fr: {
+    looking: 'Recherche…',
+    items: (n: number) => (n === 1 ? '1 article' : `${n} articles`),
+    hint: 'Touche un article pour voir son prix',
+    checking: 'Vérification…',
+    sells: (m: string) => `se vend env. ${m}`,
+    details: 'Détails',
+  },
 });
 
 /** Scene is 600 x 360; the camera sees VIEW_W of it. */

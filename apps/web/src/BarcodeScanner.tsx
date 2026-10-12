@@ -25,6 +25,28 @@ const T = tr({
     placeholder: 'oder Nummer eingeben, z. B. 4548736112100',
     lookUp: 'Suchen',
   },
+  it: {
+    noCamera: 'Fotocamera non disponibile qui (sul telefono serve HTTPS). Inserisci il numero del codice a barre qui sotto.',
+    denied: 'Accesso alla fotocamera negato. Inserisci il numero del codice a barre qui sotto.',
+    failed: 'Impossibile avviare la fotocamera. Inserisci il numero del codice a barre qui sotto.',
+    dialog: 'Scansiona codice a barre',
+    close: 'Chiudi',
+    point: 'Inquadra il codice a barre (EAN/UPC)',
+    starting: ', avvio fotocamera…',
+    placeholder: 'oppure inserisci il numero, es. 4548736112100',
+    lookUp: 'Cerca',
+  },
+  fr: {
+    noCamera: 'Caméra non disponible ici (HTTPS requis sur téléphone). Saisis le numéro du code-barres ci-dessous.',
+    denied: 'Accès à la caméra refusé. Saisis le numéro du code-barres ci-dessous.',
+    failed: 'Impossible de démarrer la caméra. Saisis le numéro du code-barres ci-dessous.',
+    dialog: 'Scanner le code-barres',
+    close: 'Fermer',
+    point: 'Vise le code-barres avec la caméra (EAN/UPC)',
+    starting: ', démarrage de la caméra…',
+    placeholder: 'ou saisis le numéro, ex. 4548736112100',
+    lookUp: 'Rechercher',
+  },
 });
 
 interface Props {
