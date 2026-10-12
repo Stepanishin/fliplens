@@ -19,7 +19,10 @@ import {
   getUser,
   aiCostThisMonth,
   identificationsThisMonth,
+  applyReferral,
   linkGoogle,
+  userIdByGoogleSub,
+  userIdByReferralCode,
   unlinkDevice,
   recordEvents,
   saveSettings,
@@ -38,6 +41,7 @@ import { verifyGoogleIdToken } from './google.js';
 import { createBilling, type BillingConfig, type Quota } from './billing.js';
 import { registerInventoryRoutes } from './inventory.js';
 import { registerListingRoutes } from './listing.js';
+import { registerReferralRoutes } from './referrals.js';
 import type { OpenAIListingWriter } from '@fliplens/recognition';
 
 /**
@@ -109,7 +113,7 @@ const EVENT_NAMES = [
   'scan_started', 'image_uploaded', 'barcode_scanned', 'product_detected', 'product_corrected',
   'valuation_started', 'valuation_completed', 'valuation_failed', 'comparables_opened', 'item_marked_bought',
   'subscription_viewed', 'subscription_started', 'inventory_added', 'item_sold', 'market_link_opened', 'signed_in', 'app_installed', 'app_install_prompt', 'whatif_used', 'confirm_skipped',
-  'item_status_changed', 'listing_generated', 'listing_copied', 'visit', 'page_view', 'cta_clicked', 'signin_started', 'quick_listing_opened',
+  'item_status_changed', 'listing_generated', 'listing_copied', 'visit', 'page_view', 'cta_clicked', 'signin_started', 'quick_listing_opened', 'referral_link_copied', 'referral_link_shared', 'referral_payout_requested',
 ] as const;
 const EventsBody = z.object({
   events: z
@@ -165,6 +169,9 @@ function disabled(status: DbStatus): Persistence {
       app.get('/api/admin/traffic', unavailable);
       app.get('/api/admin/users', unavailable);
       app.get('/api/admin/users/:id', unavailable);
+      app.get('/api/referral', unavailable);
+      app.post('/api/referral/payout', unavailable);
+      app.get('/api/admin/referrals', unavailable);
       app.get('/api/inventory', unavailable);
       app.post('/api/inventory', unavailable);
       app.patch('/api/inventory/:id', unavailable);
@@ -289,6 +296,7 @@ function enabled(db: Db, log: FastifyBaseLogger, auth: AuthConfig): Persistence 
     registerRoutes(app) {
       billing?.registerRoutes(app, { requireUser: requireSignedIn });
       registerInventoryRoutes(app, db, requireSignedIn);
+      registerReferralRoutes(app, { db, requireSignedIn, requireAdmin });
       if (auth.listingWriter) {
         registerListingRoutes(app, { db, writer: auth.listingWriter, requireSignedIn, ...(billing && { quota: (uid: string) => billing.quota(uid) }) });
       }
@@ -311,7 +319,7 @@ function enabled(db: Db, log: FastifyBaseLogger, auth: AuthConfig): Persistence 
         const key = req.headers[DEVICE_HEADER];
         if (typeof key !== 'string' || !DEVICE_KEY.test(key)) return reply.code(400).send({ error: 'device_id_required' });
         if (!auth.googleClientId) return reply.code(409).send({ error: 'auth_not_configured', message: 'GOOGLE_CLIENT_ID is not set' });
-        const body = z.object({ credential: z.string().min(20).max(5000) }).safeParse(req.body);
+        const body = z.object({ credential: z.string().min(20).max(5000), invite: z.string().trim().toLowerCase().max(40).optional() }).safeParse(req.body);
         if (!body.success) return reply.code(400).send({ error: 'invalid_request' });
         let profile;
         try {
@@ -320,8 +328,14 @@ function enabled(db: Db, log: FastifyBaseLogger, auth: AuthConfig): Persistence 
           req.log.warn({ event: 'google_login_rejected', err: e instanceof Error ? e.message : String(e) }, 'google login rejected');
           return reply.code(401).send({ error: 'invalid_google_token', message: 'Google sign-in could not be verified. Try again.' });
         }
+        const isNewAccount = !(await userIdByGoogleSub(db, profile.sub));
         const u = await linkGoogle(db, key, profile);
         userCache.delete(key);
+        // Invite links count only for accounts created now (not for people who already had FlipLens).
+        if (isNewAccount && body.data.invite) {
+          const referrerId = await userIdByReferralCode(db, body.data.invite);
+          if (referrerId && (await applyReferral(db, u.id, referrerId))) req.log.info({ event: 'referral_applied' }, 'invited user signed up');
+        }
         req.log.info({ event: 'user_signed_in', provider: 'google' }, 'signed in');
         return { account: { email: u.email, name: u.name, picture: u.picture } };
       });

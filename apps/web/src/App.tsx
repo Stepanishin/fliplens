@@ -6,6 +6,7 @@ import { Landing } from './screens/Landing.js';
 import { Admin } from './screens/Admin.js';
 import { Inventory } from './screens/Inventory.js';
 import { QuickListing } from './screens/QuickListing.js';
+import { Referral } from './screens/Referral.js';
 import { BoughtSheet } from './ui/BoughtSheet.js';
 import { ListingSheet } from './ui/ListingSheet.js';
 import type { InventoryItem } from './api.js';
@@ -51,11 +52,12 @@ type Route =
   | { name: 'plans' }
   | { name: 'admin' }
   | { name: 'inventory' }
-  | { name: 'listing'; photos?: string[] };
+  | { name: 'listing'; photos?: string[] }
+  | { name: 'referral' };
 
 const T = tr({
   en: {
-    titles: { confirm: 'Identify', price: 'Price', result: 'Verdict', scan: 'Saved scan', profile: 'Profile', admin: 'Admin', listing: 'Write listing' } as Partial<Record<string, string>>,
+    titles: { confirm: 'Identify', price: 'Price', result: 'Verdict', scan: 'Saved scan', profile: 'Profile', admin: 'Admin', listing: 'Write listing', referral: 'Invite friends' } as Partial<Record<string, string>>,
     steps: ['Identify', 'Price', 'Verdict'] as readonly string[],
     step: (n: number, of: number) => `Step ${n} of ${of}`,
     subActivating: 'Thanks! Your subscription is being activated.',
@@ -75,7 +77,7 @@ const T = tr({
     scanCamera: 'Scan item with the camera',
   },
   de: {
-    titles: { confirm: 'Erkennen', price: 'Preis', result: 'Ergebnis', scan: 'Gespeicherter Scan', profile: 'Profil', admin: 'Admin', listing: 'Anzeige schreiben' } as Partial<Record<string, string>>,
+    titles: { confirm: 'Erkennen', price: 'Preis', result: 'Ergebnis', scan: 'Gespeicherter Scan', profile: 'Profil', admin: 'Admin', listing: 'Anzeige schreiben', referral: 'Freunde einladen' } as Partial<Record<string, string>>,
     steps: ['Erkennen', 'Preis', 'Ergebnis'] as readonly string[],
     step: (n: number, of: number) => `Schritt ${n} von ${of}`,
     subActivating: 'Danke! Dein Abo wird gerade aktiviert.',
@@ -422,7 +424,7 @@ export function App() {
     .filter((x) => x.trim())
     .join(' ');
   const visionOn = health?.vision.configured ?? false;
-  const inFlow = ['confirm', 'price', 'result', 'scan', 'admin', 'listing'].includes(route.name) || (route.name === 'plans' && stack.length > 2) || (route.name === 'profile' && stack.length > 2);
+  const inFlow = ['confirm', 'price', 'result', 'scan', 'admin', 'listing', 'referral'].includes(route.name) || (route.name === 'plans' && stack.length > 2) || (route.name === 'profile' && stack.length > 2);
   const activeTab = route.name === 'history' || route.name === 'scan' ? 'history' : route.name === 'profile' ? 'profile' : route.name === 'plans' ? 'plans' : route.name === 'inventory' ? 'inventory' : 'home';
 
   // Signed-in only: without an account the start page is all there is (with a database; local dev without one stays open).
@@ -536,6 +538,7 @@ export function App() {
             onOpenPlans={() => openPlans()}
           />
         )}
+        {route.name === 'referral' && <Referral />}
         {route.name === 'listing' && <QuickListing country={settings.country} initialPhotos={route.photos ?? []} onUpgrade={() => openPlans()} />}
         {route.name === 'confirm' && (
           <Confirm
@@ -637,6 +640,7 @@ export function App() {
             }}
             isAdmin={isAdmin}
             onOpenAdmin={() => go({ name: 'admin' })}
+            onOpenReferral={() => go({ name: 'referral' })}
             onOpenWelcome={() => {
               window.history.pushState(null, '', '/welcome');
               setWelcome(true);

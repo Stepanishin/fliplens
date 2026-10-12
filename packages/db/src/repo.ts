@@ -1,6 +1,6 @@
-import { and, desc, eq, gte, sql } from 'drizzle-orm';
+import { and, desc, eq, gte, inArray, sql } from 'drizzle-orm';
 import type { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
-import { events, inventoryItems, productIdentifications, scans, subscriptions, usageCosts, userDevices, userSettings, users, valuations } from './schema.js';
+import { events, inventoryItems, referralCommissions, referralPayouts, productIdentifications, scans, subscriptions, usageCosts, userDevices, userSettings, users, valuations } from './schema.js';
 import type * as schema from './schema.js';
 
 type Db = PostgresJsDatabase<typeof schema>;
@@ -724,4 +724,221 @@ export async function adminSubscriptions(db: Db): Promise<{ plan: string; active
     sql`select plan, count(*)::int as active, count(*) filter (where cancel_at_period_end)::int as ending
         from ${subscriptions} where status in ('active','trialing','past_due') group by plan`,
   );
+}
+
+// ---------- referrals ----------
+
+const CODE_RE = /^[a-z0-9][a-z0-9-]{2,23}$/;
+export const isReferralCode = (code: string): boolean => CODE_RE.test(code);
+
+/** The user's invite code, created on first use: a readable prefix from the name plus 4 random characters. */
+export async function referralCodeFor(db: Db, userId: string): Promise<string> {
+  const [u] = await db.select({ code: users.referralCode, name: users.name, email: users.email }).from(users).where(eq(users.id, userId));
+  if (u?.code) return u.code;
+  const base = (u?.name ?? u?.email ?? 'friend').split(/[\s@.]/)[0]!.normalize('NFKD').replace(/[^a-zA-Z0-9]/g, '').toLowerCase().slice(0, 10) || 'friend';
+  for (let i = 0; i < 8; i++) {
+    const code = `${base}-${Math.random().toString(36).slice(2, 6)}`;
+    const rows = await db.update(users).set({ referralCode: code }).where(and(eq(users.id, userId), sql`${users.referralCode} is null`)).returning({ code: users.referralCode }).catch(() => []);
+    if (rows[0]?.code) return rows[0].code;
+    const [again] = await db.select({ code: users.referralCode }).from(users).where(eq(users.id, userId));
+    if (again?.code) return again.code;
+  }
+  throw new Error('could not create a referral code');
+}
+
+/** Admin: give a user a custom code (e.g. a creator's name). Returns false when taken or invalid. */
+export async function setReferralCode(db: Db, userId: string, code: string): Promise<boolean> {
+  if (!isReferralCode(code)) return false;
+  const rows = await db.update(users).set({ referralCode: code }).where(eq(users.id, userId)).returning({ id: users.id }).catch(() => []);
+  return rows.length > 0;
+}
+
+export async function userIdByReferralCode(db: Db, code: string): Promise<string | undefined> {
+  if (!isReferralCode(code)) return undefined;
+  const [u] = await db.select({ id: users.id }).from(users).where(eq(users.referralCode, code));
+  return u?.id;
+}
+
+export async function userIdByGoogleSub(db: Db, sub: string): Promise<string | undefined> {
+  const [u] = await db.select({ id: users.id }).from(users).where(eq(users.googleSub, sub));
+  return u?.id;
+}
+
+/** Link a new account to whoever invited it. Only once, never to itself. */
+export async function applyReferral(db: Db, userId: string, referrerId: string): Promise<boolean> {
+  if (userId === referrerId) return false;
+  const rows = await db
+    .update(users)
+    .set({ referredBy: referrerId, referredAt: sql`now()` })
+    .where(and(eq(users.id, userId), sql`${users.referredBy} is null`))
+    .returning({ id: users.id });
+  return rows.length > 0;
+}
+
+export async function referrerOf(db: Db, userId: string): Promise<string | undefined> {
+  const [u] = await db.select({ by: users.referredBy }).from(users).where(eq(users.id, userId));
+  return u?.by ?? undefined;
+}
+
+/** When the invited user's first commission-bearing payment happened (start of the commission window). */
+export async function firstReferralPaymentAt(db: Db, referredUserId: string): Promise<Date | undefined> {
+  const [r] = await db
+    .select({ at: sql<Date | null>`min(${referralCommissions.createdAt})` })
+    .from(referralCommissions)
+    .where(eq(referralCommissions.referredUserId, referredUserId));
+  return r?.at ? new Date(r.at) : undefined;
+}
+
+export async function recordReferralCommission(
+  db: Db,
+  c: { referrerId: string; referredUserId: string; stripeInvoiceId: string; baseMinor: number; commissionMinor: number; currency: string; availableAt: Date },
+): Promise<boolean> {
+  const rows = await db.insert(referralCommissions).values(c).onConflictDoNothing().returning({ id: referralCommissions.id });
+  return rows.length > 0;
+}
+
+/** Pending commissions past their hold become withdrawable. Cheap; called on every read. */
+async function releaseHeld(db: Db): Promise<void> {
+  await db.update(referralCommissions).set({ status: 'available' }).where(and(eq(referralCommissions.status, 'pending'), sql`${referralCommissions.availableAt} <= now()`));
+}
+
+export interface ReferralSummary {
+  code: string;
+  signups: number;
+  paying: number;
+  balance: { pendingMinor: number; availableMinor: number; requestedMinor: number; paidMinor: number };
+  commissions: { createdAt: string; baseMinor: number; commissionMinor: number; status: string; availableAt: string }[];
+  payouts: { id: string; requestedAt: string; amountMinor: number; method: string; status: string; note: string | null }[];
+}
+
+export async function referralSummary(db: Db, userId: string): Promise<ReferralSummary> {
+  await releaseHeld(db);
+  const code = await referralCodeFor(db, userId);
+  const [counts] = await rows<{ signups: number; paying: number }>(
+    db,
+    sql`select count(*)::int as signups,
+               count(*) filter (where exists (select 1 from ${referralCommissions} c where c.referred_user_id = u.id))::int as paying
+        from ${users} u where u.referred_by = ${userId} and u.google_sub is not null`,
+  );
+  const [bal] = await rows<{ pending: number; available: number; requested: number; paid: number }>(
+    db,
+    sql`select coalesce(sum(commission_minor) filter (where status = 'pending'), 0)::int as pending,
+               coalesce(sum(commission_minor) filter (where status = 'available'), 0)::int as available,
+               coalesce(sum(commission_minor) filter (where status = 'requested'), 0)::int as requested,
+               coalesce(sum(commission_minor) filter (where status = 'paid'), 0)::int as paid
+        from ${referralCommissions} where referrer_id = ${userId}`,
+  );
+  const commissions = await rows<ReferralSummary['commissions'][number]>(
+    db,
+    sql`select to_char(created_at at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS"Z"') as "createdAt", base_minor as "baseMinor",
+               commission_minor as "commissionMinor", status, to_char(available_at at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS"Z"') as "availableAt"
+        from ${referralCommissions} where referrer_id = ${userId} order by created_at desc limit 50`,
+  );
+  const payouts = await rows<ReferralSummary['payouts'][number]>(
+    db,
+    sql`select id, to_char(created_at at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS"Z"') as "requestedAt", amount_minor as "amountMinor", method, status, note
+        from ${referralPayouts} where user_id = ${userId} order by created_at desc limit 20`,
+  );
+  return {
+    code,
+    signups: counts?.signups ?? 0,
+    paying: counts?.paying ?? 0,
+    balance: { pendingMinor: bal?.pending ?? 0, availableMinor: bal?.available ?? 0, requestedMinor: bal?.requested ?? 0, paidMinor: bal?.paid ?? 0 },
+    commissions,
+    payouts,
+  };
+}
+
+/** Moves the whole available balance into a payout request. Returns the amount, or 0 when below `minMinor`. */
+export async function requestReferralPayout(db: Db, userId: string, method: 'paypal' | 'iban', details: string, minMinor: number): Promise<number> {
+  await releaseHeld(db);
+  return db.transaction(async (tx) => {
+    const open = await tx.select({ id: referralCommissions.id, minor: referralCommissions.commissionMinor }).from(referralCommissions)
+      .where(and(eq(referralCommissions.referrerId, userId), eq(referralCommissions.status, 'available')))
+      .for('update');
+    const total = open.reduce((a, c) => a + c.minor, 0);
+    if (total < minMinor || open.length === 0) return 0;
+    const [p] = await tx.insert(referralPayouts).values({ userId, amountMinor: total, method, details }).returning({ id: referralPayouts.id });
+    await tx.update(referralCommissions).set({ status: 'requested', payoutId: p!.id })
+      .where(and(eq(referralCommissions.referrerId, userId), eq(referralCommissions.status, 'available'), inArray(referralCommissions.id, open.map((c) => c.id))));
+    return total;
+  });
+}
+
+// ----- admin -----
+
+export interface AdminReferrer {
+  userId: string;
+  email: string | null;
+  code: string | null;
+  visitors: number;
+  signups: number;
+  paying: number;
+  revenueMinor: number;
+  earnedMinor: number;
+  pendingMinor: number;
+  availableMinor: number;
+  requestedMinor: number;
+  paidMinor: number;
+}
+
+export async function adminReferrers(db: Db): Promise<AdminReferrer[]> {
+  await releaseHeld(db);
+  return rows<AdminReferrer>(
+    db,
+    sql`select u.id as "userId", u.email, u.referral_code as code,
+          (select count(distinct visitor)::int from ${events} e where e.name = 'visit' and u.referral_code is not null and e.props->>'invite' = u.referral_code) as visitors,
+          (select count(*)::int from ${users} r where r.referred_by = u.id and r.google_sub is not null) as signups,
+          (select count(distinct referred_user_id)::int from ${referralCommissions} c where c.referrer_id = u.id) as paying,
+          (select coalesce(sum(base_minor), 0)::int from ${referralCommissions} c where c.referrer_id = u.id and c.status <> 'reversed') as "revenueMinor",
+          (select coalesce(sum(commission_minor), 0)::int from ${referralCommissions} c where c.referrer_id = u.id and c.status <> 'reversed') as "earnedMinor",
+          (select coalesce(sum(commission_minor), 0)::int from ${referralCommissions} c where c.referrer_id = u.id and c.status = 'pending') as "pendingMinor",
+          (select coalesce(sum(commission_minor), 0)::int from ${referralCommissions} c where c.referrer_id = u.id and c.status = 'available') as "availableMinor",
+          (select coalesce(sum(commission_minor), 0)::int from ${referralCommissions} c where c.referrer_id = u.id and c.status = 'requested') as "requestedMinor",
+          (select coalesce(sum(commission_minor), 0)::int from ${referralCommissions} c where c.referrer_id = u.id and c.status = 'paid') as "paidMinor"
+        from ${users} u
+        where u.referral_code is not null or exists (select 1 from ${users} r where r.referred_by = u.id)
+        order by "earnedMinor" desc, signups desc, visitors desc
+        limit 200`,
+  );
+}
+
+export async function adminReferrerCommissions(db: Db, referrerId: string) {
+  return rows<{ id: string; createdAt: string; referredEmail: string | null; baseMinor: number; commissionMinor: number; status: string; stripeInvoiceId: string }>(
+    db,
+    sql`select c.id, to_char(c.created_at at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS"Z"') as "createdAt", r.email as "referredEmail",
+               c.base_minor as "baseMinor", c.commission_minor as "commissionMinor", c.status, c.stripe_invoice_id as "stripeInvoiceId"
+        from ${referralCommissions} c left join ${users} r on r.id = c.referred_user_id
+        where c.referrer_id = ${referrerId} order by c.created_at desc limit 100`,
+  );
+}
+
+export async function adminPayouts(db: Db) {
+  return rows<{ id: string; email: string | null; code: string | null; amountMinor: number; method: string; details: string; status: string; note: string | null; requestedAt: string; decidedAt: string | null }>(
+    db,
+    sql`select p.id, u.email, u.referral_code as code, p.amount_minor as "amountMinor", p.method, p.details, p.status, p.note,
+               to_char(p.created_at at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS"Z"') as "requestedAt",
+               to_char(p.decided_at at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS"Z"') as "decidedAt"
+        from ${referralPayouts} p join ${users} u on u.id = p.user_id
+        order by (p.status = 'requested') desc, p.created_at desc limit 100`,
+  );
+}
+
+/** Admin: mark a payout as paid (commissions become paid) or rejected (commissions return to available). */
+export async function decideReferralPayout(db: Db, payoutId: string, decision: 'paid' | 'rejected', note: string | null): Promise<boolean> {
+  return db.transaction(async (tx) => {
+    const rowsUpd = await tx.update(referralPayouts).set({ status: decision, note, decidedAt: sql`now()` })
+      .where(and(eq(referralPayouts.id, payoutId), eq(referralPayouts.status, 'requested'))).returning({ id: referralPayouts.id });
+    if (rowsUpd.length === 0) return false;
+    if (decision === 'paid') await tx.update(referralCommissions).set({ status: 'paid' }).where(eq(referralCommissions.payoutId, payoutId));
+    else await tx.update(referralCommissions).set({ status: 'available', payoutId: null }).where(eq(referralCommissions.payoutId, payoutId));
+    return true;
+  });
+}
+
+/** Admin: cancel a commission (refund, fraud). Paid ones cannot be reversed here. */
+export async function reverseReferralCommission(db: Db, commissionId: string): Promise<boolean> {
+  const r = await db.update(referralCommissions).set({ status: 'reversed', payoutId: null })
+    .where(and(eq(referralCommissions.id, commissionId), sql`${referralCommissions.status} in ('pending', 'available')`)).returning({ id: referralCommissions.id });
+  return r.length > 0;
 }

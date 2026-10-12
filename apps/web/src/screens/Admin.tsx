@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react';
+import { Fragment, useEffect, useState } from 'react';
 import { PLANS } from '@fliplens/core';
-import { api, ApiError, type AdminOverview, type AdminTraffic, type AdminUserDetail, type AdminUserRow } from '../api.js';
+import { api, ApiError, type AdminCommission, type AdminReferrals, type AdminOverview, type AdminTraffic, type AdminUserDetail, type AdminUserRow } from '../api.js';
 import { ago, DECISION_LABEL } from '../format.js';
 import { eur } from '../ui/verdict.js';
 
@@ -12,7 +12,7 @@ const decision = (d: string | null): string => (d ? (DECISION_LABEL[d as keyof t
 /** Price after VAT (~20%) and Stripe (~1.5% + €0.25 + 0.7%), in euro: for a rough margin line only. */
 const netRevenueEur = (priceMinor: number): number => (priceMinor === 0 ? 0 : (priceMinor / 100) / 1.2 * (1 - 0.022) - 0.25);
 
-type Tab = 'overview' | 'traffic' | 'users';
+type Tab = 'overview' | 'traffic' | 'users' | 'referrals';
 
 /** Internal numbers for the operator: users, traffic, revenue, costs. Visible only to ADMIN_EMAILS. */
 export function Admin() {
@@ -23,7 +23,7 @@ export function Admin() {
     <div className="screen">
       <div className="card-head">
         <h1 className="screen-title">Admin</h1>
-        {tab !== 'users' && (
+        {(tab === 'overview' || tab === 'traffic') && (
           <select value={days} onChange={(e) => setDays(Number(e.target.value))} aria-label="Period" style={{ width: 'auto' }}>
             <option value={1}>Today</option>
             <option value={7}>7 days</option>
@@ -33,15 +33,16 @@ export function Admin() {
         )}
       </div>
       <div className="seg" role="tablist" aria-label="Admin sections">
-        {(['overview', 'traffic', 'users'] as const).map((t) => (
+        {(['overview', 'traffic', 'users', 'referrals'] as const).map((t) => (
           <button key={t} type="button" role="tab" aria-selected={tab === t} className={tab === t ? 'on' : ''} onClick={() => setTab(t)}>
-            {t === 'overview' ? 'Overview' : t === 'traffic' ? 'Traffic' : 'Users'}
+            {t === 'overview' ? 'Overview' : t === 'traffic' ? 'Traffic' : t === 'users' ? 'Users' : 'Referrals'}
           </button>
         ))}
       </div>
       {tab === 'overview' && <Overview days={days} />}
       {tab === 'traffic' && <Traffic days={days} />}
       {tab === 'users' && <Users />}
+      {tab === 'referrals' && <Referrals />}
     </div>
   );
 }
@@ -451,6 +452,152 @@ function UserDetailBody({ d }: { d: AdminUserDetail }) {
             {d.events.length === 0 && <tr><td colSpan={2} className="muted">No events yet.</td></tr>}
           </tbody>
         </table>
+      </section>
+    </>
+  );
+}
+
+// ---------- referrals ----------
+
+function Referrals() {
+  const [data, setData] = useState<AdminReferrals | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [open, setOpen] = useState<string | null>(null);
+  const [commissions, setCommissions] = useState<AdminCommission[] | null>(null);
+  const load = () => api.adminReferrals().then(setData, (e: unknown) => setError(e instanceof ApiError ? e.message : 'Failed to load'));
+  useEffect(() => {
+    void load();
+  }, []);
+
+  async function decide(id: string, decision: 'paid' | 'rejected') {
+    const note = window.prompt(decision === 'paid' ? 'Note for the user (optional), e.g. "PayPal 12 Oct"' : 'Reason for rejecting (shown to the user)') ?? undefined;
+    if (decision === 'rejected' && note === undefined) return;
+    try {
+      await api.adminDecidePayout(id, decision, note || undefined);
+      await load();
+    } catch (e) {
+      window.alert(e instanceof ApiError ? e.message : 'Failed');
+    }
+  }
+
+  async function editCode(userId: string, current: string | null) {
+    const code = window.prompt('Invite code (3-24: a-z, 0-9, -). Link: fliplens.eu/de?ref=CODE', current ?? '');
+    if (!code) return;
+    try {
+      await api.adminSetReferralCode(userId, code.trim().toLowerCase());
+      await load();
+    } catch (e) {
+      window.alert(e instanceof ApiError ? e.message : 'Failed');
+    }
+  }
+
+  async function show(userId: string) {
+    if (open === userId) {
+      setOpen(null);
+      return;
+    }
+    setOpen(userId);
+    setCommissions(null);
+    api.adminReferrerCommissions(userId).then((r) => setCommissions(r.commissions), () => setCommissions([]));
+  }
+
+  async function reverse(id: string) {
+    if (!window.confirm('Reverse this commission (refund or fraud)?')) return;
+    try {
+      await api.adminReverseCommission(id);
+      if (open) setCommissions((await api.adminReferrerCommissions(open)).commissions);
+      await load();
+    } catch (e) {
+      window.alert(e instanceof ApiError ? e.message : 'Failed');
+    }
+  }
+
+  if (!data) return <Loading error={error} />;
+  const r = data.rules;
+  const owed = data.referrers.reduce((a, x) => a + x.availableMinor + x.requestedMinor, 0);
+  const open_ = data.payouts.filter((p) => p.status === 'requested');
+
+  return (
+    <>
+      <div className="admin-grid">
+        <div className="stat"><span>Referrers</span><strong>{data.referrers.length}</strong><small>{r.sharePct}% for {r.months} months, hold {r.holdDays} d</small></div>
+        <div className="stat"><span>Invited sign-ups</span><strong>{data.referrers.reduce((a, x) => a + x.signups, 0)}</strong><small>{data.referrers.reduce((a, x) => a + x.paying, 0)} paying</small></div>
+        <div className="stat"><span>Owed now</span><strong>€{(owed / 100).toFixed(2)}</strong><small>available + requested</small></div>
+        <div className="stat"><span>Open payout requests</span><strong>{open_.length}</strong><small>€{(open_.reduce((a, p) => a + p.amountMinor, 0) / 100).toFixed(2)}</small></div>
+      </div>
+
+      <section className="card">
+        <h2>Payout requests</h2>
+        <table className="breakdown admin-table">
+          <tbody>
+            {data.payouts.map((p) => (
+              <tr key={p.id}>
+                <td>
+                  <strong>€{(p.amountMinor / 100).toFixed(2)}</strong> · {p.email ?? 'n/a'}{p.code ? ` (${p.code})` : ''}
+                  <br />
+                  <span className="muted small">{p.details}</span>
+                  <br />
+                  <span className="muted small">{when(p.requestedAt)} · {p.status}{p.note ? ` · ${p.note}` : ''}</span>
+                </td>
+                <td>
+                  {p.status === 'requested' && (
+                    <>
+                      <button type="button" className="link" onClick={() => void decide(p.id, 'paid')}>Mark paid</button>
+                      <br />
+                      <button type="button" className="link" onClick={() => void decide(p.id, 'rejected')}>Reject</button>
+                    </>
+                  )}
+                </td>
+              </tr>
+            ))}
+            {data.payouts.length === 0 && <tr><td colSpan={2} className="muted">No payout requests yet.</td></tr>}
+          </tbody>
+        </table>
+      </section>
+
+      <section className="card">
+        <h2>Referrers</h2>
+        <table className="breakdown admin-table">
+          <tbody>
+            {data.referrers.map((x) => (
+              <Fragment key={x.userId}>
+                <tr>
+                  <td>
+                    <button type="button" className="link" onClick={() => void show(x.userId)}>{x.email ?? 'n/a'}</button>
+                    <br />
+                    <span className="muted small">
+                      code <button type="button" className="link" onClick={() => void editCode(x.userId, x.code)}>{x.code ?? 'set'}</button> · {x.visitors} visitors · {x.signups} sign-ups · {x.paying} paying
+                    </span>
+                    <br />
+                    <span className="muted small">
+                      revenue €{(x.revenueMinor / 100).toFixed(2)} · earned €{(x.earnedMinor / 100).toFixed(2)} (hold €{(x.pendingMinor / 100).toFixed(2)}, available €{(x.availableMinor / 100).toFixed(2)}, requested €{(x.requestedMinor / 100).toFixed(2)}, paid €{(x.paidMinor / 100).toFixed(2)})
+                    </span>
+                  </td>
+                </tr>
+                {open === x.userId && (
+                  <tr>
+                    <td>
+                      {commissions === null ? (
+                        <span className="muted small">Loading…</span>
+                      ) : commissions.length === 0 ? (
+                        <span className="muted small">No commissions yet.</span>
+                      ) : (
+                        commissions.map((c) => (
+                          <div key={c.id} className="muted small">
+                            {when(c.createdAt)} · {c.referredEmail ?? 'deleted user'} paid €{(c.baseMinor / 100).toFixed(2)} → €{(c.commissionMinor / 100).toFixed(2)} · {c.status}{' '}
+                            {(c.status === 'pending' || c.status === 'available') && <button type="button" className="link" onClick={() => void reverse(c.id)}>reverse</button>}
+                          </div>
+                        ))
+                      )}
+                    </td>
+                  </tr>
+                )}
+              </Fragment>
+            ))}
+            {data.referrers.length === 0 && <tr><td className="muted">Nobody has opened their invite page yet.</td></tr>}
+          </tbody>
+        </table>
+        <p className="muted small">To give a creator a custom link: they sign in once and open Profile, Invite friends; then set their code here. Their link: fliplens.eu/de?ref=CODE.</p>
       </section>
     </>
   );

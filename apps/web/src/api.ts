@@ -10,6 +10,7 @@ import type {
 import type { IdentificationResult as BaseIdentification } from '@fliplens/recognition';
 import { deviceId } from './storage.js';
 import { LANG } from './i18n.js';
+import { inviteCode } from './track.js';
 
 /** JSON turns Dates into strings; the UI only displays them. */
 type Jsonify<T> = T extends Date
@@ -168,6 +169,67 @@ export interface AdminOverview {
   events: { days: number; activeUsers: number; byName: Record<string, number> };
   recentChecks: { createdAt: string; email: string | null; brand: string; model: string; priceMinor: number; decision: string | null }[];
   revenue: { mrrEur: number; byPlan: { plan: string; active: number; ending: number; mrrEur: number }[] };
+}
+
+export interface ReferralRules {
+  sharePct: number;
+  months: number;
+  holdDays: number;
+  minPayoutMinor: number;
+}
+
+export interface ReferralInfo {
+  code: string;
+  signups: number;
+  paying: number;
+  balance: { pendingMinor: number; availableMinor: number; requestedMinor: number; paidMinor: number };
+  commissions: { createdAt: string; baseMinor: number; commissionMinor: number; status: 'pending' | 'available' | 'requested' | 'paid' | 'reversed'; availableAt: string }[];
+  payouts: { id: string; requestedAt: string; amountMinor: number; method: string; status: 'requested' | 'paid' | 'rejected'; note: string | null }[];
+  rules: ReferralRules;
+}
+
+export interface AdminReferrer {
+  userId: string;
+  email: string | null;
+  code: string | null;
+  visitors: number;
+  signups: number;
+  paying: number;
+  revenueMinor: number;
+  earnedMinor: number;
+  pendingMinor: number;
+  availableMinor: number;
+  requestedMinor: number;
+  paidMinor: number;
+}
+
+export interface AdminPayout {
+  id: string;
+  email: string | null;
+  code: string | null;
+  amountMinor: number;
+  method: string;
+  details: string;
+  status: 'requested' | 'paid' | 'rejected';
+  note: string | null;
+  requestedAt: string;
+  decidedAt: string | null;
+}
+
+export interface AdminReferrals {
+  referrers: AdminReferrer[];
+  payouts: AdminPayout[];
+  rules: ReferralRules;
+}
+
+export interface AdminCommission {
+  id: string;
+  createdAt: string;
+  referredEmail: string | null;
+  baseMinor: number;
+  commissionMinor: number;
+  status: string;
+  stripeInvoiceId: string;
 }
 
 export interface PhotoListing {
@@ -348,7 +410,17 @@ export const api = {
   adminUsers: (q: string, offset = 0) => call<{ total: number; users: AdminUserRow[] }>(`/api/admin/users?${new URLSearchParams({ ...(q && { q }), offset: String(offset) })}`),
   adminUser: (id: string) => call<AdminUserDetail>(`/api/admin/users/${id}`),
   googleLogin: (credential: string) =>
-    call<{ account: Account }>('/api/auth/google', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ credential }) }),
+    call<{ account: Account }>('/api/auth/google', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ credential, ...(inviteCode() && { invite: inviteCode() }) }) }),
+  referral: () => call<ReferralInfo>('/api/referral'),
+  requestPayout: (body: { method: 'paypal'; email: string } | { method: 'iban'; holder: string; iban: string }) =>
+    call<{ requestedMinor: number }>('/api/referral/payout', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }),
+  adminReferrals: () => call<AdminReferrals>('/api/admin/referrals'),
+  adminReferrerCommissions: (userId: string) => call<{ commissions: AdminCommission[] }>(`/api/admin/referrals/${userId}`),
+  adminSetReferralCode: (userId: string, code: string) =>
+    call<{ code: string }>(`/api/admin/referrals/${userId}/code`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ code }) }),
+  adminDecidePayout: (id: string, decision: 'paid' | 'rejected', note?: string) =>
+    call<{ ok: boolean }>(`/api/admin/payouts/${id}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ decision, ...(note && { note }) }) }),
+  adminReverseCommission: (id: string) => call<{ ok: boolean }>(`/api/admin/commissions/${id}/reverse`, { method: 'POST' }),
   logout: () => call<{ signedOut: boolean }>('/api/auth/logout', { method: 'POST' }),
   scans: () => call<ServerScan[]>('/api/scans'),
   scan: (id: string) => call<{ scan: { id: string; createdAt: string }; valuation: StoredValuation | null }>(`/api/scans/${id}`),

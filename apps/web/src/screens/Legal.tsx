@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { PLANS } from '@fliplens/core';
+import { PLANS, REFERRAL } from '@fliplens/core';
 import { LEGAL, LEGAL_IS_DRAFT } from '../legal.js';
 import { LANG, money, tr } from '../i18n.js';
 
@@ -148,6 +148,11 @@ function PrivacyPolicyEn() {
             <td>Provide the paid plan; keep required accounting records</td>
             <td>Contract (Art. 6(1)(b)); legal obligation (Art. 6(1)(c))</td>
           </tr>
+          <tr>
+            <td>Referral programme: who invited you (if anyone); for people who invite others, their earnings and the payout details they enter (PayPal email, or account holder and IBAN)</td>
+            <td>Credit and pay referral earnings, prevent abuse</td>
+            <td>Contract (Art. 6(1)(b) GDPR)</td>
+          </tr>
         </tbody>
       </table>
       <p>
@@ -182,6 +187,7 @@ function PrivacyPolicyEn() {
         <li>Checks, corrections, settings and usage events: until you delete them or your account.</li>
         <li>Server logs: up to 30 days.</li>
         <li>Payment and invoice records: as long as tax and accounting law requires.</li>
+        <li>Referral earnings and payout records: as long as tax and accounting law requires.</li>
       </ul>
 
       <h2>6. Your rights</h2>
@@ -264,39 +270,50 @@ function TermsOfServiceEn() {
         security, and no use for illegal goods. We may limit or suspend accounts that break these rules, after warning you where reasonable.
       </p>
 
-      <h2>7. Third-party services</h2>
+      <h2>7. Referral programme</h2>
+      <p>
+        Signed-in users can invite others with a personal link. For people who create a new FlipLens account through your link, you receive{' '}
+        {REFERRAL.sharePct}% of each payment they make for FlipLens (without taxes) during the {REFERRAL.months} months after their first payment.
+        Earnings become available {REFERRAL.holdDays} days after each payment and are cancelled if the payment is refunded or charged back. You can
+        request a payout once at least {money(REFERRAL.minPayoutMinor)} is available, by PayPal or bank transfer; we usually pay within 14 days.
+        Inviting yourself, creating several accounts, misleading advertising, spam and bidding on the FlipLens name in search ads are not allowed;
+        earnings from such activity are cancelled. You are responsible for any taxes on your earnings and, where required, for labelling your posts
+        as advertising. We may change or end the programme for the future; earnings already available will still be paid.
+      </p>
+
+      <h2>8. Third-party services</h2>
       <p>
         FlipLens uses data and services from third parties such as eBay, OpenAI, Google and Stripe. FlipLens is not affiliated with, endorsed by or
         sponsored by eBay or any marketplace we link to. Links to other marketplaces open their websites, which have their own terms.
       </p>
 
-      <h2>8. Availability and changes</h2>
+      <h2>9. Availability and changes</h2>
       <p>
         We work to keep FlipLens available and accurate but cannot guarantee uninterrupted service or that every estimate is correct. We may improve or change
         features. If a change removes a core part of a paid plan, you may cancel and receive a refund for the unused part of the period.
       </p>
 
-      <h2>9. Liability</h2>
+      <h2>10. Liability</h2>
       <p>
         We are liable without limitation for intent and gross negligence, for injury to life, body or health, and where mandatory law, including consumer law,
         provides so. Otherwise we are liable for slight negligence only if we breach an essential obligation, and then only for typical, foreseeable damage.
         We are not liable for purchase or sale decisions you make based on an estimate, or for losses from inaccurate third-party data, except as stated above.
       </p>
 
-      <h2>10. Ending the agreement</h2>
+      <h2>11. Ending the agreement</h2>
       <p>
         You can stop using FlipLens and delete your data at any time. We may end the service for you with 30 days' notice, or immediately for serious breach of
         these terms. Paid periods already paid for are refunded pro rata if we end the service without cause.
       </p>
 
-      <h2>11. Law and disputes</h2>
+      <h2>12. Law and disputes</h2>
       <p>
         These terms are governed by the law of {country}. If you are a consumer, you also keep the protection of the mandatory laws of the country
         where you live, and you can bring claims in your local courts. Please contact us first at <a href={`mailto:${LEGAL.supportEmail}`}>{LEGAL.supportEmail}</a>; we try to
         solve every issue directly.
       </p>
 
-      <h2>12. Changes to these terms</h2>
+      <h2>13. Changes to these terms</h2>
       <p>
         We may update these terms. We will tell you in the app at least 30 days before significant changes take effect. If you do not agree, you can cancel
         before then.
@@ -370,6 +387,11 @@ function PrivacyPolicyDe() {
             <td>Den kostenpflichtigen Tarif bereitstellen; gesetzlich vorgeschriebene Buchhaltungsunterlagen führen</td>
             <td>Vertrag (Art. 6 Abs. 1 lit. b); rechtliche Verpflichtung (Art. 6 Abs. 1 lit. c)</td>
           </tr>
+          <tr>
+            <td>Empfehlungsprogramm: wer Sie eingeladen hat (falls zutreffend); bei Personen, die andere einladen, deren Einnahmen und die angegebenen Auszahlungsdaten (PayPal-E-Mail oder Kontoinhaber und IBAN)</td>
+            <td>Einnahmen gutschreiben und auszahlen, Missbrauch verhindern</td>
+            <td>Vertrag (Art. 6 Abs. 1 lit. b DSGVO)</td>
+          </tr>
         </tbody>
       </table>
       <p>
@@ -404,6 +426,7 @@ function PrivacyPolicyDe() {
         <li>Checks, Korrekturen, Einstellungen und Nutzungsereignisse: bis Sie sie oder Ihr Konto löschen.</li>
         <li>Serverprotokolle: bis zu 30 Tage.</li>
         <li>Zahlungs- und Rechnungsunterlagen: so lange, wie es das Steuer- und Handelsrecht verlangt.</li>
+        <li>Empfehlungseinnahmen und Auszahlungsunterlagen: so lange, wie es das Steuer- und Handelsrecht verlangt.</li>
       </ul>
 
       <h2>6. Ihre Rechte</h2>
@@ -485,20 +508,32 @@ function TermsOfServiceDe() {
         sperren, soweit zumutbar nach vorheriger Warnung.
       </p>
 
-      <h2>7. Dienste Dritter</h2>
+      <h2>7. Empfehlungsprogramm</h2>
+      <p>
+        Angemeldete Nutzer können andere über einen persönlichen Link einladen. Für Personen, die über Ihren Link ein neues FlipLens-Konto
+        anlegen, erhalten Sie {REFERRAL.sharePct} % jeder Zahlung, die diese Person für FlipLens leistet (ohne Steuern), in den {REFERRAL.months} Monaten
+        nach ihrer ersten Zahlung. Einnahmen werden {REFERRAL.holdDays} Tage nach jeder Zahlung auszahlbar und verfallen, wenn die Zahlung erstattet oder
+        zurückgebucht wird. Eine Auszahlung können Sie anfordern, sobald mindestens {money(REFERRAL.minPayoutMinor)} auszahlbar sind, per PayPal oder
+        Überweisung; wir zahlen in der Regel innerhalb von 14 Tagen. Nicht erlaubt sind Selbsteinladungen, mehrere Konten, irreführende Werbung,
+        Spam und Suchanzeigen auf den Namen FlipLens; Einnahmen aus solchen Aktivitäten verfallen. Für Steuern auf Ihre Einnahmen und, soweit
+        erforderlich, für die Kennzeichnung Ihrer Beiträge als Werbung sind Sie selbst verantwortlich. Wir können das Programm für die Zukunft
+        ändern oder beenden; bereits auszahlbare Einnahmen werden weiterhin ausgezahlt.
+      </p>
+
+      <h2>8. Dienste Dritter</h2>
       <p>
         FlipLens nutzt Daten und Dienste Dritter wie eBay, OpenAI, Google und Stripe. FlipLens ist weder mit eBay noch mit einem der verlinkten Marktplätze verbunden,
         wird von ihnen nicht unterstützt und nicht gesponsert. Links zu anderen Marktplätzen öffnen deren Websites, für die eigene Bedingungen gelten.
       </p>
 
-      <h2>8. Verfügbarkeit und Änderungen</h2>
+      <h2>9. Verfügbarkeit und Änderungen</h2>
       <p>
         Wir bemühen uns, FlipLens verfügbar und genau zu halten, können aber keinen unterbrechungsfreien Betrieb und nicht die Richtigkeit jeder Schätzung garantieren.
         Wir können Funktionen verbessern oder ändern. Entfällt durch eine Änderung ein wesentlicher Bestandteil eines kostenpflichtigen Tarifs, können Sie kündigen und
         erhalten eine Erstattung für den nicht genutzten Teil des Zeitraums.
       </p>
 
-      <h2>9. Haftung</h2>
+      <h2>10. Haftung</h2>
       <p>
         Wir haften unbeschränkt bei Vorsatz und grober Fahrlässigkeit, bei Verletzung von Leben, Körper oder Gesundheit sowie soweit zwingendes Recht, einschließlich des
         Verbraucherrechts, dies vorsieht. Im Übrigen haften wir für leichte Fahrlässigkeit nur bei Verletzung einer wesentlichen Vertragspflicht und dann nur für den
@@ -506,20 +541,20 @@ function TermsOfServiceDe() {
         ungenauen Daten Dritter, außer wie oben angegeben.
       </p>
 
-      <h2>10. Beendigung</h2>
+      <h2>11. Beendigung</h2>
       <p>
         Sie können die Nutzung von FlipLens jederzeit beenden und Ihre Daten löschen. Wir können den Dienst für Sie mit einer Frist von 30 Tagen beenden oder bei einem
         schweren Verstoß gegen diese Bedingungen fristlos. Bereits bezahlte Zeiträume werden anteilig erstattet, wenn wir den Dienst ohne wichtigen Grund beenden.
       </p>
 
-      <h2>11. Anwendbares Recht und Streitigkeiten</h2>
+      <h2>12. Anwendbares Recht und Streitigkeiten</h2>
       <p>
         Für diese Bedingungen gilt das Recht von {country}. Als Verbraucher behalten Sie zusätzlich den Schutz der zwingenden Vorschriften des Landes, in dem Sie wohnen,
         und können Ansprüche vor den Gerichten an Ihrem Wohnort geltend machen. Bitte wenden Sie sich zuerst an{' '}
         <a href={`mailto:${LEGAL.supportEmail}`}>{LEGAL.supportEmail}</a>; wir versuchen, jedes Anliegen direkt zu lösen.
       </p>
 
-      <h2>12. Änderungen dieser Bedingungen</h2>
+      <h2>13. Änderungen dieser Bedingungen</h2>
       <p>
         Wir können diese Bedingungen aktualisieren. Über wesentliche Änderungen informieren wir Sie in der App mindestens 30 Tage vor ihrem Inkrafttreten. Wenn Sie nicht
         einverstanden sind, können Sie vorher kündigen.

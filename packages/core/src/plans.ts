@@ -63,3 +63,12 @@ export const PAID_PLANS: readonly PaidPlanId[] = ['pro', 'reseller'];
 export function planByLookupKey(key: string | null | undefined): PaidPlanId | undefined {
   return PAID_PLANS.find((p) => PLANS[p].stripeLookupKey === key);
 }
+
+/** Referral programme: share of what an invited user pays during their first months. Shown in the app and Terms. */
+export const REFERRAL = {
+  sharePct: 20,
+  months: 6,
+  /** Commission becomes withdrawable after the EU withdrawal period (refunds). */
+  holdDays: 14,
+  minPayoutMinor: 2000,
+} as const;

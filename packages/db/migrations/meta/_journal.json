@@ -64,6 +64,13 @@
       "when": 1791205595761,
       "tag": "0008_scans_price_provided",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1791796903209,
+      "tag": "0009_referrals",
+      "breakpoints": true
     }
   ]
 }

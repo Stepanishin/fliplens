@@ -1,8 +1,11 @@
 import type { FastifyBaseLogger, FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import Stripe from 'stripe';
 import { z } from 'zod';
-import { PLANS, planByLookupKey, type PlanId } from '@fliplens/core';
+import { PLANS, REFERRAL, planByLookupKey, type PlanId } from '@fliplens/core';
 import {
+  firstReferralPaymentAt,
+  recordReferralCommission,
+  referrerOf,
   effectivePlan,
   getSubscription,
   getUser,
@@ -130,6 +133,38 @@ export function createBilling(db: Db, cfg: BillingConfig, log: FastifyBaseLogger
       cancelAtPeriodEnd: sub.cancel_at_period_end,
     });
     log.info({ event: 'subscription_synced', plan, status: sub.status }, 'subscription synced');
+  }
+
+  /**
+   * Referral commission for a paid invoice of an invited user: REFERRAL.sharePct of the amount without tax, for
+   * payments within REFERRAL.months of their first commissioned payment. Idempotent per invoice (webhook retries).
+   */
+  async function creditReferral(inv: Stripe.Invoice): Promise<void> {
+    const customerId = typeof inv.customer === 'string' ? inv.customer : inv.customer?.id;
+    if (!customerId || !inv.id || inv.amount_paid <= 0) return;
+    const userId = await userIdByStripeCustomer(db, customerId);
+    if (!userId) return; // not a FlipLens customer (shared Stripe account)
+    const referrerId = await referrerOf(db, userId);
+    if (!referrerId) return;
+    const first = await firstReferralPaymentAt(db, userId);
+    if (first) {
+      const end = new Date(first);
+      end.setMonth(end.getMonth() + REFERRAL.months);
+      if (Date.now() > end.getTime()) return;
+    }
+    const base = Math.min(inv.amount_paid, inv.total_excluding_tax ?? inv.amount_paid);
+    const commission = Math.round((base * REFERRAL.sharePct) / 100);
+    if (commission <= 0) return;
+    const created = await recordReferralCommission(db, {
+      referrerId,
+      referredUserId: userId,
+      stripeInvoiceId: inv.id,
+      baseMinor: base,
+      commissionMinor: commission,
+      currency: inv.currency.toUpperCase(),
+      availableAt: new Date(Date.now() + REFERRAL.holdDays * 86_400_000),
+    });
+    if (created) log.info({ event: 'referral_commission', commissionMinor: commission }, 'referral commission recorded');
   }
 
   async function cancelForDeletion(userId: string): Promise<void> {
@@ -270,6 +305,9 @@ export function createBilling(db: Db, cfg: BillingConfig, log: FastifyBaseLogger
               if (typeof s.subscription === 'string') await syncSubscription(await stripe.subscriptions.retrieve(s.subscription));
               break;
             }
+            case 'invoice.paid':
+              await creditReferral(event.data.object);
+              break;
             case 'customer.subscription.created':
             case 'customer.subscription.updated':
             case 'customer.subscription.deleted':

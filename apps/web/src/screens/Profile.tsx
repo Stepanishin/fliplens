@@ -9,6 +9,8 @@ import { LANG, LOCALE, setLang, tr, type Lang, presetText } from '../i18n.js';
 
 const T = tr({
   en: {
+    inviteTitle: 'Invite friends, earn 20%',
+    inviteSub: 'Get 20% of what they pay for 6 months',
     profile: 'Profile',
     deleteConfirm: 'Delete all your scans and data on the server? This cannot be undone.',
     signOut: 'Sign out',
@@ -42,6 +44,8 @@ const T = tr({
     termsFull: 'Terms of Service',
   },
   de: {
+    inviteTitle: 'Freunde einladen, 20 % verdienen',
+    inviteSub: '20 % von allem, was sie 6 Monate lang zahlen',
     profile: 'Profil',
     deleteConfirm: 'Alle deine Scans und Daten auf dem Server löschen? Das kann nicht rückgängig gemacht werden.',
     signOut: 'Abmelden',
@@ -96,6 +100,8 @@ interface Props {
   onOpenWelcome: () => void;
   isAdmin: boolean;
   onOpenAdmin: () => void;
+  /** Invite friends / referral earnings. */
+  onOpenReferral: () => void;
 }
 
 const COUNTRY_NAMES: Record<string, string> = {
@@ -114,7 +120,7 @@ function countryName(code: string): string {
   }
 }
 
-export function Profile({ billing, onOpenPlans, account, googleClientId, onGoogleCredential, onSignOut, authError, settings, onChange, dbOn, version, devTools, onDevTools, onDataDeleted, onOpenWelcome, isAdmin, onOpenAdmin }: Props) {
+export function Profile({ billing, onOpenPlans, account, googleClientId, onGoogleCredential, onSignOut, authError, settings, onChange, dbOn, version, devTools, onDevTools, onDataDeleted, onOpenWelcome, isAdmin, onOpenAdmin, onOpenReferral }: Props) {
   const preset = FEE_PRESETS[settings.preset];
 
   async function exportData() {
@@ -143,6 +149,17 @@ export function Profile({ billing, onOpenPlans, account, googleClientId, onGoogl
             <strong>Admin panel</strong>
             <br />
             Users, visits, revenue and costs
+          </span>
+          <IconChevron size={18} />
+        </button>
+      )}
+
+      {account && (
+        <button type="button" className="context-row admin-entry" onClick={onOpenReferral}>
+          <span>
+            <strong>{T.inviteTitle}</strong>
+            <br />
+            {T.inviteSub}
           </span>
           <IconChevron size={18} />
         </button>

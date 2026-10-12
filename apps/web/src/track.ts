@@ -33,7 +33,35 @@ window.addEventListener('pagehide', flush);
  * One "visit" per browser tab session: where people come from (referrer host, utm_source) and on what.
  * No cookies and no third-party scripts; the server stores only a hash of the random device id.
  */
+const INVITE_KEY = 'fliplens.invite.v1';
+const INVITE_DAYS = 30;
+
+/** An invite code from a ?ref= link, kept for 30 days on this device (first link wins) until the user signs up. */
+export function inviteCode(): string | undefined {
+  try {
+    const raw = localStorage.getItem(INVITE_KEY);
+    if (!raw) return undefined;
+    const v = JSON.parse(raw) as { code?: string; at?: number };
+    if (!v.code || !v.at || Date.now() - v.at > INVITE_DAYS * 86_400_000) return undefined;
+    return v.code;
+  } catch {
+    return undefined;
+  }
+}
+
+function rememberInvite(): string | null {
+  const code = new URLSearchParams(window.location.search).get('ref')?.trim().toLowerCase().slice(0, 40) ?? '';
+  if (!/^[a-z0-9][a-z0-9-]{2,23}$/.test(code)) return null;
+  try {
+    if (!inviteCode()) localStorage.setItem(INVITE_KEY, JSON.stringify({ code, at: Date.now() }));
+  } catch {
+    // storage blocked: the invite only works if they sign up right away
+  }
+  return code;
+}
+
 export function trackVisit(): void {
+  const invite = rememberInvite();
   try {
     if (sessionStorage.getItem('fliplens.visit')) return;
     sessionStorage.setItem('fliplens.visit', '1');
@@ -55,5 +83,6 @@ export function trackVisit(): void {
     mobile: window.matchMedia('(pointer: coarse)').matches,
     standalone: window.matchMedia('(display-mode: standalone)').matches,
     lang: navigator.language.slice(0, 2),
+    invite,
   });
 }

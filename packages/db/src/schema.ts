@@ -1,4 +1,4 @@
-import { boolean, index, integer, jsonb, pgTable, real, text, timestamp, uuid } from 'drizzle-orm/pg-core';
+import { boolean, index, integer, jsonb, pgTable, real, text, timestamp, uuid, type AnyPgColumn } from 'drizzle-orm/pg-core';
 
 /**
  * Money: integer minor units + ISO currency (ADR-007).
@@ -16,6 +16,11 @@ export const users = pgTable('users', {
   name: text('name'),
   picture: text('picture'),
   stripeCustomerId: text('stripe_customer_id').unique(),
+  /** This user's invite code (created on first visit to the referral screen; admins can set a custom one). */
+  referralCode: text('referral_code').unique(),
+  /** Who invited this user: set once, when the Google account is created through an invite link. */
+  referredBy: uuid('referred_by').references((): AnyPgColumn => users.id, { onDelete: 'set null' }),
+  referredAt: timestamp('referred_at', { withTimezone: true }),
   createdAt: createdAt(),
   lastSeenAt: timestamp('last_seen_at', { withTimezone: true }).notNull().defaultNow(),
 });
@@ -222,4 +227,48 @@ export const usageCosts = pgTable(
     createdAt: createdAt(),
   },
   (t) => [index('usage_costs_created_idx').on(t.createdAt)],
+);
+
+/**
+ * Referral commissions: a share of every payment an invited user makes during their first months (see plans.ts
+ * REFERRAL). One row per paid Stripe invoice. pending -> available after the hold; reversed on refund;
+ * requested/paid with a payout.
+ */
+export const referralCommissions = pgTable(
+  'referral_commissions',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    referrerId: uuid('referrer_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+    referredUserId: uuid('referred_user_id').references(() => users.id, { onDelete: 'set null' }),
+    stripeInvoiceId: text('stripe_invoice_id').notNull().unique(),
+    stripeChargeId: text('stripe_charge_id'),
+    /** What the invited user paid, without tax, in cents. */
+    baseMinor: integer('base_minor').notNull(),
+    commissionMinor: integer('commission_minor').notNull(),
+    currency: text('currency').notNull(),
+    status: text('status').$type<'pending' | 'available' | 'requested' | 'paid' | 'reversed'>().notNull().default('pending'),
+    availableAt: timestamp('available_at', { withTimezone: true }).notNull(),
+    payoutId: uuid('payout_id').references(() => referralPayouts.id, { onDelete: 'set null' }),
+    createdAt: createdAt(),
+  },
+  (t) => [index('referral_commissions_referrer_idx').on(t.referrerId, t.status)],
+);
+
+/** Payout requests; paid by hand (PayPal or bank transfer) and marked in the admin screen. */
+export const referralPayouts = pgTable(
+  'referral_payouts',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+    amountMinor: integer('amount_minor').notNull(),
+    currency: text('currency').notNull().default('EUR'),
+    method: text('method').$type<'paypal' | 'iban'>().notNull(),
+    /** PayPal email, or account holder + IBAN. Needed only to pay; shown to admins. */
+    details: text('details').notNull(),
+    status: text('status').$type<'requested' | 'paid' | 'rejected'>().notNull().default('requested'),
+    note: text('note'),
+    requestedAt: createdAt(),
+    decidedAt: timestamp('decided_at', { withTimezone: true }),
+  },
+  (t) => [index('referral_payouts_user_idx').on(t.userId)],
 );

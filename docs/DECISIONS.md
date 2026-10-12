@@ -97,3 +97,10 @@ Status: accepted 2026-10-12.
 - Content pages exist under `/de/...` with hreflang pairs, a bilingual sitemap and German crawler text for `/de`. Privacy and Terms have a German translation; the English version prevails.
 - Stripe Checkout, Customer Portal and receipts use the UI language. Photo listings return the "missing" hints in the UI language.
 - German uses informal "du" in the app and on content pages, "Sie" in legal texts. Glossary: Check, Anzeige, Lager, Tarife, Wiederverkaufswert, Höchstpreis, Vergleichsangebote; verdicts Klarer Kauf, Kaufen, Grenzwertig, Finger weg.
+
+## ADR-018: Referral programme
+Status: accepted 2026-10-12 (product owner decision: 20%, 6 months, no promo codes).
+- Every signed-in user has an invite link `fliplens.eu/?ref=CODE` (German: `/de?ref=CODE`); admins can set custom codes for creators. The code from a link is kept on the device for 30 days (first link wins) and applied only when a new Google account is created; never to oneself.
+- Commission: `REFERRAL.sharePct` (20%) of each paid invoice of the invited user, without tax, for `REFERRAL.months` (6) after their first commissioned payment. Recorded from the Stripe `invoice.paid` webhook, once per invoice.
+- Earnings are held `REFERRAL.holdDays` (14, the withdrawal period), then become available. Refunds: an admin reverses the commission in the admin screen (automatic matching of refunds to invoices is not reliable on the current Stripe API).
+- Payouts: the user requests the whole available balance (minimum €20) by PayPal or IBAN; the admin pays by hand and marks it paid or rejected. Terms section 7 and the Privacy Policy describe the programme and the payout data.

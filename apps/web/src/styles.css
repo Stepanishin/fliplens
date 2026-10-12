@@ -683,3 +683,8 @@ button:focus-visible, a:focus-visible, summary:focus-visible { outline: 2.5px so
 .home-tool { display: flex; align-items: center; gap: 12px; width: 100%; text-align: left; padding: 14px 16px; border-radius: var(--radius); border: 1px solid var(--line); background: var(--surface); box-shadow: var(--shadow-sm); color: var(--text); }
 .home-tool .home-tool-icon { width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; background: var(--accent-soft); color: var(--accent-2); flex: 0 0 auto; }
 .home-tool span.muted { display: block; font-size: 13px; }
+
+/* ---------- referral ---------- */
+.banner.ok { background: var(--accent-soft); color: var(--accent-3); }
+.ref-link { padding: 12px 14px; border-radius: var(--radius-sm); background: var(--surface-2); margin-bottom: 10px; overflow-wrap: anywhere; }
+.ref-link code { font-size: 15px; color: var(--text); }
