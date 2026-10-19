@@ -5,6 +5,7 @@ import type { ValuationResponse } from '../api.js';
 import { ago, FACTOR_LABEL } from '../format.js';
 import { money, reason, tr, presetText } from '../i18n.js';
 import { MarketLinks } from '../MarketLinks.js';
+import { MarketCompare } from '../ui/MarketCompare.js';
 import { ConfidencePill, DecisionHero, eur, MarketActivity, RangeBar } from '../ui/verdict.js';
 import { IconBag, IconEdit, IconScan, IconSpark } from '../ui/icons.js';
 import { Comparables } from './Comparables.js';
@@ -243,6 +244,7 @@ export function Result({ resp, query, country, onNewScan, onEdit, targetRoiPct, 
             <li>{T.tip3}</li>
           </ul>
         </section>
+        {resp.scanId && <MarketCompare scanId={resp.scanId} />}
         <MarketLinks query={query} country={country} />
         <Comparables items={r.comparables} />
         <Actions onNewScan={onNewScan} onEdit={onEdit} />
@@ -463,7 +465,8 @@ export function Result({ resp, query, country, onNewScan, onEdit, targetRoiPct, 
         </details>
       </section>
 
-      <MarketLinks query={query} country={country} />
+      {resp.scanId && <MarketCompare scanId={resp.scanId} />}
+        <MarketLinks query={query} country={country} />
       <Actions onNewScan={onNewScan} onEdit={onEdit} />
       {children}
     </div>

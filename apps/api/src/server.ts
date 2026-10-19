@@ -20,6 +20,7 @@ import { compact } from '@fliplens/core';
 import { registerBenchmarkRoutes } from './benchmark.js';
 import { registerShelfRoute } from './shelf.js';
 import { registerRadarRoute } from './radar.js';
+import { registerCompareRoute } from './compare.js';
 import { ebaySellConfigFromEnv } from './ebay-publish.js';
 import { initPersistence, type Persistence } from './persistence.js';
 import { billingConfigFromEnv } from './billing.js';
@@ -255,6 +256,8 @@ registerShelfRoute(app, {
   scanner: new OpenAIShelfScanner(openaiKey, process.env.OPENAI_VISION_MODEL || 'gpt-6-sol'),
   cheapModel: process.env.OPENAI_VISION_FAST_MODEL || 'gpt-6-luna',
 });
+
+registerCompareRoute(app, { store, ebay, fx });
 
 registerRadarRoute(app, {
   store,

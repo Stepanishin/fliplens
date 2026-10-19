@@ -150,3 +150,8 @@ Status: accepted 2026-10-12.
 - Policies: the seller's own eBay shipping policy (we do not guess carriers or rates); payment and return policies are reused, or created with safe defaults when missing (private sellers: no returns; business sellers: 30 days, buyer pays return shipping). Sellers not yet in Business Policies are opted in.
 - Marketplace Account Deletion: GET/POST /api/ebay/account-deletion answers eBay's challenge (EBAY_VERIFICATION_TOKEN) and deletes connections of closed eBay accounts. Signature verification of notifications is not implemented yet (a forged call can only disconnect an eBay account).
 - Off unless EBAY_RUNAME and EBAY_TOKEN_KEY are set; the button is hidden then.
+
+## ADR-026: UK vs EU comparison
+Status: accepted 2026-10-16.
+- On the result screen a checked item can be compared between eBay.co.uk (pounds) and the five EU eBay sites (euro), each with expected sale price, the most worth paying and the number of listings, amounts shown in both currencies, and which market sells for more (shown when the difference is at least 5%). For resellers who buy in one market and sell in the other (asked for by a UK retro games shop that sources in the EU twice a year).
+- Only for the caller's own scan (POST /api/valuation/compare with scanId), so it cannot replace a check and costs none; the eBay searches are mostly served from the adapter cache. Private-seller fee profiles on both sides, the user's shipping converted at the ECB rate. Cross-border shipping, customs and VAT are not included and the card says so.

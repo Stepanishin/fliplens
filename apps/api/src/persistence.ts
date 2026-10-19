@@ -99,6 +99,8 @@ export interface Persistence {
   requireMember(req: FastifyRequest, reply: FastifyReply): Promise<boolean>;
   /** Any visitor with a device id (guests included): for cheap helpers that must not use up the guest trial. */
   requireVisitor(req: FastifyRequest, reply: FastifyReply): Promise<boolean>;
+  /** The caller's own stored check (product and condition), for follow-ups such as the UK vs EU comparison. */
+  ownScan(req: FastifyRequest, scanId: string): Promise<{ product: NormalizedProduct; condition: string; currency: string } | undefined>;
   /** Live radar gate: signed in with Google, frames left today, AI spend under the hard stop. Sends the error itself. */
   requireRadar(req: FastifyRequest, reply: FastifyReply): Promise<boolean>;
   /** One radar frame's AI cost (no identification row: frames do not use up the recognition limit). */
@@ -207,6 +209,7 @@ function disabled(status: DbStatus): Persistence {
     requireMember: async () => true,
     aiMode: async () => 'full',
     requireRadar: async () => true,
+    ownScan: async () => undefined,
     recordRadarFrame: async () => undefined,
     requireAdmin: async () => true,
   };
@@ -346,6 +349,13 @@ function enabled(db: Db, log: FastifyBaseLogger, auth: AuthConfig): Persistence 
       if ((await getUser(db, uid))?.googleSub) return true;
       void reply.code(401).send({ error: 'members_only', message: 'Sign in with Google to scan whole tables.' });
       return false;
+    },
+
+    async ownScan(req, scanId) {
+      const uid = await userId(req);
+      if (!uid) return undefined;
+      const row = await getScan(db, uid, scanId);
+      return row ? { product: row.scan.product as NormalizedProduct, condition: row.scan.condition, currency: row.scan.currency } : undefined;
     },
 
     async requireRadar(req, reply) {

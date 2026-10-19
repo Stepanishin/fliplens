@@ -829,3 +829,12 @@ button.ghost.small { min-height: 34px; padding: 6px 12px; font-size: 13px; }
 .ebay-aspects { border: 1px solid var(--line); border-radius: var(--radius-sm); padding: 10px 12px 12px; display: grid; gap: 10px; margin-left: 0; margin-right: 0; }
 .ebay-aspects legend { padding: 0 4px; }
 .ebay-add { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; padding: 0 16px; border-radius: var(--radius-sm); border: 1px solid var(--line); cursor: pointer; font-weight: 600; }
+
+/* ---------- UK vs EU ---------- */
+.mc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.mc-col { display: flex; flex-direction: column; gap: 3px; padding: 12px; border-radius: var(--radius-sm); background: var(--surface-2); border: 2px solid transparent; min-width: 0; }
+.mc-col.mc-win { border-color: var(--strong-buy); background: color-mix(in srgb, var(--strong-buy) 8%, var(--surface-2)); }
+.mc-flag { font-weight: 800; font-size: 18px; letter-spacing: -0.01em; }
+.mc-label { margin-top: 6px; font-size: 12px; color: var(--text-2); font-weight: 600; }
+.mc-col strong { font-size: 20px; }
+.mc-verdict { font-weight: 700; margin: 4px 0 0; }

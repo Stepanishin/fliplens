@@ -288,6 +288,17 @@ export interface EbayPublishRequest {
   business: boolean;
 }
 
+export type MarketCompareColumn = { id: 'GB' | 'EU'; label: string; currency: 'EUR' | 'GBP' } & (
+  | { status: 'ok'; expectedMinor: number; fastMinor: number; maxBuyMinor: number; count: number; confidence: string; expectedEurMinor: number; expectedGbpMinor: number }
+  | { status: 'insufficient'; count: number }
+  | { status: 'unavailable' }
+);
+export interface MarketCompare {
+  markets: MarketCompareColumn[];
+  better: { id: 'GB' | 'EU'; diffEurMinor: number; diffGbpMinor: number; pct: number } | null;
+  fx: { gbpPerEur: number; rateDate: string; source: string };
+}
+
 export interface PhotoListing {
   title: string;
   description: string;
@@ -479,6 +490,8 @@ export const api = {
     call<{ aspects: EbayAspect[]; suggested: Record<string, string> }>('/api/ebay/aspects', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ marketplace, categoryId, title, description }) }),
   ebayPublish: (body: EbayPublishRequest) =>
     call<{ listingId: string; url: string }>('/api/ebay/publish', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }),
+  compareMarkets: (body: { scanId: string; shippingCost: number; shippingCurrency: 'EUR' | 'GBP'; targetRoiPct: number }) =>
+    call<MarketCompare>('/api/valuation/compare', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }),
   radarFrame: (image: string, signal?: AbortSignal) =>
     call<{ items: RadarItem[]; latencyMs: number }>('/api/radar/frame', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ image }), ...(signal && { signal }) }),
   shelfScan: (body: { image: string; preset: string; shippingCost: number; targetRoiPct: number; country: string }) =>
