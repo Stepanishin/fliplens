@@ -11,7 +11,7 @@ export default defineConfig({
     // Self-signed HTTPS so a phone on the same Wi-Fi can use the service worker and camera.
     ...(https ? [basicSsl() as PluginOption] : []),
     VitePWA({
-      registerType: 'autoUpdate',
+      registerType: 'prompt',
       includeAssets: ['icons/icon.svg'],
       manifest: {
         name: 'FlipLens',
