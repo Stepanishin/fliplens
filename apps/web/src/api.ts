@@ -1,5 +1,6 @@
 import type {
   CategorySlug,
+  FashionAttributes,
   Condition,
   CurrencyCode,
   EvaluatedComparable,
@@ -36,6 +37,7 @@ export interface ValuationRequest {
     mount?: string;
     gtin?: string;
     excludeModels?: string[];
+    fashion?: FashionAttributes;
   };
   condition: Condition;
   purchasePrice?: number;
@@ -58,6 +60,8 @@ export interface ValuationResponse {
   /** Category used for the search (auto-detected when the request had none). */
   category: CategorySlug;
   categoryDetected: boolean;
+  /** Clothes, shoes, bags: the type and department used (detected when the request had none). */
+  fashion?: FashionAttributes;
   /** False when checked without a price: the result is valued at the max buy price. */
   priceProvided?: boolean;
   source: 'ebay';
@@ -96,7 +100,7 @@ export interface ServerScan {
   id: string;
   createdAt: string;
   inputMethod: 'photo' | 'barcode' | 'manual';
-  product: { category: CategorySlug; brand: string; model: string; capacity: string | null; mount: string | null };
+  product: { category: CategorySlug; brand: string; model: string; capacity: string | null; mount: string | null; fashion?: FashionAttributes };
   excludeModels: string[];
   condition: Condition;
   purchasePrice: { amountMinor: number; currency: CurrencyCode };
@@ -468,7 +472,7 @@ export const api = {
     call<PhotoListing>('/api/listing/photo', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...body, uiLanguage: LANG }) }),
   deleteInventory: (id: string) => call<{ deleted: boolean }>(`/api/inventory/${id}`, { method: 'DELETE' }),
   detectCategory: (brand: string, model: string) =>
-    call<{ category: CategorySlug | null }>(`/api/category?${new URLSearchParams({ brand, model })}`),
+    call<{ category: CategorySlug | null; fashion?: FashionAttributes }>(`/api/category?${new URLSearchParams({ brand, model })}`),
   checkout: (plan: 'pro' | 'reseller') =>
     call<{ url: string }>('/api/billing/checkout', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ plan, locale: LANG }) }),
   portal: () => call<{ url: string }>('/api/billing/portal', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ locale: LANG }) }),

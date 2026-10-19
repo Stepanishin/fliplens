@@ -30,7 +30,7 @@ const COMMON_FAQ_IT: Faq[] = [
   },
   {
     q: 'Quali articoli funzionano meglio?',
-    a: `Elettronica di consumo, gaming e fotografia: cuffie, smartphone, tablet, laptop, smartwatch, altoparlanti, console, console portatili, controller, giochi, corpi macchina, obiettivi, action cam e fotocamere compatte, oltre agli elettroutensili. La moda non è ancora supportata.`,
+    a: `Elettronica di consumo, gaming e fotografia: cuffie, smartphone, tablet, laptop, smartwatch, altoparlanti, console, console portatili, controller, giochi, corpi macchina, obiettivi, action cam e fotocamere compatte, oltre agli elettroutensili. Anche abbigliamento, scarpe e borse di marca vengono valutati, per marca, tipo e condizione (stima più approssimativa che per l'elettronica).`,
   },
   {
     q: 'Devo inserire un prezzo?',
@@ -80,7 +80,7 @@ const PAGES_IT: Page[] = [
       },
       {
         h2: 'Limiti noti',
-        html: `<ul><li>I prezzi si basano su annunci attivi (prezzi richiesti), non su prezzi di vendita confermati.</li><li>L'offerta è visibile (quanti articoli sono in vendita e da quanto tempo), la velocità di vendita non ancora.</li><li>Moda, oggetti da collezione e pezzi unici non sono supportati.</li><li>Le commissioni cambiano: ogni profilo commissioni mostra quando è stato verificato l'ultima volta e rimanda alla sua fonte.</li></ul>`,
+        html: `<ul><li>I prezzi si basano su annunci attivi (prezzi richiesti), non su prezzi di vendita confermati.</li><li>L'offerta è visibile (quanti articoli sono in vendita e da quanto tempo), la velocità di vendita non ancora.</li><li>Oggetti da collezione e pezzi unici non sono supportati. Abbigliamento, scarpe e borse vengono valutati per marca, tipo e condizione, non come capo esatto.</li><li>Le commissioni cambiano: ogni profilo commissioni mostra quando è stato verificato l'ultima volta e rimanda alla sua fonte.</li></ul>`,
       },
     ],
   },

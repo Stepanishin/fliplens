@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { FEE_PRESETS, type CategorySlug, type FeePresetId } from '@fliplens/core';
+import { FEE_PRESETS, type CategorySlug, type FashionAttributes, type FeePresetId } from '@fliplens/core';
 import { api, ApiError, type Account, type BillingInfo, type Health, type ServerScan, type ValuationResponse } from './api.js';
 import { Plans } from './screens/Plans.js';
 import { Landing } from './screens/Landing.js';
@@ -21,6 +21,7 @@ import {
   buildRequest,
   showsCapacity,
   draftFromScan,
+  fashionFields,
   newDraft,
   type Draft,
   type Identification,
@@ -383,8 +384,10 @@ export function App() {
   };
 
   /** Skip the confirm step when recognition is very sure (first recognition of a scan only). */
-  function maybeAdvance(r: { candidates: readonly { confidence: number }[] }) {
-    if ((r.candidates[0]?.confidence ?? 0) >= AUTO_ADVANCE_CONFIDENCE && routeRef.current === 'confirm') {
+  function maybeAdvance(r: { candidates: readonly { confidence: number; brand: string }[] }) {
+    const top = r.candidates[0];
+    // Clothes without a readable brand: stay, so the user can type it (no brand, no price).
+    if (top && top.brand.trim() !== '' && top.confidence >= AUTO_ADVANCE_CONFIDENCE && routeRef.current === 'confirm') {
       track('confirm_skipped', {});
       go({ name: 'price' });
     }
@@ -441,8 +444,8 @@ export function App() {
   );
   const closeScanner = useCallback(() => setScanning(false), []);
 
-  const onDetectedCategory = useCallback((c: CategorySlug) => {
-    setDraft((d) => (d.product.category === '' ? { ...d, product: { ...d.product, category: c, categoryAuto: true } } : d));
+  const onDetectedCategory = useCallback((c: CategorySlug, fashion?: FashionAttributes) => {
+    setDraft((d) => (d.product.category === '' ? { ...d, product: { ...d.product, category: c, categoryAuto: true, ...fashionFields(fashion) } } : d));
   }, []);
 
   function startManual() {
@@ -463,7 +466,7 @@ export function App() {
       }
       let product = { ...d.product, ...p };
       // A detected category belongs to the old name: typing a new brand/model re-detects it.
-      if (d.product.categoryAuto && (p.brand !== undefined || p.model !== undefined)) product = { ...product, category: '', categoryAuto: false };
+      if (d.product.categoryAuto && (p.brand !== undefined || p.model !== undefined)) product = { ...product, category: '', categoryAuto: false, ...fashionFields(undefined) };
       return { ...d, product, edited: d.edited || edited };
     });
   }
@@ -476,7 +479,9 @@ export function App() {
       const r = await api.valuation(buildRequest(d, settings));
       setResp(r);
       // Keep the category the server detected, so "Edit" shows it and the next check uses it.
-      if (r.categoryDetected) setDraft((x) => ({ ...x, product: { ...x.product, category: r.category, categoryAuto: true } }));
+      if (r.categoryDetected) setDraft((x) => ({ ...x, product: { ...x.product, category: r.category, categoryAuto: true, ...(r.fashion && fashionFields(r.fashion)) } }));
+      // Type and department detected for clothes the user only categorised: keep them for "Edit" too.
+      else if (r.fashion && !d.product.gender) setDraft((x) => ({ ...x, product: { ...x.product, ...fashionFields(r.fashion) } }));
       track(r.result.status === 'ok' ? 'valuation_completed' : 'valuation_failed', {
         category: d.product.category,
         ...(r.result.status === 'ok'

@@ -7,7 +7,9 @@ export const CATEGORIES = [
   'headphones', 'smartphones', 'tablets', 'laptops', 'smartwatches', 'speakers', 'routers', 'streaming',
   'consoles', 'handhelds', 'controllers', 'games',
   'camera_bodies', 'lenses', 'action_cameras', 'compact_cameras',
-  'power_tools', 'other',
+  'power_tools',
+  'clothing', 'shoes', 'bags', 'accessories',
+  'other',
 ] as const;
 export type CategorySlug = (typeof CATEGORIES)[number];
 
@@ -27,6 +29,27 @@ export interface NormalizedProduct {
   readonly mount?: string;
   /** Other model names that must NOT match (e.g. siblings), e.g. ["WH-1000XM5"]. */
   readonly excludeModels?: readonly string[];
+  /** Clothes, shoes, bags and accessories: priced by brand + type, not by exact model (see fashion.ts). */
+  readonly fashion?: FashionAttributes;
+}
+
+export const FASHION_KINDS = [
+  'jeans', 'trousers', 'shorts', 'skirt', 'dress', 'jumpsuit', 'top', 'shirt', 'sweater', 'hoodie', 'jacket', 'coat',
+  'suit', 'swimwear', 'activewear',
+  'sneakers', 'boots', 'shoes', 'sandals',
+  'handbag', 'backpack', 'wallet',
+  'belt', 'hat', 'scarf', 'sunglasses',
+] as const;
+export type FashionKind = (typeof FASHION_KINDS)[number];
+export const FASHION_GENDERS = ['women', 'men', 'unisex', 'kids'] as const;
+export type FashionGender = (typeof FASHION_GENDERS)[number];
+
+export interface FashionAttributes {
+  /** Unknown kind: searched in the whole women / men / kids department. */
+  readonly kind?: FashionKind;
+  readonly gender: FashionGender;
+  /** Named product line or style when there is one ("Air Force 1", "501", "Speedy 30"); searched and matched. */
+  readonly style?: string;
 }
 
 export type SourceId = 'ebay' | 'tradera' | 'rebuy' | 'backmarket' | 'manual' | 'user_sale';

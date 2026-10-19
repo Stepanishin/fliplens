@@ -4,7 +4,7 @@ import type { CategorySlug, Condition } from './types.js';
  * All tunable numbers of the pricing / confidence / decision engine live here, under one version.
  * Any change to these values must bump PRICING_ALGORITHM_VERSION and pass the benchmark (eval/).
  */
-export const PRICING_ALGORITHM_VERSION = 'pricing-0.1.6';
+export const PRICING_ALGORITHM_VERSION = 'pricing-0.1.7';
 
 export interface PricingConfig {
   readonly version: string;
@@ -64,7 +64,8 @@ export const DEFAULT_PRICING_CONFIG: PricingConfig = {
     for_parts: 0.25,
   },
   defaultCondition: 'good',
-  askingToSoldRatio: { default: 0.88 },
+  // Fashion: asking prices on eBay sit further above what clothes really sell for (many never sell), ADR-027.
+  askingToSoldRatio: { default: 0.88, clothing: 0.75, shoes: 0.78, bags: 0.78, accessories: 0.75 },
   scamRatio: 0.35,
   outlierIqrK: 1.5,
   maxSoldAgeDays: 90,

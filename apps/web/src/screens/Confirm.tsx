@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState, type ChangeEvent } from 'react';
-import { CATEGORIES, CONDITIONS, type CategorySlug } from '@fliplens/core';
+import { CATEGORIES, CONDITIONS, FASHION_CATEGORY_OF, FASHION_GENDERS, FASHION_KINDS, type CategorySlug, type FashionAttributes, type FashionGender, type FashionKind } from '@fliplens/core';
 import { Candidates } from '../Candidates.js';
 import { api } from '../api.js';
-import { CAPACITY_OPTIONS, hasIdentity, MOUNT_CATEGORIES, showsCapacity, type Draft, type ProductDraft } from '../flow.js';
-import { CATEGORY_NAME, CONDITION_HINT, CONDITION_LABEL } from '../format.js';
+import { CAPACITY_OPTIONS, hasIdentity, MOUNT_CATEGORIES, showsCapacity, showsFashion, type Draft, type ProductDraft } from '../flow.js';
+import { CATEGORY_NAME, CONDITION_HINT, CONDITION_LABEL, FASHION_GENDER_NAME, FASHION_KIND_NAME } from '../format.js';
 import { resizeToJpegDataUrl } from '../image.js';
 import { tr } from '../i18n.js';
 import { IconCamera } from '../ui/icons.js';
@@ -43,6 +43,15 @@ const T = tr({
     condition: 'Condition',
     suggested: (c: string) => ` (suggested: ${c})`,
     cont: 'Continue',
+    item: "Item",
+    kind: "Type",
+    gender: "For",
+    choose: "Choose…",
+    style: "Line or style (optional)",
+    stylePh: "e.g. Air Force 1, 501, Nuptse",
+    styleHint: "Only listings with this name are compared. Leave empty to compare the brand and type.",
+    noBrand: "No brand found. Type it from the label, or add a photo of the label.",
+    fashionHint: "Clothes are priced by brand, type and condition, from eBay listings in your market.",
   },
   de: {
     whatIsIt: 'Was ist es?',
@@ -78,6 +87,15 @@ const T = tr({
     condition: 'Zustand',
     suggested: (c: string) => ` (Vorschlag: ${c})`,
     cont: 'Weiter',
+    item: "Artikel",
+    kind: "Art",
+    gender: "Für",
+    choose: "Auswählen…",
+    style: "Linie oder Modell (optional)",
+    stylePh: "z. B. Air Force 1, 501, Nuptse",
+    styleHint: "Nur Angebote mit diesem Namen werden verglichen. Leer lassen, um Marke und Art zu vergleichen.",
+    noBrand: "Keine Marke gefunden. Gib sie vom Etikett ein oder füg ein Foto vom Etikett hinzu.",
+    fashionHint: "Kleidung wird nach Marke, Art und Zustand bewertet, anhand von eBay-Angeboten in deinem Markt.",
   },
   it: {
     whatIsIt: 'Che cos’è?',
@@ -113,6 +131,15 @@ const T = tr({
     condition: 'Condizione',
     suggested: (c: string) => ` (suggerita: ${c})`,
     cont: 'Continua',
+    item: "Articolo",
+    kind: "Tipo",
+    gender: "Per",
+    choose: "Scegli…",
+    style: "Linea o modello (facoltativo)",
+    stylePh: "es. Air Force 1, 501, Nuptse",
+    styleHint: "Vengono confrontati solo gli annunci con questo nome. Lascia vuoto per confrontare marca e tipo.",
+    noBrand: "Nessuna marca trovata. Scrivila dall’etichetta o aggiungi una foto dell’etichetta.",
+    fashionHint: "I capi vengono valutati per marca, tipo e condizione, dagli annunci eBay del tuo mercato.",
   },
   fr: {
     whatIsIt: 'Qu’est-ce que c’est ?',
@@ -148,6 +175,15 @@ const T = tr({
     condition: 'État',
     suggested: (c: string) => ` (suggéré : ${c})`,
     cont: 'Continuer',
+    item: "Article",
+    kind: "Type",
+    gender: "Pour",
+    choose: "Choisir…",
+    style: "Ligne ou modèle (facultatif)",
+    stylePh: "ex. Air Force 1, 501, Nuptse",
+    styleHint: "Seules les annonces avec ce nom sont comparées. Laisse vide pour comparer la marque et le type.",
+    noBrand: "Aucune marque trouvée. Saisis-la depuis l’étiquette ou ajoute une photo de l’étiquette.",
+    fashionHint: "Les vêtements sont estimés selon la marque, le type et l’état, à partir des annonces eBay de ton marché.",
   },
 });
 
@@ -156,7 +192,7 @@ interface Props {
   identifying: boolean;
   error: string | null;
   onChangeProduct: (p: Partial<ProductDraft>) => void;
-  onDetectedCategory: (c: CategorySlug) => void;
+  onDetectedCategory: (c: CategorySlug, fashion?: FashionAttributes) => void;
   onChangeCondition: (c: Draft['condition']) => void;
   onPickCandidate: (index: number) => void;
   onAddPhotos: (photos: string[]) => void;
@@ -181,7 +217,7 @@ export function Confirm({ draft, identifying, error, onChangeProduct, onDetected
       setDetecting(true);
       api.detectCategory(p.brand.trim(), p.model.trim()).then(
         (res) => {
-          if (!cancelled && res.category) onDetectedCategory(res.category);
+          if (!cancelled && res.category) onDetectedCategory(res.category, res.fashion);
         },
         () => undefined,
       ).finally(() => {
@@ -194,6 +230,7 @@ export function Confirm({ draft, identifying, error, onChangeProduct, onDetected
     };
   }, [p.brand, p.model, p.category, onDetectedCategory]);
 
+  const fashion = showsFashion(p.category);
   const capacityOptions = p.category ? CAPACITY_OPTIONS[p.category] ?? [] : [];
   const capacityIsOther = p.capacity !== '' && !capacityOptions.includes(p.capacity.toUpperCase().replace(/\s/g, ''));
 
@@ -249,7 +286,7 @@ export function Confirm({ draft, identifying, error, onChangeProduct, onDetected
         <div className="row2">
           <label className="field">
             <span>{T.brand}</span>
-            <input value={p.brand} onChange={(e) => onChangeProduct({ brand: e.target.value })} placeholder="Sony" autoCapitalize="words" />
+            <input value={p.brand} onChange={(e) => onChangeProduct({ brand: e.target.value })} placeholder={fashion ? 'Zara' : 'Sony'} autoCapitalize="words" />
           </label>
           <label className="field">
             <span>{T.category}</span>
@@ -260,9 +297,41 @@ export function Confirm({ draft, identifying, error, onChangeProduct, onDetected
           </label>
         </div>
         <label className="field">
-          <span>{T.model}</span>
-          <input value={p.model} onChange={(e) => onChangeProduct({ model: e.target.value })} placeholder="WH-1000XM4" />
+          <span>{fashion ? T.item : T.model}</span>
+          <input value={p.model} onChange={(e) => onChangeProduct({ model: e.target.value })} placeholder={fashion ? 'cargo shorts' : 'WH-1000XM4'} />
         </label>
+        {fashion && !p.brand.trim() && p.model.trim() !== '' && <p className="hint warn">{T.noBrand}</p>}
+        {fashion && (
+          <>
+            <div className="row2">
+              <label className="field">
+                <span>{T.kind}</span>
+                <select
+                  value={p.fashionKind}
+                  onChange={(e) => {
+                    const kind = e.target.value as FashionKind | '';
+                    onChangeProduct({ fashionKind: kind, ...(kind && { category: FASHION_CATEGORY_OF[kind], categoryAuto: false }) });
+                  }}
+                >
+                  <option value="">{T.choose}</option>
+                  {FASHION_KINDS.map((k) => <option key={k} value={k}>{FASHION_KIND_NAME[k]}</option>)}
+                </select>
+              </label>
+              <label className="field">
+                <span>{T.gender}</span>
+                <select value={p.gender} onChange={(e) => onChangeProduct({ gender: e.target.value as FashionGender | '' })}>
+                  <option value="">{T.choose}</option>
+                  {FASHION_GENDERS.map((g) => <option key={g} value={g}>{FASHION_GENDER_NAME[g]}</option>)}
+                </select>
+              </label>
+            </div>
+            <label className="field">
+              <span>{T.style}</span>
+              <input value={p.style} onChange={(e) => onChangeProduct({ style: e.target.value })} placeholder={T.stylePh} />
+              <span className="hint">{p.style.trim() ? T.styleHint : T.fashionHint}</span>
+            </label>
+          </>
+        )}
         {detecting && <p className="hint">{T.detecting}</p>}
         {!detecting && p.categoryAuto && <p className="hint">{T.detected}</p>}
         {showsCapacity(p.category) && (
@@ -293,13 +362,13 @@ export function Confirm({ draft, identifying, error, onChangeProduct, onDetected
             <input value={p.mount} onChange={(e) => onChangeProduct({ mount: e.target.value })} placeholder="RF, EF, EF-S, FE" />
           </label>
         )}
-        <details className="adv">
+        {!fashion && <details className="adv">
           <summary>{T.exclude}{p.excludeModels ? `: ${p.excludeModels}` : ''}</summary>
           <label className="field">
             <span>{T.comma}</span>
             <input value={p.excludeModels} onChange={(e) => onChangeProduct({ excludeModels: e.target.value })} placeholder="WH-1000XM5, WH-1000XM3" />
           </label>
-        </details>
+        </details>}
 
         <div className="field">
           <span id="cond-label">{T.condition}{r?.conditionGuess ? T.suggested(CONDITION_LABEL[r.conditionGuess]) : ''}</span>

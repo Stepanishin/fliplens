@@ -1,9 +1,13 @@
 import { createHash } from 'node:crypto';
 import {
+  ebayFashionCategories,
+  fashionFromEbay,
   isCurrencyCode,
+  isFashion,
   money,
   type CategorySlug,
   type Condition,
+  type FashionAttributes,
   type MarketplaceItem,
   type NormalizedProduct,
 } from '@fliplens/core';
@@ -37,7 +41,10 @@ const CONDITION_BY_ID: Record<string, Condition> = {
   '2030': 'good',
   '2500': 'very_good',
   '2750': 'like_new',
+  // Clothes, shoes and bags: "Pre-owned - Excellent / Good / Fair" (2990 / 3000 / 3010).
+  '2990': 'very_good',
   '3000': 'good',
+  '3010': 'fair',
   '4000': 'very_good',
   '5000': 'good',
   '6000': 'fair',
@@ -79,8 +86,21 @@ const CATEGORY_BY_EBAY: Record<string, CategorySlug> = {
 };
 
 export function ebayCategoryFor(p: NormalizedProduct): string | undefined {
-  if (p.category === 'laptops' && p.brand.trim().toLowerCase() === 'apple') return '111422'; // Apple Notebooks
-  return EBAY_CATEGORY[p.category];
+  return ebayCategoriesFor(p)[0];
+}
+
+/** Usually one category; unisex fashion is searched in the women's and the men's category. Empty: no filter. */
+export function ebayCategoriesFor(p: NormalizedProduct): string[] {
+  if (isFashion(p.category)) return ebayFashionCategories(p);
+  if (p.category === 'laptops' && p.brand.trim().toLowerCase() === 'apple') return ['111422']; // Apple Notebooks
+  const id = EBAY_CATEGORY[p.category];
+  return id ? [id] : [];
+}
+
+export interface CategorySuggestion {
+  readonly category: CategorySlug;
+  /** Clothes, shoes, bags: type and department read from the suggested eBay category. */
+  readonly fashion?: FashionAttributes;
 }
 
 interface EbayMoney {
@@ -116,7 +136,7 @@ export class EbayAdapter implements MarketplaceAdapter {
   private token?: { value: string; expiresAt: number };
   private readonly cache = new Map<string, { at: number; items: MarketplaceItem[] }>();
   /** Category suggestions are eBay taxonomy metadata, not listing content: safe to keep for the process lifetime. */
-  private readonly categoryCache = new Map<string, CategorySlug>();
+  private readonly categoryCache = new Map<string, CategorySuggestion>();
   private readonly fetchImpl: typeof fetch;
   private readonly base: string;
 
@@ -149,8 +169,16 @@ export class EbayAdapter implements MarketplaceAdapter {
           return hit.items;
         }
         try {
-          calls++;
-          const items = await this.searchSite(site, product, limit);
+          const cats = ebayCategoriesFor(product);
+          const lists = await Promise.all(
+            (cats.length > 0 ? cats : [undefined]).map((c) => {
+              calls++;
+              return this.searchSite(site, product, limit, true, c);
+            }),
+          );
+          // Unisex: the same listing can sit in both categories.
+          const seen = new Set<string>();
+          const items = lists.flat().filter((i) => !seen.has(i.externalId) && seen.add(i.externalId));
           this.cache.set(key, { at: Date.now(), items });
           return items;
         } catch (e) {
@@ -175,6 +203,11 @@ export class EbayAdapter implements MarketplaceAdapter {
    * across the EU sites). Falls back to 'other' when eBay suggests nothing we support.
    */
   async suggestCategory(query: string): Promise<CategorySlug> {
+    return (await this.suggest(query)).category;
+  }
+
+  /** Category plus, for clothes, shoes and bags, type and department (women / men / kids). */
+  async suggest(query: string): Promise<CategorySuggestion> {
     const key = `cat-suggest|${query.toLowerCase()}`;
     const hit = this.categoryCache.get(key);
     if (hit) return hit;
@@ -183,11 +216,25 @@ export class EbayAdapter implements MarketplaceAdapter {
       { headers: { Authorization: `Bearer ${await this.accessToken()}`, Accept: 'application/json' } },
     );
     if (!res.ok) throw new Error(`eBay taxonomy HTTP ${res.status}`);
-    const body = (await res.json()) as { categorySuggestions?: { category: { categoryId: string } }[] };
-    const found = (body.categorySuggestions ?? []).map((s) => CATEGORY_BY_EBAY[s.category.categoryId]).find((c) => c !== undefined);
-    const slug = found ?? 'other';
-    this.categoryCache.set(key, slug);
-    return slug;
+    const body = (await res.json()) as {
+      categorySuggestions?: { category: { categoryId: string }; categoryTreeNodeAncestors?: { categoryId: string }[] }[];
+    };
+    let found: CategorySuggestion | undefined;
+    for (const sug of body.categorySuggestions ?? []) {
+      const slug = CATEGORY_BY_EBAY[sug.category.categoryId];
+      if (slug) {
+        found = { category: slug };
+        break;
+      }
+      const fashion = fashionFromEbay([sug.category.categoryId, ...(sug.categoryTreeNodeAncestors ?? []).map((a) => a.categoryId)]);
+      if (fashion) {
+        found = fashion;
+        break;
+      }
+    }
+    const result = found ?? { category: 'other' as const };
+    this.categoryCache.set(key, result);
+    return result;
   }
 
   async titlesForGtin(gtins: readonly string[], opts: { sites?: readonly string[] } = {}): Promise<{ titles: string[]; sites: Record<string, number>; warnings: SourceWarning[] }> {
@@ -219,13 +266,12 @@ export class EbayAdapter implements MarketplaceAdapter {
     return { titles: [...new Set(titles)], sites: bySite, warnings };
   }
 
-  private async searchSite(site: string, product: NormalizedProduct, limit: number, filtered = true): Promise<MarketplaceItem[]> {
+  private async searchSite(site: string, product: NormalizedProduct, limit: number, filtered = true, categoryId?: string): Promise<MarketplaceItem[]> {
     const params = new URLSearchParams({ limit: String(limit) });
     if (filtered) params.set('filter', `buyingOptions:{FIXED_PRICE|BEST_OFFER},conditionIds:{${QUERY_CONDITION_IDS.join('|')}}`);
     if (product.gtin) params.set('gtin', product.gtin);
     else params.set('q', searchQuery(product));
-    const categoryId = filtered ? ebayCategoryFor(product) : undefined;
-    if (categoryId) params.set('category_ids', categoryId);
+    if (filtered && categoryId) params.set('category_ids', categoryId);
 
     const res = await this.fetchImpl(`${this.base}/buy/browse/v1/item_summary/search?${params}`, {
       headers: {
@@ -272,12 +318,15 @@ export class EbayAdapter implements MarketplaceAdapter {
 }
 
 function searchQuery(p: NormalizedProduct): string {
+  // Fashion: the category already says "women's shorts"; the free-text description ("drawstring cargo shorts")
+  // would only shrink the results to listings that happen to use those English words. Brand plus a named style.
+  if (isFashion(p.category)) return p.fashion ? [p.brand, p.fashion.style].filter(Boolean).join(' ') : [p.brand, p.model].join(' ');
   return [p.brand, p.model, p.capacity, p.mount].filter(Boolean).join(' ');
 }
 
 function cacheKey(p: NormalizedProduct): string {
   const base = p.gtin ? `gtin:${p.gtin}` : `q:${searchQuery(p).toLowerCase()}`;
-  return `${base}|cat:${ebayCategoryFor(p) ?? '-'}`;
+  return `${base}|cat:${ebayCategoriesFor(p).join('+') || '-'}`;
 }
 
 function toItem(s: EbayItemSummary, site: string, fetchedAt: Date): MarketplaceItem | undefined {

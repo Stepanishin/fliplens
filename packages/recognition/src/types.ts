@@ -1,4 +1,4 @@
-import type { CategorySlug, Condition } from '@fliplens/core';
+import type { CategorySlug, Condition, FashionAttributes } from '@fliplens/core';
 
 export interface ImageInput {
   /** data:image/jpeg;base64,... (client resizes to ~1MP before upload). */
@@ -16,6 +16,8 @@ export interface IdentificationCandidate {
   readonly colour?: string;
   readonly mount?: string;
   readonly gtin?: string;
+  /** Clothes, shoes, bags, accessories: type, department and named style (ADR-027). */
+  readonly fashion?: FashionAttributes;
   /** 0..1, calibrated on the benchmark later. */
   readonly confidence: number;
 }

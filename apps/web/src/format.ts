@@ -1,4 +1,4 @@
-import { toMajor, type Money } from '@fliplens/core';
+import { toMajor, type FashionGender, type FashionKind, type Money } from '@fliplens/core';
 import { ago as agoI18n, LOCALE, money, tr } from './i18n.js';
 
 export function fmt(m: Money, digits = 0): string {
@@ -28,26 +28,68 @@ export const CATEGORY_NAME: Record<string, string> = tr<Record<string, string>>(
     headphones: 'Headphones', smartphones: 'Smartphones', tablets: 'Tablets', laptops: 'Laptops', smartwatches: 'Smartwatches',
     speakers: 'Speakers', routers: 'Routers', streaming: 'Streaming devices', consoles: 'Game consoles', handhelds: 'Handheld consoles',
     controllers: 'Controllers', games: 'Video games', camera_bodies: 'Cameras', lenses: 'Lenses', action_cameras: 'Action cameras',
-    compact_cameras: 'Compact cameras', power_tools: 'Power tools', other: 'Other',
+    compact_cameras: 'Compact cameras', power_tools: 'Power tools',
+    clothing: 'Clothing', shoes: 'Shoes', bags: 'Bags', accessories: 'Fashion accessories', other: 'Other',
   },
   de: {
     headphones: 'Kopfhörer', smartphones: 'Smartphones', tablets: 'Tablets', laptops: 'Laptops', smartwatches: 'Smartwatches',
     speakers: 'Lautsprecher', routers: 'Router', streaming: 'Streaming-Geräte', consoles: 'Spielkonsolen', handhelds: 'Handheld-Konsolen',
     controllers: 'Controller', games: 'Videospiele', camera_bodies: 'Kameras', lenses: 'Objektive', action_cameras: 'Actioncams',
-    compact_cameras: 'Kompaktkameras', power_tools: 'Elektrowerkzeuge', other: 'Sonstiges',
+    compact_cameras: 'Kompaktkameras', power_tools: 'Elektrowerkzeuge',
+    clothing: 'Kleidung', shoes: 'Schuhe', bags: 'Taschen', accessories: 'Mode-Accessoires', other: 'Sonstiges',
   },
   it: {
     headphones: 'Cuffie', smartphones: 'Smartphone', tablets: 'Tablet', laptops: 'Portatili', smartwatches: 'Smartwatch',
     speakers: 'Altoparlanti', routers: 'Router', streaming: 'Dispositivi di streaming', consoles: 'Console', handhelds: 'Console portatili',
     controllers: 'Controller', games: 'Videogiochi', camera_bodies: 'Fotocamere', lenses: 'Obiettivi', action_cameras: 'Action cam',
-    compact_cameras: 'Fotocamere compatte', power_tools: 'Elettroutensili', other: 'Altro',
+    compact_cameras: 'Fotocamere compatte', power_tools: 'Elettroutensili',
+    clothing: 'Abbigliamento', shoes: 'Scarpe', bags: 'Borse', accessories: 'Accessori moda', other: 'Altro',
   },
   fr: {
     headphones: 'Casques et écouteurs', smartphones: 'Smartphones', tablets: 'Tablettes', laptops: 'Ordinateurs portables', smartwatches: 'Montres connectées',
     speakers: 'Enceintes', routers: 'Routeurs', streaming: 'Appareils de streaming', consoles: 'Consoles de jeux', handhelds: 'Consoles portables',
     controllers: 'Manettes', games: 'Jeux vidéo', camera_bodies: 'Appareils photo', lenses: 'Objectifs', action_cameras: 'Caméras d’action',
-    compact_cameras: 'Appareils photo compacts', power_tools: 'Outillage électrique', other: 'Autres',
+    compact_cameras: 'Appareils photo compacts', power_tools: 'Outillage électrique',
+    clothing: 'Vêtements', shoes: 'Chaussures', bags: 'Sacs', accessories: 'Accessoires de mode', other: 'Autres',
   },
+});
+
+type KindMap = Record<FashionKind, string>;
+
+export const FASHION_KIND_NAME: KindMap = tr<KindMap>({
+  en: {
+    jeans: 'Jeans', trousers: 'Trousers', shorts: 'Shorts', skirt: 'Skirt', dress: 'Dress', jumpsuit: 'Jumpsuit', top: 'T-shirt / top',
+    shirt: 'Shirt / blouse', sweater: 'Sweater / knit', hoodie: 'Hoodie / sweatshirt', jacket: 'Jacket', coat: 'Coat', suit: 'Suit / blazer',
+    swimwear: 'Swimwear', activewear: 'Sportswear', sneakers: 'Sneakers', boots: 'Boots', shoes: 'Shoes', sandals: 'Sandals',
+    handbag: 'Handbag', backpack: 'Backpack', wallet: 'Wallet', belt: 'Belt', hat: 'Hat / cap', scarf: 'Scarf', sunglasses: 'Sunglasses',
+  },
+  de: {
+    jeans: 'Jeans', trousers: 'Hose', shorts: 'Shorts', skirt: 'Rock', dress: 'Kleid', jumpsuit: 'Jumpsuit', top: 'T-Shirt / Top',
+    shirt: 'Hemd / Bluse', sweater: 'Pullover / Strick', hoodie: 'Hoodie / Sweatshirt', jacket: 'Jacke', coat: 'Mantel', suit: 'Anzug / Blazer',
+    swimwear: 'Bademode', activewear: 'Sportbekleidung', sneakers: 'Sneaker', boots: 'Stiefel', shoes: 'Schuhe', sandals: 'Sandalen',
+    handbag: 'Handtasche', backpack: 'Rucksack', wallet: 'Geldbörse', belt: 'Gürtel', hat: 'Mütze / Cap', scarf: 'Schal', sunglasses: 'Sonnenbrille',
+  },
+  it: {
+    jeans: 'Jeans', trousers: 'Pantaloni', shorts: 'Shorts', skirt: 'Gonna', dress: 'Abito', jumpsuit: 'Tuta', top: 'T-shirt / top',
+    shirt: 'Camicia / blusa', sweater: 'Maglione', hoodie: 'Felpa', jacket: 'Giacca', coat: 'Cappotto', suit: 'Completo / blazer',
+    swimwear: 'Costumi da bagno', activewear: 'Abbigliamento sportivo', sneakers: 'Sneakers', boots: 'Stivali', shoes: 'Scarpe', sandals: 'Sandali',
+    handbag: 'Borsa', backpack: 'Zaino', wallet: 'Portafoglio', belt: 'Cintura', hat: 'Cappello', scarf: 'Sciarpa', sunglasses: 'Occhiali da sole',
+  },
+  fr: {
+    jeans: 'Jean', trousers: 'Pantalon', shorts: 'Short', skirt: 'Jupe', dress: 'Robe', jumpsuit: 'Combinaison', top: 'T-shirt / haut',
+    shirt: 'Chemise / blouse', sweater: 'Pull / maille', hoodie: 'Sweat à capuche', jacket: 'Veste', coat: 'Manteau', suit: 'Costume / blazer',
+    swimwear: 'Maillot de bain', activewear: 'Vêtements de sport', sneakers: 'Baskets', boots: 'Bottes', shoes: 'Chaussures', sandals: 'Sandales',
+    handbag: 'Sac à main', backpack: 'Sac à dos', wallet: 'Portefeuille', belt: 'Ceinture', hat: 'Chapeau / casquette', scarf: 'Écharpe', sunglasses: 'Lunettes de soleil',
+  },
+});
+
+type GenderMap = Record<FashionGender, string>;
+
+export const FASHION_GENDER_NAME: GenderMap = tr<GenderMap>({
+  en: { women: 'Women', men: 'Men', unisex: 'Unisex', kids: 'Kids' },
+  de: { women: 'Damen', men: 'Herren', unisex: 'Unisex', kids: 'Kinder' },
+  it: { women: 'Donna', men: 'Uomo', unisex: 'Unisex', kids: 'Bambini' },
+  fr: { women: 'Femme', men: 'Homme', unisex: 'Unisexe', kids: 'Enfant' },
 });
 
 export const CONDITION_HINT: ConditionMap = tr<ConditionMap>({

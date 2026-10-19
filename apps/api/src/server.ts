@@ -4,7 +4,11 @@ import {
   CATEGORIES,
   CONDITIONS,
   CURRENCIES,
+  FASHION_GENDERS,
+  FASHION_KINDS,
   FEE_PRESETS,
+  isFashion,
+  isUnbranded,
   resolveFeeProfile,
   feeProfileIn,
   marketFor,
@@ -81,6 +85,10 @@ const ValuationBody = z.object({
     mount: z.string().trim().min(1).optional(),
     gtin: z.string().regex(/^\d{8,14}$/).optional(),
     excludeModels: z.array(z.string().trim().min(1)).max(10).optional(),
+    /** Clothes, shoes, bags: type and department. Omitted for a fashion category: detected from brand + model. */
+    fashion: z
+      .object({ kind: z.enum(FASHION_KINDS).optional(), gender: z.enum(FASHION_GENDERS), style: z.string().trim().min(1).max(80).optional() })
+      .optional(),
   }),
   condition: z.enum(CONDITIONS),
   /** Optional: without it we answer "what is it worth and how much may I pay" (valued at the max buy price). */
@@ -169,7 +177,8 @@ app.get('/api/category', async (req, reply) => {
   if (!(await store.requireVisitor(req, reply))) return reply;
   if (!ebay.isConfigured()) return reply.code(409).send({ error: 'source_not_configured' });
   try {
-    return { category: await ebay.suggestCategory(`${q.data.brand} ${q.data.model}`) };
+    const s = await ebay.suggest(`${q.data.brand} ${q.data.model}`);
+    return { category: s.category, ...(s.fashion && { fashion: s.fashion }) };
   } catch (e) {
     req.log.warn({ event: 'category_detect_failed', err: e instanceof Error ? e.message : String(e) }, 'category auto-detect failed');
     return { category: null };
@@ -280,13 +289,22 @@ app.post('/api/valuation', async (req, reply) => {
     return reply.code(409).send({ error: 'source_not_configured', message: 'eBay keys are not configured on the server (.env)' });
   }
   let category = b.product.category;
-  if (!category) {
-    category = await ebay.suggestCategory(`${b.product.brand} ${b.product.model}`).catch((e: unknown) => {
+  let fashion = b.product.fashion;
+  // No category, or clothes without type / department: ask eBay's category suggestions for brand + model.
+  if (!category || (isFashion(category) && !fashion)) {
+    const s = await ebay.suggest(`${b.product.brand} ${b.product.model}`).catch((e: unknown) => {
       req.log.warn({ event: 'category_detect_failed', err: e instanceof Error ? e.message : String(e) }, 'category auto-detect failed');
-      return 'other' as const;
+      return { category: 'other' as const, fashion: undefined };
     });
+    if (!category) category = s.category;
+    if (isFashion(category) && isFashion(s.category)) fashion = s.fashion;
   }
-  const product: NormalizedProduct = stripUndefined({ ...b.product, category });
+  if (!isFashion(category)) fashion = undefined;
+  // Unbranded clothes have no market price we can read: "blue hoodie" matches thousands of unrelated listings.
+  if (isFashion(category) && isUnbranded(b.product.brand)) {
+    return reply.code(422).send({ error: 'brand_required', message: 'Clothes, shoes and bags are priced by brand. Type the brand from the label.' });
+  }
+  const product: NormalizedProduct = stripUndefined({ ...b.product, category, fashion: fashion && stripUndefined(fashion) });
   const quota = await store.quota(req);
   if (quota && quota.remaining <= 0) {
     req.log.info({ event: 'quota_exceeded', plan: quota.plan }, 'quota exceeded');
@@ -355,6 +373,7 @@ app.post('/api/valuation', async (req, reply) => {
     scanId,
     category,
     categoryDetected: !b.product.category,
+    ...(product.fashion && { fashion: product.fashion }),
     priceProvided,
     source: 'ebay',
     dataFetchedAt: search.oldestFetchedAt?.toISOString() ?? null,

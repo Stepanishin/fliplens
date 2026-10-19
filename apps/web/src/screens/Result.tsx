@@ -1,5 +1,5 @@
 import { useEffect, useState, type ReactNode } from 'react';
-import { computeProfit, decide, DEFAULT_PRICING_CONFIG, maxBuyPrice, type Confidence, type FeeProfile } from '@fliplens/core';
+import { computeProfit, decide, DEFAULT_PRICING_CONFIG, isFashion, maxBuyPrice, type Confidence, type FeeProfile } from '@fliplens/core';
 import { track } from '../track.js';
 import type { ValuationResponse } from '../api.js';
 import { ago, FACTOR_LABEL } from '../format.js';
@@ -39,6 +39,7 @@ const T = tr({
     bought: (p: string) => `I bought it for ${p}`,
     resaleValue: 'Resale value',
     basedOn: (n: number, sold: boolean, age: string) => `Based on ${n} ${sold ? 'sold items' : 'active eBay listings (asking prices, adjusted down)'} · data ${age}`,
+    fashionNote: 'Clothes are priced by brand, type and condition. Size, colour and season move the price; on Vinted similar items often sell for less.',
     why: 'Why',
     risks: 'Risks',
     market: 'Market',
@@ -83,6 +84,7 @@ const T = tr({
     bought: (p: string) => `Gekauft für ${p}`,
     resaleValue: 'Wiederverkaufswert',
     basedOn: (n: number, sold: boolean, age: string) => `Basierend auf ${n} ${sold ? 'verkauften Artikeln' : 'aktiven eBay-Angeboten (Angebotspreise, nach unten korrigiert)'} · Daten ${age}`,
+    fashionNote: 'Kleidung wird nach Marke, Art und Zustand bewertet. Größe, Farbe und Saison beeinflussen den Preis; auf Vinted gehen ähnliche Teile oft günstiger weg.',
     why: 'Warum',
     risks: 'Risiken',
     market: 'Markt',
@@ -127,6 +129,7 @@ const T = tr({
     bought: (p: string) => `L’ho comprato a ${p}`,
     resaleValue: 'Valore di rivendita',
     basedOn: (n: number, sold: boolean, age: string) => `Basato su ${n} ${sold ? 'articoli venduti' : 'annunci eBay attivi (prezzi richiesti, corretti al ribasso)'} · dati ${age}`,
+    fashionNote: 'I capi sono valutati per marca, tipo e condizione. Taglia, colore e stagione influiscono sul prezzo; su Vinted articoli simili spesso si vendono a meno.',
     why: 'Perché',
     risks: 'Rischi',
     market: 'Mercato',
@@ -171,6 +174,7 @@ const T = tr({
     bought: (p: string) => `Je l’ai acheté ${p}`,
     resaleValue: 'Valeur de revente',
     basedOn: (n: number, sold: boolean, age: string) => `Basé sur ${n} ${sold ? 'articles vendus' : 'annonces eBay actives (prix demandés, corrigés à la baisse)'} · données ${age}`,
+    fashionNote: 'Les vêtements sont estimés selon la marque, le type et l’état. La taille, la couleur et la saison font varier le prix ; sur Vinted, des articles similaires partent souvent moins cher.',
     why: 'Pourquoi',
     risks: 'Risques',
     market: 'Marché',
@@ -404,6 +408,7 @@ export function Result({ resp, query, country, onNewScan, onEdit, targetRoiPct, 
         <p className="muted small">
           {T.basedOn(d.count, e.dataKind === 'sold', ago(resp.dataFetchedAt))}
         </p>
+        {isFashion(resp.category) && <p className="muted small">{T.fashionNote}</p>}
       </section>
 
       <Comparables items={e.comparables} defaultOpen />

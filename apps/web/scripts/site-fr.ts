@@ -31,7 +31,7 @@ const COMMON_FAQ: Faq[] = [
   },
   {
     q: `Quels articles fonctionnent le mieux?`,
-    a: `L'électronique grand public, le gaming et la photo: casques et écouteurs, smartphones, tablettes, ordinateurs portables, montres connectées, enceintes, consoles, consoles portables, manettes, jeux, boîtiers photo, objectifs, caméras d'action et compacts, ainsi que l'outillage électrique. La mode n'est pas encore prise en charge.`,
+    a: `L'électronique grand public, le gaming et la photo: casques et écouteurs, smartphones, tablettes, ordinateurs portables, montres connectées, enceintes, consoles, consoles portables, manettes, jeux, boîtiers photo, objectifs, caméras d'action et compacts, ainsi que l'outillage électrique. Les vêtements, chaussures et sacs de marque sont aussi estimés, selon la marque, le type et l'état (estimation plus approximative que pour l'électronique).`,
   },
   {
     q: `Dois-je saisir un prix?`,
@@ -79,7 +79,7 @@ const PAGES: Page[] = [
       },
       {
         h2: 'Limites connues',
-        html: `<ul><li>Les prix reposent sur des annonces actives (prix demandés), pas sur des prix de vente confirmés.</li><li>L'offre est visible (combien d'articles sont en vente et depuis combien de temps), la vitesse de vente pas encore.</li><li>La mode, les objets de collection et les pièces uniques ne sont pas pris en charge.</li><li>Les frais changent: chaque profil de frais indique quand il a été vérifié pour la dernière fois et renvoie vers sa source.</li></ul>`,
+        html: `<ul><li>Les prix reposent sur des annonces actives (prix demandés), pas sur des prix de vente confirmés.</li><li>L'offre est visible (combien d'articles sont en vente et depuis combien de temps), la vitesse de vente pas encore.</li><li>Les objets de collection et les pièces uniques ne sont pas pris en charge. Les vêtements, chaussures et sacs sont estimés selon la marque, le type et l'état, pas pièce par pièce.</li><li>Les frais changent: chaque profil de frais indique quand il a été vérifié pour la dernière fois et renvoie vers sa source.</li></ul>`,
       },
     ],
   },

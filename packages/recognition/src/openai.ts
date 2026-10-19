@@ -1,4 +1,4 @@
-import { CATEGORIES, CONDITIONS, type CategorySlug, type Condition } from '@fliplens/core';
+import { CATEGORIES, CONDITIONS, FASHION_CATEGORY_OF, FASHION_GENDERS, FASHION_KINDS, isFashion, isUnbranded, type CategorySlug, type Condition, type FashionGender, type FashionKind } from '@fliplens/core';
 import {
   RecognitionError,
   type IdentificationCandidate,
@@ -13,7 +13,7 @@ import {
  * `store: false` so images and answers are not retained for later retrieval on OpenAI's side.
  */
 
-export const PROMPT_VERSION = 'prompt-v1';
+export const PROMPT_VERSION = 'prompt-v2';
 
 /** USD per 1M tokens (input, output). From developers.openai.com/api/docs/models, 2026-09-23. */
 const PRICING: Record<string, readonly [number, number]> = {
@@ -31,7 +31,7 @@ export interface OpenAIVisionConfig {
 }
 
 const SYSTEM_PROMPT = `You identify second-hand products from photos for European resellers.
-Supported categories: consumer electronics, gaming, cameras and lenses, power tools.
+Supported categories: consumer electronics, gaming, cameras and lenses, power tools, and fashion (clothing, shoes, bags, accessories).
 
 Rules:
 - Identify the exact model and variant. Prefer text you can read (model numbers on labels, boxes, back plates, lens barrels, EAN/UPC) over visual similarity.
@@ -43,7 +43,16 @@ Rules:
 - confusable_models: sibling models a buyer could mix up with the top candidate, written like "model".
 - condition_guess: judge only visible wear; null if you cannot tell.
 - identifying_text: every relevant piece of text you read on the item or box.
-- If the photo shows no identifiable product, return an empty candidates list.`;
+- If the photo shows no identifiable product, return an empty candidates list.
+
+Fashion (category clothing, shoes, bags or accessories; garments, labels and tags count as identifiable products):
+- brand: exactly as on the label, tag or logo (e.g. "Pull&Bear", "Levi's", "The North Face", "Zara"). If no brand is readable or recognisable, brand "" (never "Unknown").
+- model: a short English description of the item as a buyer would search it, e.g. "cargo shorts", "graphic hoodie", "leather crossbody bag".
+- fashion_kind: the item type from the list. gender: women, men, unisex or kids, from cut, size label and style; unisex only when truly unisex.
+- style: only a named product line or style printed on the item or unmistakable (e.g. "Air Force 1", "501", "Nuptse", "Speedy 30", "Stan Smith"), else null. Do not invent one.
+- capacity, mount, generation: null. variant: the size if printed (e.g. "M", "W32 L32", "EU 42"). colour: main colour.
+- confidence: your probability that brand and item type are right (style too, if you give one).
+- Non-fashion items: fashion_kind, gender and style are null.`;
 
 const TITLES_PROMPT = `You normalise product identity for European resellers from marketplace listing titles that all belong to ONE barcode (GTIN).
 Titles are in several languages and contain noise (condition, shipping, "OVP", seller words). Ignore the noise.
@@ -68,7 +77,7 @@ const RESPONSE_SCHEMA = {
       items: {
         type: 'object',
         additionalProperties: false,
-        required: ['category', 'brand', 'model', 'family', 'generation', 'variant', 'capacity', 'colour', 'mount', 'gtin', 'confidence'],
+        required: ['category', 'brand', 'model', 'family', 'generation', 'variant', 'capacity', 'colour', 'mount', 'gtin', 'fashion_kind', 'gender', 'style', 'confidence'],
         properties: {
           category: { type: 'string', enum: [...CATEGORIES] },
           brand: { type: 'string' },
@@ -80,6 +89,9 @@ const RESPONSE_SCHEMA = {
           colour: nullableString,
           mount: nullableString,
           gtin: nullableString,
+          fashion_kind: { type: ['string', 'null'], enum: [...FASHION_KINDS, null] },
+          gender: { type: ['string', 'null'], enum: [...FASHION_GENDERS, null] },
+          style: nullableString,
           confidence: { type: 'number' },
         },
       },
@@ -102,6 +114,9 @@ interface RawCandidate {
   colour: string | null;
   mount: string | null;
   gtin: string | null;
+  fashion_kind: string | null;
+  gender: string | null;
+  style: string | null;
   confidence: number;
 }
 interface RawResult {
@@ -220,14 +235,19 @@ function isCondition(v: string | null): v is Condition {
 }
 
 function toCandidate(r: RawCandidate): IdentificationCandidate | undefined {
-  if (!r.brand.trim() || !r.model.trim()) return undefined;
-  const category = (CATEGORIES as readonly string[]).includes(r.category) ? (r.category as CategorySlug) : 'other';
+  const kind = (FASHION_KINDS as readonly string[]).includes(r.fashion_kind ?? '') ? (r.fashion_kind as FashionKind) : undefined;
+  let category = (CATEGORIES as readonly string[]).includes(r.category) ? (r.category as CategorySlug) : 'other';
+  if (kind && !isFashion(category)) category = FASHION_CATEGORY_OF[kind];
+  // Fashion without a readable brand is still worth showing: the user can type the brand from the label.
+  const brand = isFashion(category) && isUnbranded(r.brand) ? '' : r.brand.trim();
+  if ((!brand && !isFashion(category)) || !r.model.trim()) return undefined;
+  const gender = (FASHION_GENDERS as readonly string[]).includes(r.gender ?? '') ? (r.gender as FashionGender) : 'unisex';
   const opt = (k: 'family' | 'generation' | 'variant' | 'capacity' | 'colour' | 'mount', v: string | null) =>
     v && v.trim() ? { [k]: v.trim() } : {};
   const gtin = r.gtin?.replace(/\D/g, '');
   return {
     category,
-    brand: r.brand.trim(),
+    brand,
     model: r.model.trim(),
     ...opt('family', r.family),
     ...opt('generation', r.generation),
@@ -236,6 +256,7 @@ function toCandidate(r: RawCandidate): IdentificationCandidate | undefined {
     ...opt('colour', r.colour),
     ...opt('mount', r.mount),
     ...(gtin && /^\d{8,14}$/.test(gtin) && { gtin }),
+    ...(isFashion(category) && { fashion: { ...(kind && { kind }), gender, ...(r.style?.trim() && { style: r.style.trim() }) } }),
     confidence: Math.min(1, Math.max(0, r.confidence)),
   };
 }
