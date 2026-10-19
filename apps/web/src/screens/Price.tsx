@@ -1,7 +1,7 @@
 import { useEffect, useRef, type FormEvent } from 'react';
 import { FEE_PRESETS } from '@fliplens/core';
-import { parsePrice, type Draft } from '../flow.js';
-import { CONDITION_LABEL } from '../format.js';
+import { parsePrice, presetsFor, type Draft } from '../flow.js';
+import { conditionLabelFor } from '../format.js';
 import { tr, presetText, currencySymbol, money } from '../i18n.js';
 import type { Settings } from '../storage.js';
 
@@ -17,6 +17,7 @@ const T = tr({
     hintPrice: 'We compare this price with the market.',
     selling: 'Selling on',
     context: (ship: number, roi: number) => ` · shipping ${money(Math.round(ship * 100), ship % 1 ? 2 : 0)} · target ROI ${roi}%`,
+    contextNoShip: (roi: number) => ` · buyer pays shipping · target ROI ${roi}%`,
     change: 'Change',
     checking: 'Checking the market…',
     checkMarket: 'Check the market',
@@ -33,6 +34,7 @@ const T = tr({
     hintPrice: 'Wir vergleichen diesen Preis mit dem Markt.',
     selling: 'Verkauf auf',
     context: (ship: number, roi: number) => ` · Versand ${money(Math.round(ship * 100), ship % 1 ? 2 : 0)} · Ziel-ROI ${roi} %`,
+    contextNoShip: (roi: number) => ` · Käufer zahlt Versand · Ziel-ROI ${roi} %`,
     change: 'Ändern',
     checking: 'Markt wird geprüft…',
     checkMarket: 'Markt prüfen',
@@ -49,6 +51,7 @@ const T = tr({
     hintPrice: 'Confrontiamo questo prezzo con il mercato.',
     selling: 'Vendita su',
     context: (ship: number, roi: number) => ` · spedizione ${money(Math.round(ship * 100), ship % 1 ? 2 : 0)} · ROI obiettivo ${roi} %`,
+    contextNoShip: (roi: number) => ` · spedizione a carico dell’acquirente · ROI obiettivo ${roi} %`,
     change: 'Cambia',
     checking: 'Controllo del mercato…',
     checkMarket: 'Controlla il mercato',
@@ -65,6 +68,7 @@ const T = tr({
     hintPrice: 'On compare ce prix avec le marché.',
     selling: 'Vente sur',
     context: (ship: number, roi: number) => ` · livraison ${money(Math.round(ship * 100), ship % 1 ? 2 : 0)} · ROI cible ${roi} %`,
+    contextNoShip: (roi: number) => ` · port payé par l’acheteur · ROI cible ${roi} %`,
     change: 'Modifier',
     checking: 'Vérification du marché…',
     checkMarket: 'Vérifier le marché',
@@ -88,6 +92,7 @@ export function Price({ draft, settings, busy, error, onChangePrice, onSubmit, o
   const inputRef = useRef<HTMLInputElement>(null);
   useEffect(() => inputRef.current?.focus(), []);
   const p = draft.product;
+  const { preset } = presetsFor(p.category, settings);
   const empty = draft.price.trim() === '';
   const valid = empty || parsePrice(draft.price) >= 0;
 
@@ -101,7 +106,7 @@ export function Price({ draft, settings, busy, error, onChangePrice, onSubmit, o
       <div className="summary-chip">
         <strong>{p.brand} {p.model}{p.capacity ? ` ${p.capacity}` : ''}</strong>
         <span className="muted small">
-          {CONDITION_LABEL[draft.condition]}
+          {conditionLabelFor(draft.condition, p.category)}
           {draft.chosenIndex !== null && draft.identification?.candidates[draft.chosenIndex] && !draft.edited
             ? T.recognised(Math.round(draft.identification.candidates[draft.chosenIndex]!.confidence * 100))
             : ''}
@@ -120,7 +125,8 @@ export function Price({ draft, settings, busy, error, onChangePrice, onSubmit, o
 
       <button type="button" className="context-row" onClick={onEditSettings}>
         <span>
-          {T.selling} <strong>{presetText(settings.preset, FEE_PRESETS[settings.preset]).label}</strong>{T.context(settings.shippingCost, settings.targetRoiPct)}
+          {T.selling} <strong>{presetText(preset, FEE_PRESETS[preset]).label}</strong>
+          {FEE_PRESETS[preset].resolve('good', p.category || 'other').sellerPaysShipping ? T.context(settings.shippingCost, settings.targetRoiPct) : T.contextNoShip(settings.targetRoiPct)}
         </span>
         <span className="link">{T.change}</span>
       </button>

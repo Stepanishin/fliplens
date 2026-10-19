@@ -3,7 +3,7 @@ import { CATEGORIES, CONDITIONS, FASHION_CATEGORY_OF, FASHION_GENDERS, FASHION_K
 import { Candidates } from '../Candidates.js';
 import { api } from '../api.js';
 import { CAPACITY_OPTIONS, hasIdentity, MOUNT_CATEGORIES, showsCapacity, showsFashion, type Draft, type ProductDraft } from '../flow.js';
-import { CATEGORY_NAME, CONDITION_HINT, CONDITION_LABEL, FASHION_GENDER_NAME, FASHION_KIND_NAME } from '../format.js';
+import { CATEGORY_NAME, CONDITION_HINT, CONDITION_LABEL, FASHION_CONDITION_HINT, FASHION_CONDITION_LABEL, FASHION_GENDER_NAME, FASHION_KIND_NAME } from '../format.js';
 import { resizeToJpegDataUrl } from '../image.js';
 import { tr } from '../i18n.js';
 import { IconCamera } from '../ui/icons.js';
@@ -231,6 +231,8 @@ export function Confirm({ draft, identifying, error, onChangeProduct, onDetected
   }, [p.brand, p.model, p.category, onDetectedCategory]);
 
   const fashion = showsFashion(p.category);
+  const condLabel = fashion ? FASHION_CONDITION_LABEL : CONDITION_LABEL;
+  const condHint = fashion ? FASHION_CONDITION_HINT : CONDITION_HINT;
   const capacityOptions = p.category ? CAPACITY_OPTIONS[p.category] ?? [] : [];
   const capacityIsOther = p.capacity !== '' && !capacityOptions.includes(p.capacity.toUpperCase().replace(/\s/g, ''));
 
@@ -371,7 +373,7 @@ export function Confirm({ draft, identifying, error, onChangeProduct, onDetected
         </details>}
 
         <div className="field">
-          <span id="cond-label">{T.condition}{r?.conditionGuess ? T.suggested(CONDITION_LABEL[r.conditionGuess]) : ''}</span>
+          <span id="cond-label">{T.condition}{r?.conditionGuess ? T.suggested(condLabel[r.conditionGuess]) : ''}</span>
           <div className="condition-scale" role="radiogroup" aria-labelledby="cond-label">
             {CONDITIONS.map((c) => (
               <button
@@ -383,11 +385,11 @@ export function Confirm({ draft, identifying, error, onChangeProduct, onDetected
                 onClick={() => onChangeCondition(c)}
               >
                 <span className="cond-dot" aria-hidden="true" />
-                {CONDITION_LABEL[c]}
+                {condLabel[c]}
               </button>
             ))}
           </div>
-          <span className="hint">{CONDITION_LABEL[draft.condition]}: {CONDITION_HINT[draft.condition]}</span>
+          <span className="hint">{condLabel[draft.condition]}: {condHint[draft.condition]}</span>
         </div>
       </section>
 

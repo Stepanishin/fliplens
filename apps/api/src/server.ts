@@ -14,6 +14,7 @@ import {
   marketFor,
   money,
   PRICING_ALGORITHM_VERSION,
+  typicalBuyerShipping,
   valuate,
   type FeePresetId,
   type NormalizedProduct,
@@ -107,6 +108,8 @@ const ValuationBody = z.object({
   identificationId: z.string().uuid().optional(),
   chosenCandidateIndex: z.number().int().min(0).max(10).optional(),
   gtin: z.string().regex(/^\d{8,14}$/).optional(),
+  /** Clothes: also value for this preset (e.g. Vinted next to eBay) from the same listings, shown side by side. */
+  altPreset: z.enum(presetIds).optional(),
 });
 
 app.get('/api/health', async () => ({
@@ -321,9 +324,13 @@ app.post('/api/valuation', async (req, reply) => {
   }
   if (rates.source !== 'ecb') req.log.warn({ event: 'fx_fallback' }, 'ECB unreachable, using static FX rates');
 
-  const fees = feeProfileIn(resolveFeeProfile(b.preset, b.condition, product.category), b.currency, rates);
+  const feesFor = (preset: FeePresetId) => feeProfileIn(resolveFeeProfile(preset, b.condition, product.category), b.currency, rates);
+  const fees = feesFor(b.preset);
   const targetRoiPct = b.targetRoiPct ?? 40;
-  const valueAt = (price: number) =>
+  // eBay prices include the buyer's shipping; where the buyer pays it separately (Vinted) or there is none (pickup),
+  // the item itself fetches about that much less.
+  const shippingInPrice = typicalBuyerShipping(search.items, b.currency, rates, b.country);
+  const valueAt = (price: number, f = fees) =>
     valuate({
       product,
       targetCondition: b.condition,
@@ -333,11 +340,12 @@ app.post('/api/valuation', async (req, reply) => {
       now: new Date(),
       identificationConfidence: b.identificationConfidence,
       purchasePrice: money(price, b.currency),
-      fees,
+      fees: f,
       shippingCost: money(b.shippingCost, b.currency),
       ...(b.packagingCost !== undefined && { packagingCost: money(b.packagingCost, b.currency) }),
       targetRoiPct,
       ...(b.recognitionModelVersion !== undefined && { recognitionModelVersion: b.recognitionModelVersion }),
+      ...(!f.sellerPaysShipping && { salePriceDeduction: shippingInPrice }),
     });
   const priceProvided = b.purchasePrice !== undefined;
   let purchasePrice = b.purchasePrice ?? 0;
@@ -346,6 +354,22 @@ app.post('/api/valuation', async (req, reply) => {
     // No price given: show the deal at the most one should pay (whole euros, rounded down).
     purchasePrice = Math.max(0, Math.floor(result.maxBuyPrice.amountMinor / 100));
     result = valueAt(purchasePrice);
+  }
+
+  // Clothes: the same item on the other platform (Vinted vs eBay), only within the same market data.
+  let alt: { preset: FeePresetId; label: string; sellerPaysShipping: boolean; result: typeof result } | undefined;
+  if (isFashion(product.category) && b.altPreset && b.altPreset !== b.preset) {
+    const altMarket = marketFor(b.country, b.altPreset);
+    if (altMarket.currency === market.currency && String(altMarket.sites) === String(market.sites)) {
+      const altFees = feesFor(b.altPreset);
+      let altResult = valueAt(purchasePrice, altFees);
+      if (!priceProvided && altResult.status === 'ok' && altResult.maxBuyPrice) {
+        altResult = valueAt(Math.max(0, Math.floor(altResult.maxBuyPrice.amountMinor / 100)), altFees);
+      }
+      // Same listings as the main result: no need to send them twice.
+      const slim: typeof result = altResult.status === 'ok' ? { ...altResult, estimate: { ...altResult.estimate, comparables: [] } } : { ...altResult, comparables: [] };
+      alt = { preset: b.altPreset, label: FEE_PRESETS[b.altPreset].label, sellerPaysShipping: altFees.sellerPaysShipping, result: slim };
+    }
   }
 
   req.log.info(
@@ -374,6 +398,7 @@ app.post('/api/valuation', async (req, reply) => {
     category,
     categoryDetected: !b.product.category,
     ...(product.fashion && { fashion: product.fashion }),
+    ...(alt && { alt }),
     priceProvided,
     source: 'ebay',
     dataFetchedAt: search.oldestFetchedAt?.toISOString() ?? null,

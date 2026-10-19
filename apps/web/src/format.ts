@@ -1,4 +1,4 @@
-import { toMajor, type FashionGender, type FashionKind, type Money } from '@fliplens/core';
+import { isFashion, toMajor, type CategorySlug, type Condition, type FashionGender, type FashionKind, type Money } from '@fliplens/core';
 import { ago as agoI18n, LOCALE, money, tr } from './i18n.js';
 
 export function fmt(m: Money, digits = 0): string {
@@ -130,6 +130,57 @@ export const CONDITION_HINT: ConditionMap = tr<ConditionMap>({
     for_parts: 'Ne fonctionne pas, pour réparation ou pièces.',
   },
 });
+
+/** Clothes, shoes and bags: the condition scale buyers know from Vinted and eBay fashion. */
+export const FASHION_CONDITION_LABEL: ConditionMap = tr<ConditionMap>({
+  en: { new: 'New with tags', like_new: 'New without tags', very_good: 'Very good', good: 'Good', fair: 'Satisfactory', poor: 'Worn', for_parts: 'Damaged' },
+  de: { new: 'Neu mit Etikett', like_new: 'Neu ohne Etikett', very_good: 'Sehr gut', good: 'Gut', fair: 'Zufriedenstellend', poor: 'Stark getragen', for_parts: 'Beschädigt' },
+  it: { new: 'Nuovo con cartellino', like_new: 'Nuovo senza cartellino', very_good: 'Ottime condizioni', good: 'Buone condizioni', fair: 'Discrete condizioni', poor: 'Molto usato', for_parts: 'Danneggiato' },
+  fr: { new: 'Neuf avec étiquette', like_new: 'Neuf sans étiquette', very_good: 'Très bon état', good: 'Bon état', fair: 'Satisfaisant', poor: 'Très porté', for_parts: 'Abîmé' },
+});
+
+export const FASHION_CONDITION_HINT: ConditionMap = tr<ConditionMap>({
+  en: {
+    new: 'Never worn, original tags still attached.',
+    like_new: 'Never worn, tags removed.',
+    very_good: 'Worn a few times, no flaws.',
+    good: 'Worn, light signs of wear such as slight fading or pilling.',
+    fair: 'Clearly worn: fading, pilling or small flaws.',
+    poor: 'Heavily worn, visible flaws such as stains or holes.',
+    for_parts: 'Damaged: tears, broken zip, large stains.',
+  },
+  de: {
+    new: 'Nie getragen, Originaletikett noch dran.',
+    like_new: 'Nie getragen, Etikett entfernt.',
+    very_good: 'Ein paar Mal getragen, keine Mängel.',
+    good: 'Getragen, leichte Gebrauchsspuren wie etwas verblasst oder Knötchen.',
+    fair: 'Deutlich getragen: verblasst, Knötchen oder kleine Mängel.',
+    poor: 'Stark getragen, sichtbare Mängel wie Flecken oder Löcher.',
+    for_parts: 'Beschädigt: Risse, kaputter Reißverschluss, große Flecken.',
+  },
+  it: {
+    new: 'Mai indossato, con il cartellino originale.',
+    like_new: 'Mai indossato, cartellino tolto.',
+    very_good: 'Indossato poche volte, senza difetti.',
+    good: 'Indossato, lievi segni d’uso come colore un po’ sbiadito o pallini.',
+    fair: 'Chiaramente usato: sbiadito, pallini o piccoli difetti.',
+    poor: 'Molto usato, difetti visibili come macchie o buchi.',
+    for_parts: 'Danneggiato: strappi, zip rotta, grandi macchie.',
+  },
+  fr: {
+    new: 'Jamais porté, étiquette d’origine encore attachée.',
+    like_new: 'Jamais porté, étiquette retirée.',
+    very_good: 'Porté quelques fois, sans défaut.',
+    good: 'Porté, légères traces d’usure comme un peu décoloré ou bouloché.',
+    fair: 'Clairement porté : décoloré, bouloché ou petits défauts.',
+    poor: 'Très porté, défauts visibles comme des taches ou des trous.',
+    for_parts: 'Abîmé : déchirures, fermeture cassée, grosses taches.',
+  },
+});
+
+/** Condition label in the scale that fits the item (fashion or devices). */
+export const conditionLabelFor = (c: Condition, category: CategorySlug | ''): string =>
+  (category !== '' && isFashion(category) ? FASHION_CONDITION_LABEL : CONDITION_LABEL)[c];
 
 type DecisionMap = { strong_buy: string; buy: string; borderline: string; skip: string };
 

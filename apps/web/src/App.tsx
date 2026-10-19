@@ -22,6 +22,7 @@ import {
   showsCapacity,
   draftFromScan,
   fashionFields,
+  listingHints,
   newDraft,
   type Draft,
   type Identification,
@@ -57,7 +58,7 @@ type Route =
   | { name: 'plans' }
   | { name: 'admin' }
   | { name: 'inventory' }
-  | { name: 'listing'; photos?: string[] }
+  | { name: 'listing'; photos?: string[]; notes?: string; conditionIndex?: number }
   | { name: 'referral' }
   | { name: 'shelf'; photo: string };
 
@@ -675,7 +676,7 @@ export function App() {
             onAgain={() => back()}
           />
         )}
-        {route.name === 'listing' && <QuickListing country={settings.country} initialPhotos={route.photos ?? []} onUpgrade={() => openPlans()} />}
+        {route.name === 'listing' && <QuickListing country={settings.country} initialPhotos={route.photos ?? []} {...(route.notes && { initialNotes: route.notes })} {...(route.conditionIndex !== undefined && { initialConditionIndex: route.conditionIndex })} onUpgrade={() => openPlans()} />}
         {route.name === 'confirm' && (
           <Confirm
             draft={draft}
@@ -725,7 +726,7 @@ export function App() {
             {...(resp.scanId && { onBought: (m: number) => setBoughtPriceMinor(m) })}
             onWriteListing={() => {
               track('quick_listing_opened', { from: 'result', status: resp.result.status });
-              go({ name: 'listing', photos: draft.photos });
+              go({ name: 'listing', photos: draft.photos, ...listingHints(draft, resp) });
             }}
           >
             {devTools && isAdmin && draft.photos.length > 0 && <BenchmarkAdd photos={draft.photos} request={buildRequest(draft, settings)} />}

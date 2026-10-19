@@ -1,7 +1,7 @@
-import { isFashion, marketFor, type CategorySlug, type Condition, type FashionAttributes, type FashionGender, type FashionKind } from '@fliplens/core';
+import { isFashion, marketFor, type CategorySlug, type Condition, type FashionAttributes, type FashionGender, type FashionKind, type FeePresetId } from '@fliplens/core';
 import type { IdentificationCandidate } from '@fliplens/recognition';
 import type { BarcodeResult, IdentificationResult, ServerScan, ValuationRequest } from './api.js';
-import type { Settings } from './storage.js';
+import { loadClothesOnVinted, type Settings } from './storage.js';
 
 /** Everything the scan flow collects between "Scan" and "Result". */
 
@@ -58,6 +58,18 @@ export function fashionFields(f: FashionAttributes | undefined): Pick<ProductDra
 
 export const showsFashion = (c: ProductDraft['category']): boolean => c !== '' && isFashion(c);
 
+/**
+ * Where an item is valued. Clothes go to Vinted by default (most are sold there), with the user's eBay preset as the
+ * side-by-side alternative, or the other way round. Only when both read the same market data (same eBay sites).
+ */
+export function presetsFor(category: ProductDraft['category'], s: Settings): { preset: FeePresetId; altPreset?: FeePresetId } {
+  if (!showsFashion(category) || s.preset === 'vinted') return { preset: s.preset };
+  const a = marketFor(s.country, s.preset);
+  const v = marketFor(s.country, 'vinted');
+  if (a.currency !== v.currency || String(a.sites) !== String(v.sites)) return { preset: s.preset };
+  return loadClothesOnVinted() ? { preset: 'vinted', altPreset: s.preset } : { preset: s.preset, altPreset: 'vinted' };
+}
+
 export function newDraft(method: Draft['method']): Draft {
   return { method, photos: [], identification: null, chosenIndex: null, edited: false, product: { ...EMPTY_PRODUCT }, condition: 'good', price: '' };
 }
@@ -111,7 +123,7 @@ export function buildRequest(d: Draft, s: Settings): ValuationRequest {
     ...(d.price.trim() !== '' && { purchasePrice: parsePrice(d.price) }),
     currency: marketFor(s.country, s.preset).currency,
     country: s.country,
-    preset: s.preset,
+    ...presetsFor(p.category, s),
     shippingCost: s.shippingCost,
     targetRoiPct: s.targetRoiPct,
     inputMethod: d.method,
@@ -142,4 +154,25 @@ export function draftFromScan(s: ServerScan): Draft {
     condition: s.condition,
     price: s.priceProvided === false ? '' : String(s.purchasePrice.amountMinor / 100),
   };
+}
+
+const VINTED_CONDITION_INDEX: Partial<Record<Condition, number>> = { new: 0, like_new: 1, very_good: 2, good: 3, fair: 4, poor: 4 };
+
+/**
+ * What a listing written after a check should know: brand, item, size (read from the label) and the price the check
+ * suggests. Plain facts in English; the listing writer turns them into the chosen language.
+ */
+export function listingHints(d: Draft, resp: { result: { status: string; estimate?: { expected: { amountMinor: number; currency: string } } } }): { notes?: string; conditionIndex?: number } {
+  const p = d.product;
+  const chosen = d.chosenIndex !== null ? d.identification?.candidates[d.chosenIndex] : undefined;
+  const size = showsFashion(p.category) && !d.edited ? chosen?.variant : undefined;
+  const price = resp.result.status === 'ok' ? resp.result.estimate?.expected : undefined;
+  const facts = [
+    p.brand.trim() && `Brand: ${p.brand.trim()}`,
+    p.model.trim() && `Item: ${p.model.trim()}${p.style.trim() ? ` (${p.style.trim()})` : ''}`,
+    size && `Size: ${size}`,
+    price && `Price: ${Math.round(price.amountMinor / 100)} ${price.currency}`,
+  ].filter(Boolean);
+  const conditionIndex = VINTED_CONDITION_INDEX[d.condition];
+  return { ...(facts.length > 0 && { notes: facts.join('. ') }), ...(conditionIndex !== undefined && { conditionIndex }) };
 }

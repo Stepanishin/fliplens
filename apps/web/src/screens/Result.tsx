@@ -6,6 +6,7 @@ import { ago, FACTOR_LABEL } from '../format.js';
 import { money, reason, tr, presetText } from '../i18n.js';
 import { MarketLinks } from '../MarketLinks.js';
 import { MarketCompare } from '../ui/MarketCompare.js';
+import { PlatformCompare } from '../ui/PlatformCompare.js';
 import { ConfidencePill, DecisionHero, eur, MarketActivity, RangeBar } from '../ui/verdict.js';
 import { IconBag, IconEdit, IconScan, IconSpark } from '../ui/icons.js';
 import { Comparables } from './Comparables.js';
@@ -19,6 +20,7 @@ const T = tr({
     tooFew: (n: number) => `Only ${n} matching listings after filtering (5 needed). We don't guess.`,
     uncertain: 'The product identification is too uncertain to value.',
     writeTitle: 'Selling it? Write the listing from your photo',
+    listVinted: 'Write the Vinted listing',
     writeSub: 'Clothes and other items without price data work too: title and description for Vinted, eBay or Kleinanzeigen.',
     whatYouCanDo: 'What you can do',
     tip1: 'Check the model name, storage and mount: a wrong detail hides the market.',
@@ -64,6 +66,7 @@ const T = tr({
     tooFew: (n: number) => `Nur ${n} passende Angebote nach dem Filtern (5 nötig). Wir raten nicht.`,
     uncertain: 'Das Produkt ist zu unsicher erkannt, um es zu bewerten.',
     writeTitle: 'Willst du es verkaufen? Schreib die Anzeige aus deinem Foto',
+    listVinted: 'Vinted-Anzeige schreiben',
     writeSub: 'Klappt auch mit Kleidung und anderen Artikeln ohne Preisdaten: Titel und Beschreibung für Vinted, eBay oder Kleinanzeigen.',
     whatYouCanDo: 'Was du tun kannst',
     tip1: 'Prüf Modellname, Speicher und Anschluss: ein falsches Detail versteckt den Markt.',
@@ -109,6 +112,7 @@ const T = tr({
     tooFew: (n: number) => `Solo ${n} annunci corrispondenti dopo il filtro (ne servono 5). Non tiriamo a indovinare.`,
     uncertain: 'Il riconoscimento del prodotto è troppo incerto per una valutazione.',
     writeTitle: 'Vuoi venderlo? Scrivi l’annuncio dalla tua foto',
+    listVinted: 'Scrivi l’annuncio Vinted',
     writeSub: 'Funziona anche con vestiti e altri articoli senza dati di prezzo: titolo e descrizione per Vinted, eBay o Kleinanzeigen.',
     whatYouCanDo: 'Cosa puoi fare',
     tip1: 'Controlla nome del modello, memoria e attacco: un dettaglio sbagliato nasconde il mercato.',
@@ -154,6 +158,7 @@ const T = tr({
     tooFew: (n: number) => `Seulement ${n} annonces correspondantes après filtrage (5 nécessaires). On ne devine pas.`,
     uncertain: 'L’identification du produit est trop incertaine pour l’évaluer.',
     writeTitle: 'Tu veux le vendre ? Rédige l’annonce à partir de ta photo',
+    listVinted: 'Rédiger l’annonce Vinted',
     writeSub: 'Ça marche aussi pour les vêtements et autres articles sans données de prix : titre et description pour Vinted, eBay ou Kleinanzeigen.',
     whatYouCanDo: 'Ce que tu peux faire',
     tip1: 'Vérifie le nom du modèle, le stockage et la monture : un détail erroné cache le marché.',
@@ -286,10 +291,28 @@ export function Result({ resp, query, country, onNewScan, onEdit, targetRoiPct, 
   const decision =
     buyMinor === askedMinor
       ? r.decision
-      : decide(
-          { profit: p.profit, roiPct: p.roiPct, confidence: e.confidence as unknown as Confidence, includedCount: d.count, dataKind: e.dataKind },
-          DEFAULT_PRICING_CONFIG,
-        );
+      : (() => {
+          const fast = computeProfit({
+            salePrice: e.fast,
+            purchasePrice: { amountMinor: buyMinor, currency: 'EUR' },
+            fees: feeProfile,
+            shippingCost: base.shipping,
+            packagingCost: base.packaging,
+          });
+          return decide(
+            {
+              profit: p.profit,
+              roiPct: p.roiPct,
+              confidence: e.confidence as unknown as Confidence,
+              includedCount: d.count,
+              dataKind: e.dataKind,
+              salePrice: e.expected,
+              fastProfit: fast.profit,
+              fastRoiPct: fast.roiPct,
+            },
+            DEFAULT_PRICING_CONFIG,
+          );
+        })();
   const maxBuy = r.maxBuyPrice ?? maxBuyPrice(base.net, targetRoiPct);
   // Checked without a price: lead with "pay at most"; a verdict appears once a price is tried on the slider.
   const noPrice = resp.priceProvided === false;
@@ -322,6 +345,13 @@ export function Result({ resp, query, country, onNewScan, onEdit, targetRoiPct, 
           </div>
         </div>
       )}
+
+      {isFashion(resp.category) && onWriteListing && (
+        <button type="button" className="primary wide pc-list" onClick={onWriteListing}>
+          <IconSpark size={18} /> {T.listVinted}
+        </button>
+      )}
+      {resp.alt && <PlatformCompare alt={resp.alt} />}
 
       <section className="card whatif">
         <div className="card-head">

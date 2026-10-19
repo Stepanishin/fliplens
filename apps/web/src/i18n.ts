@@ -240,6 +240,8 @@ const REASON_PATTERNS: [string, RegExp][] = [
   ['spread', /^wide price spread between comparables$/],
   ['few', /^few comparables$/],
   ['lowconf', /^low overall confidence$/],
+  ['fastsafe', /^profitable even at the quick-sale price$/],
+  ['vinted', /^buyer pays shipping separately: typical shipping of (.+) taken off the eBay prices$/],
 ];
 const pct = (n: string | number) => `${Math.round(Number(n)).toLocaleString(LOCALE)} %`;
 const REASON_TEXT: Record<Exclude<Lang, 'en'>, Reasons> = {
@@ -258,6 +260,8 @@ const REASON_TEXT: Record<Exclude<Lang, 'en'>, Reasons> = {
     spread: () => 'große Preisspanne zwischen den Vergleichsangeboten',
     few: () => 'wenige Vergleichsangebote',
     lowconf: () => 'insgesamt geringe Sicherheit',
+    fastsafe: () => 'lohnt sich sogar beim Schnellverkaufspreis',
+    vinted: (m) => `Käufer zahlt den Versand extra: übliche Versandkosten von ${localMoney(m[1]!)} von den eBay-Preisen abgezogen`,
   },
   it: {
     free: () => 'ROI n/d (articolo gratuito)',
@@ -274,6 +278,8 @@ const REASON_TEXT: Record<Exclude<Lang, 'en'>, Reasons> = {
     spread: () => 'forte differenza di prezzo tra gli annunci comparabili',
     few: () => 'pochi annunci comparabili',
     lowconf: () => 'affidabilità complessiva bassa',
+    fastsafe: () => 'conviene anche al prezzo di vendita rapida',
+    vinted: (m) => `la spedizione la paga l’acquirente: tolta la spedizione tipica di ${localMoney(m[1]!)} dai prezzi eBay`,
   },
   fr: {
     free: () => 'ROI n/d (article gratuit)',
@@ -290,6 +296,8 @@ const REASON_TEXT: Record<Exclude<Lang, 'en'>, Reasons> = {
     spread: () => 'grand écart de prix entre les annonces comparables',
     few: () => 'peu d’annonces comparables',
     lowconf: () => 'fiabilité globale faible',
+    fastsafe: () => 'rentable même au prix de vente rapide',
+    vinted: (m) => `l’acheteur paie le port à part : frais de port habituels de ${localMoney(m[1]!)} retirés des prix eBay`,
   },
 };
 

@@ -548,6 +548,76 @@ const PAGES: Page[] = [
     ],
   },
   {
+    path: '/guides/resale-value-branded-clothes',
+    kind: 'article',
+    crumb: 'Combien valent mes vêtements',
+    parent: { path: '/guides', name: 'Guides' },
+    title: 'Combien valent mes vêtements? Valeur de revente des marques',
+    description: `Ce qui fait la valeur de revente des vêtements de marque d'occasion: marque, type, état, taille, saison et authenticité, où les vendre et comment estimer vite.`,
+    h1: 'Combien valent mes vêtements? Valeur de revente des vêtements de marque',
+    lead: `Deux vestes qui se ressemblent peuvent se revendre à des prix très différents. La marque compte plus que tout le reste, puis viennent le type d'article, l'état et la taille. Voici comment les acheteurs font le prix.`,
+    sections: [
+      {
+        h2: 'Ce qui fait le prix',
+        html: `<ul><li><strong>Marque:</strong> le facteur le plus important. Les marques de fast fashion comme Zara, H&amp;M, Bershka ou Pull&amp;Bear se revendent en général de quelques euros à environ 15-20 €; les marques premium et outdoor valent nettement plus.</li><li><strong>Type d'article:</strong> une veste, un manteau ou un jean de marque se vend mieux qu'un t-shirt basique de la même marque.</li><li><strong>Modèles connus:</strong> les modèles nommés, comme le Levi's 501 ou la doudoune The North Face Nuptse, ont leur propre prix, différent de celui des articles basiques de la marque.</li><li><strong>État:</strong> neuf avec étiquette, neuf sans étiquette, très bon état, bon état ou satisfaisant. Chaque niveau en dessous fait baisser le prix.</li><li><strong>Taille:</strong> les tailles courantes se vendent plus vite; les très petites et très grandes tailles trouvent moins d'acheteurs.</li><li><strong>Saison:</strong> les manteaux se vendent mieux à l'automne, les vêtements légers au printemps.</li><li><strong>Complet:</strong> ceinture, capuche amovible ou dust bag d'origine aident le prix.</li></ul>`,
+      },
+      {
+        h2: 'Authenticité et contrefaçons',
+        html: `<p>Les marques recherchées sont souvent contrefaites, et les acheteurs le savent. Photographie les étiquettes d'authenticité, l'étiquette de marque et l'étiquette d'entretien, et garde le ticket de caisse si tu l'as. Un article dont on ne peut pas vérifier l'origine se vend moins cher, ou pas du tout.</p>`,
+      },
+      {
+        h2: 'Où vendre des vêtements de marque',
+        html: `<ul><li><strong>Vinted:</strong> pas de frais de vente pour les vendeurs dans la plupart des pays d'Europe; l'acheteur paie la livraison et la Protection acheteurs. Le choix naturel pour la plupart des vêtements. Voir <a href="${h('/guides/how-to-sell-on-vinted')}">comment vendre sur Vinted</a>.</li><li><strong>eBay:</strong> pas de frais de vente pour les vendeurs particuliers dans l'EEE depuis 2026, mais c'est en général le vendeur qui paie la livraison. Utile pour les marques premium et les modèles recherchés.</li><li><strong>En local ou sur Leboncoin:</strong> pratique pour les manteaux lourds et les lots, sans frais d'envoi.</li></ul>`,
+      },
+      {
+        h2: 'Comment FlipLens estime tes vêtements',
+        html: `<p>Prends en photo l'article et son étiquette. FlipLens lit la marque et le type (femme, homme ou enfant), compare les annonces de la même marque et du même type dans la même catégorie eBay, dans cinq pays de l'UE ou sur eBay.co.uk, et ajuste les prix demandés à la baisse. Par défaut, les vêtements sont estimés pour Vinted, avec la livraison habituelle retirée puisque c'est l'acheteur qui la paie là-bas, et eBay est affiché à côté. Les articles sans marque ne sont pas estimés. L'estimation est plus approximative que pour l'électronique, car l'état et la taille varient beaucoup. Ensuite, FlipLens écrit ton annonce Vinted à partir de la même photo avec le <a href="${h('/vinted-listing-generator')}">générateur d'annonces Vinted</a>. Voir aussi <a href="${h('/guides/how-to-check-resale-value')}">comment vérifier la valeur de revente</a>.</p>`,
+      },
+    ],
+    faq: [
+      { q: `Combien valent des vêtements Zara ou H&M d'occasion?`, a: `En général de quelques euros à environ 15-20 € par article, selon le type et l'état. Les articles neufs avec étiquette se vendent un peu mieux.` },
+      { q: 'Quel est le facteur le plus important pour le prix?', a: `La marque. Viennent ensuite le type d'article, le modèle exact s'il est connu, l'état et la taille.` },
+      { q: 'FlipLens estime-t-il les vêtements sans marque?', a: `Non. Sans marque lisible, il n'y a pas assez d'annonces comparables pour donner une estimation fiable.` },
+    ],
+  },
+  {
+    path: '/guides/sneaker-resale-value',
+    kind: 'article',
+    crumb: 'Valeur des baskets',
+    parent: { path: '/guides', name: 'Guides' },
+    title: 'Valeur de revente des baskets: combien valent mes sneakers?',
+    description: `Ce qui fait la valeur de revente des baskets d'occasion: marque, modèle, pointure, état, boîte et authenticité, où les vendre en Europe et comment estimer vite.`,
+    h1: 'Valeur de revente des baskets: combien valent mes sneakers?',
+    lead: `Les baskets de marque se revendent bien, mais le modèle exact et la pointure font une grande différence. Une paire de Nike Air Force 1 ou d'Adidas Samba n'a pas le même prix qu'une paire basique de la même marque.`,
+    sections: [
+      {
+        h2: 'Ce qui fait le prix',
+        html: `<ul><li><strong>Marque et modèle:</strong> les modèles nommés comme les Nike Air Force 1 ou les Adidas Samba ont leur propre prix, différent de celui des paires basiques de la même marque.</li><li><strong>Pointure:</strong> les pointures courantes se vendent le plus vite, en général du 40 au 44 pour les hommes et du 37 au 39 pour les femmes.</li><li><strong>État:</strong> neuf avec étiquette, neuf sans étiquette, très bon état, bon état ou satisfaisant. Semelles usées, plis marqués et intérieur abîmé font baisser le prix.</li><li><strong>Boîte d'origine:</strong> une paire avec sa boîte, et ses lacets de rechange s'il y en avait, se vend mieux.</li><li><strong>Saison:</strong> certaines paires, comme les baskets montantes ou imperméables, se vendent mieux selon la saison.</li></ul>`,
+      },
+      {
+        h2: 'Authenticité',
+        html: `<p>Les baskets populaires font partie des articles les plus contrefaits. Photographie l'étiquette à l'intérieur de la languette avec la référence et la pointure, la semelle et la boîte. Garde le ticket de caisse si tu l'as: c'est souvent ce qui rassure le plus un acheteur.</p>`,
+      },
+      {
+        h2: 'Préparer ta paire',
+        html: `<ul><li>Nettoie les semelles et le dessus, et lave ou remplace les lacets.</li><li>Photographie les deux chaussures de côté, de dessus, de dessous et l'arrière du talon.</li><li>Montre les défauts de près et indique la pointure exacte (EU, et UK ou US si c'est écrit).</li></ul>`,
+      },
+      {
+        h2: 'Où vendre des baskets',
+        html: `<ul><li><strong>Vinted:</strong> pas de frais de vente pour les vendeurs dans la plupart des pays d'Europe; l'acheteur paie la livraison et la Protection acheteurs. Voir <a href="${h('/guides/how-to-sell-on-vinted')}">comment vendre sur Vinted</a>.</li><li><strong>eBay:</strong> pas de frais de vente pour les vendeurs particuliers dans l'EEE depuis 2026, mais le vendeur paie en général la livraison.</li><li><strong>En local ou sur Leboncoin:</strong> l'acheteur peut essayer la paire, ce qui évite les retours pour une question de taille.</li></ul>`,
+      },
+      {
+        h2: 'Comment FlipLens estime tes baskets',
+        html: `<p>Prends en photo la paire et l'étiquette dans la languette. FlipLens lit la marque et le type (femme, homme ou enfant), compare les annonces de la même marque et du même type dans la même catégorie eBay, dans cinq pays de l'UE ou sur eBay.co.uk, et ajuste les prix demandés à la baisse. Par défaut, l'estimation est faite pour Vinted, avec la livraison habituelle retirée puisque c'est l'acheteur qui la paie là-bas, et eBay est affiché à côté. Les paires sans marque ne sont pas estimées, et l'estimation reste plus approximative que pour l'électronique. Ensuite, le <a href="${h('/vinted-listing-generator')}">générateur d'annonces Vinted</a> écrit ton annonce à partir de la même photo. Voir aussi <a href="${h('/guides/how-to-check-resale-value')}">comment vérifier la valeur de revente</a>.</p>`,
+      },
+    ],
+    faq: [
+      { q: 'Quelles pointures de baskets se vendent le plus vite?', a: `En général du 40 au 44 pour les hommes et du 37 au 39 pour les femmes. Les pointures plus rares trouvent moins d'acheteurs.` },
+      { q: `La boîte d'origine compte-t-elle?`, a: `Oui. Une paire avec sa boîte se vend en général plus vite et plus cher, et la boîte aide aussi à prouver l'authenticité.` },
+      { q: 'Où vendre des baskets en Europe?', a: `Sur Vinted, où les vendeurs ne paient pas de frais de vente dans la plupart des pays, sur eBay, ou en local, par exemple sur Leboncoin.` },
+    ],
+  },
+  {
     path: '/about',
     kind: 'page',
     crumb: 'À propos',

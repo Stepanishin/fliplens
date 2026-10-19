@@ -580,6 +580,95 @@ That it is signed out of all accounts and reset, not locked to a network, has th
 Yes. The same model with more storage usually sells for more, so always compare the same storage size.
 
 
+## How much are my clothes worth?
+
+URL: https://fliplens.eu/guides/resale-value-branded-clothes
+
+Second-hand clothes sell every day on Vinted and eBay, but prices range from a couple of euros to well over a hundred. The brand on the label decides most of it, the rest comes down to a few details buyers always check.
+
+### What drives the price
+
+- Brand: the biggest factor by far. Premium and outdoor brands keep much more of their value than fast fashion.
+- Item type: a winter jacket or a leather bag sells for more than a T-shirt from the same brand.
+- Named lines and styles: well-known lines such as Levi's 501 jeans or The North Face Nuptse jackets price differently from the brand's basic items, so compare like with like.
+- Condition: new with tags, new without tags, very good, good or satisfactory. Stains, pilling, holes and faded colours lower the price.
+- Size: common sizes sell faster; very large and very small sizes usually take longer to find a buyer.
+- Season: coats and boots sell best in autumn and winter, light dresses and shorts in spring and summer.
+- Completeness: a removable hood, a belt or a bag's dust bag help the price.
+
+### Fast fashion versus premium brands
+
+Fast-fashion brands such as Zara, H&M, Bershka and Pull&Bear usually resell for a few euros up to around 15 to 20, even in good condition. Premium, designer and outdoor brands are worth much more, which is also why they are copied. For valuable pieces, keep the authenticity tags and the receipt if you have them, and photograph the labels clearly: buyers ask for them.
+
+### Where to sell clothes
+
+- Vinted: the main marketplace for clothes in Europe. In most countries sellers pay no selling fee; the buyer pays shipping and a Buyer Protection fee on top. See how to sell on Vinted (/guides/how-to-sell-on-vinted).
+- eBay: private sellers in Germany and the UK pay no selling fees, but the seller usually pays shipping. Good for premium brands and buyers in other countries.
+- Locally: classifieds and flea markets, with no shipping at all, but fewer buyers for each item.
+
+### How FlipLens estimates clothing prices
+
+Photograph the item and its brand label. FlipLens reads the brand and the type (women, men or kids), then compares listings of the same brand and type in the same eBay category, across eBay in five EU countries or on eBay.co.uk, and adjusts the asking prices down. By default it values clothes for Vinted, taking off typical shipping because the buyer pays it there, and shows eBay side by side. Items without a recognisable brand are not priced.
+This is a rougher estimate than for electronics: FlipLens compares the brand and type, not the exact piece. Treat it as a guide to the price range, then check similar listings before you set your final price. See how to check resale value (/guides/how-to-check-resale-value).
+
+### From photo to Vinted listing
+
+Once you know the range, FlipLens can write the Vinted title and description from the same photo with the Vinted listing generator (/vinted-listing-generator). Add the measurements and any flaws, and it is ready to post.
+
+**Which clothing brands resell best?**
+Premium, designer and outdoor brands keep much more value than fast fashion. Fast-fashion items from brands like Zara or H&M usually sell for a few euros up to around 15 to 20.
+
+**Can FlipLens price unbranded clothes?**
+No. FlipLens compares listings of the same brand and type, so items without a recognisable brand are not priced.
+
+**Should I sell clothes on Vinted or eBay?**
+Vinted is usually the first choice for clothes because sellers pay no selling fee in most countries and the buyer pays shipping. eBay is worth comparing for premium brands. FlipLens shows both side by side.
+
+
+## Sneaker resale value: how much are my trainers worth?
+
+URL: https://fliplens.eu/guides/sneaker-resale-value
+
+Sneakers are among the easiest shoes to resell, but two pairs from the same brand can be worth very different amounts. The model, the size and the condition decide most of the price.
+
+### What drives the price
+
+- Brand and model: named models such as the Nike Air Force 1 or the Adidas Samba price differently from a brand's basic trainers. Always compare the same model.
+- Size: popular sizes sell fastest, roughly EU 40 to 44 for men and EU 37 to 39 for women. Very small or very large sizes take longer.
+- Condition: new with tags, new without tags, very good, good or satisfactory. Buyers look at creases, worn soles, yellowed midsoles and the inside lining.
+- Box and extras: the original box and spare laces help, especially for sought-after models.
+
+### Authenticity
+
+Popular sneakers are often faked, so buyers are careful. Photograph the size label inside the shoe, the box label and any receipt you have. Clear, honest photos sell faster than a listing that leaves buyers guessing.
+
+### Cleaning and photos
+
+- Clean the uppers and soles and wash or replace the laces.
+- Photograph both shoes from the side, the front, the back, the soles and the size label.
+- Show wear and flaws close up.
+- Use daylight and a plain background.
+
+### Where to sell sneakers
+
+- Vinted: no selling fee for sellers in most of Europe; the buyer pays shipping and Buyer Protection. See how to sell on Vinted (/guides/how-to-sell-on-vinted).
+- eBay: private sellers in Germany and the UK pay no selling fees, but the seller usually pays shipping.
+- Locally: classifieds and flea markets, where buyers can try them on.
+
+### Check the price with FlipLens
+
+Photograph the sneakers and the size label. FlipLens reads the brand and type, compares listings of the same brand and type in the same eBay category across eBay in five EU countries or on eBay.co.uk, adjusts asking prices down and by default values them for Vinted, with eBay shown side by side. It compares brand and type rather than the exact pair, so treat it as a rough range. Then it can write the listing from the same photo with the Vinted listing generator (/vinted-listing-generator). See also how to check resale value (/guides/how-to-check-resale-value).
+
+**Which sneaker sizes sell fastest?**
+Popular sizes, roughly EU 40 to 44 for men and EU 37 to 39 for women, usually sell fastest. Very small and very large sizes take longer.
+
+**Does the original box matter for sneakers?**
+Yes. The original box helps buyers trust the pair and usually helps the price, especially for sought-after models.
+
+**How accurate is the FlipLens estimate for sneakers?**
+It is a rough range. FlipLens compares listings of the same brand and type, not the exact model and size, so check similar listings before you set your final price.
+
+
 ## About FlipLens
 
 URL: https://fliplens.eu/about
@@ -627,6 +716,8 @@ Short, practical guides for sourcing and reselling second-hand items in Europe.
 - Resale value of used cameras and lenses (/guides/resale-value-cameras-lenses)What decides the resale value of a used camera body or lens in Europe: mount, shutter count, sensor and glass condition, completeness and region, plus a quick checklist.
 - Resale value of used headphones and earbuds (/guides/resale-value-headphones)What decides the resale value of used headphones and earbuds in Europe: exact generation, battery wear, ear pads, completeness and hygiene, plus a quick checklist.
 - Selling a used phone in Europe (/guides/sell-used-phone-europe)What decides the resale value of a used smartphone in Europe: model, storage, battery health, account and carrier locks, condition, plus a checklist before you buy or sell.
+- How much are my clothes worth? (/guides/resale-value-branded-clothes)What decides the resale value of used jackets, jeans, dresses, hoodies and bags: brand, condition, size, season and completeness, and where to sell them.
+- Sneaker resale value: how much are my trainers worth? (/guides/sneaker-resale-value)What decides the resale value of used sneakers: model, size, condition, the original box and authenticity, plus where to sell them in Europe and the UK.
 
 
 ## Earn 20% for 6 months

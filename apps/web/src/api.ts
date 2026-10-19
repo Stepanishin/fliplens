@@ -45,6 +45,8 @@ export interface ValuationRequest {
   /** User's country: GB uses eBay.co.uk in pounds. */
   country?: string;
   preset: FeePresetId;
+  /** Clothes: also value for this preset, shown side by side. */
+  altPreset?: FeePresetId;
   shippingCost: number;
   targetRoiPct?: number;
   identificationConfidence?: number;
@@ -79,6 +81,8 @@ export interface ValuationResponse {
     lastVerifiedAt: string;
   };
   result: ValuationJson | InsufficientJson;
+  /** Clothes: the same item valued for the other platform (Vinted vs eBay), comparables omitted. */
+  alt?: { preset: FeePresetId; label: string; sellerPaysShipping: boolean; result: ValuationJson | InsufficientJson };
 }
 
 export interface Health {

@@ -33,6 +33,8 @@ Key facts:
 - [Resale value of used cameras and lenses](https://fliplens.eu/guides/resale-value-cameras-lenses): What decides the resale value of a used camera body or lens in Europe: mount, shutter count, sensor and glass condition, completeness and region, plus a quick checklist.
 - [Resale value of used headphones and earbuds](https://fliplens.eu/guides/resale-value-headphones): What decides the resale value of used headphones and earbuds in Europe: exact generation, battery wear, ear pads, completeness and hygiene, plus a quick checklist.
 - [Selling a used phone in Europe](https://fliplens.eu/guides/sell-used-phone-europe): What decides the resale value of a used smartphone in Europe: model, storage, battery health, account and carrier locks, condition, plus a checklist before you buy or sell.
+- [How much are my clothes worth?](https://fliplens.eu/guides/resale-value-branded-clothes): What decides the resale value of used jackets, jeans, dresses, hoodies and bags: brand, condition, size, season and completeness, and where to sell them.
+- [Sneaker resale value: how much are my trainers worth?](https://fliplens.eu/guides/sneaker-resale-value): What decides the resale value of used sneakers: model, size, condition, the original box and authenticity, plus where to sell them in Europe and the UK.
 
 ## Deutsch
 - [FlipLens auf Deutsch](https://fliplens.eu/de): Start page and app in German
@@ -50,6 +52,8 @@ Key facts:
 - [Wiederverkaufswert gebrauchter Kameras und Objektive](https://fliplens.eu/de/guides/resale-value-cameras-lenses)
 - [Wiederverkaufswert gebrauchter Kopfhörer und Earbuds](https://fliplens.eu/de/guides/resale-value-headphones)
 - [Gebrauchtes Handy in Europa verkaufen](https://fliplens.eu/de/guides/sell-used-phone-europe)
+- [Was ist meine Kleidung wert?](https://fliplens.eu/de/guides/resale-value-branded-clothes)
+- [Was sind meine Sneaker noch wert?](https://fliplens.eu/de/guides/sneaker-resale-value)
 - [Über FlipLens](https://fliplens.eu/de/about)
 - [Ratgeber](https://fliplens.eu/de/guides)
 - [20 % Provision, 6 Monate lang](https://fliplens.eu/de/partner)
@@ -70,6 +74,8 @@ Key facts:
 - [Valore di rivendita di fotocamere e obiettivi usati](https://fliplens.eu/it/guides/resale-value-cameras-lenses)
 - [Valore di rivendita di cuffie e auricolari usati](https://fliplens.eu/it/guides/resale-value-headphones)
 - [Vendere un telefono usato in Europa](https://fliplens.eu/it/guides/sell-used-phone-europe)
+- [Quanto valgono i miei vestiti? Valore di rivendita dell'abbigliamento di marca](https://fliplens.eu/it/guides/resale-value-branded-clothes)
+- [Valore di rivendita delle sneakers: quanto valgono le mie scarpe?](https://fliplens.eu/it/guides/sneaker-resale-value)
 - [Chi siamo](https://fliplens.eu/it/about)
 - [Guide per rivendere](https://fliplens.eu/it/guides)
 - [Guadagna il 20% per 6 mesi](https://fliplens.eu/it/partner)
@@ -90,6 +96,8 @@ Key facts:
 - [Valeur de revente des appareils photo et objectifs d'occasion](https://fliplens.eu/fr/guides/resale-value-cameras-lenses)
 - [Valeur de revente des casques et écouteurs d'occasion](https://fliplens.eu/fr/guides/resale-value-headphones)
 - [Vendre un téléphone d'occasion en Europe](https://fliplens.eu/fr/guides/sell-used-phone-europe)
+- [Combien valent mes vêtements? Valeur de revente des vêtements de marque](https://fliplens.eu/fr/guides/resale-value-branded-clothes)
+- [Valeur de revente des baskets: combien valent mes sneakers?](https://fliplens.eu/fr/guides/sneaker-resale-value)
 - [À propos de FlipLens](https://fliplens.eu/fr/about)
 - [Guides de revente](https://fliplens.eu/fr/guides)
 - [20 % de commission pendant 6 mois](https://fliplens.eu/fr/partner)

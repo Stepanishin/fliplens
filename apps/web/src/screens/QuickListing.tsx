@@ -180,14 +180,28 @@ const MISSING: Record<string, string> = tr<Record<string, string>>({
 const missingLabel = (m: string): string => MISSING[m.toLowerCase()] ?? m;
 
 /** Photo in, ready-to-paste listing out. Any item, including clothes: no price check needed. */
-export function QuickListing({ country, initialPhotos = [], onUpgrade }: { country: string; initialPhotos?: string[]; onUpgrade: () => void }) {
+export function QuickListing({
+  country,
+  initialPhotos = [],
+  initialNotes = '',
+  initialConditionIndex,
+  onUpgrade,
+}: {
+  country: string;
+  initialPhotos?: string[];
+  /** From a check: brand, size and the suggested price, so the listing matches the valuation. */
+  initialNotes?: string;
+  /** Index into the Vinted condition chips. */
+  initialConditionIndex?: number;
+  onUpgrade: () => void;
+}) {
   const cameraRef = useRef<HTMLInputElement>(null);
   const galleryRef = useRef<HTMLInputElement>(null);
   const [photos, setPhotos] = useState<string[]>(initialPhotos.slice(0, 3));
   const [market, setMarket] = useState<Market>('vinted');
   const [language, setLanguage] = useState(defaultListingLanguage(country));
-  const [condition, setCondition] = useState<string | null>(null);
-  const [notes, setNotes] = useState('');
+  const [condition, setCondition] = useState<string | null>(initialConditionIndex !== undefined ? CONDITIONS[initialConditionIndex] ?? null : null);
+  const [notes, setNotes] = useState(initialNotes);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<{ text: string; upgrade: boolean } | null>(null);
   const [listing, setListing] = useState<PhotoListing | null>(null);

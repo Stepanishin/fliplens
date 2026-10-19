@@ -571,6 +571,80 @@ const PAGES: Page[] = [
     ],
   },
   {
+    path: '/guides/resale-value-branded-clothes',
+    kind: 'article',
+    crumb: 'Resale value of clothes',
+    parent: { path: '/guides', name: 'Guides' },
+    title: 'How much are my clothes worth? Resale value of branded clothing',
+    description: 'What decides the resale value of used jackets, jeans, dresses, hoodies and bags: brand, condition, size, season and completeness, and where to sell them.',
+    h1: 'How much are my clothes worth?',
+    lead: 'Second-hand clothes sell every day on Vinted and eBay, but prices range from a couple of euros to well over a hundred. The brand on the label decides most of it, the rest comes down to a few details buyers always check.',
+    sections: [
+      {
+        h2: 'What drives the price',
+        html: '<ul><li><strong>Brand:</strong> the biggest factor by far. Premium and outdoor brands keep much more of their value than fast fashion.</li><li><strong>Item type:</strong> a winter jacket or a leather bag sells for more than a T-shirt from the same brand.</li><li><strong>Named lines and styles:</strong> well-known lines such as Levi\'s 501 jeans or The North Face Nuptse jackets price differently from the brand\'s basic items, so compare like with like.</li><li><strong>Condition:</strong> new with tags, new without tags, very good, good or satisfactory. Stains, pilling, holes and faded colours lower the price.</li><li><strong>Size:</strong> common sizes sell faster; very large and very small sizes usually take longer to find a buyer.</li><li><strong>Season:</strong> coats and boots sell best in autumn and winter, light dresses and shorts in spring and summer.</li><li><strong>Completeness:</strong> a removable hood, a belt or a bag\'s dust bag help the price.</li></ul>',
+      },
+      {
+        h2: 'Fast fashion versus premium brands',
+        html: '<p>Fast-fashion brands such as Zara, H&amp;M, Bershka and Pull&amp;Bear usually resell for a few euros up to around 15 to 20, even in good condition. Premium, designer and outdoor brands are worth much more, which is also why they are copied. For valuable pieces, keep the authenticity tags and the receipt if you have them, and photograph the labels clearly: buyers ask for them.</p>',
+      },
+      {
+        h2: 'Where to sell clothes',
+        html: '<ul><li><strong>Vinted:</strong> the main marketplace for clothes in Europe. In most countries sellers pay no selling fee; the buyer pays shipping and a Buyer Protection fee on top. See <a href="/guides/how-to-sell-on-vinted">how to sell on Vinted</a>.</li><li><strong>eBay:</strong> private sellers in Germany and the UK pay no selling fees, but the seller usually pays shipping. Good for premium brands and buyers in other countries.</li><li><strong>Locally:</strong> classifieds and flea markets, with no shipping at all, but fewer buyers for each item.</li></ul>',
+      },
+      {
+        h2: 'How FlipLens estimates clothing prices',
+        html: '<p>Photograph the item and its brand label. FlipLens reads the brand and the type (women, men or kids), then compares listings of the same brand and type in the same eBay category, across eBay in five EU countries or on eBay.co.uk, and adjusts the asking prices down. By default it values clothes for Vinted, taking off typical shipping because the buyer pays it there, and shows eBay side by side. Items without a recognisable brand are not priced.</p><p>This is a rougher estimate than for electronics: FlipLens compares the brand and type, not the exact piece. Treat it as a guide to the price range, then check similar listings before you set your final price. See <a href="/guides/how-to-check-resale-value">how to check resale value</a>.</p>',
+      },
+      {
+        h2: 'From photo to Vinted listing',
+        html: '<p>Once you know the range, FlipLens can write the Vinted title and description from the same photo with the <a href="/vinted-listing-generator">Vinted listing generator</a>. Add the measurements and any flaws, and it is ready to post.</p>',
+      },
+    ],
+    faq: [
+      { q: 'Which clothing brands resell best?', a: 'Premium, designer and outdoor brands keep much more value than fast fashion. Fast-fashion items from brands like Zara or H&M usually sell for a few euros up to around 15 to 20.' },
+      { q: 'Can FlipLens price unbranded clothes?', a: 'No. FlipLens compares listings of the same brand and type, so items without a recognisable brand are not priced.' },
+      { q: 'Should I sell clothes on Vinted or eBay?', a: 'Vinted is usually the first choice for clothes because sellers pay no selling fee in most countries and the buyer pays shipping. eBay is worth comparing for premium brands. FlipLens shows both side by side.' },
+    ],
+  },
+  {
+    path: '/guides/sneaker-resale-value',
+    kind: 'article',
+    crumb: 'Sneaker resale value',
+    parent: { path: '/guides', name: 'Guides' },
+    title: 'Sneaker resale value: how much are my trainers worth?',
+    description: 'What decides the resale value of used sneakers: model, size, condition, the original box and authenticity, plus where to sell them in Europe and the UK.',
+    h1: 'Sneaker resale value: how much are my trainers worth?',
+    lead: 'Sneakers are among the easiest shoes to resell, but two pairs from the same brand can be worth very different amounts. The model, the size and the condition decide most of the price.',
+    sections: [
+      {
+        h2: 'What drives the price',
+        html: '<ul><li><strong>Brand and model:</strong> named models such as the Nike Air Force 1 or the Adidas Samba price differently from a brand\'s basic trainers. Always compare the same model.</li><li><strong>Size:</strong> popular sizes sell fastest, roughly EU 40 to 44 for men and EU 37 to 39 for women. Very small or very large sizes take longer.</li><li><strong>Condition:</strong> new with tags, new without tags, very good, good or satisfactory. Buyers look at creases, worn soles, yellowed midsoles and the inside lining.</li><li><strong>Box and extras:</strong> the original box and spare laces help, especially for sought-after models.</li></ul>',
+      },
+      {
+        h2: 'Authenticity',
+        html: '<p>Popular sneakers are often faked, so buyers are careful. Photograph the size label inside the shoe, the box label and any receipt you have. Clear, honest photos sell faster than a listing that leaves buyers guessing.</p>',
+      },
+      {
+        h2: 'Cleaning and photos',
+        html: '<ul><li>Clean the uppers and soles and wash or replace the laces.</li><li>Photograph both shoes from the side, the front, the back, the soles and the size label.</li><li>Show wear and flaws close up.</li><li>Use daylight and a plain background.</li></ul>',
+      },
+      {
+        h2: 'Where to sell sneakers',
+        html: '<ul><li><strong>Vinted:</strong> no selling fee for sellers in most of Europe; the buyer pays shipping and Buyer Protection. See <a href="/guides/how-to-sell-on-vinted">how to sell on Vinted</a>.</li><li><strong>eBay:</strong> private sellers in Germany and the UK pay no selling fees, but the seller usually pays shipping.</li><li><strong>Locally:</strong> classifieds and flea markets, where buyers can try them on.</li></ul>',
+      },
+      {
+        h2: 'Check the price with FlipLens',
+        html: '<p>Photograph the sneakers and the size label. FlipLens reads the brand and type, compares listings of the same brand and type in the same eBay category across eBay in five EU countries or on eBay.co.uk, adjusts asking prices down and by default values them for Vinted, with eBay shown side by side. It compares brand and type rather than the exact pair, so treat it as a rough range. Then it can write the listing from the same photo with the <a href="/vinted-listing-generator">Vinted listing generator</a>. See also <a href="/guides/how-to-check-resale-value">how to check resale value</a>.</p>',
+      },
+    ],
+    faq: [
+      { q: 'Which sneaker sizes sell fastest?', a: 'Popular sizes, roughly EU 40 to 44 for men and EU 37 to 39 for women, usually sell fastest. Very small and very large sizes take longer.' },
+      { q: 'Does the original box matter for sneakers?', a: 'Yes. The original box helps buyers trust the pair and usually helps the price, especially for sought-after models.' },
+      { q: 'How accurate is the FlipLens estimate for sneakers?', a: 'It is a rough range. FlipLens compares listings of the same brand and type, not the exact model and size, so check similar listings before you set your final price.' },
+    ],
+  },
+  {
     path: '/about',
     kind: 'page',
     crumb: 'About',
@@ -1208,6 +1282,80 @@ const PAGES_DE: Page[] = [
     faq: [
       { q: 'Was prüfe ich vor dem Kauf eines gebrauchten Handys?', a: 'Dass es aus allen Konten abgemeldet und zurückgesetzt ist, nicht an ein Netz gebunden ist, den erwarteten Speicher und einen guten Akku hat und Display, Kameras und Ladeanschluss funktionieren.' },
       { q: 'Ändert der Speicher den Wiederverkaufswert?', a: 'Ja. Dasselbe Modell mit mehr Speicher bringt meist mehr, vergleich also immer die gleiche Speichergröße.' },
+    ],
+  },
+  {
+    path: '/guides/resale-value-branded-clothes',
+    kind: 'article',
+    crumb: 'Wiederverkaufswert von Kleidung',
+    parent: { path: '/guides', name: 'Ratgeber' },
+    title: 'Was ist meine Kleidung wert? Wiederverkaufswert von Markenkleidung',
+    description: 'Was den Wiederverkaufswert gebrauchter Jacken, Jeans, Kleider, Hoodies und Taschen bestimmt: Marke, Zustand, Größe, Saison und Vollständigkeit.',
+    h1: 'Was ist meine Kleidung wert?',
+    lead: 'Gebrauchte Kleidung verkauft sich jeden Tag auf Vinted und eBay, aber die Preise reichen von ein paar Euro bis weit über hundert. Die Marke auf dem Etikett entscheidet das meiste, der Rest hängt an ein paar Details, die Käufer immer prüfen.',
+    sections: [
+      {
+        h2: 'Was den Preis bestimmt',
+        html: '<ul><li><strong>Marke:</strong> mit Abstand der wichtigste Faktor. Premium- und Outdoor-Marken behalten viel mehr von ihrem Wert als Fast Fashion.</li><li><strong>Art des Artikels:</strong> eine Winterjacke oder eine Ledertasche bringt mehr als ein T-Shirt derselben Marke.</li><li><strong>Bekannte Linien und Modelle:</strong> Klassiker wie die Levi\'s 501 oder die The North Face Nuptse haben andere Preise als die Basics der Marke, vergleich also Gleiches mit Gleichem.</li><li><strong>Zustand:</strong> neu mit Etikett, neu ohne Etikett, sehr gut, gut oder zufriedenstellend. Flecken, Pilling, Löcher und ausgeblichene Farben drücken den Preis.</li><li><strong>Größe:</strong> gängige Größen verkaufen sich schneller; sehr große und sehr kleine Größen brauchen meist länger.</li><li><strong>Saison:</strong> Mäntel und Stiefel laufen im Herbst und Winter am besten, leichte Kleider und Shorts im Frühling und Sommer.</li><li><strong>Vollständigkeit:</strong> eine abnehmbare Kapuze, ein Gürtel oder der Staubbeutel einer Tasche helfen dem Preis.</li></ul>',
+      },
+      {
+        h2: 'Fast Fashion gegen Premium-Marken',
+        html: '<p>Fast-Fashion-Marken wie Zara, H&amp;M, Bershka und Pull&amp;Bear bringen gebraucht meist ein paar Euro bis etwa 15 bis 20, auch in gutem Zustand. Premium-, Designer- und Outdoor-Marken sind deutlich mehr wert, und genau deshalb werden sie auch gefälscht. Heb bei wertvollen Stücken Echtheitsetiketten und Kaufbeleg auf, wenn du sie hast, und fotografier die Etiketten gut lesbar: Käufer fragen danach.</p>',
+      },
+      {
+        h2: 'Wo du Kleidung verkaufst',
+        html: '<ul><li><strong>Vinted:</strong> der wichtigste Marktplatz für Kleidung in Europa. In den meisten Ländern zahlen Verkäufer keine Verkaufsgebühr; Versand und Käuferschutz zahlt der Käufer zusätzlich. Siehe <a href="/de/guides/how-to-sell-on-vinted">auf Vinted verkaufen</a>.</li><li><strong>eBay:</strong> private Verkäufer in Deutschland und Großbritannien zahlen keine Verkaufsgebühren, den Versand zahlt aber meist der Verkäufer. Gut für Premium-Marken und Käufer in anderen Ländern.</li><li><strong>Lokal:</strong> Kleinanzeigen und Flohmärkte, ganz ohne Versand, aber mit weniger Käufern pro Artikel.</li></ul>',
+      },
+      {
+        h2: 'So schätzt FlipLens Kleidungspreise',
+        html: '<p>Fotografier den Artikel und sein Markenetikett. FlipLens liest Marke und Art (Damen, Herren oder Kinder), vergleicht Angebote derselben Marke und Art in derselben eBay-Kategorie, auf eBay in fünf EU-Ländern oder auf eBay.co.uk, und korrigiert die Angebotspreise nach unten. Standardmäßig bewertet es Kleidung für Vinted, zieht also den üblichen Versand ab, weil ihn dort der Käufer zahlt, und zeigt eBay direkt daneben. Artikel ohne erkennbare Marke werden nicht bepreist.</p><p>Die Schätzung ist gröber als bei Elektronik: FlipLens vergleicht Marke und Art, nicht das genaue Stück. Nimm sie als Orientierung für die Preisspanne und schau dir ähnliche Angebote an, bevor du deinen Endpreis setzt. Siehe <a href="/de/guides/how-to-check-resale-value">Wiederverkaufswert prüfen</a>.</p>',
+      },
+      {
+        h2: 'Vom Foto zur Vinted-Anzeige',
+        html: '<p>Wenn du die Spanne kennst, schreibt dir FlipLens aus demselben Foto Titel und Beschreibung für Vinted, mit dem <a href="/de/vinted-listing-generator">Vinted-Anzeigen-Generator</a>. Ergänz die Maße und eventuelle Makel, und die Anzeige kann online gehen.</p>',
+      },
+    ],
+    faq: [
+      { q: 'Welche Kleidungsmarken lassen sich am besten weiterverkaufen?', a: 'Premium-, Designer- und Outdoor-Marken behalten viel mehr Wert als Fast Fashion. Fast-Fashion-Artikel von Marken wie Zara oder H&M bringen meist ein paar Euro bis etwa 15 bis 20.' },
+      { q: 'Kann FlipLens Kleidung ohne Marke bepreisen?', a: 'Nein. FlipLens vergleicht Angebote derselben Marke und Art, Artikel ohne erkennbare Marke werden deshalb nicht bepreist.' },
+      { q: 'Soll ich Kleidung auf Vinted oder eBay verkaufen?', a: 'Für Kleidung ist Vinted meist die erste Wahl, weil Verkäufer in den meisten Ländern keine Verkaufsgebühr zahlen und der Käufer den Versand übernimmt. Bei Premium-Marken lohnt der Vergleich mit eBay. FlipLens zeigt beides nebeneinander.' },
+    ],
+  },
+  {
+    path: '/guides/sneaker-resale-value',
+    kind: 'article',
+    crumb: 'Wiederverkaufswert von Sneakern',
+    parent: { path: '/guides', name: 'Ratgeber' },
+    title: 'Sneaker verkaufen: Was sind meine Sneaker noch wert?',
+    description: 'Was den Wiederverkaufswert gebrauchter Sneaker bestimmt: Modell, Größe, Zustand, Originalkarton und Echtheit, plus wo du sie in Europa und UK verkaufst.',
+    h1: 'Was sind meine Sneaker noch wert?',
+    lead: 'Sneaker gehören zu den Schuhen, die sich am leichtesten weiterverkaufen lassen, aber zwei Paare derselben Marke können ganz unterschiedlich viel wert sein. Modell, Größe und Zustand entscheiden den Großteil des Preises.',
+    sections: [
+      {
+        h2: 'Was den Preis bestimmt',
+        html: '<ul><li><strong>Marke und Modell:</strong> bekannte Modelle wie der Nike Air Force 1 oder der Adidas Samba haben andere Preise als die einfachen Sneaker einer Marke. Vergleich immer dasselbe Modell.</li><li><strong>Größe:</strong> gängige Größen verkaufen sich am schnellsten, etwa EU 40 bis 44 bei Herren und EU 37 bis 39 bei Damen. Sehr kleine oder sehr große Größen brauchen länger.</li><li><strong>Zustand:</strong> neu mit Etikett, neu ohne Etikett, sehr gut, gut oder zufriedenstellend. Käufer achten auf Knicke, abgelaufene Sohlen, vergilbte Zwischensohlen und das Innenfutter.</li><li><strong>Karton und Extras:</strong> der Originalkarton und Ersatzschnürsenkel helfen, vor allem bei gefragten Modellen.</li></ul>',
+      },
+      {
+        h2: 'Echtheit',
+        html: '<p>Beliebte Sneaker werden oft gefälscht, deshalb sind Käufer vorsichtig. Fotografier das Größenetikett im Schuh, das Etikett auf dem Karton und einen Kaufbeleg, wenn du einen hast. Klare, ehrliche Fotos verkaufen schneller als eine Anzeige, bei der Käufer raten müssen.</p>',
+      },
+      {
+        h2: 'Reinigen und fotografieren',
+        html: '<ul><li>Reinige Obermaterial und Sohlen und wasch oder ersetze die Schnürsenkel.</li><li>Fotografier beide Schuhe von der Seite, von vorn, von hinten, die Sohlen und das Größenetikett.</li><li>Zeig Gebrauchsspuren und Makel aus der Nähe.</li><li>Nutz Tageslicht und einen ruhigen Hintergrund.</li></ul>',
+      },
+      {
+        h2: 'Wo du Sneaker verkaufst',
+        html: '<ul><li><strong>Vinted:</strong> in den meisten Ländern Europas keine Verkaufsgebühr für Verkäufer; Versand und Käuferschutz zahlt der Käufer. Siehe <a href="/de/guides/how-to-sell-on-vinted">auf Vinted verkaufen</a>.</li><li><strong>eBay:</strong> private Verkäufer in Deutschland und Großbritannien zahlen keine Verkaufsgebühren, den Versand zahlt aber meist der Verkäufer.</li><li><strong>Lokal:</strong> Kleinanzeigen und Flohmärkte, wo Käufer die Schuhe anprobieren können.</li></ul>',
+      },
+      {
+        h2: 'Preis mit FlipLens prüfen',
+        html: '<p>Fotografier die Sneaker und das Größenetikett. FlipLens liest Marke und Art, vergleicht Angebote derselben Marke und Art in derselben eBay-Kategorie auf eBay in fünf EU-Ländern oder auf eBay.co.uk, korrigiert die Angebotspreise nach unten und bewertet standardmäßig für Vinted, mit eBay direkt daneben. Es vergleicht Marke und Art, nicht das genaue Paar, nimm das Ergebnis also als grobe Spanne. Danach schreibt es aus demselben Foto die Anzeige, mit dem <a href="/de/vinted-listing-generator">Vinted-Anzeigen-Generator</a>. Siehe auch <a href="/de/guides/how-to-check-resale-value">Wiederverkaufswert prüfen</a>.</p>',
+      },
+    ],
+    faq: [
+      { q: 'Welche Sneaker-Größen verkaufen sich am schnellsten?', a: 'Gängige Größen, etwa EU 40 bis 44 bei Herren und EU 37 bis 39 bei Damen, verkaufen sich meist am schnellsten. Sehr kleine und sehr große Größen brauchen länger.' },
+      { q: 'Ist der Originalkarton bei Sneakern wichtig?', a: 'Ja. Der Originalkarton schafft Vertrauen und hilft meist dem Preis, vor allem bei gefragten Modellen.' },
+      { q: 'Wie genau ist die FlipLens-Schätzung bei Sneakern?', a: 'Es ist eine grobe Spanne. FlipLens vergleicht Angebote derselben Marke und Art, nicht genaues Modell und Größe, schau dir also ähnliche Angebote an, bevor du deinen Endpreis setzt.' },
     ],
   },
   {

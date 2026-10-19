@@ -36,6 +36,11 @@ export const loadSettings = (): Settings => {
   return { preset, shippingCost, targetRoiPct, country };
 };
 export const saveSettings = (s: Settings): void => write(SETTINGS_KEY, s);
+
+/** Clothes, shoes and bags are valued for Vinted (buyer pays shipping, no seller fees) unless the user switched it off. */
+const CLOTHES_KEY = 'fliplens.clothesOnVinted.v1';
+export const loadClothesOnVinted = (): boolean => read<boolean>(CLOTHES_KEY, true);
+export const saveClothesOnVinted = (v: boolean): void => write(CLOTHES_KEY, v);
 const DEVICE_KEY = 'fliplens.device.v1';
 let memoryDeviceId: string | undefined;
 

@@ -7,7 +7,7 @@ import { IconAlert, IconCheck, IconX } from './icons.js';
 
 export type DecisionKey = 'strong_buy' | 'buy' | 'borderline' | 'skip';
 
-const DECISION_TEXT: Record<DecisionKey, { title: string; sub: string }> = tr<Record<DecisionKey, { title: string; sub: string }>>({
+export const DECISION_TEXT: Record<DecisionKey, { title: string; sub: string }> = tr<Record<DecisionKey, { title: string; sub: string }>>({
   en: {
     strong_buy: { title: 'Strong buy', sub: 'Good margin and enough market data.' },
     buy: { title: 'Buy', sub: 'Profitable at this price.' },

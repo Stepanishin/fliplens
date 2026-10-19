@@ -4,7 +4,7 @@ import type { CategorySlug, Condition } from './types.js';
  * All tunable numbers of the pricing / confidence / decision engine live here, under one version.
  * Any change to these values must bump PRICING_ALGORITHM_VERSION and pass the benchmark (eval/).
  */
-export const PRICING_ALGORITHM_VERSION = 'pricing-0.1.7';
+export const PRICING_ALGORITHM_VERSION = 'pricing-0.1.8';
 
 export interface PricingConfig {
   readonly version: string;
@@ -44,6 +44,11 @@ export interface PricingConfig {
     readonly strongBuy: { readonly minRoiPct: number; readonly minProfitMajor: number };
     readonly buy: { readonly minRoiPct: number; readonly minProfitMajor: number };
     readonly borderline: { readonly minRoiPct: number; readonly minProfitMajor: number };
+    /**
+     * Cheap items (a €8 T-shirt, a €15 game): a fixed €10 profit minimum would rule them out however good the ROI.
+     * The profit minimum is capped at this share of the expected sale price.
+     */
+    readonly cheapItemProfitShare: { readonly strongBuy: number; readonly buy: number; readonly borderline: number };
   };
 }
 
@@ -83,5 +88,6 @@ export const DEFAULT_PRICING_CONFIG: PricingConfig = {
     strongBuy: { minRoiPct: 60, minProfitMajor: 20 },
     buy: { minRoiPct: 30, minProfitMajor: 10 },
     borderline: { minRoiPct: 10, minProfitMajor: 5 },
+    cheapItemProfitShare: { strongBuy: 0.4, buy: 0.25, borderline: 0.1 },
   },
 };

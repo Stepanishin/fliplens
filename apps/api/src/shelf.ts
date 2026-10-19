@@ -1,6 +1,6 @@
 import type { FastifyInstance } from 'fastify';
 import { z } from 'zod';
-import { FEE_PRESETS, feeProfileIn, marketFor, money, resolveFeeProfile, valuate, type FeePresetId, type NormalizedProduct } from '@fliplens/core';
+import { FEE_PRESETS, feeProfileIn, marketFor, money, resolveFeeProfile, typicalBuyerShipping, valuate, type FeePresetId, type NormalizedProduct } from '@fliplens/core';
 import { RecognitionError, type IdentificationResult, type OpenAIShelfScanner, type ShelfItem, type ShelfScan } from '@fliplens/recognition';
 import type { EbayAdapter, EcbFxService } from '@fliplens/sources';
 import type { Persistence } from './persistence.js';
@@ -104,6 +104,7 @@ export function registerShelfRoute(
           shippingCost: money(b.shippingCost, market.currency),
           targetRoiPct: b.targetRoiPct,
           recognitionModelVersion: scan.modelVersion,
+          ...(!fee.sellerPaysShipping && { salePriceDeduction: typicalBuyerShipping(search.items, market.currency, rates, b.country) }),
         });
       let price = 0;
       let result = at(0);

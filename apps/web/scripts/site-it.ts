@@ -549,6 +549,76 @@ const PAGES_IT: Page[] = [
     ],
   },
   {
+    path: '/guides/resale-value-branded-clothes',
+    kind: 'article',
+    crumb: 'Quanto valgono i miei vestiti',
+    parent: GUIDES_PARENT,
+    title: 'Quanto valgono i miei vestiti? Rivendere abbigliamento di marca',
+    description: `Cosa determina il valore di rivendita dei vestiti di marca usati: marchio, tipo di capo, condizioni, taglia e stagione, dove venderli e come stimare il prezzo da una foto.`,
+    h1: `Quanto valgono i miei vestiti? Valore di rivendita dell'abbigliamento di marca`,
+    lead: `Due giacche che sembrano simili possono valere 5 € o 150 €. Nell'abbigliamento usato il marchio conta più di tutto, seguito da tipo di capo, condizioni e taglia. Ecco come capire quanto puoi chiedere.`,
+    sections: [
+      {
+        h2: 'Cosa determina il prezzo',
+        html: `<ul><li><strong>Marchio:</strong> è il fattore più importante. I capi dei marchi fast fashion come Zara, H&amp;M, Bershka e Pull&amp;Bear di solito si rivendono da pochi euro fino a circa 15-20 €. I marchi premium e outdoor valgono molto di più.</li><li><strong>Tipo di capo:</strong> una giacca o un cappotto valgono più di una maglietta dello stesso marchio.</li><li><strong>Linee e modelli famosi:</strong> i Levi's 501 o una The North Face Nuptse hanno un prezzo diverso da un capo base dello stesso marchio.</li><li><strong>Condizioni:</strong> nuovo con cartellino, nuovo senza cartellino, ottime, buone o discrete condizioni. Macchie, pilling e scoloriture abbassano il prezzo.</li><li><strong>Taglia:</strong> le taglie più comuni si vendono più in fretta.</li><li><strong>Stagione:</strong> cappotti e giacche si vendono meglio in autunno, costumi e capi leggeri in primavera.</li><li><strong>Completezza:</strong> cintura, cappuccio staccabile o dust bag per le borse.</li></ul>`,
+      },
+      {
+        h2: 'Originale o falso',
+        html: `<p>Più un marchio è ricercato, più è copiato. Gli acquirenti controllano le etichette, i cartellini di autenticità e le cuciture. Se hai lo scontrino o la prova d'acquisto, conservala e citala nell'annuncio: aiuta a vendere più in fretta e a un prezzo migliore. Non vendere mai un capo come originale se non ne sei sicuro.</p>`,
+      },
+      {
+        h2: 'Dove vendere',
+        html: `<ul><li><strong>Vinted:</strong> il posto principale per l'abbigliamento usato in Europa. In gran parte d'Europa chi vende non paga commissioni; l'acquirente paga spedizione e Protezione acquisti. Leggi <a href="${h('/guides/how-to-sell-on-vinted')}">come vendere su Vinted</a>.</li><li><strong>eBay:</strong> dal 2026 i venditori privati nel SEE non pagano commissioni di vendita, ma di solito la spedizione la paga chi vende. Utile per marchi premium e acquirenti in altri paesi.</li><li><strong>Di persona:</strong> mercatini e scambi locali, senza spedizione, ma con meno acquirenti.</li></ul>`,
+      },
+      {
+        h2: 'Come ti aiuta FlipLens',
+        html: `<p>Fotografa il capo e l'etichetta del marchio. FlipLens legge marchio e tipo di capo (donna, uomo o bambini) e confronta gli annunci dello stesso marchio e tipo nella stessa categoria eBay, su eBay in cinque paesi UE o su eBay.co.uk, correggendo al ribasso i prezzi richiesti. Per i vestiti la stima predefinita è per Vinted, togliendo la spedizione tipica perché lì la paga l'acquirente, con eBay mostrato accanto per confronto. I capi senza marchio non ricevono un prezzo. Poi, dalla stessa foto, FlipLens scrive l'annuncio per Vinted con il <a href="${h('/vinted-listing-generator')}">generatore di annunci Vinted</a>.</p><p>Per l'abbigliamento la stima è più approssimativa che per l'elettronica, perché taglia, vestibilità e condizioni variano molto. Usala come punto di partenza e confrontala con articoli simili su Vinted. Vedi anche <a href="${h('/guides/how-to-check-resale-value')}">come controllare il valore di rivendita</a>.</p>`,
+      },
+    ],
+    faq: [
+      { q: 'Quanto valgono i vestiti di Zara o H&M usati?', a: `Di solito da pochi euro fino a circa 15-20 € per capo, secondo tipo di capo e condizioni. I capi nuovi con cartellino e le giacche stanno nella parte alta della fascia.` },
+      { q: 'Dove conviene vendere vestiti usati?', a: `Su Vinted per la maggior parte dei capi, perché chi vende non paga commissioni nella maggior parte d'Europa. eBay è utile per marchi premium e acquirenti all'estero.` },
+      { q: 'FlipLens dà un prezzo anche ai vestiti senza marchio?', a: `No. Senza marchio non ci sono annunci paragonabili affidabili, quindi FlipLens non stima un prezzo. Puoi comunque scrivere l'annuncio per Vinted dalla foto.` },
+    ],
+  },
+  {
+    path: '/guides/sneaker-resale-value',
+    kind: 'article',
+    crumb: 'Valore delle sneakers',
+    parent: GUIDES_PARENT,
+    title: 'Valore di rivendita delle sneakers: quanto valgono le mie scarpe?',
+    description: `Cosa determina il valore di rivendita delle sneakers usate: marchio, modello, taglia, condizioni, scatola e autenticità, dove venderle e come stimare il prezzo da una foto.`,
+    h1: 'Valore di rivendita delle sneakers: quanto valgono le mie scarpe?',
+    lead: `Le sneakers sono tra i capi che si rivendono meglio, ma il prezzo dipende molto dal modello esatto e dalla taglia. Ecco cosa guardano gli acquirenti prima di fare un'offerta.`,
+    sections: [
+      {
+        h2: 'Cosa determina il prezzo',
+        html: `<ul><li><strong>Marchio e modello:</strong> modelli noti come Nike Air Force 1 o Adidas Samba hanno un prezzo diverso da una scarpa base dello stesso marchio. Indica sempre il nome esatto del modello e il colore.</li><li><strong>Taglia:</strong> le taglie più richieste si vendono più in fretta, di solito EU 40-44 da uomo e 37-39 da donna. Le taglie molto piccole o molto grandi hanno meno acquirenti.</li><li><strong>Condizioni:</strong> nuove con cartellino, nuove senza cartellino, ottime, buone o discrete. Suola consumata, pieghe sulla tomaia e ingiallimenti abbassano il prezzo.</li><li><strong>Completezza:</strong> la scatola originale, i lacci di ricambio e gli accessori aiutano, soprattutto per le sneakers più ricercate.</li><li><strong>Stagione:</strong> le scarpe leggere si vendono meglio in primavera ed estate, quelle invernali in autunno.</li></ul>`,
+      },
+      {
+        h2: 'Autenticità',
+        html: `<p>Le sneakers più popolari sono tra gli articoli più contraffatti. Fotografa l'etichetta interna con taglia e codice del modello, la suola e la scatola. Lo scontrino o la conferma d'ordine aumentano la fiducia degli acquirenti. Se compri per rivendere, diffida dei prezzi troppo bassi per modelli molto richiesti.</p>`,
+      },
+      {
+        h2: 'Prepararle alla vendita',
+        html: `<ul><li>Pulisci tomaia e suola e lava o sostituisci i lacci.</li><li>Fotografa entrambe le scarpe da lato, davanti, dietro, la suola e l'etichetta interna.</li><li>Mostra da vicino i difetti: gli acquirenti si fidano di chi li indica.</li><li>Scrivi taglia EU e, se la conosci, la taglia UK o US.</li></ul>`,
+      },
+      {
+        h2: 'Dove vendere',
+        html: `<p>Su Vinted chi vende non paga commissioni nella maggior parte d'Europa e l'acquirente paga spedizione e Protezione acquisti; leggi <a href="${h('/guides/how-to-sell-on-vinted')}">come vendere su Vinted</a>. Su eBay i venditori privati nel SEE non pagano commissioni di vendita dal 2026, ma di solito pagano la spedizione. Di persona eviti la spedizione, ma raggiungi meno acquirenti.</p>`,
+      },
+      {
+        h2: 'Come ti aiuta FlipLens',
+        html: `<p>Fotografa le scarpe e l'etichetta interna. FlipLens legge marchio e tipo (donna, uomo o bambini) e confronta gli annunci dello stesso marchio e tipo nella stessa categoria eBay, su eBay in cinque paesi UE o su eBay.co.uk, correggendo al ribasso i prezzi richiesti. La stima predefinita è per Vinted, togliendo la spedizione tipica perché lì la paga l'acquirente, con eBay mostrato accanto. Le scarpe senza marchio non ricevono un prezzo. Dalla stessa foto FlipLens scrive anche l'annuncio con il <a href="${h('/vinted-listing-generator')}">generatore di annunci Vinted</a>.</p><p>Per scarpe e abbigliamento la stima è più approssimativa che per l'elettronica: confrontala con sneakers dello stesso modello e taglia su Vinted. Vedi anche <a href="${h('/guides/how-to-check-resale-value')}">come controllare il valore di rivendita</a>.</p>`,
+      },
+    ],
+    faq: [
+      { q: 'Quali taglie di sneakers si vendono più in fretta?', a: `Di solito EU 40-44 da uomo e 37-39 da donna, perché sono le taglie con più acquirenti.` },
+      { q: 'La scatola originale conta?', a: `Sì, soprattutto per i modelli più ricercati. Sneakers con la scatola originale sembrano più curate e più facili da verificare, quindi si vendono meglio.` },
+      { q: 'Come dimostro che le mie sneakers sono originali?', a: `Fotografa l'etichetta interna con il codice del modello, la suola e la scatola, e conserva lo scontrino o la conferma d'ordine.` },
+    ],
+  },
+  {
     path: '/about',
     kind: 'page',
     crumb: 'Chi siamo',
