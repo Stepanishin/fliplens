@@ -3,7 +3,7 @@
 > FlipLens (https://fliplens.eu) is a web app for resellers in Europe that answers "I can buy this for €X: is it worth buying to resell?". From a photo, a barcode or a typed model it identifies the exact product, reads comparable active eBay listings in Germany, France, Italy, Spain and the Netherlands (in euro) or on eBay.co.uk (in pounds), estimates the resale value, subtracts marketplace fees and shipping, and returns profit, ROI, the maximum price worth paying and a verdict (strong buy, buy, borderline, skip). It is independent, not affiliated with eBay, and does not buy, sell or ship items.
 
 Key facts:
-- Works best for consumer electronics, gaming and cameras (headphones, phones, tablets, laptops, consoles, controllers, games, camera bodies, lenses) and power tools. Branded clothes, shoes and bags are priced too, by brand, type and condition (a rougher estimate than for electronics).
+- Works best for consumer electronics, gaming and cameras (headphones, phones, tablets, laptops, consoles, controllers, games, camera bodies, lenses) and power tools. Branded clothes, shoes and bags are priced too, by brand, type and condition (a rougher estimate than for electronics). LEGO sets by set number; books, vinyl, CDs and DVDs by barcode.
 - The purchase price is optional: without it FlipLens shows the maximum price worth paying for the user's target ROI.
 - Fee profiles: eBay.de private and business sellers, eBay.it and eBay.fr private sellers, eBay.co.uk private sellers, Vinted, local pickup. Each shows when it was last checked.
 - Table scan: one photo of a stall, box or shelf finds up to 6 items and checks each against eBay listings, best buys first. Live radar: with the camera open, items get boxes with their names as the phone moves; a tap runs a real check before any price is shown. Both for Google sign-in accounts, Free included.
@@ -35,6 +35,8 @@ Key facts:
 - [Selling a used phone in Europe](https://fliplens.eu/guides/sell-used-phone-europe): What decides the resale value of a used smartphone in Europe: model, storage, battery health, account and carrier locks, condition, plus a checklist before you buy or sell.
 - [How much are my clothes worth?](https://fliplens.eu/guides/resale-value-branded-clothes): What decides the resale value of used jackets, jeans, dresses, hoodies and bags: brand, condition, size, season and completeness, and where to sell them.
 - [Sneaker resale value: how much are my trainers worth?](https://fliplens.eu/guides/sneaker-resale-value): What decides the resale value of used sneakers: model, size, condition, the original box and authenticity, plus where to sell them in Europe and the UK.
+- [How much is my LEGO set worth?](https://fliplens.eu/guides/lego-set-value): What decides the resale value of a used LEGO set: the set number, condition, completeness, minifigures and whether it is retired, plus where to sell it.
+- [Resale value of books, vinyl records, CDs and DVDs](https://fliplens.eu/guides/resale-value-books-vinyl-dvds): How to find what your used books, vinyl records, CDs and DVDs are worth: barcode, edition and format, buyback services versus selling yourself.
 
 ## Deutsch
 - [FlipLens auf Deutsch](https://fliplens.eu/de): Start page and app in German
@@ -54,6 +56,8 @@ Key facts:
 - [Gebrauchtes Handy in Europa verkaufen](https://fliplens.eu/de/guides/sell-used-phone-europe)
 - [Was ist meine Kleidung wert?](https://fliplens.eu/de/guides/resale-value-branded-clothes)
 - [Was sind meine Sneaker noch wert?](https://fliplens.eu/de/guides/sneaker-resale-value)
+- [Was ist mein LEGO-Set wert?](https://fliplens.eu/de/guides/lego-set-value)
+- [Was sind meine Bücher, Schallplatten, CDs und DVDs wert?](https://fliplens.eu/de/guides/resale-value-books-vinyl-dvds)
 - [Über FlipLens](https://fliplens.eu/de/about)
 - [Ratgeber](https://fliplens.eu/de/guides)
 - [20 % Provision, 6 Monate lang](https://fliplens.eu/de/partner)
@@ -76,6 +80,8 @@ Key facts:
 - [Vendere un telefono usato in Europa](https://fliplens.eu/it/guides/sell-used-phone-europe)
 - [Quanto valgono i miei vestiti? Valore di rivendita dell'abbigliamento di marca](https://fliplens.eu/it/guides/resale-value-branded-clothes)
 - [Valore di rivendita delle sneakers: quanto valgono le mie scarpe?](https://fliplens.eu/it/guides/sneaker-resale-value)
+- [Quanto vale il mio set LEGO?](https://fliplens.eu/it/guides/lego-set-value)
+- [Valore di rivendita di libri, vinili, CD e DVD](https://fliplens.eu/it/guides/resale-value-books-vinyl-dvds)
 - [Chi siamo](https://fliplens.eu/it/about)
 - [Guide per rivendere](https://fliplens.eu/it/guides)
 - [Guadagna il 20% per 6 mesi](https://fliplens.eu/it/partner)
@@ -98,6 +104,8 @@ Key facts:
 - [Vendre un téléphone d'occasion en Europe](https://fliplens.eu/fr/guides/sell-used-phone-europe)
 - [Combien valent mes vêtements? Valeur de revente des vêtements de marque](https://fliplens.eu/fr/guides/resale-value-branded-clothes)
 - [Valeur de revente des baskets: combien valent mes sneakers?](https://fliplens.eu/fr/guides/sneaker-resale-value)
+- [Combien vaut mon set LEGO?](https://fliplens.eu/fr/guides/lego-set-value)
+- [Valeur de revente des livres, vinyles, CD et DVD](https://fliplens.eu/fr/guides/resale-value-books-vinyl-dvds)
 - [À propos de FlipLens](https://fliplens.eu/fr/about)
 - [Guides de revente](https://fliplens.eu/fr/guides)
 - [20 % de commission pendant 6 mois](https://fliplens.eu/fr/partner)

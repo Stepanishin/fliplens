@@ -1,3 +1,4 @@
+import { AlertsList } from '../ui/AlertsList.js';
 import { FEE_PRESETS, presetsForCountry, type FeePresetId } from '@fliplens/core';
 import { api, type Account, type BillingInfo } from '../api.js';
 import { GoogleButton } from '../ui/GoogleButton.js';
@@ -327,6 +328,8 @@ export function Profile({ billing, onOpenPlans, account, googleClientId, onGoogl
         </div>
         <p className="muted small">{dbOn ? T.savedAccount : T.savedDevice}</p>
       </section>
+
+      {dbOn && account && <AlertsList />}
 
       {dbOn && (
         <section className="card">

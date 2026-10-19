@@ -43,6 +43,12 @@ const T = tr({
     condition: 'Condition',
     suggested: (c: string) => ` (suggested: ${c})`,
     cont: 'Continue',
+    author: "Author",
+    artist: "Artist",
+    title: "Title",
+    format: "Format",
+    setNo: "Set number",
+    formatPh: "DVD, Blu-ray, 4K",
     item: "Item",
     kind: "Type",
     gender: "For",
@@ -87,6 +93,12 @@ const T = tr({
     condition: 'Zustand',
     suggested: (c: string) => ` (Vorschlag: ${c})`,
     cont: 'Weiter',
+    author: "Autor",
+    artist: "Künstler",
+    title: "Titel",
+    format: "Format",
+    setNo: "Setnummer",
+    formatPh: "DVD, Blu-ray, 4K",
     item: "Artikel",
     kind: "Art",
     gender: "Für",
@@ -131,6 +143,12 @@ const T = tr({
     condition: 'Condizione',
     suggested: (c: string) => ` (suggerita: ${c})`,
     cont: 'Continua',
+    author: "Autore",
+    artist: "Artista",
+    title: "Titolo",
+    format: "Formato",
+    setNo: "Numero del set",
+    formatPh: "DVD, Blu-ray, 4K",
     item: "Articolo",
     kind: "Tipo",
     gender: "Per",
@@ -175,6 +193,12 @@ const T = tr({
     condition: 'État',
     suggested: (c: string) => ` (suggéré : ${c})`,
     cont: 'Continuer',
+    author: "Auteur",
+    artist: "Artiste",
+    title: "Titre",
+    format: "Format",
+    setNo: "Numéro du set",
+    formatPh: "DVD, Blu-ray, 4K",
     item: "Article",
     kind: "Type",
     gender: "Pour",
@@ -231,6 +255,11 @@ export function Confirm({ draft, identifying, error, onChangeProduct, onDetected
   }, [p.brand, p.model, p.category, onDetectedCategory]);
 
   const fashion = showsFashion(p.category);
+  // What "brand" and "model" mean for LEGO, books, music and films.
+  const brandLabel = p.category === 'books' ? T.author : p.category === 'vinyl' || p.category === 'cds' ? T.artist : p.category === 'movies' ? T.format : T.brand;
+  const modelLabel = fashion ? T.item : p.category === 'lego' ? T.setNo : p.category === 'books' || p.category === 'vinyl' || p.category === 'cds' || p.category === 'movies' ? T.title : T.model;
+  const brandPh = fashion ? 'Zara' : p.category === 'lego' ? 'LEGO' : p.category === 'movies' ? T.formatPh : p.category === 'books' ? 'J. K. Rowling' : p.category === 'vinyl' || p.category === 'cds' ? 'Pink Floyd' : 'Sony';
+  const modelPh = fashion ? 'cargo shorts' : p.category === 'lego' ? '75192' : p.category === 'books' ? 'Harry Potter' : p.category === 'vinyl' || p.category === 'cds' ? 'The Dark Side of the Moon' : p.category === 'movies' ? 'Inception' : 'WH-1000XM4';
   const condLabel = fashion ? FASHION_CONDITION_LABEL : CONDITION_LABEL;
   const condHint = fashion ? FASHION_CONDITION_HINT : CONDITION_HINT;
   const capacityOptions = p.category ? CAPACITY_OPTIONS[p.category] ?? [] : [];
@@ -287,8 +316,8 @@ export function Confirm({ draft, identifying, error, onChangeProduct, onDetected
         {draft.edited && <p className="muted small">{T.corrected}</p>}
         <div className="row2">
           <label className="field">
-            <span>{T.brand}</span>
-            <input value={p.brand} onChange={(e) => onChangeProduct({ brand: e.target.value })} placeholder={fashion ? 'Zara' : 'Sony'} autoCapitalize="words" />
+            <span>{brandLabel}</span>
+            <input value={p.brand} onChange={(e) => onChangeProduct({ brand: e.target.value })} placeholder={brandPh} autoCapitalize="words" />
           </label>
           <label className="field">
             <span>{T.category}</span>
@@ -299,8 +328,8 @@ export function Confirm({ draft, identifying, error, onChangeProduct, onDetected
           </label>
         </div>
         <label className="field">
-          <span>{fashion ? T.item : T.model}</span>
-          <input value={p.model} onChange={(e) => onChangeProduct({ model: e.target.value })} placeholder={fashion ? 'cargo shorts' : 'WH-1000XM4'} />
+          <span>{modelLabel}</span>
+          <input value={p.model} onChange={(e) => onChangeProduct({ model: e.target.value })} placeholder={modelPh} />
         </label>
         {fashion && !p.brand.trim() && p.model.trim() !== '' && <p className="hint warn">{T.noBrand}</p>}
         {fashion && (
@@ -364,7 +393,7 @@ export function Confirm({ draft, identifying, error, onChangeProduct, onDetected
             <input value={p.mount} onChange={(e) => onChangeProduct({ mount: e.target.value })} placeholder="RF, EF, EF-S, FE" />
           </label>
         )}
-        {!fashion && <details className="adv">
+        {!fashion && !['lego', 'books', 'vinyl', 'cds', 'movies'].includes(p.category) && <details className="adv">
           <summary>{T.exclude}{p.excludeModels ? `: ${p.excludeModels}` : ''}</summary>
           <label className="field">
             <span>{T.comma}</span>

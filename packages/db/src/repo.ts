@@ -1,6 +1,6 @@
-import { and, desc, eq, gte, inArray, sql } from 'drizzle-orm';
+import { and, desc, eq, gte, inArray, isNull, lt, or, sql } from 'drizzle-orm';
 import type { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
-import { ebayAccounts, events, inventoryItems, referralCommissions, referralPayouts, productIdentifications, scans, subscriptions, usageCosts, userDevices, userSettings, users, valuations } from './schema.js';
+import { ebayAccounts, events, inventoryItems, pushSubscriptions, watches, referralCommissions, referralPayouts, productIdentifications, scans, subscriptions, usageCosts, userDevices, userSettings, users, valuations } from './schema.js';
 import type * as schema from './schema.js';
 
 type Db = PostgresJsDatabase<typeof schema>;
@@ -986,4 +986,79 @@ export async function deleteEbayAccount(db: Db, userId: string): Promise<void> {
 export async function deleteEbayAccountsByEbayUser(db: Db, ebayUserId: string): Promise<number> {
   const rows = await db.delete(ebayAccounts).where(eq(ebayAccounts.ebayUserId, ebayUserId)).returning({ userId: ebayAccounts.userId });
   return rows.length;
+}
+
+// ---------- price alerts (ADR-031) ----------
+
+export type WatchRow = typeof watches.$inferSelect;
+
+export async function listWatches(db: Db, userId: string): Promise<WatchRow[]> {
+  return db.select().from(watches).where(eq(watches.userId, userId)).orderBy(desc(watches.createdAt));
+}
+
+export async function countWatches(db: Db, userId: string): Promise<number> {
+  const [r] = await db.select({ n: sql<number>`count(*)::int` }).from(watches).where(eq(watches.userId, userId));
+  return r?.n ?? 0;
+}
+
+export async function createWatch(db: Db, w: typeof watches.$inferInsert): Promise<WatchRow> {
+  const [row] = await db.insert(watches).values(w).returning();
+  return row!;
+}
+
+export async function deleteWatch(db: Db, userId: string, id: string): Promise<boolean> {
+  const rows = await db.delete(watches).where(and(eq(watches.id, id), eq(watches.userId, userId))).returning({ id: watches.id });
+  return rows.length > 0;
+}
+
+/**
+ * Claims up to `limit` watches not checked for `olderThanMs` (oldest first) by stamping them checked now. FOR UPDATE
+ * SKIP LOCKED: several app instances never work on the same watch, without a global lock.
+ */
+export async function claimDueWatches(db: Db, olderThanMs: number, limit: number): Promise<WatchRow[]> {
+  const before = new Date(Date.now() - olderThanMs);
+  return db
+    .update(watches)
+    .set({ lastCheckedAt: new Date() })
+    .where(
+      inArray(
+        watches.id,
+        db
+          .select({ id: watches.id })
+          .from(watches)
+          .where(or(isNull(watches.lastCheckedAt), lt(watches.lastCheckedAt, before)))
+          .orderBy(sql`${watches.lastCheckedAt} asc nulls first`)
+          .limit(limit)
+          .for('update', { skipLocked: true }),
+      ),
+    )
+    .returning();
+}
+
+export async function markWatchChecked(db: Db, id: string, x: { seenItemIds: string[]; alerted: number }): Promise<void> {
+  await db
+    .update(watches)
+    .set({
+      lastCheckedAt: new Date(),
+      seenItemIds: x.seenItemIds,
+      ...(x.alerted > 0 && { lastAlertAt: new Date(), alerts: sql`${watches.alerts} + ${x.alerted}` }),
+    })
+    .where(eq(watches.id, id));
+}
+
+export type PushRow = typeof pushSubscriptions.$inferSelect;
+
+export async function savePushSubscription(db: Db, userId: string, s: { endpoint: string; p256dh: string; auth: string }): Promise<void> {
+  await db
+    .insert(pushSubscriptions)
+    .values({ userId, ...s })
+    .onConflictDoUpdate({ target: pushSubscriptions.endpoint, set: { userId, p256dh: s.p256dh, auth: s.auth } });
+}
+
+export async function deletePushSubscription(db: Db, endpoint: string): Promise<void> {
+  await db.delete(pushSubscriptions).where(eq(pushSubscriptions.endpoint, endpoint));
+}
+
+export async function pushSubscriptionsOf(db: Db, userId: string): Promise<PushRow[]> {
+  return db.select().from(pushSubscriptions).where(eq(pushSubscriptions.userId, userId));
 }

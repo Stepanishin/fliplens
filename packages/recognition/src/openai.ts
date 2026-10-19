@@ -13,7 +13,7 @@ import {
  * `store: false` so images and answers are not retained for later retrieval on OpenAI's side.
  */
 
-export const PROMPT_VERSION = 'prompt-v2';
+export const PROMPT_VERSION = 'prompt-v3';
 
 /** USD per 1M tokens (input, output). From developers.openai.com/api/docs/models, 2026-09-23. */
 const PRICING: Record<string, readonly [number, number]> = {
@@ -31,7 +31,7 @@ export interface OpenAIVisionConfig {
 }
 
 const SYSTEM_PROMPT = `You identify second-hand products from photos for European resellers.
-Supported categories: consumer electronics, gaming, cameras and lenses, power tools, and fashion (clothing, shoes, bags, accessories).
+Supported categories: consumer electronics, gaming, cameras and lenses, power tools, fashion (clothing, shoes, bags, accessories), LEGO sets, books, vinyl records, CDs, and films (DVD, Blu-ray).
 
 Rules:
 - Identify the exact model and variant. Prefer text you can read (model numbers on labels, boxes, back plates, lens barrels, EAN/UPC) over visual similarity.
@@ -52,7 +52,14 @@ Fashion (category clothing, shoes, bags or accessories; garments, labels and tag
 - style: only a named product line or style printed on the item or unmistakable (e.g. "Air Force 1", "501", "Nuptse", "Speedy 30", "Stan Smith"), else null. Do not invent one.
 - capacity, mount, generation: null. variant: the size if printed (e.g. "M", "W32 L32", "EU 42"). colour: main colour.
 - confidence: your probability that brand and item type are right (style too, if you give one).
-- Non-fashion items: fashion_kind, gender and style are null.`;
+- Non-fashion items: fashion_kind, gender and style are null.
+
+LEGO, books, music and films (category lego, books, vinyl, cds or movies):
+- LEGO: brand "LEGO", model = the set number as printed on the box or instructions (e.g. "75192"); if no number is visible, the set name. family = theme (e.g. "Star Wars"), variant = set name. Loose bricks or minifigures without a set: category other.
+- Books: brand = author as on the cover (e.g. "J. K. Rowling"), model = title without subtitle, gtin = the ISBN-13 if readable.
+- Music: category vinyl for LP/single records, cds for CDs. brand = artist, model = album title. variant: special pressing if printed (e.g. "180g", "Picture Disc").
+- Films: category movies. brand = the format: "DVD", "Blu-ray" or "4K" (4K UHD Blu-ray). model = film or series title (with season if a series).
+- gtin: the EAN/ISBN digits if readable. confidence: probability that the edition is right.`;
 
 const TITLES_PROMPT = `You normalise product identity for European resellers from marketplace listing titles that all belong to ONE barcode (GTIN).
 Titles are in several languages and contain noise (condition, shipping, "OVP", seller words). Ignore the noise.
@@ -63,7 +70,9 @@ Titles are in several languages and contain noise (condition, shipping, "OVP", s
 - confidence: how sure you are about the exact model and variant given the titles.
 - confusable_models: sibling models that are easy to confuse. condition_guess: null. condition_notes: null.
 - identifying_text: the 1-3 titles that best support your answer.
-- If the titles disagree about what the product is, give several candidates.`;
+- If the titles disagree about what the product is, give several candidates.
+- LEGO: brand "LEGO", model = set number. Books: brand = author, model = title. Music: brand = artist, model = album, category vinyl or cds. Films: brand = format ("DVD", "Blu-ray", "4K"), model = title, category movies.
+- fashion_kind, gender and style: null unless the titles are clothing.`;
 
 const nullableString = { type: ['string', 'null'] } as const;
 

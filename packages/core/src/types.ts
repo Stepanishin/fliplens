@@ -9,6 +9,7 @@ export const CATEGORIES = [
   'camera_bodies', 'lenses', 'action_cameras', 'compact_cameras',
   'power_tools',
   'clothing', 'shoes', 'bags', 'accessories',
+  'lego', 'books', 'vinyl', 'cds', 'movies',
   'other',
 ] as const;
 export type CategorySlug = (typeof CATEGORIES)[number];

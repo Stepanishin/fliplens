@@ -31,7 +31,7 @@ const COMMON_FAQ: Faq[] = [
   },
   {
     q: `Quels articles fonctionnent le mieux?`,
-    a: `L'électronique grand public, le gaming et la photo: casques et écouteurs, smartphones, tablettes, ordinateurs portables, montres connectées, enceintes, consoles, consoles portables, manettes, jeux, boîtiers photo, objectifs, caméras d'action et compacts, ainsi que l'outillage électrique. Les vêtements, chaussures et sacs de marque sont aussi estimés, selon la marque, le type et l'état (estimation plus approximative que pour l'électronique).`,
+    a: `L'électronique grand public, le gaming et la photo: casques et écouteurs, smartphones, tablettes, ordinateurs portables, montres connectées, enceintes, consoles, consoles portables, manettes, jeux, boîtiers photo, objectifs, caméras d'action et compacts, ainsi que l'outillage électrique. Les vêtements, chaussures et sacs de marque sont aussi estimés, selon la marque, le type et l'état (estimation plus approximative que pour l'électronique). Les sets LEGO par numéro de set; livres, vinyles, CD et DVD par code-barres.`,
   },
   {
     q: `Dois-je saisir un prix?`,
@@ -615,6 +615,76 @@ const PAGES: Page[] = [
       { q: 'Quelles pointures de baskets se vendent le plus vite?', a: `En général du 40 au 44 pour les hommes et du 37 au 39 pour les femmes. Les pointures plus rares trouvent moins d'acheteurs.` },
       { q: `La boîte d'origine compte-t-elle?`, a: `Oui. Une paire avec sa boîte se vend en général plus vite et plus cher, et la boîte aide aussi à prouver l'authenticité.` },
       { q: 'Où vendre des baskets en Europe?', a: `Sur Vinted, où les vendeurs ne paient pas de frais de vente dans la plupart des pays, sur eBay, ou en local, par exemple sur Leboncoin.` },
+    ],
+  },
+  {
+    path: '/guides/lego-set-value',
+    kind: 'article',
+    crumb: 'Valeur des sets LEGO',
+    parent: { path: '/guides', name: 'Guides' },
+    title: 'Combien vaut mon set LEGO? Valeur de revente des sets',
+    description: `Ce qui fait la valeur de revente d'un set LEGO: numéro du set, boîte, notice, minifigurines, set retiré ou non, où le vendre et comment estimer vite.`,
+    h1: 'Combien vaut mon set LEGO?',
+    lead: `Deux boîtes LEGO de la même taille peuvent avoir des valeurs très différentes. Le numéro du set, l'état de la boîte et ce qui manque à l'intérieur font presque tout le prix. Voici comment les acheteurs l'estiment.`,
+    sections: [
+      {
+        h2: 'Trouver le numéro du set',
+        html: `<p>Chaque set LEGO a un numéro de 4 à 6 chiffres, imprimé sur la boîte et sur la couverture de la notice. C'est ce numéro qui identifie le set exact, pas le nom ni le thème. Sans boîte ni notice, tu peux souvent le retrouver en cherchant le set par son thème et ses pièces principales dans l'inventaire officiel.</p>`,
+      },
+      {
+        h2: 'Ce qui fait le prix',
+        html: `<ul><li><strong>Neuf scellé:</strong> en général le prix le plus élevé, surtout si la boîte est en bon état.</li><li><strong>Neuf ouvert:</strong> toutes les pièces sont là mais la boîte a été ouverte; un peu moins cher.</li><li><strong>Occasion complet avec notice et minifigurines:</strong> le cas le plus courant, qui se vend bien s'il est vraiment complet.</li><li><strong>Sans boîte:</strong> vaut moins qu'un set complet avec sa boîte.</li><li><strong>Incomplet:</strong> les minifigurines ou la notice manquantes font beaucoup baisser la valeur.</li><li><strong>Set retiré ou actuel:</strong> les sets qui ne sont plus vendus prennent souvent de la valeur; les sets encore en magasin sont en concurrence avec les promotions des boutiques.</li></ul>`,
+      },
+      {
+        h2: 'Complétude, briques en vrac et copies',
+        html: `<p>Avant de vendre un set comme complet, compare-le à l'inventaire du set: pièces, minifigurines et notice. Les briques en vrac se vendent au poids, sur un marché à part, et pas au prix d'un set. Les copies et les briques « compatibles », comme Lepin, ne sont pas du LEGO et ne se vendent pas au même prix; vérifie le logo LEGO sur les briques.</p>`,
+      },
+      {
+        h2: 'Où vendre un set LEGO',
+        html: `<ul><li><strong>eBay:</strong> le plus grand choix d'acheteurs pour les sets complets, retirés ou scellés.</li><li><strong>En local ou sur Leboncoin:</strong> pratique pour les grands sets et les lots, sans frais d'envoi.</li><li><strong>Vinted:</strong> marche bien pour les sets pour enfants. Voir <a href="${h('/guides/how-to-sell-on-vinted')}">comment vendre sur Vinted</a>.</li><li><strong>BrickLink:</strong> la place de marché des fans pour les pièces détachées et les minifigurines.</li></ul>`,
+      },
+      {
+        h2: 'Comment FlipLens estime ton set LEGO',
+        html: `<p>Scanne le code-barres ou prends une photo de la boîte. FlipLens lit le numéro du set et compare les annonces de ce set exact, en écartant les notices seules, les sets incomplets, les copies et les lots, sur eBay dans cinq pays de l'UE ou sur eBay.co.uk. Il ajuste les prix demandés à la baisse et affiche le prix maximum à payer. Pour une caisse de jouets en brocante, le mode « Plusieurs articles d'un coup » prend une photo par article, donne les prix de tous et écrit les annonces. Voir aussi <a href="${h('/guides/how-to-check-resale-value')}">comment vérifier la valeur de revente</a> et la <a href="${h('/guides/flea-market-reselling-checklist')}">checklist brocante</a>.</p>`,
+      },
+    ],
+    faq: [
+      { q: 'Où trouver le numéro de mon set LEGO?', a: `Sur la boîte et sur la couverture de la notice. C'est un numéro de 4 à 6 chiffres qui identifie le set exact.` },
+      { q: 'Un set LEGO sans minifigurines vaut-il encore quelque chose?', a: `Oui, mais beaucoup moins. Les minifigurines et la notice manquantes font partie de ce qui fait le plus baisser la valeur d'un set.` },
+      { q: 'Les briques compatibles valent-elles autant que du LEGO?', a: `Non. Les copies et les briques « compatibles », comme Lepin, ne sont pas du LEGO et se vendent bien moins cher.` },
+    ],
+  },
+  {
+    path: '/guides/resale-value-books-vinyl-dvds',
+    kind: 'article',
+    crumb: 'Valeur des livres, vinyles et DVD',
+    parent: { path: '/guides', name: 'Guides' },
+    title: 'Valeur de revente des livres, vinyles, CD et DVD',
+    description: `Ce qui fait la valeur de revente des livres, vinyles, CD et DVD: code-barres, édition, format, rachat ou vente directe, et comment estimer une caisse entière vite.`,
+    h1: 'Valeur de revente des livres, vinyles, CD et DVD',
+    lead: `La plupart des livres, CD et DVD se revendent quelques euros. La valeur se cache dans les éditions rares, les vinyles recherchés et les coffrets complets. Tout commence par l'édition exacte.`,
+    sections: [
+      {
+        h2: `Le code-barres identifie l'édition exacte`,
+        html: `<p>Le code-barres au dos identifie l'édition exacte: l'ISBN pour les livres, l'EAN pour la musique et les films. Deux exemplaires du même titre peuvent avoir des valeurs très différentes selon l'édition, alors compare toujours la même.</p>`,
+      },
+      {
+        h2: `Édition et format`,
+        html: `<ul><li><strong>Livres:</strong> une édition originale vaut souvent plus qu'une réimpression; un livre relié se vend en général mieux qu'un broché.</li><li><strong>Vinyles:</strong> un pressage original vaut en général plus qu'une réédition; les pressages 180g et les picture discs ont leur propre prix.</li><li><strong>Films:</strong> DVD, Blu-ray et 4K se vendent à des prix différents; les steelbooks et les coffrets complets se vendent mieux.</li><li><strong>État:</strong> pochette, livret, disque rayé ou non, pages annotées: chaque défaut fait baisser le prix.</li></ul>`,
+      },
+      {
+        h2: 'Rachat ou vente directe',
+        html: `<p>Les services de rachat paient tout de suite, mais peu. En vendant toi-même sur eBay, Vinted ou Leboncoin, tu obtiens en général plus, surtout pour les éditions rares et les vinyles recherchés. Pour les articles bon marché, un lot (par exemple une série complète ou plusieurs DVD du même genre) se vend souvent mieux que des articles à l'unité.</p>`,
+      },
+      {
+        h2: 'Comment FlipLens estime tes livres, disques et films',
+        html: `<p>Scanne le code-barres ou prends une photo. FlipLens cherche l'édition exacte par son code-barres sur eBay dans cinq pays de l'UE ou sur eBay.co.uk, ajuste les prix demandés à la baisse et affiche le prix maximum à payer. Pour une caisse de livres ou une pile de disques, le mode « Plusieurs articles d'un coup » prend une photo par article, donne les prix de tous et écrit les annonces. Voir aussi <a href="${h('/guides/how-to-check-resale-value')}">comment vérifier la valeur de revente</a> et la <a href="${h('/guides/flea-market-reselling-checklist')}">checklist brocante</a>.</p>`,
+      },
+    ],
+    faq: [
+      { q: 'Combien valent mes vieux livres et DVD?', a: `La plupart des livres, CD et DVD grand public se revendent quelques euros. Les éditions rares, les vinyles recherchés et les coffrets complets valent plus.` },
+      { q: `Pourquoi le code-barres est-il important?`, a: `Il identifie l'édition exacte: l'ISBN pour les livres, l'EAN pour la musique et les films. Le même titre peut avoir des valeurs différentes selon l'édition.` },
+      { q: 'Vaut-il mieux vendre à un service de rachat ou soi-même?', a: `Un service de rachat paie tout de suite, mais peu. En vendant toi-même sur eBay, Vinted ou Leboncoin, tu obtiens en général plus.` },
     ],
   },
   {

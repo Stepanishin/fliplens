@@ -307,6 +307,29 @@ export interface MarketCompare {
   fx: { gbpPerEur: number; rateDate: string; source: string };
 }
 
+/** Price alerts (ADR-031). */
+export interface WatchInfo {
+  id: string;
+  name: string;
+  condition: Condition;
+  maxPriceMinor: number;
+  currency: CurrencyCode;
+  alerts: number;
+  lastCheckedAt: string | null;
+  lastAlertAt: string | null;
+  createdAt: string;
+}
+export interface Deal {
+  id: string;
+  title: string;
+  url: string;
+  imageUrl: string | null;
+  priceMinor: number;
+  currency: CurrencyCode;
+  site: string;
+  condition: string | null;
+}
+
 export interface PhotoListing {
   title: string;
   description: string;
@@ -516,6 +539,14 @@ export const api = {
   adminReverseCommission: (id: string) => call<{ ok: boolean }>(`/api/admin/commissions/${id}/reverse`, { method: 'POST' }),
   logout: () => call<{ signedOut: boolean }>('/api/auth/logout', { method: 'POST' }),
   scans: () => call<ServerScan[]>('/api/scans'),
+  alertsAvailable: () => call<{ available: boolean }>('/api/alerts/available'),
+  alertsConfig: () => call<{ publicKey: string }>('/api/alerts/config'),
+  pushSubscribe: (sub: PushSubscriptionJSON) => call<{ ok: boolean }>('/api/push/subscribe', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(sub) }),
+  pushTest: () => call<{ sent: number }>('/api/push/test', { method: 'POST' }),
+  watches: () => call<{ limit: number; watches: WatchInfo[] }>('/api/watches'),
+  createWatch: (body: { scanId: string; maxPrice: number; country: string; preset: string }) =>
+    call<{ id: string; current: Deal[] }>('/api/watches', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }),
+  deleteWatch: (id: string) => call<{ ok: boolean }>(`/api/watches/${id}`, { method: 'DELETE' }),
   scan: (id: string) => call<{ scan: { id: string; createdAt: string }; valuation: StoredValuation | null }>(`/api/scans/${id}`),
   settings: () => call<ServerSettings | null>('/api/me/settings'),
   saveSettings: (s: ServerSettings) =>

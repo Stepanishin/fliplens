@@ -71,6 +71,12 @@ const EBAY_CATEGORY: Partial<Record<CategorySlug, string>> = {
   camera_bodies: '31388',
   compact_cameras: '31388',
   lenses: '3323',
+  // Same IDs on DE, FR, IT, ES, NL and UK (checked 2026-10-19). Books: the top category, the leaf differs per site.
+  lego: '19006',
+  books: '267',
+  vinyl: '176985',
+  cds: '176984',
+  movies: '617',
 };
 
 /** eBay leaf category > our category (for auto-detect). First slug wins where several share an eBay category. */
@@ -83,6 +89,7 @@ const CATEGORY_BY_EBAY: Record<string, CategorySlug> = {
   '11724': 'action_cameras', // Camcorder (GoPro and similar land here)
   '101270': 'routers',
   '184655': 'power_tools',
+  '261186': 'books', // Bücher (German leaf under 267)
 };
 
 export function ebayCategoryFor(p: NormalizedProduct): string | undefined {
@@ -162,9 +169,10 @@ export class EbayAdapter implements MarketplaceAdapter {
 
     const results = await Promise.all(
       sites.map(async (site) => {
-        const key = `${site}|${cacheKey(product)}|${limit}`;
+        const sort = opts.sort ?? 'best';
+        const key = `${site}|${cacheKey(product)}|${limit}|${sort}`;
         const hit = this.cache.get(key);
-        if (hit && Date.now() - hit.at < CACHE_TTL_MS) {
+        if (hit && Date.now() - hit.at < Math.min(CACHE_TTL_MS, opts.maxAgeMs ?? CACHE_TTL_MS)) {
           cacheHits++;
           return hit.items;
         }
@@ -173,7 +181,7 @@ export class EbayAdapter implements MarketplaceAdapter {
           const lists = await Promise.all(
             (cats.length > 0 ? cats : [undefined]).map((c) => {
               calls++;
-              return this.searchSite(site, product, limit, true, c);
+              return this.searchSite(site, product, limit, true, c, sort);
             }),
           );
           // Unisex: the same listing can sit in both categories.
@@ -266,8 +274,9 @@ export class EbayAdapter implements MarketplaceAdapter {
     return { titles: [...new Set(titles)], sites: bySite, warnings };
   }
 
-  private async searchSite(site: string, product: NormalizedProduct, limit: number, filtered = true, categoryId?: string): Promise<MarketplaceItem[]> {
+  private async searchSite(site: string, product: NormalizedProduct, limit: number, filtered = true, categoryId?: string, sort: 'best' | 'newest' = 'best'): Promise<MarketplaceItem[]> {
     const params = new URLSearchParams({ limit: String(limit) });
+    if (sort === 'newest') params.set('sort', 'newlyListed');
     if (filtered) params.set('filter', `buyingOptions:{FIXED_PRICE|BEST_OFFER},conditionIds:{${QUERY_CONDITION_IDS.join('|')}}`);
     if (product.gtin) params.set('gtin', product.gtin);
     else params.set('q', searchQuery(product));

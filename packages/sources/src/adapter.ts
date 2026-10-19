@@ -5,6 +5,10 @@ export interface SearchOptions {
   readonly sites?: readonly string[];
   readonly limitPerSite?: number;
   readonly requestId?: string;
+  /** Use cached results only when younger than this (price alerts want fresh listings). Default: the 6 h cache. */
+  readonly maxAgeMs?: number;
+  /** 'newest': newest listings first instead of best match (price alerts look for new offers). */
+  readonly sort?: 'best' | 'newest';
 }
 
 export interface SourceWarning {

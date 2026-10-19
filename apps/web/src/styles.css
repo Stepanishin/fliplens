@@ -849,3 +849,30 @@ button.ghost.small { min-height: 34px; padding: 6px 12px; font-size: 13px; }
 .pc-row div { display: flex; flex-direction: column; gap: 2px; }
 .pc-row span { font-size: 12.5px; color: var(--muted); }
 .pc-row strong { font-size: 18px; }
+
+/* ---------- Many items at once ---------- */
+.batch-add { margin-top: 14px; }
+.batch-add button { display: flex; align-items: center; justify-content: center; gap: 8px; }
+.batch-start { margin-top: 12px; display: grid; gap: 8px; }
+.batch-total { margin-top: 14px; display: grid; gap: 10px; }
+.batch-total button { display: flex; align-items: center; justify-content: center; gap: 8px; }
+.batch-list { list-style: none; padding: 0; margin: 14px 0 0; display: grid; gap: 10px; }
+.batch-row { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 10px; display: grid; gap: 8px; }
+.batch-head { display: flex; gap: 10px; align-items: flex-start; }
+.batch-head img { width: 64px; height: 64px; object-fit: cover; border-radius: 10px; flex: none; }
+.batch-info { flex: 1; min-width: 0; display: grid; gap: 3px; }
+.batch-info strong { overflow-wrap: anywhere; }
+.batch-price { font-weight: 650; }
+.batch-x { background: none; border: 0; font-size: 22px; line-height: 1; color: var(--muted); padding: 0 4px; cursor: pointer; }
+.batch-actions { display: flex; gap: 16px; flex-wrap: wrap; }
+.batch-brand { display: grid; gap: 6px; }
+.bad-text { color: var(--bad-text); }
+
+/* ---------- Price alerts ---------- */
+.alert-card .row2 { align-items: center; }
+.price-input.small { padding: 6px 12px; }
+.price-input.small input { font-size: 20px; }
+.alert-deals { list-style: none; padding: 0; margin: 6px 0 0; display: grid; gap: 6px; }
+.alert-deals a { display: flex; gap: 8px; color: inherit; text-decoration: none; }
+.alert-deals span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text-2); }
+.alert-list li { display: flex; justify-content: space-between; gap: 10px; align-items: center; }

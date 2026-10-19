@@ -27,6 +27,7 @@ import { registerShelfRoute } from './shelf.js';
 import { registerRadarRoute } from './radar.js';
 import { registerCompareRoute } from './compare.js';
 import { ebaySellConfigFromEnv } from './ebay-publish.js';
+import { alertsConfigFromEnv } from './alerts.js';
 import { initPersistence, type Persistence } from './persistence.js';
 import { billingConfigFromEnv } from './billing.js';
 import { registerSecurity, registerWebApp } from './web.js';
@@ -69,6 +70,10 @@ const store: Persistence = await initPersistence(process.env.DATABASE_URL, app.l
   billing: billingConfigFromEnv(process.env),
   listingWriter: new OpenAIListingWriter(openaiKey, process.env.OPENAI_TEXT_MODEL || 'gpt-6-luna'),
   ebaySell: ebaySellConfigFromEnv(process.env),
+  alerts: (() => {
+    const cfg = alertsConfigFromEnv(process.env);
+    return cfg && { cfg, ebay, fx };
+  })(),
 });
 store.registerRoutes(app);
 // Developer tool: writes photos to disk, so it is off unless explicitly enabled, and admin-only.

@@ -48,13 +48,14 @@ export interface BenchmarkItem {
   created_at?: string;
 }
 
-const PREFIX: Record<CategorySlug, 'el' | 'gm' | 'cm' | 'tl' | 'fa'> = {
+const PREFIX: Record<CategorySlug, 'el' | 'gm' | 'cm' | 'tl' | 'fa' | 'md'> = {
   headphones: 'el', smartphones: 'el', tablets: 'el', laptops: 'el', smartwatches: 'el', speakers: 'el',
   routers: 'el', streaming: 'el',
   consoles: 'gm', handhelds: 'gm', controllers: 'gm', games: 'gm',
   camera_bodies: 'cm', lenses: 'cm', action_cameras: 'cm', compact_cameras: 'cm',
   power_tools: 'tl', other: 'tl',
   clothing: 'fa', shoes: 'fa', bags: 'fa', accessories: 'fa',
+  lego: 'md', books: 'md', vinyl: 'md', cds: 'md', movies: 'md',
 };
 
 export async function loadItems(): Promise<BenchmarkItem[]> {

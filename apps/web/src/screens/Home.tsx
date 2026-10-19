@@ -3,7 +3,7 @@ import type { Account, BillingInfo, ServerScan } from '../api.js';
 import { scanPill } from '../format.js';
 import { ago, money, tr } from '../i18n.js';
 import { resizeToJpegDataUrl } from '../image.js';
-import { IconBarcode, IconCamera, IconChevron, IconEdit, IconImage, IconRadar, IconSpark, IconTable } from '../ui/icons.js';
+import { IconBarcode, IconBox, IconCamera, IconChevron, IconEdit, IconImage, IconRadar, IconSpark, IconTable } from '../ui/icons.js';
 import { InstallApp } from '../ui/InstallApp.js';
 
 interface Props {
@@ -16,6 +16,7 @@ interface Props {
   onRadar: () => void;
   /** One photo of a whole stall: every item valued. */
   onShelf: (photo: string) => void;
+  onBatch: () => void;
   onCamera: () => void;
   onBarcode: () => void;
   onManual: () => void;
@@ -29,6 +30,8 @@ const T = tr({
   en: {
     radarTitle: 'Live radar',
     radarSub: 'Keep the camera open: items get a box, tap one for its price.',
+    batchTitle: "Many items at once",
+    batchSub: "Clearing out a wardrobe or a box: a photo per item, prices and listings for all.",
     shelfTitle: 'Scan a whole table',
     shelfSub: 'One photo of a stall or box: see what is worth buying.',
     morning: 'Good morning',
@@ -61,6 +64,8 @@ const T = tr({
   de: {
     radarTitle: 'Live-Radar',
     radarSub: 'Kamera offen lassen: Artikel bekommen einen Rahmen, tippen für den Preis.',
+    batchTitle: "Viele Artikel auf einmal",
+    batchSub: "Kleiderschrank oder Kiste ausräumen: ein Foto pro Artikel, Preise und Anzeigen für alle.",
     shelfTitle: 'Ganzen Tisch scannen',
     shelfSub: 'Ein Foto vom Stand oder der Kiste: sieh sofort, was sich lohnt.',
     morning: 'Guten Morgen',
@@ -93,6 +98,8 @@ const T = tr({
   it: {
     radarTitle: 'Radar live',
     radarSub: 'Tieni la fotocamera aperta: gli articoli ricevono un riquadro, toccane uno per il prezzo.',
+    batchTitle: "Tanti articoli insieme",
+    batchSub: "Svuoti l’armadio o una scatola: una foto per articolo, prezzi e annunci per tutti.",
     shelfTitle: 'Scansione del tavolo',
     shelfSub: 'Una foto di una bancarella o di una scatola: vedi subito cosa conviene.',
     morning: 'Buongiorno',
@@ -125,6 +132,8 @@ const T = tr({
   fr: {
     radarTitle: 'Radar en direct',
     radarSub: "Garde l'appareil photo ouvert : les articles sont encadrés, touches-en un pour son prix.",
+    batchTitle: "Plusieurs articles d’un coup",
+    batchSub: "Tu vides ton armoire ou un carton : une photo par article, prix et annonces pour tout.",
     shelfTitle: 'Scan de la table',
     shelfSub: "Une photo d'un stand ou d'un carton : vois tout de suite ce qui vaut le coup.",
     morning: 'Bonjour',
@@ -161,7 +170,7 @@ function greeting(): string {
   return h < 12 ? T.morning : h < 18 ? T.afternoon : T.evening;
 }
 
-export function Home({ account, visionEnabled, recent, onPhotos, onQuickListing, onRadar, onShelf, onCamera, onBarcode, onManual, onOpenScan, onSeeHistory, quota, onOpenPlans }: Props) {
+export function Home({ account, visionEnabled, recent, onPhotos, onQuickListing, onRadar, onShelf, onBatch, onCamera, onBarcode, onManual, onOpenScan, onSeeHistory, quota, onOpenPlans }: Props) {
   const galleryRef = useRef<HTMLInputElement>(null);
   const shelfRef = useRef<HTMLInputElement>(null);
   const [error, setError] = useState<string | null>(null);
@@ -215,6 +224,14 @@ export function Home({ account, visionEnabled, recent, onPhotos, onQuickListing,
       {!visionEnabled && <p className="muted small center">{T.visionOff}</p>}
       {error && <div className="banner bad">{error}</div>}
 
+      <button type="button" className="home-tool" onClick={onBatch} disabled={!visionEnabled}>
+        <span className="home-tool-icon"><IconBox size={20} /></span>
+        <span style={{ flex: 1 }}>
+          <strong>{T.batchTitle}</strong>
+          <span className="muted">{T.batchSub}</span>
+        </span>
+        <IconChevron size={18} className="muted" />
+      </button>
       <button type="button" className="home-tool" onClick={() => shelfRef.current?.click()} disabled={!visionEnabled}>
         <span className="home-tool-icon"><IconTable size={20} /></span>
         <span style={{ flex: 1 }}>

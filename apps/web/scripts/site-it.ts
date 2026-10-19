@@ -30,7 +30,7 @@ const COMMON_FAQ_IT: Faq[] = [
   },
   {
     q: 'Quali articoli funzionano meglio?',
-    a: `Elettronica di consumo, gaming e fotografia: cuffie, smartphone, tablet, laptop, smartwatch, altoparlanti, console, console portatili, controller, giochi, corpi macchina, obiettivi, action cam e fotocamere compatte, oltre agli elettroutensili. Anche abbigliamento, scarpe e borse di marca vengono valutati, per marca, tipo e condizione (stima più approssimativa che per l'elettronica).`,
+    a: `Elettronica di consumo, gaming e fotografia: cuffie, smartphone, tablet, laptop, smartwatch, altoparlanti, console, console portatili, controller, giochi, corpi macchina, obiettivi, action cam e fotocamere compatte, oltre agli elettroutensili. Anche abbigliamento, scarpe e borse di marca vengono valutati, per marca, tipo e condizione (stima più approssimativa che per l'elettronica). Set LEGO per numero del set; libri, vinili, CD e DVD con il codice a barre.`,
   },
   {
     q: 'Devo inserire un prezzo?',
@@ -616,6 +616,80 @@ const PAGES_IT: Page[] = [
       { q: 'Quali taglie di sneakers si vendono più in fretta?', a: `Di solito EU 40-44 da uomo e 37-39 da donna, perché sono le taglie con più acquirenti.` },
       { q: 'La scatola originale conta?', a: `Sì, soprattutto per i modelli più ricercati. Sneakers con la scatola originale sembrano più curate e più facili da verificare, quindi si vendono meglio.` },
       { q: 'Come dimostro che le mie sneakers sono originali?', a: `Fotografa l'etichetta interna con il codice del modello, la suola e la scatola, e conserva lo scontrino o la conferma d'ordine.` },
+    ],
+  },
+  {
+    path: '/guides/lego-set-value',
+    kind: 'article',
+    crumb: 'Valore dei set LEGO',
+    parent: GUIDES_PARENT,
+    title: 'Quanto vale il mio set LEGO? Valore di rivendita dei set',
+    description: `Come capire quanto vale un set LEGO usato: numero del set, sigillato o aperto, completezza di minifigure e istruzioni, set fuori produzione e dove venderlo.`,
+    h1: 'Quanto vale il mio set LEGO?',
+    lead: `Lo stesso set LEGO può valere molto o poco secondo le condizioni: sigillato, completo con istruzioni e minifigure, oppure sfuso e incompleto. Ecco come capire quanto puoi chiedere.`,
+    sections: [
+      {
+        h2: 'Trova il numero del set',
+        html: `<p>Ogni set LEGO ha un numero di 4-6 cifre stampato sulla scatola e sul libretto di istruzioni. È il modo più sicuro per identificare il set esatto: il nome da solo non basta, perché molti set hanno nomi simili o più versioni. Se non hai più la scatola, cerca il numero sulle istruzioni o confronta il modello con i cataloghi online.</p>`,
+      },
+      {
+        h2: 'Cosa determina il prezzo',
+        html: `<ul><li><strong>Nuovo sigillato:</strong> la scatola mai aperta è di solito la condizione che vale di più.</li><li><strong>Nuovo aperto:</strong> scatola aperta ma pezzi completi e mai montati.</li><li><strong>Usato completo:</strong> tutti i pezzi, con istruzioni e minifigure.</li><li><strong>Usato senza scatola:</strong> completo ma senza la scatola originale, vale meno.</li><li><strong>Incompleto:</strong> mancano pezzi, il valore scende molto.</li><li><strong>Minifigure e istruzioni:</strong> se mancano, il prezzo cala parecchio, perché sono tra le parti più cercate.</li><li><strong>Fuori produzione o in commercio:</strong> i set fuori produzione spesso aumentano di valore; quelli ancora in vendita competono con gli sconti dei negozi.</li></ul>`,
+      },
+      {
+        h2: 'Completezza, copie e mattoncini sfusi',
+        html: `<p>Prima di vendere, controlla che il set sia completo confrontandolo con l'inventario dei pezzi del set, che trovi online cercando il numero. Indica nell'annuncio cosa manca: gli acquirenti apprezzano la sincerità.</p><p>Le copie e i mattoncini compatibili (Lepin o articoli venduti come &quot;compatibile&quot;) non sono LEGO e non vanno venduti come tali. I mattoncini sfusi, senza un set preciso, si vendono di solito a peso: è un mercato separato, con prezzi diversi da quelli dei set completi.</p>`,
+      },
+      {
+        h2: 'Dove vendere',
+        html: `<ul><li><strong>eBay:</strong> molti acquirenti in tutta Europa, utile per set completi e fuori produzione.</li><li><strong>Subito e vendita locale:</strong> senza spedizione, comodo per set grandi e lotti di mattoncini.</li><li><strong>Vinted:</strong> funziona bene per i set per bambini.</li><li><strong>BrickLink:</strong> il mercato specializzato per singoli pezzi e minifigure.</li></ul><p>Per altri consigli su cosa comprare per rivendere, vedi la <a href="${h('/guides/flea-market-reselling-checklist')}">checklist per il mercatino</a>.</p>`,
+      },
+      {
+        h2: 'Come ti aiuta FlipLens',
+        html: `<p>Scansiona il codice a barre o fotografa la scatola. FlipLens legge il numero del set e confronta gli annunci di quel set esatto, escludendo gli annunci di sole istruzioni, i set incompleti, le copie e i lotti. Cerca su eBay in cinque paesi UE o su eBay.co.uk, corregge al ribasso i prezzi richiesti e ti mostra il massimo da pagare. Vedi anche <a href="${h('/guides/how-to-check-resale-value')}">come controllare il valore di rivendita</a>.</p>`,
+      },
+    ],
+    faq: [
+      { q: 'Dove trovo il numero del mio set LEGO?', a: `Sulla scatola e sul libretto di istruzioni. È un numero di 4-6 cifre che identifica il set esatto.` },
+      { q: 'Un set LEGO senza minifigure vale ancora qualcosa?', a: `Sì, ma molto meno. Minifigure e istruzioni sono tra le parti più cercate, quindi se mancano il prezzo cala parecchio.` },
+      { q: 'I mattoncini compatibili valgono come i LEGO?', a: `No. Le copie e i mattoncini compatibili, come Lepin, non sono LEGO e non vanno venduti come tali.` },
+    ],
+  },
+  {
+    path: '/guides/resale-value-books-vinyl-dvds',
+    kind: 'article',
+    crumb: 'Libri, vinili, CD e DVD',
+    parent: GUIDES_PARENT,
+    title: 'Valore di rivendita di libri, vinili, CD e DVD',
+    description: `Quanto valgono libri, vinili, CD e DVD usati: codice a barre, edizione e formato, cosa vale davvero, servizi di riacquisto o vendita diretta e lotti.`,
+    h1: 'Valore di rivendita di libri, vinili, CD e DVD',
+    lead: `La maggior parte di libri, CD e DVD usati si rivende a pochi euro, ma alcune edizioni valgono molto di più. Ecco come riconoscerle e dove venderle.`,
+    sections: [
+      {
+        h2: `Il codice a barre identifica l'edizione`,
+        html: `<p>Il codice a barre è il modo più rapido per trovare l'edizione esatta: l'ISBN per i libri, l'EAN per musica e film. Due copie dello stesso titolo possono avere codici diversi e prezzi molto diversi, quindi confronta sempre la stessa edizione.</p>`,
+      },
+      {
+        h2: 'Edizione e formato contano',
+        html: `<ul><li><strong>Libri:</strong> una prima edizione può valere molto più di una ristampa; la copertina rigida di solito vale più della copertina flessibile.</li><li><strong>Vinili:</strong> la stampa originale vale in genere più di una ristampa; anche 180g e picture disc hanno un mercato proprio.</li><li><strong>Film:</strong> DVD, Blu-ray e 4K hanno prezzi diversi; steelbook e cofanetti completi sono i più cercati.</li><li><strong>Condizioni:</strong> copertine, custodie e dischi senza graffi fanno la differenza.</li></ul>`,
+      },
+      {
+        h2: 'Cosa vale davvero',
+        html: `<p>La maggior parte dei libri, CD e DVD di largo consumo si rivende a pochi euro. Il valore sta nelle edizioni rare, nei vinili più richiesti e nei cofanetti completi. Per gli articoli economici conviene vendere a lotti: un lotto di libri o di DVD dello stesso genere si vende più facilmente dei pezzi singoli.</p>`,
+      },
+      {
+        h2: 'Riacquisto o vendita diretta',
+        html: `<p>I servizi di riacquisto pagano subito, ma pagano poco. Vendendo da solo su eBay, Vinted o Subito di solito guadagni di più, ma ci vuole più tempo. Per gli articoli di poco valore il riacquisto o un lotto possono bastare; per le edizioni rare e i vinili ricercati conviene l'annuncio. Per altri consigli vedi la <a href="${h('/guides/flea-market-reselling-checklist')}">checklist per il mercatino</a>.</p>`,
+      },
+      {
+        h2: 'Come ti aiuta FlipLens',
+        html: `<p>Scansiona il codice a barre o scatta una foto. FlipLens cerca l'edizione esatta tramite il codice a barre su eBay in cinque paesi UE o su eBay.co.uk, corregge al ribasso i prezzi richiesti e ti mostra il massimo da pagare.</p><p>Con la modalità &quot;Tanti articoli insieme&quot; scatti una foto per articolo, per esempio per uno scatolone di libri o una pila di dischi, e FlipLens ti dà i prezzi di tutti e scrive gli annunci. Vedi anche <a href="${h('/guides/how-to-check-resale-value')}">come controllare il valore di rivendita</a>.</p>`,
+      },
+    ],
+    faq: [
+      { q: 'Quanto vale un libro usato?', a: `La maggior parte dei libri di largo consumo si rivende a pochi euro. Le prime edizioni e le edizioni rare possono valere molto di più: controlla l'ISBN per trovare l'edizione esatta.` },
+      { q: 'I vinili ristampati valgono come gli originali?', a: `Di solito no. La stampa originale vale in genere più di una ristampa, anche se alcune ristampe come i 180g o i picture disc hanno un loro mercato.` },
+      { q: 'Conviene vendere a un servizio di riacquisto?', a: `Ti paga subito, ma poco. Vendendo da solo su eBay, Vinted o Subito di solito guadagni di più, soprattutto per edizioni rare e vinili ricercati.` },
     ],
   },
   {

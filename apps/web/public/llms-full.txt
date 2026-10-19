@@ -79,7 +79,7 @@ FlipLens is a web app for resellers in Europe. Take a photo, scan a barcode or t
 From active eBay listings, read through the official eBay API: eBay in five EU countries in euro (converted with ECB exchange rates), or eBay.co.uk in pounds if you sell in the UK. Asking prices are usually above what items finally sell for, so FlipLens adjusts them down and always shows how many listings an estimate is based on. You can open every listing it used.
 
 **Which items work best?**
-Consumer electronics, gaming and cameras: headphones, smartphones, tablets, laptops, smartwatches, speakers, consoles, handhelds, controllers, games, camera bodies, lenses, action and compact cameras, plus power tools. Branded clothes, shoes and bags are priced too, by brand, type and condition (a rougher estimate than for electronics).
+Consumer electronics, gaming and cameras: headphones, smartphones, tablets, laptops, smartwatches, speakers, consoles, handhelds, controllers, games, camera bodies, lenses, action and compact cameras, plus power tools. Branded clothes, shoes and bags are priced too, by brand, type and condition (a rougher estimate than for electronics). LEGO sets by set number; books, vinyl, CDs and DVDs by barcode.
 
 **Do I need to enter a price?**
 No. Without a price FlipLens shows what the item sells for and the maximum price worth paying for your target return. With a price you get a verdict, profit and ROI for that exact deal.
@@ -669,6 +669,98 @@ Yes. The original box helps buyers trust the pair and usually helps the price, e
 It is a rough range. FlipLens compares listings of the same brand and type, not the exact model and size, so check similar listings before you set your final price.
 
 
+## How much is my LEGO set worth?
+
+URL: https://fliplens.eu/guides/lego-set-value
+
+LEGO keeps its value better than most toys, but two boxes of the same set can sell for very different amounts. The set number tells you exactly what you have; condition and completeness decide the price.
+
+### Find the set number
+
+Every LEGO set has a set number of 4 to 6 digits. You find it on the box, on the front of the instructions and in the LEGO catalogue. The set number identifies the exact set, so always compare listings of that number, not just the theme or the name.
+No box and no instructions? Search the catalogue by theme and a few distinctive pieces or minifigures until you find the matching set.
+
+### Condition and completeness
+
+- New, sealed: factory sealed in the original box (in German listings often called OVP). Usually the highest price.
+- New, opened: box opened, bags still sealed or unused.
+- Used, complete: all pieces, the instructions and all minifigures.
+- Used without box: complete set, but no box. Worth less than with the box.
+- Incomplete: missing pieces, minifigures or instructions. Missing minifigures and instructions cut the value a lot.
+
+To check completeness, look up the inventory for the set number and tick off the parts and minifigures. Say clearly in your listing what is included.
+
+### Retired sets, current sets, bulk bricks and copies
+
+- Retired sets: once LEGO stops selling a set, its value often rises, especially when it is sealed or complete.
+- Current sets: still sold in shops, so your used set competes with retail discounts and sells for less than you might expect.
+- Bulk bricks: loose mixed bricks sell by weight. This is a separate market from complete sets.
+- Copies: compatible bricks from other makers, such as Lepin, or listings marked "compatible" are not LEGO and are worth far less. Look for the LEGO logo on the studs.
+
+### Where to sell LEGO
+
+- eBay: the widest audience for complete and sealed sets. Private sellers in Germany and the UK pay no selling fees, but the seller usually pays shipping.
+- Locally: Kleinanzeigen, classifieds and flea markets, good for large sets and bulk bricks with no shipping.
+- Vinted: works well for smaller kids' sets.
+- BrickLink: a marketplace for single parts and minifigures, useful if you sell them separately.
+
+### Check the price with FlipLens
+
+Take a photo of the box or the instructions. FlipLens reads the set number and compares listings of that exact set, leaving out instructions-only listings, incomplete sets, copies and bundles. It searches eBay in five EU countries or eBay.co.uk, adjusts asking prices down and shows the most to pay if you are buying to resell.
+Sorting a whole box of sets? Use the "many items at once" mode: one photo per set, prices for all of them and listings written. See how to check resale value (/guides/how-to-check-resale-value) and the flea market reselling checklist (/guides/flea-market-reselling-checklist).
+
+**Where do I find the LEGO set number?**
+The set number has 4 to 6 digits and is printed on the box, on the front of the instructions and in the LEGO catalogue. It identifies the exact set.
+
+**How much do missing minifigures lower the value?**
+A lot. Minifigures and instructions are what buyers check first, so a set without them sells for much less than a complete one. Check the inventory for the set number before you sell.
+
+**Are compatible bricks like Lepin worth the same as LEGO?**
+No. Copies and compatible bricks are not LEGO and sell for far less. FlipLens leaves copies out when it compares prices.
+
+
+## Resale value of books, vinyl records, CDs and DVDs
+
+URL: https://fliplens.eu/guides/resale-value-books-vinyl-dvds
+
+Most books, CDs and DVDs resell for a few euros, but a few editions are worth much more. The barcode tells you exactly which edition you have, and that is where the price starts.
+
+### The barcode identifies the edition
+
+Books carry an ISBN, music and films an EAN barcode. Both identify the exact edition, not just the title. The same novel or album can exist in many editions at very different prices, so always compare the same barcode.
+
+### Edition and format matter
+
+- Books: first editions, signed copies and hardcovers are usually worth more than later printings and paperbacks.
+- Vinyl: an original pressing is often worth more than a reissue. 180g pressings, coloured vinyl and picture discs have their own prices.
+- Films: DVD, Blu-ray and 4K are different products. Steelbooks and complete box sets often sell for more.
+- Condition: scratches, a worn sleeve, a damaged case, notes or underlining lower the price. Missing booklets or discs in a box set lower it a lot.
+
+### What is actually worth selling
+
+Mass-market books, CDs and DVDs usually resell for a few euros each. The value is in rare editions, popular vinyl and complete box sets. For cheap items, bundles sell well: a series of books, a stack of CDs by one artist or a set of films in one listing saves shipping and time.
+
+### Buyback services or selling yourself
+
+- Buyback services: such as Momox and reBuy in Germany or WeBuyBooks and Ziffit in the UK. You scan the barcode, get an offer and send the items in. They pay quickly, but the price is low.
+- eBay and Vinted: selling yourself takes more effort, but usually brings more for valuable editions, vinyl and box sets.
+- Locally: flea markets and classifieds, good for bundles and boxes of cheap items.
+
+### Check the price with FlipLens
+
+Scan the barcode or take a photo of the cover. FlipLens searches the exact edition by its barcode on eBay in five EU countries or eBay.co.uk, adjusts asking prices down and shows the most to pay if you are buying to resell.
+For a box of books or a stack of records, use the "many items at once" mode: one photo per item, prices for all of them and listings written. See how to check resale value (/guides/how-to-check-resale-value) and the flea market reselling checklist (/guides/flea-market-reselling-checklist).
+
+**Are my old books and DVDs worth anything?**
+Most mass-market books, CDs and DVDs resell for a few euros. Rare editions, popular vinyl and complete box sets are worth more. Check the barcode to find the exact edition.
+
+**Should I use a buyback service or sell myself?**
+Buyback services pay quickly but low. Selling yourself on eBay or Vinted usually brings more for valuable items, while cheap items often sell best as bundles.
+
+**Can FlipLens price a whole box of books or records?**
+Yes. In "many items at once" mode you take one photo per item, and FlipLens prices all of them and writes the listings.
+
+
 ## About FlipLens
 
 URL: https://fliplens.eu/about
@@ -718,6 +810,8 @@ Short, practical guides for sourcing and reselling second-hand items in Europe.
 - Selling a used phone in Europe (/guides/sell-used-phone-europe)What decides the resale value of a used smartphone in Europe: model, storage, battery health, account and carrier locks, condition, plus a checklist before you buy or sell.
 - How much are my clothes worth? (/guides/resale-value-branded-clothes)What decides the resale value of used jackets, jeans, dresses, hoodies and bags: brand, condition, size, season and completeness, and where to sell them.
 - Sneaker resale value: how much are my trainers worth? (/guides/sneaker-resale-value)What decides the resale value of used sneakers: model, size, condition, the original box and authenticity, plus where to sell them in Europe and the UK.
+- How much is my LEGO set worth? (/guides/lego-set-value)What decides the resale value of a used LEGO set: the set number, condition, completeness, minifigures and whether it is retired, plus where to sell it.
+- Resale value of books, vinyl records, CDs and DVDs (/guides/resale-value-books-vinyl-dvds)How to find what your used books, vinyl records, CDs and DVDs are worth: barcode, edition and format, buyback services versus selling yourself.
 
 
 ## Earn 20% for 6 months

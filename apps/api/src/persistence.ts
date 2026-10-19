@@ -44,6 +44,8 @@ import { verifyGoogleIdToken } from './google.js';
 import { registerEbayPublishRoutes, type EbaySellConfig } from './ebay-publish.js';
 import { createBilling, limitsPlan, type BillingConfig, type Quota } from './billing.js';
 import { registerInventoryRoutes } from './inventory.js';
+import { registerAlertRoutes, startAlertWorker, type AlertsConfig } from './alerts.js';
+import type { EbayAdapter, EcbFxService } from '@fliplens/sources';
 import { registerListingRoutes } from './listing.js';
 import { registerReferralRoutes } from './referrals.js';
 import type { OpenAIListingWriter } from '@fliplens/recognition';
@@ -149,6 +151,8 @@ export interface AuthConfig {
   listingWriter?: OpenAIListingWriter;
   /** Publishing on eBay (Sell APIs); off without EBAY_RUNAME / EBAY_TOKEN_KEY. */
   ebaySell?: EbaySellConfig | undefined;
+  /** Price alerts (web push); off without VAPID keys. */
+  alerts?: { cfg: AlertsConfig; ebay: EbayAdapter; fx: EcbFxService } | undefined;
 }
 
 export async function initPersistence(url: string | undefined, log: FastifyBaseLogger, auth: AuthConfig = {}): Promise<Persistence> {
@@ -412,6 +416,26 @@ function enabled(db: Db, log: FastifyBaseLogger, auth: AuthConfig): Persistence 
     registerRoutes(app) {
       billing?.registerRoutes(app, { requireUser: requireSignedIn });
       registerInventoryRoutes(app, db, requireSignedIn);
+      if (auth.alerts) {
+        const a = auth.alerts;
+        const getScanFor = async (req: FastifyRequest, scanId: string) => {
+          const uid = await userId(req);
+          const row = uid ? await getScan(db, uid, scanId) : undefined;
+          return row ? { product: row.scan.product as NormalizedProduct, condition: row.scan.condition, currency: row.scan.currency } : undefined;
+        };
+        registerAlertRoutes(app, {
+          db,
+          cfg: a.cfg,
+          ebay: a.ebay,
+          fx: a.fx,
+          requireSignedIn,
+          planOf: async (uid) => (billing ? limitsPlan(await billing.quota(uid)) : 'free'),
+          ownScan: getScanFor,
+        });
+        // Local development shares the database with production: ALERTS_WORKER=0 keeps a laptop from taking prod's jobs.
+        if (process.env.ALERTS_WORKER !== '0') startAlertWorker({ db, cfg: a.cfg, ebay: a.ebay, fx: a.fx }, log);
+      }
+      app.get('/api/alerts/available', async () => ({ available: Boolean(auth.alerts) }));
       registerReferralRoutes(app, { db, requireSignedIn, requireAdmin });
       if (auth.ebaySell) registerEbayPublishRoutes(app, { db, cfg: auth.ebaySell, requireSignedIn });
       app.get('/api/ebay/available', async () => ({ available: Boolean(auth.ebaySell) }));

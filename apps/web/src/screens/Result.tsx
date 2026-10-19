@@ -7,6 +7,8 @@ import { money, reason, tr, presetText } from '../i18n.js';
 import { MarketLinks } from '../MarketLinks.js';
 import { MarketCompare } from '../ui/MarketCompare.js';
 import { PlatformCompare } from '../ui/PlatformCompare.js';
+import { PriceAlert } from '../ui/PriceAlert.js';
+import type { Settings } from '../storage.js';
 import { ConfidencePill, DecisionHero, eur, MarketActivity, RangeBar } from '../ui/verdict.js';
 import { IconBag, IconEdit, IconScan, IconSpark } from '../ui/icons.js';
 import { Comparables } from './Comparables.js';
@@ -210,10 +212,12 @@ interface Props {
   onBought?: (priceMinor: number) => void;
   /** Open the listing writer with the same photos (the way forward when there is no price data, e.g. clothes). */
   onWriteListing?: () => void;
+  /** Signed-in users: offer a price alert for this item. */
+  alertSettings?: Settings;
   children?: ReactNode;
 }
 
-export function Result({ resp, query, country, onNewScan, onEdit, targetRoiPct, onBought, onWriteListing, children }: Props) {
+export function Result({ resp, query, country, onNewScan, onEdit, targetRoiPct, onBought, onWriteListing, alertSettings, children }: Props) {
   const r = resp.result;
   const askedMinor = r.status === 'ok' ? r.profit.expected.purchasePrice.amountMinor : 0;
   // "What if I pay X?": recomputed locally with the same core logic, no new check, no quota.
@@ -501,6 +505,7 @@ export function Result({ resp, query, country, onNewScan, onEdit, targetRoiPct, 
       </section>
 
       {resp.scanId && <MarketCompare scanId={resp.scanId} />}
+      {resp.scanId && alertSettings && <PriceAlert scanId={resp.scanId} suggestedMinor={maxBuy.amountMinor} currency={e.expected.currency as 'EUR' | 'GBP'} settings={alertSettings} />}
         <MarketLinks query={query} country={country} />
       <Actions onNewScan={onNewScan} onEdit={onEdit} />
       {children}

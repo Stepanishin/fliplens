@@ -290,3 +290,41 @@ export const ebayAccounts = pgTable('ebay_accounts', {
   createdAt: createdAt(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
 });
+
+/**
+ * Price alerts (ADR-031): "tell me when this is listed for at most X". A background job searches eBay every few hours
+ * and sends a web push for new matching listings. `seenItemIds` keeps the listings already notified (capped).
+ */
+export const watches = pgTable(
+  'watches',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+    product: jsonb('product').notNull(),
+    condition: text('condition').notNull(),
+    country: text('country').notNull(),
+    preset: text('preset').notNull(),
+    currency: text('currency').notNull(),
+    /** Alert when the total buyer price (item + shipping) is at or below this. */
+    maxPriceMinor: integer('max_price_minor').notNull(),
+    seenItemIds: jsonb('seen_item_ids').$type<string[]>().notNull().default([]),
+    lastCheckedAt: timestamp('last_checked_at', { withTimezone: true }),
+    lastAlertAt: timestamp('last_alert_at', { withTimezone: true }),
+    alerts: integer('alerts').notNull().default(0),
+    createdAt: createdAt(),
+  },
+  (t) => [index('watches_user_idx').on(t.userId), index('watches_checked_idx').on(t.lastCheckedAt)],
+);
+
+/** Web push endpoints of a user's devices (one per browser / installed app). */
+export const pushSubscriptions = pgTable(
+  'push_subscriptions',
+  {
+    endpoint: text('endpoint').primaryKey(),
+    userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+    p256dh: text('p256dh').notNull(),
+    auth: text('auth').notNull(),
+    createdAt: createdAt(),
+  },
+  (t) => [index('push_user_idx').on(t.userId)],
+);

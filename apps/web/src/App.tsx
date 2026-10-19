@@ -6,6 +6,7 @@ import { Landing } from './screens/Landing.js';
 import { Admin } from './screens/Admin.js';
 import { Inventory } from './screens/Inventory.js';
 import { QuickListing } from './screens/QuickListing.js';
+import { Batch } from './screens/Batch.js';
 import { GoogleButton } from './ui/GoogleButton.js';
 import { Referral } from './screens/Referral.js';
 import { Shelf } from './screens/Shelf.js';
@@ -60,7 +61,8 @@ type Route =
   | { name: 'inventory' }
   | { name: 'listing'; photos?: string[]; notes?: string; conditionIndex?: number }
   | { name: 'referral' }
-  | { name: 'shelf'; photo: string };
+  | { name: 'shelf'; photo: string }
+  | { name: 'batch' };
 
 const T = tr({
   en: {
@@ -515,7 +517,7 @@ export function App() {
     .filter((x) => x.trim())
     .join(' ');
   const visionOn = health?.vision.configured ?? false;
-  const inFlow = ['confirm', 'price', 'result', 'scan', 'admin', 'listing', 'referral', 'shelf'].includes(route.name) || (route.name === 'plans' && stack.length > 2) || (route.name === 'profile' && stack.length > 2);
+  const inFlow = ['confirm', 'price', 'result', 'scan', 'admin', 'listing', 'referral', 'shelf', 'batch'].includes(route.name) || (route.name === 'plans' && stack.length > 2) || (route.name === 'profile' && stack.length > 2);
   const activeTab = route.name === 'history' || route.name === 'scan' ? 'history' : route.name === 'profile' ? 'profile' : route.name === 'plans' ? 'plans' : route.name === 'inventory' ? 'inventory' : 'home';
 
   // Signed-in only: without an account the start page is all there is (with a database; local dev without one stays open).
@@ -641,6 +643,7 @@ export function App() {
             recent={dbOn ? scans : []}
             onPhotos={startPhotos}
             onShelf={(photo) => go({ name: 'shelf', photo })}
+            onBatch={() => { track('batch_opened', {}); go({ name: 'batch' }); }}
             onRadar={() => setRadar(true)}
             onQuickListing={() => { track('quick_listing_opened', { from: 'home' }); go({ name: 'listing' }); }}
             onCamera={() => cameraRef.current?.click()}
@@ -653,6 +656,20 @@ export function App() {
           />
         )}
         {route.name === 'referral' && <Referral />}
+        {route.name === 'batch' && (
+          <Batch
+            settings={settings}
+            checksLeft={billing?.quota ? billing.quota.remaining : null}
+            onOpen={(item) => {
+              if (!item.draft || !item.resp) return;
+              setDraft(item.draft);
+              setResp(item.resp);
+              setFlowError(null);
+              go({ name: 'result' });
+            }}
+            onUpgrade={() => openPlans()}
+          />
+        )}
         {route.name === 'shelf' && (
           <Shelf
             key={route.photo.length}
@@ -721,6 +738,7 @@ export function App() {
             query={query}
             country={settings.country}
             targetRoiPct={settings.targetRoiPct}
+            {...(account && { alertSettings: settings })}
             onNewScan={newScan}
             onEdit={() => go({ name: 'confirm' })}
             {...(resp.scanId && { onBought: (m: number) => setBoughtPriceMinor(m) })}

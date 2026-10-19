@@ -113,6 +113,8 @@ export function buildRequest(d: Draft, s: Settings): ValuationRequest {
       ...(p.capacity.trim() && showsCapacity(p.category) && { capacity: p.capacity.trim() }),
       ...(p.mount.trim() && p.category && MOUNT_CATEGORIES.includes(p.category) && { mount: p.mount.trim() }),
       ...(exclude.length > 0 && !showsFashion(p.category) && { excludeModels: exclude }),
+      // Books, music, films: search the exact edition by its barcode (unless the user changed the item).
+      ...(p.category !== '' && ['books', 'vinyl', 'cds', 'movies'].includes(p.category) && !d.edited && (r?.gtin ?? chosen?.gtin) && { gtin: (r?.gtin ?? chosen?.gtin)! }),
       // Without a department the server detects type and department from brand + model.
       ...(showsFashion(p.category) && p.gender && {
         fashion: { ...(p.fashionKind && { kind: p.fashionKind }), gender: p.gender, ...(p.style.trim() && { style: p.style.trim() }) },

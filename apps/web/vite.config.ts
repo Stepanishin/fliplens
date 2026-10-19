@@ -33,6 +33,8 @@ export default defineConfig({
         navigateFallbackDenylist: [/^\/api\//, /^\/(de\/)?(guides|pricing|faq|how-it-works|vinted-listing-generator|partner|about|best-resale-value-apps)(\/|$)/, /\.(txt|xml|png)$/],
         globIgnores: ['**/guides/**', 'guides.html', 'pricing.html', 'faq.html', 'how-it-works.html', 'vinted-listing-generator.html', 'partner.html', 'about.html', 'best-resale-value-apps.html', 'og.png', 'de/**', 'prerender-de.html'],
         runtimeCaching: [{ urlPattern: /\/api\//, handler: 'NetworkOnly' }],
+        // Price alerts: push and notification click handlers (public/push-sw.js).
+        importScripts: ['push-sw.js'],
       },
     }),
   ],

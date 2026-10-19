@@ -11,3 +11,4 @@ export * from './presets.js';
 export * from './valuation.js';
 export * from './plans.js';
 export * from './fashion.js';
+export * from './media.js';
