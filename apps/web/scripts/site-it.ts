@@ -22,11 +22,11 @@ const LISTING_CTA_IT = `<p class="cta"><a class="btn" href="/it?tool=listing">Sc
 const COMMON_FAQ_IT: Faq[] = [
   {
     q: `Che cos'è FlipLens?`,
-    a: `FlipLens è una web app per chi rivende in Europa. Scatta una foto, scansiona il codice a barre o scrivi il modello: FlipLens ti mostra a quanto si rivende l'articolo su eBay in Germania, Francia, Italia, Spagna e Paesi Bassi, il tuo profitto al netto di commissioni e spedizione, il prezzo massimo da pagare e un verdetto chiaro: Ottimo affare, Compra, Al limite o Lascia stare.`,
+    a: `FlipLens è una web app per chi rivende in Europa. Scatta una foto, scansiona il codice a barre o scrivi il modello: FlipLens ti mostra a quanto si rivende l'articolo su eBay in Germania, Francia, Italia, Spagna e Paesi Bassi o su eBay.co.uk, il tuo profitto al netto di commissioni e spedizione, il prezzo massimo da pagare e un verdetto chiaro: Ottimo affare, Compra, Al limite o Lascia stare.`,
   },
   {
     q: 'Da dove vengono i prezzi?',
-    a: `Dagli annunci eBay attivi in cinque paesi UE, letti tramite l'API ufficiale di eBay e convertiti in euro con i tassi di cambio della BCE. I prezzi richiesti sono di solito più alti di quelli a cui gli articoli vengono davvero venduti, quindi FlipLens li corregge al ribasso e mostra sempre su quanti annunci si basa una stima. Puoi aprire ogni annuncio utilizzato.`,
+    a: `Dagli annunci eBay attivi, letti tramite l'API ufficiale di eBay: in cinque paesi UE (Germania, Francia, Italia, Spagna e Paesi Bassi) con prezzi convertiti in euro ai tassi di cambio della BCE, oppure su eBay.co.uk con prezzi in sterline se vendi nel Regno Unito. I prezzi richiesti sono di solito più alti di quelli a cui gli articoli vengono davvero venduti, quindi FlipLens li corregge al ribasso e mostra sempre su quanti annunci si basa una stima. Puoi aprire ogni annuncio utilizzato.`,
   },
   {
     q: 'Quali articoli funzionano meglio?',
@@ -54,7 +54,7 @@ const PAGES_IT: Page[] = [
     kind: 'page',
     crumb: 'Come funziona',
     title: 'Come FlipLens stima valore di rivendita e profitto',
-    description: `Come FlipLens riconosce il prodotto esatto, trova annunci eBay simili in cinque paesi UE, stima il valore di rivendita, sottrae commissioni e spedizione e decide tra Ottimo affare, Compra, Al limite e Lascia stare.`,
+    description: `Come FlipLens riconosce il prodotto esatto, trova annunci eBay simili in cinque paesi UE o su eBay.co.uk, stima il valore di rivendita, sottrae commissioni e spedizione e decide tra Ottimo affare, Compra, Al limite e Lascia stare.`,
     h1: 'Come funziona FlipLens',
     lead: `FlipLens risponde a una sola domanda: "Posso comprarlo a X €. Conviene comprarlo per rivenderlo?" Ecco esattamente come nasce la risposta, compresi i casi in cui può sbagliare.`,
     sections: [
@@ -64,7 +64,7 @@ const PAGES_IT: Page[] = [
       },
       {
         h2: '2. Trovare annunci simili',
-        html: `<p>FlipLens cerca gli annunci eBay attuali in Germania, Francia, Italia, Spagna e Paesi Bassi tramite l'API ufficiale di eBay e converte i prezzi in euro con i tassi della Banca centrale europea. Poi scarta ciò che falserebbe il prezzo: altri modelli e varianti, accessori venduti da soli, bundle, articoli guasti o "per ricambi", duplicati e annunci in condizioni molto diverse. Puoi vedere ogni annuncio usato e il motivo per cui gli altri sono stati scartati.</p>`,
+        html: `<p>FlipLens cerca gli annunci eBay attuali in Germania, Francia, Italia, Spagna e Paesi Bassi tramite l'API ufficiale di eBay e converte i prezzi in euro con i tassi della Banca centrale europea. Se vendi su eBay.co.uk usa invece gli annunci di eBay.co.uk, con i prezzi in sterline. Poi scarta ciò che falserebbe il prezzo: altri modelli e varianti, accessori venduti da soli, bundle, articoli guasti o "per ricambi", duplicati e annunci in condizioni molto diverse. Puoi vedere ogni annuncio usato e il motivo per cui gli altri sono stati scartati. Vuoi sapere dove l'articolo rende di più? Il confronto Regno Unito vs UE nel risultato mostra con un tocco lo stesso articolo su eBay.co.uk e sui cinque siti eBay UE affiancati, in sterline e in euro, senza usare un controllo.</p>`,
       },
       {
         h2: '3. Stimare il valore di rivendita',
@@ -72,7 +72,7 @@ const PAGES_IT: Page[] = [
       },
       {
         h2: '4. Calcolare il profitto al netto delle commissioni',
-        html: `<p>FlipLens sottrae le commissioni di vendita del marketplace su cui vendi (per esempio eBay.de privato o professionale, Vinted o ritiro di persona), il costo di spedizione e il prezzo di acquisto. Il risultato è il profitto, il ritorno sull'investimento (ROI) e il <strong>prezzo massimo</strong> che conviene pagare per il ROI che vuoi ottenere: prezzo massimo = quanto ti resta dopo commissioni e spedizione ÷ (1 + ROI obiettivo).</p>`,
+        html: `<p>FlipLens sottrae le commissioni di vendita del marketplace su cui vendi (per esempio eBay.de privato o professionale, eBay.co.uk privato, Vinted o ritiro di persona), il costo di spedizione e il prezzo di acquisto. Il risultato è il profitto, il ritorno sull'investimento (ROI) e il <strong>prezzo massimo</strong> che conviene pagare per il ROI che vuoi ottenere: prezzo massimo = quanto ti resta dopo commissioni e spedizione ÷ (1 + ROI obiettivo).</p>`,
       },
       {
         h2: '5. Dare un verdetto, o ammettere di non sapere',
@@ -101,7 +101,7 @@ const PAGES_IT: Page[] = [
       },
       {
         h2: 'Cosa conta come controllo',
-        html: `<p>Un controllo è una valutazione: FlipLens analizza il mercato e calcola valore di rivendita, profitto e verdetto. Il riconoscimento da foto o codice a barre è incluso. I controlli si azzerano il 1° di ogni mese.</p>`,
+        html: `<p>Un controllo è una valutazione: FlipLens analizza il mercato e calcola valore di rivendita, profitto e verdetto. Il riconoscimento da foto o codice a barre è incluso. I controlli si azzerano il 1° di ogni mese. Il confronto Regno Unito vs UE nel risultato non usa un controllo.</p>`,
       },
     ],
     faq: [
@@ -122,9 +122,9 @@ const PAGES_IT: Page[] = [
     faq: [
       ...COMMON_FAQ_IT,
       { q: 'FlipLens può controllare un intero tavolo in una volta?', a: `Sì. Scatta una foto di una bancarella, di una scatola o di uno scaffale e FlipLens trova fino a 6 articoli, controlla ciascuno con annunci eBay reali (un controllo per articolo) e mostra per primi gli acquisti migliori. Oppure tieni la fotocamera aperta con il Radar live: mentre ti muovi gli articoli vengono inquadrati con il loro nome, e un tocco ne controlla il prezzo. I prezzi arrivano sempre da un controllo reale, mai da una supposizione. Entrambe le funzioni richiedono l'accesso con Google.` },
-      { q: 'Quali paesi copre FlipLens?', a: `I dati di mercato vengono da eBay Germania, Francia, Italia, Spagna e Paesi Bassi, in euro. Se vendi su eBay.co.uk (l'impostazione predefinita se il tuo paese è il Regno Unito), FlipLens usa gli annunci di eBay.co.uk e mostra i prezzi in sterline, con le commissioni per venditori privati del Regno Unito. Nel profilo puoi scegliere eBay.de o eBay.co.uk, qualunque sia il tuo paese. Per Vinted, Kleinanzeigen e altri marketplace ci sono link per controllare i prezzi da solo.` },
+      { q: 'Quali paesi copre FlipLens?', a: `I dati di mercato vengono da eBay Germania, Francia, Italia, Spagna e Paesi Bassi, in euro. Se vendi su eBay.co.uk (l'impostazione predefinita se il tuo paese è il Regno Unito), FlipLens usa gli annunci di eBay.co.uk e mostra i prezzi in sterline, con le commissioni per venditori privati del Regno Unito. Nel profilo puoi scegliere eBay.de o eBay.co.uk, qualunque sia il tuo paese. Nel risultato, il confronto Regno Unito vs UE mostra con un tocco lo stesso articolo su eBay.co.uk e sui cinque siti eBay UE affiancati, in sterline e in euro, senza usare un controllo. Per Vinted, Kleinanzeigen e altri marketplace ci sono link per controllare i prezzi da solo.` },
       { q: `Quanto è precisa la stima?`, a: `Dipende dal mercato. Ogni risultato mostra un indice di affidabilità, su quanti annunci si basa e i rischi. Quando i dati non bastano, FlipLens lo dice invece di tirare a indovinare. Nel Magazzino puoi registrare i tuoi prezzi di vendita reali e vedere quanto si avvicinavano le stime.` },
-      { q: 'Per quali marketplace vengono calcolate le commissioni?', a: `eBay.de per venditori privati e professionali, Vinted e ritiro di persona con pagamento in contanti. Ogni profilo commissioni mostra quando è stato verificato l'ultima volta.` },
+      { q: 'Per quali marketplace vengono calcolate le commissioni?', a: `eBay.de per venditori privati e professionali, eBay.co.uk per venditori privati, Vinted e ritiro di persona con pagamento in contanti. Ogni profilo commissioni mostra quando è stato verificato l'ultima volta.` },
       { q: 'FlipLens può scrivere il mio annuncio?', a: `Sì. Scatta una foto di qualsiasi articolo, anche abbigliamento, e FlipLens scrive titolo, descrizione e testo sulle condizioni nello stile di Vinted, eBay o Kleinanzeigen, nella tua lingua e pronti da copiare. Free include ${PLANS.free.monthlyListings} annunci al mese, Pro ${PLANS.pro.monthlyListings}. FlipLens non pubblica mai nulla al posto tuo.` },
       { q: `Esiste un'app per il telefono?`, a: `FlipLens è una web app che puoi installare sul telefono: apri fliplens.eu e scegli "Aggiungi alla schermata Home" (iPhone) o "Installa app" (Android). Da quel momento si apre a schermo intero come un'app normale.` },
       { q: 'Perché devo accedere?', a: `I tuoi controlli gratuiti, la cronologia e il piano sono legati al tuo account, così funzionano su tutti i tuoi dispositivi. Accedi con Google con un tocco; non serve creare una password.` },
@@ -162,7 +162,7 @@ const PAGES_IT: Page[] = [
       },
       {
         h2: 'Fallo in pochi secondi con FlipLens',
-        html: `<p>FlipLens fa tutti e cinque i passaggi partendo da una foto, un codice a barre o un modello scritto: riconosce la variante esatta, legge annunci eBay simili in cinque paesi UE, tiene conto di condizioni e prezzi richiesti, sottrae le commissioni del tuo marketplace e la spedizione e mostra il prezzo massimo che conviene pagare. Non hai nemmeno bisogno di conoscere il prezzo del venditore.</p>`,
+        html: `<p>FlipLens fa tutti e cinque i passaggi partendo da una foto, un codice a barre o un modello scritto: riconosce la variante esatta, legge annunci eBay simili in cinque paesi UE o su eBay.co.uk, tiene conto di condizioni e prezzi richiesti, sottrae le commissioni del tuo marketplace e la spedizione e mostra il prezzo massimo che conviene pagare. Non hai nemmeno bisogno di conoscere il prezzo del venditore.</p>`,
       },
     ],
     faq: [
@@ -210,11 +210,11 @@ const PAGES_IT: Page[] = [
     title: 'Dove vendere elettronica usata in Europa: eBay, Vinted, Kleinanzeigen o di persona',
     description: `eBay, Vinted, Kleinanzeigen e vendita in contanti di persona a confronto per l'elettronica usata in Europa: chi paga le commissioni, pubblico, velocità e quando conviene ciascuno.`,
     h1: 'Dove vendere elettronica usata in Europa',
-    lead: `Il marketplace migliore dipende dall'articolo, da quanto in fretta vuoi vendere e da chi paga le commissioni. Un confronto rapido per chi rivende nell'UE.`,
+    lead: `Il marketplace migliore dipende dall'articolo, da quanto in fretta vuoi vendere e da chi paga le commissioni. Un confronto rapido per chi rivende in Europa.`,
     sections: [
       {
         h2: 'eBay: il pubblico più ampio',
-        html: `<p>eBay ha siti nazionali in tutta Europa (Germania, Francia, Italia, Spagna, Paesi Bassi e altri) e acquirenti che cercano il modello esatto. È adatto ad articoli con un numero di modello chiaro: console, telefoni, cuffie, fotocamere e obiettivi. In Germania i venditori privati non pagano commissioni di vendita all'interno del paese; quelli professionali pagano una commissione in base alla categoria. Vedi <a href="${h('/guides/ebay-fees-germany')}">commissioni eBay.de</a>.</p>`,
+        html: `<p>eBay ha siti nazionali in tutta Europa (Germania, Regno Unito, Francia, Italia, Spagna, Paesi Bassi e altri) e acquirenti che cercano il modello esatto. È adatto ad articoli con un numero di modello chiaro: console, telefoni, cuffie, fotocamere e obiettivi. In Germania i venditori privati non pagano commissioni di vendita all'interno del paese; quelli professionali pagano una commissione in base alla categoria. Vedi <a href="${h('/guides/ebay-fees-germany')}">commissioni eBay.de</a>.</p>`,
       },
       {
         h2: 'Vinted: nessuna commissione per chi vende',
@@ -301,7 +301,7 @@ const PAGES_IT: Page[] = [
       },
       {
         h2: 'E il prezzo?',
-        html: `<p>FlipLens non legge i dati di Vinted. Dopo aver scritto il tuo annuncio, rimanda ad articoli simili su Vinted, così puoi confrontare i prezzi con un tocco. Per elettronica, giochi e fotocamere, FlipLens può anche <a href="${h('/how-it-works')}">stimare il valore di rivendita</a> in base agli annunci eBay in cinque paesi UE.</p>`,
+        html: `<p>FlipLens non legge i dati di Vinted. Dopo aver scritto il tuo annuncio, rimanda ad articoli simili su Vinted, così puoi confrontare i prezzi con un tocco. Per elettronica, giochi e fotocamere, FlipLens può anche <a href="${h('/how-it-works')}">stimare il valore di rivendita</a> in base agli annunci eBay in cinque paesi UE o su eBay.co.uk.</p>`,
       },
       {
         h2: 'Piani',
@@ -371,11 +371,11 @@ const PAGES_IT: Page[] = [
     sections: [
       {
         h2: 'In sintesi',
-        html: `<table><thead><tr><th>Metodo</th><th>Velocità</th><th>Dati</th><th>Prezzi di vendita o richiesti</th><th>Paesi</th><th>Costo</th></tr></thead><tbody><tr><td>FlipLens</td><td>Secondi, da foto, codice a barre o nome del modello</td><td>Annunci eBay attivi, filtrati e adattati alle condizioni</td><td>Prezzi richiesti, corretti al ribasso</td><td>Germania, Francia, Italia, Spagna, Paesi Bassi insieme</td><td>10 controlli gratis al mese, piani a pagamento per averne di più</td></tr><tr><td>Filtro eBay "Oggetti venduti"</td><td>Qualche minuto per articolo</td><td>Vendite concluse su un solo sito eBay</td><td>Prezzi di vendita</td><td>Un paese alla volta</td><td>Gratis</td></tr><tr><td>Ricerche su Vinted, Kleinanzeigen</td><td>Qualche minuto</td><td>Annunci locali attuali</td><td>Prezzi richiesti</td><td>Un marketplace e una zona</td><td>Gratis</td></tr><tr><td>Google Lens, poi una ricerca sul marketplace</td><td>Veloce da riconoscere, lento da valutare</td><td>Corrispondenza visiva, poi la tua ricerca</td><td>Quello che trovi</td><td>Tutti</td><td>Gratis</td></tr><tr><td>Siti di permuta e riacquisto</td><td>Offerta immediata</td><td>Il listino prezzi di chi compra</td><td>Un'offerta per comprare da te</td><td>Variabile</td><td>Gratis</td></tr></tbody></table>`,
+        html: `<table><thead><tr><th>Metodo</th><th>Velocità</th><th>Dati</th><th>Prezzi di vendita o richiesti</th><th>Paesi</th><th>Costo</th></tr></thead><tbody><tr><td>FlipLens</td><td>Secondi, da foto, codice a barre o nome del modello</td><td>Annunci eBay attivi, filtrati e adattati alle condizioni</td><td>Prezzi richiesti, corretti al ribasso</td><td>Germania, Francia, Italia, Spagna, Paesi Bassi insieme, oppure Regno Unito</td><td>10 controlli gratis al mese, piani a pagamento per averne di più</td></tr><tr><td>Filtro eBay "Oggetti venduti"</td><td>Qualche minuto per articolo</td><td>Vendite concluse su un solo sito eBay</td><td>Prezzi di vendita</td><td>Un paese alla volta</td><td>Gratis</td></tr><tr><td>Ricerche su Vinted, Kleinanzeigen</td><td>Qualche minuto</td><td>Annunci locali attuali</td><td>Prezzi richiesti</td><td>Un marketplace e una zona</td><td>Gratis</td></tr><tr><td>Google Lens, poi una ricerca sul marketplace</td><td>Veloce da riconoscere, lento da valutare</td><td>Corrispondenza visiva, poi la tua ricerca</td><td>Quello che trovi</td><td>Tutti</td><td>Gratis</td></tr><tr><td>Siti di permuta e riacquisto</td><td>Offerta immediata</td><td>Il listino prezzi di chi compra</td><td>Un'offerta per comprare da te</td><td>Variabile</td><td>Gratis</td></tr></tbody></table>`,
       },
       {
         h2: 'FlipLens',
-        html: `<p>FlipLens riconosce il modello esatto da una foto, un codice a barre o un nome scritto, legge annunci eBay attivi e paragonabili in cinque paesi UE, scarta altre varianti, bundle e articoli guasti, tiene conto delle condizioni e restituisce una fascia di rivendita, il tuo profitto dopo commissioni e spedizione e il massimo che dovresti pagare. <strong>Ideale per:</strong> decisioni d'acquisto rapide ai mercatini e sui siti di annunci, quando non vuoi fare ricerche a mano per ogni articolo. <strong>Limiti:</strong> lavora sui prezzi richiesti, non su prezzi di vendita confermati; copre elettronica di consumo, gaming, fotocamere ed elettroutensili, non la moda; se gli annunci paragonabili sono troppo pochi lo dice invece di stimare. Vedi <a href="${h('/how-it-works')}">come funziona</a>.</p>`,
+        html: `<p>FlipLens riconosce il modello esatto da una foto, un codice a barre o un nome scritto, legge annunci eBay attivi e paragonabili in cinque paesi UE o su eBay.co.uk, scarta altre varianti, bundle e articoli guasti, tiene conto delle condizioni e restituisce una fascia di rivendita, il tuo profitto dopo commissioni e spedizione e il massimo che dovresti pagare. <strong>Ideale per:</strong> decisioni d'acquisto rapide ai mercatini e sui siti di annunci, quando non vuoi fare ricerche a mano per ogni articolo. <strong>Limiti:</strong> lavora sui prezzi richiesti, non su prezzi di vendita confermati; copre elettronica di consumo, gaming, fotocamere ed elettroutensili, non la moda; se gli annunci paragonabili sono troppo pochi lo dice invece di stimare. Vedi <a href="${h('/how-it-works')}">come funziona</a>.</p>`,
       },
       {
         h2: 'Ricerca su eBay con il filtro "Oggetti venduti"',
@@ -399,7 +399,7 @@ const PAGES_IT: Page[] = [
       },
     ],
     faq: [
-      { q: 'Qual è il modo più preciso per trovare il valore di rivendita?', a: `I prezzi di vendita recenti per il modello esatto nelle stesse condizioni, al netto di commissioni e spedizione. Il filtro "Oggetti venduti" di eBay li mostra un paese alla volta; FlipLens dà una stima rapida su cinque paesi UE partendo dagli annunci attivi.` },
+      { q: 'Qual è il modo più preciso per trovare il valore di rivendita?', a: `I prezzi di vendita recenti per il modello esatto nelle stesse condizioni, al netto di commissioni e spedizione. Il filtro "Oggetti venduti" di eBay li mostra un paese alla volta; FlipLens dà una stima rapida su cinque paesi UE o su eBay.co.uk partendo dagli annunci attivi.` },
       { q: 'Perché le offerte di permuta sono così basse?', a: `Chi compra deve rivendere l'articolo e guadagnarci, quindi l'offerta è inferiore al prezzo di rivendita tra privati.` },
       { q: 'Esiste un modo gratuito per controllare il valore di rivendita?', a: `Sì. Le ricerche sui marketplace e il filtro "Oggetti venduti" di eBay sono gratuiti, e FlipLens include 10 controlli gratis al mese.` },
     ],
@@ -432,7 +432,7 @@ const PAGES_IT: Page[] = [
       },
       {
         h2: 'Dove vendere e come controllare in fretta',
-        html: `<p>Le console si vendono bene su eBay e di persona; vedi <a href="${h('/guides/where-to-sell-used-electronics-europe')}">dove vendere elettronica usata in Europa</a>. Per controllare una console in pochi secondi, scansiona il codice a barre o scrivi il modello in FlipLens: confronta gli annunci in cinque paesi UE e ti mostra il massimo che dovresti pagare. <a href="${h('/how-it-works')}">Come funziona</a>.</p>`,
+        html: `<p>Le console si vendono bene su eBay e di persona; vedi <a href="${h('/guides/where-to-sell-used-electronics-europe')}">dove vendere elettronica usata in Europa</a>. Per controllare una console in pochi secondi, scansiona il codice a barre o scrivi il modello in FlipLens: confronta gli annunci in cinque paesi UE o su eBay.co.uk e ti mostra il massimo che dovresti pagare. <a href="${h('/how-it-works')}">Come funziona</a>.</p>`,
       },
     ],
     faq: [
@@ -468,7 +468,7 @@ const PAGES_IT: Page[] = [
       },
       {
         h2: 'Dove vendere e come controllare in fretta',
-        html: `<p>Fotocamere e obiettivi si vendono bene su eBay in tutta Europa; vedi <a href="${h('/guides/where-to-sell-used-electronics-europe')}">dove vendere elettronica usata in Europa</a>. FlipLens legge modello e innesto da una foto dell'etichetta o del barilotto dell'obiettivo e confronta gli annunci in cinque paesi UE. <a href="${h('/how-it-works')}">Come funziona</a>.</p>`,
+        html: `<p>Fotocamere e obiettivi si vendono bene su eBay in tutta Europa; vedi <a href="${h('/guides/where-to-sell-used-electronics-europe')}">dove vendere elettronica usata in Europa</a>. FlipLens legge modello e innesto da una foto dell'etichetta o del barilotto dell'obiettivo e confronta gli annunci in cinque paesi UE o su eBay.co.uk. <a href="${h('/how-it-works')}">Come funziona</a>.</p>`,
       },
     ],
     faq: [
@@ -504,7 +504,7 @@ const PAGES_IT: Page[] = [
       },
       {
         h2: 'Dove vendere e come controllare in fretta',
-        html: `<p>Le cuffie si vendono bene su eBay e Vinted; vedi <a href="${h('/guides/where-to-sell-used-electronics-europe')}">dove vendere elettronica usata in Europa</a>. In FlipLens basta una foto dell'etichetta o il codice a barre della scatola per riconoscere la generazione e confrontare i prezzi in cinque paesi UE. <a href="${h('/how-it-works')}">Come funziona</a>.</p>`,
+        html: `<p>Le cuffie si vendono bene su eBay e Vinted; vedi <a href="${h('/guides/where-to-sell-used-electronics-europe')}">dove vendere elettronica usata in Europa</a>. In FlipLens basta una foto dell'etichetta o il codice a barre della scatola per riconoscere la generazione e confrontare i prezzi in cinque paesi UE o su eBay.co.uk. <a href="${h('/how-it-works')}">Come funziona</a>.</p>`,
       },
     ],
     faq: [
@@ -540,7 +540,7 @@ const PAGES_IT: Page[] = [
       },
       {
         h2: 'Dove vendere e come controllare in fretta',
-        html: `<p>I telefoni si vendono su eBay, sui siti di annunci e su Vinted; vedi <a href="${h('/guides/where-to-sell-used-electronics-europe')}">dove vendere elettronica usata in Europa</a>. FlipLens riconosce il modello da una foto o da un codice a barre, ti permette di impostare la memoria e confronta gli annunci in cinque paesi UE. <a href="${h('/how-it-works')}">Come funziona</a>.</p>`,
+        html: `<p>I telefoni si vendono su eBay, sui siti di annunci e su Vinted; vedi <a href="${h('/guides/where-to-sell-used-electronics-europe')}">dove vendere elettronica usata in Europa</a>. FlipLens riconosce il modello da una foto o da un codice a barre, ti permette di impostare la memoria e confronta gli annunci in cinque paesi UE o su eBay.co.uk. <a href="${h('/how-it-works')}">Come funziona</a>.</p>`,
       },
     ],
     faq: [
@@ -567,7 +567,7 @@ const PAGES_IT: Page[] = [
       },
       {
         h2: 'Da dove vengono i dati',
-        html: `<p>I prezzi vengono dagli annunci eBay attivi in Germania, Francia, Italia, Spagna e Paesi Bassi, letti tramite l'API ufficiale di eBay e convertiti in euro con i tassi di cambio della Banca centrale europea. Il riconoscimento degli articoli usa un modello di visione IA. Dettagli e limiti sono spiegati in <a href="${h('/how-it-works')}">come funziona</a>.</p>`,
+        html: `<p>I prezzi vengono dagli annunci eBay attivi, letti tramite l'API ufficiale di eBay: in Germania, Francia, Italia, Spagna e Paesi Bassi, convertiti in euro con i tassi di cambio della Banca centrale europea, oppure su eBay.co.uk in sterline per chi vende nel Regno Unito. Il riconoscimento degli articoli usa un modello di visione IA. Dettagli e limiti sono spiegati in <a href="${h('/how-it-works')}">come funziona</a>.</p>`,
       },
       {
         h2: 'Principi',
@@ -667,11 +667,11 @@ function homePrerenderIt(): string {
   return `<div class="prerender" lang="it">
       <header><strong>FlipLens</strong> · <a href="/it/how-it-works">Come funziona</a> · <a href="/it/pricing">Prezzi</a> · <a href="/it/guides">Guide</a> · <a href="/it/faq">FAQ</a> · <a href="/" hreflang="en" lang="en">English</a> · <a href="/de" hreflang="de" lang="de">Deutsch</a> · <a href="/fr" hreflang="fr" lang="fr">Français</a></header>
       <h1>Scopri quanto vale prima di comprarlo.</h1>
-      <p>Per chi rivende in Europa. Scatta una foto, scansiona il codice a barre o scrivi il modello: FlipLens ti mostra a quanto si rivende l'articolo su eBay in Germania, Francia, Italia, Spagna e Paesi Bassi, il tuo profitto al netto di commissioni e spedizione, il prezzo massimo da pagare e un verdetto chiaro: Ottimo affare, Compra, Al limite o Lascia stare.</p>
+      <p>Per chi rivende in Europa. Scatta una foto, scansiona il codice a barre o scrivi il modello: FlipLens ti mostra a quanto si rivende l'articolo su eBay in Germania, Francia, Italia, Spagna e Paesi Bassi o su eBay.co.uk, il tuo profitto al netto di commissioni e spedizione, il prezzo massimo da pagare e un verdetto chiaro: Ottimo affare, Compra, Al limite o Lascia stare.</p>
       <h2>Tre tocchi, pochi secondi</h2>
       <ol><li>Scansiona: foto dell'articolo o della sua etichetta, codice a barre sulla confezione, oppure scrivi semplicemente il modello.</li><li>Inserisci il prezzo (facoltativo): senza prezzo ottieni il prezzo massimo che conviene pagare.</li><li>Ricevi il verdetto, con i numeri e i motivi che ci stanno dietro.</li></ol>
       <h2>Fatto per decidere cosa comprare, non per tirare a indovinare</h2>
-      <ul><li>Il modello esatto, non "cuffie": varianti sbagliate, accessori, bundle e articoli guasti vengono scartati.</li><li>Dati di mercato aggiornati da eBay in cinque paesi UE, convertiti in euro. Puoi vedere ogni annuncio usato.</li><li>Profitto al netto delle commissioni del marketplace e della spedizione, più il prezzo massimo che conviene pagare.</li><li>Onesto sull'incertezza: ogni verdetto mostra la sua affidabilità; dati insufficienti significa nessun numero.</li><li>Vendi? Trasforma la foto di qualsiasi articolo, anche abbigliamento, in un annuncio per Vinted, eBay o Kleinanzeigen: <a href="/it/vinted-listing-generator">generatore di annunci</a>.</li></ul>
+      <ul><li>Il modello esatto, non "cuffie": varianti sbagliate, accessori, bundle e articoli guasti vengono scartati.</li><li>Dati di mercato aggiornati da eBay in cinque paesi UE (in euro) o da eBay.co.uk (in sterline). Puoi vedere ogni annuncio usato.</li><li>Profitto al netto delle commissioni del marketplace e della spedizione, più il prezzo massimo che conviene pagare.</li><li>Onesto sull'incertezza: ogni verdetto mostra la sua affidabilità; dati insufficienti significa nessun numero.</li><li>Vendi? Trasforma la foto di qualsiasi articolo, anche abbigliamento, in un annuncio per Vinted, eBay o Kleinanzeigen: <a href="/it/vinted-listing-generator">generatore di annunci</a>.</li></ul>
       <h2>Prezzi</h2>
       <ul>${plans.map((p) => `<li>${esc(p.name)}: ${p.priceMonthlyMinor ? `${eur(p.priceMonthlyMinor)} al mese` : 'gratis'}. ${(IT_FEATURES[p.id] ?? []).map(esc).join(', ')}.</li>`).join('')}</ul>
       <h2>Domande</h2>
@@ -688,7 +688,7 @@ export const IT: LangPack = {
   ui: UI_IT,
   home: {
     title: `FlipLens: conviene comprarlo per rivenderlo? Valore di rivendita in Europa`,
-    description: `Foto, codice a barre o nome del modello: FlipLens ti mostra a quanto si rivendono elettronica usata, console e fotocamere su eBay in 5 paesi UE, il tuo profitto al netto delle commissioni e il prezzo massimo. Con annunci scritti dall'IA per Vinted ed eBay. 10 controlli gratis al mese.`,
+    description: `Foto, codice a barre o modello: a quanto si rivende l'usato su eBay in 5 paesi UE e nel Regno Unito, il tuo profitto e il prezzo massimo. 10 controlli gratis al mese.`,
     prerender: homePrerenderIt(),
   },
 };

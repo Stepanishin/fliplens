@@ -15,7 +15,7 @@ You take a photo of the item or its label, scan the barcode on the box, or type 
 
 ### 2. Find comparable listings
 
-FlipLens searches current eBay listings in Germany, France, Italy, Spain and the Netherlands through the official eBay API and converts prices to euro with European Central Bank rates. It then filters out what would distort the price: other models and variants, accessories sold on their own, bundles, broken or "for parts" items, duplicates and listings in a very different condition. You can see every listing that was used and why others were removed.
+FlipLens searches current eBay listings through the official eBay API: in Germany, France, Italy, Spain and the Netherlands, with prices converted to euro at European Central Bank rates, or on eBay.co.uk in pounds if you sell in the UK (the default there, selectable from any country). One tap on the result shows a UK vs EU comparison: the same item on eBay.co.uk and on the five EU sites side by side, in pounds and euros, without using a check. It then filters out what would distort the price: other models and variants, accessories sold on their own, bundles, broken or "for parts" items, duplicates and listings in a very different condition. You can see every listing that was used and why others were removed.
 
 ### 3. Estimate the resale value
 
@@ -23,7 +23,7 @@ From the remaining listings FlipLens builds a price distribution adjusted to you
 
 ### 4. Calculate profit after fees
 
-FlipLens subtracts the selling fees of the marketplace you sell on (for example eBay.de private or business, Vinted or local pickup), your shipping cost and the purchase price. The result is profit, return on investment (ROI) and the maximum price worth paying for your target ROI: max price = money you keep after fees and shipping ÷ (1 + target ROI).
+FlipLens subtracts the selling fees of the marketplace you sell on (for example eBay.de private or business, eBay.co.uk private, Vinted or local pickup), your shipping cost and the purchase price. The result is profit, return on investment (ROI) and the maximum price worth paying for your target ROI: max price = money you keep after fees and shipping ÷ (1 + target ROI).
 
 ### 5. Give a verdict, or say it does not know
 
@@ -73,10 +73,10 @@ URL: https://fliplens.eu/faq
 Short answers about how FlipLens works and what it can and cannot do.
 
 **What is FlipLens?**
-FlipLens is a web app for resellers in Europe. Take a photo, scan a barcode or type a model, and it tells you what the item resells for on eBay in Germany, France, Italy, Spain and the Netherlands, your profit after fees and shipping, the most you should pay, and a verdict: strong buy, buy, borderline or skip.
+FlipLens is a web app for resellers in Europe. Take a photo, scan a barcode or type a model, and it tells you what the item resells for on eBay in Germany, France, Italy, Spain and the Netherlands or on eBay.co.uk in the UK, your profit after fees and shipping, the most you should pay, and a verdict: strong buy, buy, borderline or skip.
 
 **Where do the prices come from?**
-From active eBay listings in five EU countries, read through the official eBay API and converted to euro with ECB exchange rates. Asking prices are usually above what items finally sell for, so FlipLens adjusts them down and always shows how many listings an estimate is based on. You can open every listing it used.
+From active eBay listings, read through the official eBay API: eBay in five EU countries in euro (converted with ECB exchange rates), or eBay.co.uk in pounds if you sell in the UK. Asking prices are usually above what items finally sell for, so FlipLens adjusts them down and always shows how many listings an estimate is based on. You can open every listing it used.
 
 **Which items work best?**
 Consumer electronics, gaming and cameras: headphones, smartphones, tablets, laptops, smartwatches, speakers, consoles, handhelds, controllers, games, camera bodies, lenses, action and compact cameras, plus power tools. Fashion is not supported yet.
@@ -94,13 +94,13 @@ No. FlipLens is independent and shows eBay data through the official eBay API. I
 Yes. Take one photo of a stall, a box or a shelf and FlipLens finds up to 6 items, checks each against real eBay listings (one check per item) and lists the best buys first. Or keep the camera open with the live radar: items get a box with their name as you move, and a tap checks the price. Prices only ever come from a real check, never from a guess. Both need a Google sign-in.
 
 **Which countries does FlipLens cover?**
-Market data comes from eBay Germany, France, Italy, Spain and the Netherlands, in euro. If you sell on eBay.co.uk (the default when your country is the United Kingdom), FlipLens uses eBay.co.uk listings and shows prices in pounds, with UK private seller fees. You can pick eBay.de or eBay.co.uk in your profile whatever your country. Links to check prices yourself are available for Vinted, Kleinanzeigen and other marketplaces.
+The UK and five EU countries. If you sell on eBay.co.uk (the default when your country is the United Kingdom), FlipLens uses eBay.co.uk listings and shows prices in pounds, with UK private seller fees. Otherwise market data comes from eBay Germany, France, Italy, Spain and the Netherlands, in euro. You can pick eBay.de or eBay.co.uk in your profile whatever your country, and the UK vs EU comparison on the result shows the same item on eBay.co.uk and on the five EU sites side by side, in pounds and euros, without using a check. Links to check prices yourself are available for Vinted, Kleinanzeigen and other marketplaces.
 
 **How accurate is the estimate?**
 It depends on the market. Every result shows a confidence score, how many listings it is based on and the risks. When there is not enough data, FlipLens says so instead of guessing. You can track your real sale prices in Stock and see how close the estimates were.
 
 **Which marketplaces are the fees calculated for?**
-eBay.de for private and business sellers, Vinted and local pickup with cash. Each fee profile shows when it was last checked.
+eBay.de for private and business sellers, eBay.co.uk for private sellers, Vinted and local pickup with cash. Each fee profile shows when it was last checked.
 
 **Can FlipLens write my listing?**
 Yes. Take a photo of any item, clothes included, and FlipLens writes a title, description and condition text in the style of Vinted, eBay or Kleinanzeigen, in your language, ready to copy. Free includes 3 listings a month, Pro 100. FlipLens never posts on your behalf.
@@ -140,7 +140,7 @@ Decide the return you want, then divide what you keep by 1 plus that return. Exa
 
 ### Do it in seconds with FlipLens
 
-FlipLens does all five steps from a photo, a barcode or a typed model: it identifies the exact variant, reads comparable eBay listings in five EU countries, adjusts for condition and asking prices, subtracts your marketplace fees and shipping, and shows the maximum price worth paying. You do not even need to know the seller's price.
+FlipLens does all five steps from a photo, a barcode or a typed model: it identifies the exact variant, reads comparable eBay listings in five EU countries or on eBay.co.uk, adjusts for condition and asking prices, subtracts your marketplace fees and shipping, and shows the maximum price worth paying. You do not even need to know the seller's price.
 
 **How do I know what something will resell for?**
 Identify the exact model, compare it with similar listings in the same condition, take the realistic middle of the range rather than the top asking price, then subtract selling fees and shipping.
@@ -287,7 +287,7 @@ The writer describes only what is visible in your photos or written in your deta
 
 ### What about the price?
 
-FlipLens does not read Vinted data. After writing your listing it links to similar items on Vinted so you can compare prices in a tap. For electronics, games and cameras, FlipLens can also estimate the resale value (/how-it-works) from eBay listings in five EU countries.
+FlipLens does not read Vinted data. After writing your listing it links to similar items on Vinted so you can compare prices in a tap. For electronics, games and cameras, FlipLens can also estimate the resale value (/how-it-works) from eBay listings in five EU countries or on eBay.co.uk.
 
 ### Plans
 
@@ -359,7 +359,7 @@ There is no single perfect source for second-hand prices. Each method below answ
 ### At a glance
 
 MethodSpeedDataSold or asking pricesCountriesCost
- | FlipLens | Seconds, from a photo, barcode or model name | Active eBay listings, filtered and adjusted for condition | Asking prices, adjusted down | Germany, France, Italy, Spain, Netherlands at once | 10 free checks a month, paid plans for more
+ | FlipLens | Seconds, from a photo, barcode or model name | Active eBay listings, filtered and adjusted for condition | Asking prices, adjusted down | Germany, France, Italy, Spain, Netherlands at once, or the UK | 10 free checks a month, paid plans for more
  | eBay "Sold items" filter | A few minutes per item | Completed sales on one eBay site | Sold prices | One country at a time | Free
  | Vinted, Kleinanzeigen searches | A few minutes | Current local listings | Asking prices | One marketplace and region | Free
  | Google Lens, then a marketplace search | Fast to identify, slow to price | Visual match, then your own search | Whatever you find | Any | Free
@@ -367,7 +367,7 @@ MethodSpeedDataSold or asking pricesCountriesCost
 
 ### FlipLens
 
-FlipLens identifies the exact model from a photo, barcode or typed name, reads comparable active eBay listings in five EU countries, removes other variants, bundles and broken items, adjusts for condition and returns a resale range, your profit after fees and shipping and the most you should pay. Good for: fast buying decisions at flea markets and on classifieds, when you do not want to research every item by hand. Limits: it works from asking prices, not confirmed sale prices; it covers consumer electronics, gaming, cameras and power tools, not fashion; if there are too few comparable listings it says so instead of estimating. See how it works (/how-it-works).
+FlipLens identifies the exact model from a photo, barcode or typed name, reads comparable active eBay listings in five EU countries or on eBay.co.uk, removes other variants, bundles and broken items, adjusts for condition and returns a resale range, your profit after fees and shipping and the most you should pay. Good for: fast buying decisions at flea markets and on classifieds, when you do not want to research every item by hand. Limits: it works from asking prices, not confirmed sale prices; it covers consumer electronics, gaming, cameras and power tools, not fashion; if there are too few comparable listings it says so instead of estimating. See how it works (/how-it-works).
 
 ### eBay search with the "Sold items" filter
 
@@ -394,7 +394,7 @@ Some shops and websites make an instant offer to buy your used phone, console or
 - You just want it gone: a trade-in offer, knowing it is the lowest number.
 
 **What is the most accurate way to find resale value?**
-Recent sold prices for the exact model in the same condition, adjusted for fees and shipping. eBay's sold filter shows them for one country at a time; FlipLens gives a fast estimate across five EU countries from active listings.
+Recent sold prices for the exact model in the same condition, adjusted for fees and shipping. eBay's sold filter shows them for one country at a time; FlipLens gives a fast estimate from active listings across five EU countries or on eBay.co.uk.
 
 **Why are trade-in offers so low?**
 The buyer has to resell the item and make a profit, so the offer is below the private resale price.
@@ -438,7 +438,7 @@ Controllers are checked for stick drift and worn buttons; official controllers s
 
 ### Where to sell and how to check quickly
 
-Consoles sell well on eBay and locally; see where to sell used electronics in Europe (/guides/where-to-sell-used-electronics-europe). To check a console in seconds, scan its barcode or type the model in FlipLens: it compares listings in five EU countries and shows the most you should pay. How it works (/how-it-works).
+Consoles sell well on eBay and locally; see where to sell used electronics in Europe (/guides/where-to-sell-used-electronics-europe). To check a console in seconds, scan its barcode or type the model in FlipLens: it compares listings on eBay in five EU countries or on eBay.co.uk and shows the most you should pay. How it works (/how-it-works).
 
 **How do I find out which console model I have?**
 Look for the model number on the bottom or back of the console or in the system settings. It tells you the exact version and often the storage size.
@@ -484,7 +484,7 @@ Camera gear keeps its value better than most electronics, but a single problem s
 
 ### Where to sell and how to check quickly
 
-Cameras and lenses sell well on eBay across Europe; see where to sell used electronics in Europe (/guides/where-to-sell-used-electronics-europe). FlipLens reads the model and mount from a photo of the label or lens barrel and compares listings in five EU countries. How it works (/how-it-works).
+Cameras and lenses sell well on eBay across Europe; see where to sell used electronics in Europe (/guides/where-to-sell-used-electronics-europe). FlipLens reads the model and mount from a photo of the label or lens barrel and compares listings on eBay in five EU countries or on eBay.co.uk. How it works (/how-it-works).
 
 **How do I check a used lens for fungus?**
 Shine a bright light through the lens from the back and look for thread-like patterns, spots or a milky haze inside the glass.
@@ -527,7 +527,7 @@ Many buyers are cautious about used in-ear products. Clean them carefully, repla
 
 ### Where to sell and how to check quickly
 
-Headphones sell well on eBay and Vinted; see where to sell used electronics in Europe (/guides/where-to-sell-used-electronics-europe). In FlipLens a photo of the label or the box barcode is enough to identify the generation and compare prices in five EU countries. How it works (/how-it-works).
+Headphones sell well on eBay and Vinted; see where to sell used electronics in Europe (/guides/where-to-sell-used-electronics-europe). In FlipLens a photo of the label or the box barcode is enough to identify the generation and compare prices on eBay in five EU countries or on eBay.co.uk. How it works (/how-it-works).
 
 **How do I tell headphone generations apart?**
 Read the model number printed on the headband, case or box, or in the companion app or Bluetooth settings.
@@ -571,7 +571,7 @@ A phone that is still linked to the previous owner's account (for example Apple'
 
 ### Where to sell and how to check quickly
 
-Phones sell on eBay, classifieds and Vinted; see where to sell used electronics in Europe (/guides/where-to-sell-used-electronics-europe). FlipLens identifies the model from a photo or barcode, lets you set the storage, and compares listings in five EU countries. How it works (/how-it-works).
+Phones sell on eBay, classifieds and Vinted; see where to sell used electronics in Europe (/guides/where-to-sell-used-electronics-europe). FlipLens identifies the model from a photo or barcode, lets you set the storage, and compares listings on eBay in five EU countries or on eBay.co.uk. How it works (/how-it-works).
 
 **What should I check before buying a used phone?**
 That it is signed out of all accounts and reset, not locked to a network, has the storage you expect, a healthy battery, and a working screen, cameras and charging port.
@@ -596,7 +596,7 @@ FlipLens is run by Evgenii Stepanishin in Slovenia. Contact: support@fliplens.eu
 
 ### Where the data comes from
 
-Prices come from active eBay listings in Germany, France, Italy, Spain and the Netherlands, read through the official eBay API and converted to euro with European Central Bank exchange rates. Item recognition uses an AI vision model. Details and limits are explained in how it works (/how-it-works).
+Prices come from active eBay listings, read through the official eBay API: in Germany, France, Italy, Spain and the Netherlands, converted to euro with European Central Bank exchange rates, or on eBay.co.uk in pounds for sellers in the UK. Item recognition uses an AI vision model. Details and limits are explained in how it works (/how-it-works).
 
 ### Principles
 
