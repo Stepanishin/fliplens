@@ -7,7 +7,7 @@ import { api } from '../api.js';
 import { inviteCode } from '../track.js';
 import { track } from '../track.js';
 import { LANG, LANG_NAMES, LANGS, langHome, money, planFeatures, setLang, tr } from '../i18n.js';
-import { IconBarcode, IconCamera, IconCheck, IconClock, IconEdit, IconScan, IconSpark } from '../ui/icons.js';
+import { IconBag, IconBarcode, IconCamera, IconCheck, IconClock, IconEdit, IconScan, IconSpark } from '../ui/icons.js';
 
 interface Props {
   /** Signed-in visitors (e.g. on /welcome) get "Open app" instead of the sign-in buttons. */
@@ -39,6 +39,10 @@ const T = tr({
     navHow: 'How it works',
     navPricing: 'Pricing',
     badge: 'For resellers in the UK and Europe',
+    worksFor: "Works for",
+    cats: ["Electronics", "Consoles & games", "Cameras", "Sneakers", "Branded clothes", "Bags"] as readonly string[],
+    f7: "Clothes, sneakers and bags too",
+    f7Text: "Photograph the item and its label. FlipLens reads the brand and the type and compares it with listings of the same brand and type, for women, men or kids. Then turn the same photo into a Vinted listing.",
     h1a: "Know what it's worth ",
     h1b: 'before you buy it.',
     lead: 'Snap a photo or scan the barcode at the flea market, enter the asking price, and get a clear buy or skip, with resale value, profit after fees and ROI from live marketplace listings.',
@@ -121,6 +125,10 @@ const T = tr({
     navHow: 'So funktioniert es',
     navPricing: 'Preise',
     badge: 'Für Reseller in Europa und Großbritannien',
+    worksFor: "Funktioniert für",
+    cats: ["Elektronik", "Konsolen & Spiele", "Kameras", "Sneaker", "Markenkleidung", "Taschen"] as readonly string[],
+    f7: "Auch Kleidung, Sneaker und Taschen",
+    f7Text: "Fotografier den Artikel und sein Etikett. FlipLens liest Marke und Art und vergleicht mit Angeboten derselben Marke und Art, für Damen, Herren oder Kinder. Aus demselben Foto wird dann die Vinted-Anzeige.",
     h1a: 'Wisse, was es wert ist, ',
     h1b: 'bevor du es kaufst.',
     lead: 'Mach auf dem Flohmarkt ein Foto oder scann den Barcode, gib den Preis ein und erhalte ein klares Kaufen oder Finger weg, mit Wiederverkaufswert, Gewinn nach Gebühren und ROI aus aktuellen Marktplatz-Angeboten.',
@@ -203,6 +211,10 @@ const T = tr({
     navHow: 'Come funziona',
     navPricing: 'Prezzi',
     badge: 'Per chi rivende in Europa e nel Regno Unito',
+    worksFor: "Funziona per",
+    cats: ["Elettronica", "Console e giochi", "Fotocamere", "Sneakers", "Abbigliamento di marca", "Borse"] as readonly string[],
+    f7: "Anche abbigliamento, sneakers e borse",
+    f7Text: "Fotografa il capo e la sua etichetta. FlipLens legge marca e tipo e lo confronta con annunci della stessa marca e dello stesso tipo, per donna, uomo o bambini. Poi dalla stessa foto nasce l’annuncio Vinted.",
     h1a: 'Scopri quanto vale ',
     h1b: 'prima di comprarlo.',
     lead: "Al mercatino fai una foto o scansiona il codice a barre, inserisci il prezzo richiesto e ricevi un chiaro compra o lascia stare, con valore di rivendita, profitto al netto delle commissioni e ROI da annunci attuali dei marketplace.",
@@ -285,6 +297,10 @@ const T = tr({
     navHow: 'Comment ça marche',
     navPricing: 'Tarifs',
     badge: 'Pour les revendeurs en Europe et au Royaume-Uni',
+    worksFor: "Fonctionne pour",
+    cats: ["Électronique", "Consoles et jeux", "Appareils photo", "Baskets", "Vêtements de marque", "Sacs"] as readonly string[],
+    f7: "Aussi les vêtements, baskets et sacs",
+    f7Text: "Photographie l’article et son étiquette. FlipLens lit la marque et le type et le compare aux annonces de la même marque et du même type, pour femme, homme ou enfant. Ensuite, la même photo devient ton annonce Vinted.",
     h1a: 'Sache ce que ça vaut ',
     h1b: 'avant de l’acheter.',
     lead: "Prends une photo ou scanne le code-barres au vide-grenier, saisis le prix demandé et obtiens un verdict clair, acheter ou passer ton chemin, avec la valeur de revente, le bénéfice après frais et le ROI à partir d'annonces actuelles.",
@@ -399,6 +415,9 @@ export function Landing({ signedIn, onOpenApp, googleClientId, authError, onGoog
           <span className="lp-badge"><IconSpark size={14} /> {T.badge}</span>
           <h1>{T.h1a}<span>{T.h1b}</span></h1>
           <p className="lp-lead">{T.lead}</p>
+          <ul className="lp-cats" aria-label={T.worksFor}>
+            {T.cats.map((c) => <li key={c}>{c}</li>)}
+          </ul>
           <div className="lp-cta">
             {signIn}
             {!signedIn && <p className="lp-free-note">{T.freeNote(PLANS.free.monthlyValuations)}</p>}
@@ -498,6 +517,11 @@ export function Landing({ signedIn, onOpenApp, googleClientId, authError, onGoog
       <section className="lp-section">
         <h2>{T.featuresTitle}</h2>
         <div className="lp-features">
+          <div className="lp-feature lp-feature-wide">
+            <IconBag />
+            <h3>{T.f7}</h3>
+            <p>{T.f7Text}</p>
+          </div>
           <div className="lp-feature">
             <IconBarcode />
             <h3>{T.f1}</h3>

@@ -1445,7 +1445,7 @@ function renderPage(p: Page, lang: Lang): string {
 // ---------- index.html (the app shell): meta, JSON-LD, prerendered landing ----------
 
 const HOME_TITLE = 'FlipLens: is it worth buying to resell? Resale value checker for the UK and Europe';
-const HOME_DESC = 'Photo, barcode or model name: see what second-hand electronics, consoles and cameras resell for on eBay in the UK and 5 EU countries, your profit and the most to pay.';
+const HOME_DESC = 'Photo, barcode or model: see what used electronics, sneakers and branded clothes resell for on eBay in the UK and 5 EU countries, your profit and the most to pay.';
 
 function homeHead(): string {
   return head({
@@ -1482,7 +1482,7 @@ function homePrerender(): string {
       <h2>Three taps, a few seconds</h2>
       <ol><li>Scan it: photo of the item or its label, the barcode on the box, or just type the model.</li><li>Enter the price (optional): without it you get the maximum price worth paying.</li><li>Get the verdict, with the numbers and the reasons behind it.</li></ol>
       <h2>Built for buying decisions, not guesses</h2>
-      <ul><li>Exact model, not "headphones": wrong variants, accessories, bundles and broken items are filtered out.</li><li>Live market data from eBay in five EU countries in euro, or from eBay.co.uk in pounds. You can see every listing used.</li><li>Profit after marketplace fees and shipping, plus the maximum price worth paying.</li><li>Honest about uncertainty: every verdict shows its confidence; not enough data means no number.</li><li>Selling? Turn a photo of any item, clothes included, into a Vinted, eBay or Kleinanzeigen listing: <a href="/vinted-listing-generator">listing generator</a>.</li></ul>
+      <ul><li>Electronics, consoles, cameras, sneakers, branded clothes and bags. Clothes are priced by brand, type and condition, for women, men or kids.</li><li>Exact model, not "headphones": wrong variants, accessories, bundles and broken items are filtered out.</li><li>Live market data from eBay in five EU countries in euro, or from eBay.co.uk in pounds. You can see every listing used.</li><li>Profit after marketplace fees and shipping, plus the maximum price worth paying.</li><li>Honest about uncertainty: every verdict shows its confidence; not enough data means no number.</li><li>Selling? Turn a photo of any item, clothes included, into a Vinted, eBay or Kleinanzeigen listing: <a href="/vinted-listing-generator">listing generator</a>.</li></ul>
       <h2>Pricing</h2>
       <ul>${plans.map((p) => `<li>${esc(p.name)}: ${p.priceMonthlyMinor ? `${eur(p.priceMonthlyMinor)} per month` : 'free'}. ${p.features.map(esc).join(', ')}.</li>`).join('')}</ul>
       <h2>Questions</h2>
@@ -1502,7 +1502,7 @@ function homePrerenderDe(): string {
       <h2>Drei Tipps, ein paar Sekunden</h2>
       <ol><li>Scannen: Foto vom Artikel oder Typenschild, Barcode auf der Verpackung oder einfach das Modell eintippen.</li><li>Preis eingeben (optional): Ohne Preis bekommst du den Höchstpreis, der sich noch lohnt.</li><li>Urteil bekommen, mit den Zahlen und den Gründen dahinter.</li></ol>
       <h2>Gebaut für Kaufentscheidungen, nicht fürs Raten</h2>
-      <ul><li>Genaues Modell statt "Kopfhörer": falsche Varianten, Zubehör, Bundles und defekte Artikel werden aussortiert.</li><li>Aktuelle Marktdaten von eBay in fünf EU-Ländern in Euro oder von eBay.co.uk in Pfund. Du siehst jedes verwendete Angebot.</li><li>Gewinn nach Marktplatzgebühren und Versand, dazu der Höchstpreis, der sich noch lohnt.</li><li>Ehrlich bei Unsicherheit: Jedes Urteil zeigt seine Sicherheit; zu wenig Daten heißt keine Zahl.</li><li>Du verkaufst? Mach aus dem Foto eines beliebigen Artikels, auch Kleidung, eine Anzeige für Vinted, eBay oder Kleinanzeigen: <a href="/de/vinted-listing-generator">Anzeigen-Generator</a>.</li></ul>
+      <ul><li>Elektronik, Konsolen, Kameras, Sneaker, Markenkleidung und Taschen. Kleidung wird nach Marke, Art und Zustand bewertet, für Damen, Herren oder Kinder.</li><li>Genaues Modell statt "Kopfhörer": falsche Varianten, Zubehör, Bundles und defekte Artikel werden aussortiert.</li><li>Aktuelle Marktdaten von eBay in fünf EU-Ländern in Euro oder von eBay.co.uk in Pfund. Du siehst jedes verwendete Angebot.</li><li>Gewinn nach Marktplatzgebühren und Versand, dazu der Höchstpreis, der sich noch lohnt.</li><li>Ehrlich bei Unsicherheit: Jedes Urteil zeigt seine Sicherheit; zu wenig Daten heißt keine Zahl.</li><li>Du verkaufst? Mach aus dem Foto eines beliebigen Artikels, auch Kleidung, eine Anzeige für Vinted, eBay oder Kleinanzeigen: <a href="/de/vinted-listing-generator">Anzeigen-Generator</a>.</li></ul>
       <h2>Preise</h2>
       <ul>${plans.map((p) => `<li>${esc(p.name)}: ${p.priceMonthlyMinor ? `${deEur(p.priceMonthlyMinor)} pro Monat` : 'kostenlos'}. ${(DE_FEATURES[p.id] ?? []).map(esc).join(', ')}.</li>`).join('')}</ul>
       <h2>Fragen</h2>
@@ -1521,7 +1521,7 @@ const PACKS: Record<Lang, LangPack> = {
     ui: UI.de,
     home: {
       title: 'FlipLens: Lohnt sich der Kauf zum Wiederverkauf? Wiederverkaufswert-Check für Europa',
-      description: 'Foto, Barcode oder Modellname: FlipLens zeigt, was gebrauchte Elektronik, Konsolen und Kameras auf eBay in UK und 5 EU-Ländern bringen, deinen Gewinn und den Höchstpreis.',
+      description: 'Foto, Barcode oder Modell: FlipLens zeigt, was gebrauchte Elektronik, Sneaker und Markenkleidung auf eBay in UK und 5 EU-Ländern bringen, deinen Gewinn und den Höchstpreis.',
       prerender: homePrerenderDe(),
     },
   },

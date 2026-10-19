@@ -671,7 +671,7 @@ function homePrerenderIt(): string {
       <h2>Tre tocchi, pochi secondi</h2>
       <ol><li>Scansiona: foto dell'articolo o della sua etichetta, codice a barre sulla confezione, oppure scrivi semplicemente il modello.</li><li>Inserisci il prezzo (facoltativo): senza prezzo ottieni il prezzo massimo che conviene pagare.</li><li>Ricevi il verdetto, con i numeri e i motivi che ci stanno dietro.</li></ol>
       <h2>Fatto per decidere cosa comprare, non per tirare a indovinare</h2>
-      <ul><li>Il modello esatto, non "cuffie": varianti sbagliate, accessori, bundle e articoli guasti vengono scartati.</li><li>Dati di mercato aggiornati da eBay in cinque paesi UE (in euro) o da eBay.co.uk (in sterline). Puoi vedere ogni annuncio usato.</li><li>Profitto al netto delle commissioni del marketplace e della spedizione, più il prezzo massimo che conviene pagare.</li><li>Onesto sull'incertezza: ogni verdetto mostra la sua affidabilità; dati insufficienti significa nessun numero.</li><li>Vendi? Trasforma la foto di qualsiasi articolo, anche abbigliamento, in un annuncio per Vinted, eBay o Kleinanzeigen: <a href="/it/vinted-listing-generator">generatore di annunci</a>.</li></ul>
+      <ul><li>Elettronica, console, fotocamere, sneakers, abbigliamento di marca e borse. I capi sono valutati per marca, tipo e condizione, per donna, uomo o bambini.</li><li>Il modello esatto, non "cuffie": varianti sbagliate, accessori, bundle e articoli guasti vengono scartati.</li><li>Dati di mercato aggiornati da eBay in cinque paesi UE (in euro) o da eBay.co.uk (in sterline). Puoi vedere ogni annuncio usato.</li><li>Profitto al netto delle commissioni del marketplace e della spedizione, più il prezzo massimo che conviene pagare.</li><li>Onesto sull'incertezza: ogni verdetto mostra la sua affidabilità; dati insufficienti significa nessun numero.</li><li>Vendi? Trasforma la foto di qualsiasi articolo, anche abbigliamento, in un annuncio per Vinted, eBay o Kleinanzeigen: <a href="/it/vinted-listing-generator">generatore di annunci</a>.</li></ul>
       <h2>Prezzi</h2>
       <ul>${plans.map((p) => `<li>${esc(p.name)}: ${p.priceMonthlyMinor ? `${eur(p.priceMonthlyMinor)} al mese` : 'gratis'}. ${(IT_FEATURES[p.id] ?? []).map(esc).join(', ')}.</li>`).join('')}</ul>
       <h2>Domande</h2>
@@ -688,7 +688,7 @@ export const IT: LangPack = {
   ui: UI_IT,
   home: {
     title: `FlipLens: conviene comprarlo per rivenderlo? Valore di rivendita in Europa`,
-    description: `Foto, codice a barre o modello: a quanto si rivende l'usato su eBay in 5 paesi UE e nel Regno Unito, il tuo profitto e il prezzo massimo. 10 controlli gratis al mese.`,
+    description: `Foto, codice a barre o modello: a quanto si rivendono elettronica, sneakers e abbigliamento di marca su eBay in UE e Regno Unito, il tuo profitto e il prezzo massimo.`,
     prerender: homePrerenderIt(),
   },
 };

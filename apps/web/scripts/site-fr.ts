@@ -669,7 +669,7 @@ function homePrerender(): string {
       <h2>Trois appuis, quelques secondes</h2>
       <ol><li>Scanne: photo de l'article ou de son étiquette, code-barres sur la boîte, ou tape simplement le modèle.</li><li>Saisis le prix (facultatif): sans prix, tu obtiens le prix maximum à payer.</li><li>Obtiens le verdict, avec les chiffres et les raisons.</li></ol>
       <h2>Fait pour décider, pas pour deviner</h2>
-      <ul><li>Le modèle exact, pas juste « un casque »: mauvaises variantes, accessoires, lots et articles en panne sont écartés.</li><li>Données de marché en direct d'eBay dans cinq pays de l'UE, en euros, ou sur eBay.co.uk, en livres sterling. Tu vois chaque annonce utilisée.</li><li>Bénéfice après frais de la plateforme et livraison, plus le prix maximum à payer.</li><li>Honnête sur l'incertitude: chaque verdict affiche son indice de confiance; pas assez de données, pas de chiffre.</li><li>Tu vends? Transforme la photo de n'importe quel article, vêtements compris, en annonce Vinted, eBay ou Kleinanzeigen: <a href="/fr/vinted-listing-generator">générateur d'annonces</a>.</li></ul>
+      <ul><li>Électronique, consoles, appareils photo, baskets, vêtements de marque et sacs. Les vêtements sont estimés selon la marque, le type et l'état, pour femme, homme ou enfant.</li><li>Le modèle exact, pas juste « un casque »: mauvaises variantes, accessoires, lots et articles en panne sont écartés.</li><li>Données de marché en direct d'eBay dans cinq pays de l'UE, en euros, ou sur eBay.co.uk, en livres sterling. Tu vois chaque annonce utilisée.</li><li>Bénéfice après frais de la plateforme et livraison, plus le prix maximum à payer.</li><li>Honnête sur l'incertitude: chaque verdict affiche son indice de confiance; pas assez de données, pas de chiffre.</li><li>Tu vends? Transforme la photo de n'importe quel article, vêtements compris, en annonce Vinted, eBay ou Kleinanzeigen: <a href="/fr/vinted-listing-generator">générateur d'annonces</a>.</li></ul>
       <h2>Tarifs</h2>
       <ul>${plans.map((p) => `<li>${esc(p.name)}: ${p.priceMonthlyMinor ? `${eur(p.priceMonthlyMinor)} par mois` : 'gratuit'}. ${(FR_FEATURES[p.id] ?? []).map(esc).join(', ')}.</li>`).join('')}</ul>
       <h2>Questions</h2>
@@ -686,7 +686,7 @@ export const FR: LangPack = {
   ui: UI,
   home: {
     title: `FlipLens: ça vaut le coup d'acheter pour revendre? Vérification de la valeur de revente en Europe`,
-    description: `Photo, code-barres ou modèle: à quel prix l'occasion se revend sur eBay dans 5 pays de l'UE et au Royaume-Uni, ton bénéfice et le prix maximum à payer.`,
+    description: `Photo, code-barres ou modèle: à quel prix l'électronique, les baskets et les vêtements de marque se revendent sur eBay en UE et au Royaume-Uni, ton bénéfice et le prix max.`,
     prerender: homePrerender(),
   },
 };
