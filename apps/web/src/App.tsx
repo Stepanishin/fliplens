@@ -168,17 +168,54 @@ const AUTO_PICK_CONFIDENCE = 0.6;
 /** Confident enough to skip the confirm screen (the user can still go back and edit). */
 const AUTO_ADVANCE_CONFIDENCE = 0.9;
 
+/**
+ * Reload keeps the screen: the current screen (and a result with its data) is kept in sessionStorage, which lives
+ * only in this tab until it is closed. Steps that need the photos in memory (identify, price, table scan) start over.
+ */
+const ROUTE_KEY = 'fliplens.route.v1';
+type SavedRoute = { route: Route; draft?: Draft; resp?: ValuationResponse };
+const RESTORABLE: ReadonlySet<Route['name']> = new Set(['history', 'scan', 'profile', 'plans', 'admin', 'inventory', 'listing', 'referral', 'batch', 'result']);
+
+function restoreRoute(): SavedRoute | null {
+  try {
+    const raw = sessionStorage.getItem(ROUTE_KEY);
+    if (!raw) return null;
+    const saved = JSON.parse(raw) as SavedRoute;
+    if (!saved?.route || !RESTORABLE.has(saved.route.name)) return null;
+    if (saved.route.name === 'result' && (!saved.resp || !saved.draft)) return null;
+    return saved;
+  } catch {
+    return null;
+  }
+}
+
+function saveRoute(route: Route, draft: Draft, resp: ValuationResponse | null): void {
+  try {
+    if (!RESTORABLE.has(route.name) || (route.name === 'result' && !resp)) {
+      sessionStorage.removeItem(ROUTE_KEY);
+      return;
+    }
+    // Photos are large data URLs: never stored (the listing screen just starts without them).
+    const r: Route = route.name === 'listing' ? { name: 'listing', ...(route.notes && { notes: route.notes }), ...(route.conditionIndex !== undefined && { conditionIndex: route.conditionIndex }) } : route;
+    const saved: SavedRoute = route.name === 'result' && resp ? { route: r, draft: { ...draft, photos: [] }, resp } : { route: r };
+    sessionStorage.setItem(ROUTE_KEY, JSON.stringify(saved));
+  } catch {
+    // storage full or blocked: a reload just goes home, as before
+  }
+}
+
 export function App() {
   const [health, setHealth] = useState<Health | null | undefined>(undefined);
-  const [stack, setStack] = useState<Route[]>([{ name: 'home' }]);
+  const [restored] = useState(restoreRoute);
+  const [stack, setStack] = useState<Route[]>(() => (restored ? [{ name: 'home' }, restored.route] : [{ name: 'home' }]));
   const route = stack[stack.length - 1]!;
   const routeRef = useRef(route.name);
   routeRef.current = route.name;
-  const [draft, setDraft] = useState<Draft>(() => newDraft('manual'));
+  const [draft, setDraft] = useState<Draft>(() => restored?.draft ?? newDraft('manual'));
   const [identifying, setIdentifying] = useState(false);
   const [flowError, setFlowError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
-  const [resp, setResp] = useState<ValuationResponse | null>(null);
+  const [resp, setResp] = useState<ValuationResponse | null>(() => restored?.resp ?? null);
   const [scanning, setScanning] = useState(false);
   const [radar, setRadar] = useState(false);
   const [scans, setScans] = useState<ServerScan[] | null>(null);
@@ -233,6 +270,11 @@ export function App() {
   const back = () => {
     if (stack.length > 1) window.history.back();
   };
+  useEffect(() => saveRoute(route, draft, resp), [route, draft, resp]);
+  // A restored screen sits on top of home: give the back button a history entry to pop.
+  useEffect(() => {
+    if (restored && restored.route.name !== 'profile' && restored.route.name !== 'history' && restored.route.name !== 'inventory') window.history.pushState({ depth: Date.now() }, '');
+  }, [restored]);
 
   // ---------- server state ----------
   useEffect(() => {
