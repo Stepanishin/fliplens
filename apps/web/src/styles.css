@@ -876,3 +876,21 @@ button.ghost.small { min-height: 34px; padding: 6px 12px; font-size: 13px; }
 .alert-deals a { display: flex; gap: 8px; color: inherit; text-decoration: none; }
 .alert-deals span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text-2); }
 .alert-list li { display: flex; justify-content: space-between; gap: 10px; align-items: center; }
+
+/* ---------- Landing: check right away ---------- */
+.lp-trybox { margin-top: 18px; display: grid; gap: 10px; max-width: 34em; }
+.lp-try-label { font-weight: 650; font-size: 15px; }
+.lp-try-row { display: flex; gap: 8px; }
+.lp-try-row input { flex: 1; min-width: 0; font-size: 16px; padding: 13px 14px; border-radius: 14px; border: 1px solid var(--line); background: var(--surface); color: var(--text); }
+.lp-try-row .primary { width: auto; white-space: nowrap; padding: 0 16px; }
+.lp-try-photo { display: flex; align-items: center; justify-content: center; gap: 8px; }
+.lp-example { margin: 14px 0 0; font-size: 14px; color: var(--text-2); }
+.lp-example span { display: inline-block; margin-right: 6px; padding: 2px 8px; border-radius: 999px; background: var(--accent-soft, rgba(15, 118, 110, 0.1)); color: var(--accent-2); font-weight: 650; font-size: 12px; }
+/* Categories: one row that scrolls sideways instead of three wrapped rows. */
+.lp-cats { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch; padding-bottom: 2px; }
+.lp-cats::-webkit-scrollbar { display: none; }
+.lp-cats li { flex: none; }
+/* The one-row category strip must not widen the hero column (grid items default to min-width: auto). */
+.lp-hero-copy { min-width: 0; }
+.lp-cats { max-width: 100%; }
+.lp-hero-copy .lp-consent { margin-top: 12px; }

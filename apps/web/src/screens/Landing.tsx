@@ -1,4 +1,5 @@
-import { Fragment, useEffect, useState } from 'react';
+import { Fragment, useEffect, useRef, useState, type ChangeEvent, type FormEvent } from 'react';
+import { resizeToJpegDataUrl } from '../image.js';
 import { PLANS } from '@fliplens/core';
 import { GoogleButton } from '../ui/GoogleButton.js';
 import { ShelfDemo } from '../ui/ShelfDemo.js';
@@ -16,8 +17,11 @@ interface Props {
   googleClientId: string | null;
   authError: string | null;
   onGoogleCredential: (credential: string) => void;
-  /** Enter the app as a guest (one free check or listing). */
+  /** Enter the app as a guest (two free checks and a listing). */
   onTry?: () => void;
+  /** Check straight from the landing page: a typed item or photos (as a guest when not signed in). */
+  onTryText?: (text: string) => void;
+  onTryPhotos?: (photos: string[]) => void;
 }
 
 const eur = (minor: number): string => money(minor, minor % 100 === 0 ? 0 : 2, 'EUR');
@@ -33,6 +37,14 @@ const T = tr({
     shelfPoints: ['Finds up to 6 items per photo, skips the clutter', 'Prices from real listings, never guessed', 'Best buys first, with the most you should pay'] as readonly string[],
     invited: (name: string | null, n: number) => `${name ? `${name} recommends FlipLens` : 'You were invited to FlipLens'}: sign up now and get +${n} free checks in your first month.`,
     tryNow: 'Try it now, no sign-in',
+    tryLabel: "What do you want to check?",
+    tryPh: "e.g. Nike Air Force 1, PS5, LEGO 75192",
+    tryGo: "Check price",
+    tryPhoto: "Take or choose a photo",
+    freeLine: "Free: 2 checks without an account, 10 a month with Google.",
+    example: "Example",
+    exSells: (p: string) => "sells for ~" + p,
+    exMax: (p: string) => "pay at most " + p,
     tryNote: 'Two free checks and a listing, no account needed.',
     openApp: 'Open app',
     noSignIn: 'Sign-in is not configured on this server.',
@@ -45,7 +57,7 @@ const T = tr({
     f7Text: "Photograph the item and its label. FlipLens reads the brand and the type and compares it with listings of the same brand and type, for women, men or kids. Then turn the same photo into a Vinted listing.",
     h1a: "Know what it's worth ",
     h1b: 'before you buy it.',
-    lead: 'Snap a photo or scan the barcode at the flea market, in a thrift shop or from your wardrobe, enter the asking price, and get a clear buy or skip, with resale value, profit after fees and ROI from live marketplace listings.',
+    lead: "Photo or name: what it sells for, your profit and the most worth paying.",
     freeNote: (n: number) => `Free to try: ${n} checks every month, no card needed.`,
     consentA: 'By continuing you agree to the ',
     terms: 'Terms',
@@ -119,6 +131,14 @@ const T = tr({
     shelfPoints: ['Findet bis zu 6 Artikel pro Foto, ignoriert Krimskrams', 'Preise aus echten Angeboten, nie geschätzt', 'Die besten Käufe zuerst, mit Höchstpreis'] as readonly string[],
     invited: (name: string | null, n: number) => `${name ? `${name} empfiehlt FlipLens` : 'Du wurdest zu FlipLens eingeladen'}: Melde dich jetzt an und bekomm +${n} kostenlose Checks im ersten Monat.`,
     tryNow: 'Jetzt ausprobieren, ohne Anmeldung',
+    tryLabel: "Was willst du prüfen?",
+    tryPh: "z. B. Nike Air Force 1, PS5, LEGO 75192",
+    tryGo: "Preis prüfen",
+    tryPhoto: "Foto aufnehmen oder wählen",
+    freeLine: "Gratis: 2 Checks ohne Konto, 10 pro Monat mit Google.",
+    example: "Beispiel",
+    exSells: (p: string) => "verkauft für ca. " + p,
+    exMax: (p: string) => "höchstens " + p,
     tryNote: 'Zwei kostenlose Checks und eine Anzeige, ganz ohne Konto.',
     openApp: 'App öffnen',
     noSignIn: 'Die Anmeldung ist auf diesem Server nicht eingerichtet.',
@@ -131,7 +151,7 @@ const T = tr({
     f7Text: "Fotografier den Artikel und sein Etikett. FlipLens liest Marke und Art und vergleicht mit Angeboten derselben Marke und Art, für Damen, Herren oder Kinder. Aus demselben Foto wird dann die Vinted-Anzeige.",
     h1a: 'Wisse, was es wert ist, ',
     h1b: 'bevor du es kaufst.',
-    lead: 'Mach auf dem Flohmarkt, im Secondhand-Laden oder vor deinem Kleiderschrank ein Foto oder scann den Barcode, gib den Preis ein und erhalte ein klares Kaufen oder Finger weg, mit Wiederverkaufswert, Gewinn nach Gebühren und ROI aus aktuellen Marktplatz-Angeboten.',
+    lead: "Foto oder Name: wofür es verkauft wird, dein Gewinn und der Höchstpreis.",
     freeNote: (n: number) => `Kostenlos testen: ${n} Checks pro Monat, keine Karte nötig.`,
     consentA: 'Mit dem Fortfahren stimmst du den ',
     terms: 'Nutzungsbedingungen',
@@ -205,6 +225,14 @@ const T = tr({
     shelfPoints: ['Trova fino a 6 articoli per foto, ignora il resto', 'Prezzi da annunci reali, mai inventati', 'Prima gli acquisti migliori, con il prezzo massimo da pagare'] as readonly string[],
     invited: (name: string | null, n: number) => `${name ? `${name} ti consiglia FlipLens` : 'Sei stato invitato su FlipLens'}: registrati ora e ricevi +${n} controlli gratuiti nel primo mese.`,
     tryNow: 'Provalo ora, senza accesso',
+    tryLabel: "Cosa vuoi controllare?",
+    tryPh: "es. Nike Air Force 1, PS5, LEGO 75192",
+    tryGo: "Controlla il prezzo",
+    tryPhoto: "Scatta o scegli una foto",
+    freeLine: "Gratis: 2 controlli senza account, 10 al mese con Google.",
+    example: "Esempio",
+    exSells: (p: string) => "si vende a ca. " + p,
+    exMax: (p: string) => "paga al massimo " + p,
     tryNote: 'Due controlli e un annuncio gratis, senza account.',
     openApp: "Apri l'app",
     noSignIn: "L'accesso non è configurato su questo server.",
@@ -217,7 +245,7 @@ const T = tr({
     f7Text: "Fotografa il capo e la sua etichetta. FlipLens legge marca e tipo e lo confronta con annunci della stessa marca e dello stesso tipo, per donna, uomo o bambini. Poi dalla stessa foto nasce l’annuncio Vinted.",
     h1a: 'Scopri quanto vale ',
     h1b: 'prima di comprarlo.',
-    lead: "Al mercatino, in un negozio dell’usato o davanti al tuo armadio fai una foto o scansiona il codice a barre, inserisci il prezzo richiesto e ricevi un chiaro compra o lascia stare, con valore di rivendita, profitto al netto delle commissioni e ROI da annunci attuali dei marketplace.",
+    lead: "Foto o nome: a quanto si vende, il tuo profitto e il massimo da pagare.",
     freeNote: (n: number) => `Prova gratis: ${n} controlli ogni mese, senza carta.`,
     consentA: 'Continuando accetti i ',
     terms: 'Termini di utilizzo',
@@ -291,6 +319,14 @@ const T = tr({
     shelfPoints: ['Trouve jusqu’à 6 articles par photo, ignore le bazar', 'Prix tirés de vraies annonces, jamais devinés', 'Les meilleurs achats en premier, avec le prix maximum à payer'] as readonly string[],
     invited: (name: string | null, n: number) => `${name ? `${name} te recommande FlipLens` : 'Tu as été invité sur FlipLens'} : inscris-toi maintenant et reçois +${n} vérifications gratuites le premier mois.`,
     tryNow: 'Essaie maintenant, sans connexion',
+    tryLabel: "Qu’est-ce que tu veux vérifier ?",
+    tryPh: "ex. Nike Air Force 1, PS5, LEGO 75192",
+    tryGo: "Vérifier le prix",
+    tryPhoto: "Prendre ou choisir une photo",
+    freeLine: "Gratuit : 2 vérifications sans compte, 10 par mois avec Google.",
+    example: "Exemple",
+    exSells: (p: string) => "se vend env. " + p,
+    exMax: (p: string) => "paie au maximum " + p,
     tryNote: 'Deux vérifications et une annonce gratuites, sans compte.',
     openApp: "Ouvrir l'app",
     noSignIn: "La connexion n'est pas configurée sur ce serveur.",
@@ -303,7 +339,7 @@ const T = tr({
     f7Text: "Photographie l’article et son étiquette. FlipLens lit la marque et le type et le compare aux annonces de la même marque et du même type, pour femme, homme ou enfant. Ensuite, la même photo devient ton annonce Vinted.",
     h1a: 'Sache ce que ça vaut ',
     h1b: 'avant de l’acheter.',
-    lead: "Prends une photo ou scanne le code-barres au vide-grenier, en friperie ou devant ton armoire, saisis le prix demandé et obtiens un verdict clair, acheter ou passer ton chemin, avec la valeur de revente, le bénéfice après frais et le ROI à partir d'annonces actuelles.",
+    lead: "Photo ou nom : à quel prix ça se vend, ton bénéfice et le prix maximum à payer.",
     freeNote: (n: number) => `Essai gratuit : ${n} vérifications par mois, sans carte.`,
     consentA: 'En continuant, tu acceptes les ',
     terms: "Conditions d'utilisation",
@@ -373,7 +409,42 @@ const T = tr({
 });
 
 /** Public start page for signed-out visitors: what it does, how, what it costs, and a way in. */
-export function Landing({ signedIn, onOpenApp, googleClientId, authError, onGoogleCredential, onTry }: Props) {
+export function Landing({ signedIn, onOpenApp, googleClientId, authError, onGoogleCredential, onTry, onTryText, onTryPhotos }: Props) {
+  const [query, setQuery] = useState('');
+  const photoRef = useRef<HTMLInputElement>(null);
+  // Did the visitor read the page? Half scrolled, or 15 s with the page visible (once each).
+  useEffect(() => {
+    let scrolled = false;
+    const onScroll = () => {
+      if (scrolled) return;
+      const doc = document.documentElement;
+      if (window.scrollY + window.innerHeight >= doc.scrollHeight * 0.5) {
+        scrolled = true;
+        track('landing_engaged', { kind: 'scroll50' });
+      }
+    };
+    const t = window.setTimeout(() => {
+      if (document.visibilityState === 'visible') track('landing_engaged', { kind: 'time15' });
+    }, 15_000);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+      window.clearTimeout(t);
+    };
+  }, []);
+  async function onPhotoFiles(e: ChangeEvent<HTMLInputElement>) {
+    const files = [...(e.target.files ?? [])].slice(0, 3);
+    e.target.value = '';
+    if (files.length === 0 || !onTryPhotos) return;
+    track('landing_try', { kind: 'photo', signedIn });
+    onTryPhotos(await Promise.all(files.map((f) => resizeToJpegDataUrl(f))));
+  }
+  function submitQuery(e: FormEvent) {
+    e.preventDefault();
+    if (!query.trim() || !onTryText) return;
+    track('landing_try', { kind: 'text', signedIn });
+    onTryText(query.trim());
+  }
   // Invite link (?ref=): name the person who invited and the welcome bonus.
   const [invite, setInvite] = useState<{ name: string | null; bonusChecks: number } | null>(null);
   useEffect(() => {
@@ -415,19 +486,35 @@ export function Landing({ signedIn, onOpenApp, googleClientId, authError, onGoog
           <span className="lp-badge"><IconSpark size={14} /> {T.badge}</span>
           <h1>{T.h1a}<span>{T.h1b}</span></h1>
           <p className="lp-lead">{T.lead}</p>
+          {onTryText && onTryPhotos ? (
+            <form className="lp-trybox" onSubmit={submitQuery}>
+              <label className="lp-try-label" htmlFor="lp-q">{T.tryLabel}</label>
+              <div className="lp-try-row">
+                <input id="lp-q" value={query} onChange={(e) => setQuery(e.target.value)} placeholder={T.tryPh} enterKeyHint="go" autoComplete="off" />
+                <button type="submit" className="primary" disabled={!query.trim()}>{T.tryGo}</button>
+              </div>
+              <button type="button" className="ghost wide lp-try-photo" onClick={() => photoRef.current?.click()}>
+                <IconCamera size={18} /> {T.tryPhoto}
+              </button>
+              <input ref={photoRef} type="file" accept="image/*" multiple hidden onChange={(e) => void onPhotoFiles(e)} />
+              {!signedIn && <p className="muted small">{T.freeLine}</p>}
+            </form>
+          ) : (
+            <div className="lp-cta">
+              {signIn}
+              {!signedIn && <p className="lp-free-note">{T.freeNote(PLANS.free.monthlyValuations)}</p>}
+              {!signedIn && onTry && (
+                <>
+                  <button type="button" className="ghost lp-try" onClick={onTry}>{T.tryNow}</button>
+                  <p className="muted small">{T.tryNote}</p>
+                </>
+              )}
+            </div>
+          )}
+          <p className="lp-example"><span>{T.example}</span> Nintendo Switch OLED · {T.exSells(eur(17900))} · {T.exMax(eur(12400))}</p>
           <ul className="lp-cats" aria-label={T.worksFor}>
             {T.cats.map((c) => <li key={c}>{c}</li>)}
           </ul>
-          <div className="lp-cta">
-            {signIn}
-            {!signedIn && <p className="lp-free-note">{T.freeNote(PLANS.free.monthlyValuations)}</p>}
-            {!signedIn && onTry && (
-              <>
-                <button type="button" className="ghost lp-try" onClick={onTry}>{T.tryNow}</button>
-                <p className="muted small">{T.tryNote}</p>
-              </>
-            )}
-          </div>
           {!signedIn && <p className="muted small lp-consent">
             {T.consentA}<a href="/terms">{T.terms}</a>{T.and}<a href="/privacy">{T.privacy}</a>{T.consentB}
           </p>}

@@ -130,12 +130,16 @@ const EVENT_NAMES = [
   'valuation_started', 'valuation_completed', 'valuation_failed', 'comparables_opened', 'item_marked_bought',
   'subscription_viewed', 'subscription_started', 'inventory_added', 'item_sold', 'market_link_opened', 'signed_in', 'app_installed', 'app_install_prompt', 'whatif_used', 'confirm_skipped',
   'item_status_changed', 'listing_generated', 'listing_copied', 'visit', 'page_view', 'cta_clicked', 'signin_started', 'quick_listing_opened', 'find_shared', 'referral_link_copied', 'referral_link_shared', 'referral_payout_requested', 'shelf_scan_started', 'shelf_scan_done', 'inapp_link_copied', 'inapp_open_chrome', 'guest_started', 'trial_used',
+  'landing_engaged', 'landing_try', 'batch_opened', 'batch_started', 'batch_item_valued', 'batch_listings_all', 'price_alert_created', 'clothes_platform_set', 'app_updated',
+  'radar_started', 'radar_frame', 'radar_check', 'market_compare', 'ebay_connect_started', 'ebay_publish_opened', 'ebay_published',
 ] as const;
 const EventsBody = z.object({
   events: z
     .array(
       z.object({
-        name: z.enum(EVENT_NAMES),
+        // Any short name passes validation; unknown ones are dropped below, so one new event name in a client
+        // batch cannot get the whole batch (visits included) rejected.
+        name: z.string().max(40),
         props: z.record(z.string().max(40), z.union([z.string().max(100), z.number(), z.boolean(), z.null()])).optional(),
       }),
     )
@@ -556,8 +560,11 @@ function enabled(db: Db, log: FastifyBaseLogger, auth: AuthConfig): Persistence 
         const validKey = typeof key === 'string' && DEVICE_KEY.test(key) ? key : undefined;
         const uid = validKey ? (userCache.get(validKey) ?? (await findUserByDevice(db, validKey))) : undefined;
         const visitor = validKey ? createHash('sha256').update(`fliplens-visitor:${validKey}`).digest('hex').slice(0, 20) : undefined;
-        await safely(req, 'events', () => recordEvents(db, uid, parsed.data.events.map((e) => ({ name: e.name, props: e.props ?? {} })), visitor));
-        return { stored: parsed.data.events.length };
+        const known = parsed.data.events.filter((e) => (EVENT_NAMES as readonly string[]).includes(e.name));
+        const unknown = parsed.data.events.length - known.length;
+        if (unknown > 0) req.log.warn({ event: 'unknown_events', names: [...new Set(parsed.data.events.filter((e) => !known.includes(e)).map((e) => e.name))].join(',') }, 'dropped unknown analytics events');
+        if (known.length > 0) await safely(req, 'events', () => recordEvents(db, uid, known.map((e) => ({ name: e.name as (typeof EVENT_NAMES)[number], props: e.props ?? {} })), visitor));
+        return { stored: known.length };
       });
 
       app.delete('/api/scans/:id', async (req, reply) => {

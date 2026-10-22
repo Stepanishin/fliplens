@@ -168,6 +168,18 @@ const AUTO_PICK_CONFIDENCE = 0.6;
 /** Confident enough to skip the confirm screen (the user can still go back and edit). */
 const AUTO_ADVANCE_CONFIDENCE = 0.9;
 
+/** Brands written with several words, so "The North Face Nuptse" splits into brand + model correctly. */
+const MULTI_WORD_BRANDS = ['the north face', 'polo ralph lauren', 'ralph lauren', 'michael kors', 'calvin klein', 'tommy hilfiger', 'new balance', 'dr. martens', 'hugo boss', 'louis vuitton', 'massimo dutti', 'stone island', 'canada goose', 'under armour', 'tory burch', 'marc jacobs'];
+
+/** A typed item from the landing page as brand + model ("Nike Air Force 1" -> Nike / Air Force 1). One word: model only. */
+function splitQuery(text: string): { brand: string; model: string } {
+  const t = text.trim().replace(/\s+/g, ' ');
+  const known = MULTI_WORD_BRANDS.find((b) => t.toLowerCase().startsWith(`${b} `));
+  if (known) return { brand: t.slice(0, known.length), model: t.slice(known.length + 1) };
+  const i = t.indexOf(' ');
+  return i < 0 ? { brand: '', model: t } : { brand: t.slice(0, i), model: t.slice(i + 1) };
+}
+
 /**
  * Reload keeps the screen: the current screen (and a result with its data) is kept in sessionStorage, which lives
  * only in this tab until it is closed. Steps that need the photos in memory (identify, price, table scan) start over.
@@ -493,10 +505,26 @@ export function App() {
     setDraft((d) => (d.product.category === '' ? { ...d, product: { ...d.product, category: c, categoryAuto: true, ...fashionFields(fashion) } } : d));
   }, []);
 
-  function startManual() {
+  /** Leave the landing page into the app: as a guest when not signed in. */
+  function enterFromLanding() {
+    if (!account) {
+      try {
+        sessionStorage.setItem('fliplens.guest', '1');
+      } catch {
+        // storage blocked: guest mode lasts for this page only
+      }
+      track('guest_started', {});
+      setGuest(true);
+    }
+    if (window.location.pathname === '/welcome') window.history.replaceState(null, '', '/');
+    setWelcome(false);
+    window.scrollTo(0, 0);
+  }
+
+  function startManual(prefill?: { brand: string; model: string }) {
     correctedOnce.current = false;
     track('scan_started', { method: 'manual' });
-    setDraft(newDraft('manual'));
+    setDraft(prefill ? { ...newDraft('manual'), product: { ...EMPTY_PRODUCT, ...prefill } } : newDraft('manual'));
     setResp(null);
     setFlowError(null);
     go({ name: 'confirm' });
@@ -622,16 +650,14 @@ export function App() {
         googleClientId={health?.auth.google ?? null}
         authError={authError}
         onGoogleCredential={(c) => void signIn(c)}
-        onTry={() => {
-          try {
-            sessionStorage.setItem('fliplens.guest', '1');
-          } catch {
-            // storage blocked: guest mode lasts for this page only
-          }
-          track('guest_started', {});
-          setGuest(true);
-          setWelcome(false);
-          window.scrollTo(0, 0);
+        onTry={enterFromLanding}
+        onTryText={(text) => {
+          enterFromLanding();
+          startManual(splitQuery(text));
+        }}
+        onTryPhotos={(photos) => {
+          enterFromLanding();
+          startPhotos(photos);
         }}
       />
     );
@@ -690,7 +716,7 @@ export function App() {
             onQuickListing={() => { track('quick_listing_opened', { from: 'home' }); go({ name: 'listing' }); }}
             onCamera={() => cameraRef.current?.click()}
             onBarcode={() => setScanning(true)}
-            onManual={startManual}
+            onManual={() => startManual()}
             onOpenScan={(s) => go({ name: 'scan', scan: s })}
             onSeeHistory={() => tab({ name: 'history' })}
             quota={billing?.quota ?? null}
