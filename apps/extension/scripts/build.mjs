@@ -30,7 +30,7 @@ const manifest = {
   short_name: 'FlipLens',
   version,
   // Chrome Web Store limit: 132 characters.
-  description: 'Is this listing worth buying to resell? Resale value, profit and max price on Vinted, eBay, Kleinanzeigen, Wallapop and more.',
+  description: 'Is this second-hand listing worth buying to resell? See resale value, profit after fees and the max price to pay.',
   icons: { 16: 'icons/icon-16.png', 32: 'icons/icon-32.png', 48: 'icons/icon-48.png', 128: 'icons/icon-128.png' },
   action: { default_popup: 'popup.html', default_icon: { 16: 'icons/icon-16.png', 32: 'icons/icon-32.png' } },
   background: { service_worker: 'background.js', type: 'module' },
