@@ -64,7 +64,7 @@ const DEVICE_KEY = /^[A-Za-z0-9-]{16,64}$/;
 
 export interface ValuationRecord {
   body: {
-    inputMethod: 'photo' | 'barcode' | 'manual';
+    inputMethod: 'photo' | 'barcode' | 'manual' | 'listing';
     identificationId?: string | undefined;
     chosenCandidateIndex?: number | undefined;
     gtin?: string | undefined;
@@ -87,7 +87,7 @@ export interface Persistence {
   registerRoutes(app: FastifyInstance): void;
   recordIdentification(
     req: FastifyRequest,
-    x: { method: 'photo' | 'barcode'; gtin?: string; imageCount: number; result: IdentificationResult; provider: string; model: string },
+    x: { method: 'photo' | 'barcode' | 'listing'; gtin?: string; imageCount: number; result: IdentificationResult; provider: string; model: string },
   ): Promise<string | undefined>;
   recordValuation(req: FastifyRequest, x: ValuationRecord): Promise<string | undefined>;
   /** Plan usage for the caller; undefined when there is no database (no metering). */

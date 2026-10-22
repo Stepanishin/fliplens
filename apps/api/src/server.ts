@@ -109,7 +109,7 @@ const ValuationBody = z.object({
   /** 1 for manually entered products; the chosen candidate's confidence for photo recognition. */
   identificationConfidence: z.number().min(0).max(1).default(1),
   recognitionModelVersion: z.string().max(200).optional(),
-  inputMethod: z.enum(['photo', 'barcode', 'manual']).default('manual'),
+  inputMethod: z.enum(['photo', 'barcode', 'manual', 'listing']).default('manual'),
   identificationId: z.string().uuid().optional(),
   chosenCandidateIndex: z.number().int().min(0).max(10).optional(),
   gtin: z.string().regex(/^\d{8,14}$/).optional(),
@@ -257,6 +257,51 @@ app.post('/api/identify/barcode', async (req, reply) => {
       model: titleIdentifier.id.replace('openai:', ''),
     });
     return { ...result, gtin, listingCount: found.titles.length, sites: found.sites, identificationId };
+  } catch (e) {
+    if (e instanceof RecognitionError) {
+      req.log.error({ event: 'recognition_failed', kind: e.kind }, e.message);
+      return reply.code(502).send({ error: 'recognition_failed', kind: e.kind, message: e.message });
+    }
+    throw e;
+  }
+});
+
+/** Browser extension: a listing page the user opened on Vinted, Kleinanzeigen, ... (ADR-032). */
+const ListingPageBody = z.object({
+  marketplace: z.string().trim().min(1).max(40),
+  title: z.string().trim().min(2).max(300),
+  description: z.string().trim().max(5000).optional(),
+  attributes: z.array(z.string().trim().min(1).max(200)).max(20).optional(),
+  imageUrl: z.string().url().startsWith('https://').max(1000).optional(),
+});
+
+app.post('/api/identify/listing', async (req, reply) => {
+  const parsed = ListingPageBody.safeParse(req.body);
+  if (!parsed.success) return reply.code(400).send({ error: 'invalid_request', issues: parsed.error.issues.map((i) => i.message) });
+  if (!(await store.requireAccount(req, reply, 'identification'))) return reply;
+  if (!titleIdentifier.isConfigured()) return reply.code(409).send({ error: 'vision_not_configured', message: 'Set OPENAI_API_KEY in .env' });
+  const listing = parsed.data;
+  try {
+    const result = await titleIdentifier.identifyFromListing(stripUndefined(listing));
+    req.log.info(
+      {
+        event: result.candidates.length > 0 ? 'product_detected' : 'product_not_detected',
+        source: 'extension',
+        marketplace: listing.marketplace,
+        top: result.candidates[0] ? `${result.candidates[0].brand} ${result.candidates[0].model}` : null,
+        confidence: result.candidates[0]?.confidence ?? null,
+        costUsd: result.costUsd ?? null,
+      },
+      'identify listing',
+    );
+    const identificationId = await store.recordIdentification(req, {
+      method: 'listing',
+      imageCount: listing.imageUrl ? 1 : 0,
+      result,
+      provider: 'openai',
+      model: titleIdentifier.id.replace('openai:', ''),
+    });
+    return { ...result, identificationId };
   } catch (e) {
     if (e instanceof RecognitionError) {
       req.log.error({ event: 'recognition_failed', kind: e.kind }, e.message);

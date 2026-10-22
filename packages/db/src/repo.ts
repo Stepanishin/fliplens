@@ -102,7 +102,7 @@ export async function recordUsage(db: Db, u: UsageInput): Promise<void> {
 
 export interface IdentificationInput {
   userId: string;
-  method: 'photo' | 'barcode';
+  method: 'photo' | 'barcode' | 'listing';
   modelVersion: string;
   gtin?: string;
   imageCount: number;

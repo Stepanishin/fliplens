@@ -74,6 +74,31 @@ Titles are in several languages and contain noise (condition, shipping, "OVP", s
 - LEGO: brand "LEGO", model = set number. Books: brand = author, model = title. Music: brand = artist, model = album, category vinyl or cds. Films: brand = format ("DVD", "Blu-ray", "4K"), model = title, category movies.
 - fashion_kind, gender and style: null unless the titles are clothing.`;
 
+const LISTING_PROMPT = `You identify the product of ONE second-hand marketplace listing (Vinted, Kleinanzeigen, eBay and similar) for European resellers.
+You get the listing title, the seller's description, attributes from the page (brand, size, condition) and sometimes the first photo.
+Titles and descriptions are in several languages and contain noise (shipping, "OVP", "NP", seller words, swap offers). Ignore the noise.
+- Return the product being sold. Prefer model numbers, set numbers and ISBNs in the text over the photo.
+- Brand and model the way marketplace titles write them (e.g. "Sony" + "WH-1000XM4", "Nintendo" + "Switch OLED", "Apple" + "iPhone 13").
+- capacity only if the listing states it. Lenses: focal length and aperture as model, mount separately.
+- Fashion: brand from the brand attribute or the text ("" if none). model = only the item type in English as a buyer would search it (e.g. "sneakers", "cargo shorts"), never the product line. style = the named line or model from the title (e.g. "Air Force 1", "501", "Nuptse"), without colourway words; null if none. fashion_kind and gender from the text and category, variant = the size, colour separately.
+- LEGO: brand "LEGO", model = set number. Books: brand = author, model = title. Music: brand = artist, model = album, category vinyl or cds. Films: brand = format ("DVD", "Blu-ray", "4K"), model = title, category movies.
+- condition_guess from the stated condition and the description (defects, "defekt", "für Bastler" = for_parts); null if not stated.
+- condition_notes: defects or missing parts the seller mentions, else null.
+- confidence: probability that the candidate is exactly right. Bundles of several different products: the main product with lower confidence.
+- identifying_text: the words from the listing that support your answer.
+- If the listing is not a product (a search request, a service, a swap only), return an empty candidates list.`;
+
+/** A marketplace listing as the browser extension reads it from the page. */
+export interface ListingPage {
+  readonly marketplace: string;
+  readonly title: string;
+  readonly description?: string;
+  /** Page attributes as "Name: value" (brand, size, condition, ...). */
+  readonly attributes?: readonly string[];
+  /** First listing photo (https); sent at low detail. */
+  readonly imageUrl?: string;
+}
+
 const nullableString = { type: ['string', 'null'] } as const;
 
 const RESPONSE_SCHEMA = {
@@ -173,6 +198,20 @@ export class OpenAIVisionProvider implements VisionProvider {
     const list = titles.slice(0, 30).map((t, i) => `${i + 1}. ${t}`).join('\n');
     return this.run(TITLES_PROMPT, [
       { type: 'input_text', text: `Barcode (GTIN): ${gtin}\nListing titles found for this barcode on eBay:\n${list}` },
+    ]);
+  }
+
+  /** Browser extension: the listing's text (and first photo) > product identity. Text does most of the work, so a cheap model is enough. */
+  async identifyFromListing(listing: ListingPage): Promise<IdentificationResult> {
+    const text = [
+      `Marketplace: ${listing.marketplace}`,
+      `Title: ${listing.title}`,
+      ...(listing.attributes?.length ? [`Attributes:\n${listing.attributes.slice(0, 20).join('\n')}`] : []),
+      ...(listing.description ? [`Description:\n${listing.description.slice(0, 3000)}`] : []),
+    ].join('\n');
+    return this.run(LISTING_PROMPT, [
+      { type: 'input_text', text },
+      ...(listing.imageUrl ? [{ type: 'input_image', image_url: listing.imageUrl, detail: 'low' }] : []),
     ]);
   }
 

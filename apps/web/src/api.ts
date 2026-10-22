@@ -103,7 +103,7 @@ export interface Account {
 export interface ServerScan {
   id: string;
   createdAt: string;
-  inputMethod: 'photo' | 'barcode' | 'manual';
+  inputMethod: 'photo' | 'barcode' | 'manual' | 'listing';
   product: { category: CategorySlug; brand: string; model: string; capacity: string | null; mount: string | null; fashion?: FashionAttributes };
   excludeModels: string[];
   condition: Condition;

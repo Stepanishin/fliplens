@@ -45,7 +45,7 @@ export const productIdentifications = pgTable(
   {
     id: uuid('id').primaryKey().defaultRandom(),
     userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
-    method: text('method').$type<'photo' | 'barcode'>().notNull(),
+    method: text('method').$type<'photo' | 'barcode' | 'listing'>().notNull(),
     modelVersion: text('model_version').notNull(),
     gtin: text('gtin'),
     imageCount: integer('image_count').notNull().default(0),
@@ -70,7 +70,7 @@ export const scans = pgTable(
     id: uuid('id').primaryKey().defaultRandom(),
     userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
     identificationId: uuid('identification_id').references(() => productIdentifications.id, { onDelete: 'set null' }),
-    inputMethod: text('input_method').$type<'photo' | 'barcode' | 'manual'>().notNull(),
+    inputMethod: text('input_method').$type<'photo' | 'barcode' | 'manual' | 'listing'>().notNull(),
     category: text('category').notNull(),
     brand: text('brand').notNull(),
     model: text('model').notNull(),

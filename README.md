@@ -19,6 +19,7 @@ FlipLens is not a marketplace. It does not sell, take payments for items or ship
 - **Accounts and billing:** Google sign-in, Stripe Checkout and Customer Portal. Plans: Free (10 checks/month), Pro €9.99 (100), Reseller €19.99 (1,000 fair use).
 - **Cost control:** a cheap vision model first with escalation only when unsure, plus a monthly AI budget per user (see [ADR-015](docs/DECISIONS.md)).
 - **PWA:** installable on phones, with an install prompt.
+- **Browser extension:** a FlipLens panel on Vinted, Kleinanzeigen, eBay, Subito, leboncoin, Wallapop, Marktplaats/2dehands and willhaben listings: check the deal from the listing's text and photo, see profit and the max price to pay, add the item to stock ([ADR-032](docs/DECISIONS.md)).
 
 ## Tech stack
 
@@ -38,6 +39,7 @@ FlipLens is not a marketplace. It does not sell, take payments for items or ship
 apps/
   api/          Fastify backend; also serves the built web app in production
   web/          React PWA
+  extension/    Chrome extension (Manifest V3) for marketplace listings
 packages/
   core/         pure logic: normalization, pricing, profit, decision, plans (no I/O)
   db/           Drizzle schema, migrations, repository functions
@@ -91,6 +93,17 @@ pnpm --filter @fliplens/web dev:https    # terminal 2: self-signed HTTPS on the 
 
 Open `https://<laptop IP>:5173` on a phone in the same Wi-Fi, accept the certificate, then use "Add to Home Screen".
 
+### Browser extension
+
+```bash
+pnpm dev                                  # API and web app
+pnpm --filter @fliplens/extension dev     # builds apps/extension/dist for http://localhost:5173, rebuilds on change
+```
+
+In Chrome open `chrome://extensions`, switch on Developer mode, click "Load unpacked" and pick `apps/extension/dist`. Open the web app once and sign in: the extension takes over that account. Then open a listing on any supported marketplace. After a rebuild, click the reload icon on the extension card and reload the listing tab.
+
+`pnpm --filter @fliplens/extension zip` builds for https://fliplens.eu and writes `apps/extension/fliplens-extension.zip` for the Chrome Web Store.
+
 ## Production
 
 The app runs as a single Node.js service: the API serves the built PWA from `apps/web/dist` (SPA fallback, cached assets), so the app and `/api` share one domain.
@@ -108,6 +121,7 @@ cd apps/api && HOST=0.0.0.0 PORT=8080 TRUST_PROXY=1 npx tsx src/server.ts
 ## Data and privacy
 
 - Photos are sent to the recognition provider and never stored.
+- The browser extension reads only the listing page the user opened, and only after they click Check: title, description, details and the first photo URL go to the recognition provider ([ADR-032](docs/DECISIONS.md)).
 - eBay listing content is cached in memory for up to 6 hours and never written to the database, as the eBay API license requires ([ADR-009](docs/DECISIONS.md)).
 - Users can export or delete all their data from Profile; deleting an account also cancels the Stripe subscription.
 

@@ -7,3 +7,4 @@ eval/dataset/images/
 eval/reports/*.raw.json
 .DS_Store
 apps/web/dist/
+apps/extension/fliplens-extension.zip

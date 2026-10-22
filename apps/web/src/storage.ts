@@ -1,6 +1,9 @@
 import type { FeePresetId } from '@fliplens/core';
 
-/** Per-device conveniences: settings cache (synced to the server when it has a database) and the device id. */
+/**
+ * Per-device conveniences: settings cache (synced to the server when it has a database) and the device id.
+ * The browser extension reads the settings, clothes-on-Vinted and device keys (apps/extension/src/app-session.ts): keep the names.
+ */
 
 export interface Settings {
   preset: FeePresetId;
