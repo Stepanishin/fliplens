@@ -158,6 +158,11 @@ function PrivacyPolicyEn() {
             <td>Contract (Art. 6(1)(b))</td>
           </tr>
           <tr>
+            <td>Browser extension: the marketplace listing you check (title, description, the details shown on the page, price and the link to its first photo), and the listing's web address if you mark the item as bought</td>
+            <td>Identify and value the product. Nothing is read before you click Check, and only the listing you are viewing. We keep the resulting check like any other; the listing address is kept only in your stock</td>
+            <td>Contract (Art. 6(1)(b))</td>
+          </tr>
+          <tr>
             <td>Barcode numbers you scan</td>
             <td>Find the product in marketplace listings</td>
             <td>Contract (Art. 6(1)(b))</td>
@@ -203,7 +208,7 @@ function PrivacyPolicyEn() {
       <p>We use these service providers. They process data on our behalf or, where noted, as independent providers for the part you use directly:</p>
       <ul>
         <li><strong>Neon</strong> (database hosting, servers in Frankfurt, Germany): stores the data listed above.</li>
-        <li><strong>OpenAI</strong> (product recognition): receives your photos, or for barcodes the marketplace titles found for that code, and returns the product identity. We ask OpenAI not to store requests for later retrieval; OpenAI may keep API data for a limited time for abuse monitoring under its API data policy.</li>
+        <li><strong>OpenAI</strong> (product recognition): receives your photos, or for barcodes the marketplace titles found for that code, or for the browser extension the text and first photo of the listing you check, and returns the product identity. We ask OpenAI not to store requests for later retrieval; OpenAI may keep API data for a limited time for abuse monitoring under its API data policy.</li>
         <li><strong>eBay</strong> (marketplace data): receives the product name or barcode number we search for. No personal data about you is sent. If you connect your eBay account and publish a listing, eBay also receives the listing text, photos and price, under its own privacy policy.</li>
         <li><strong>Google</strong> (sign-in): when you use "Continue with Google", Google processes your login under its own privacy policy and may set its own cookies for the sign-in window.</li>
         <li><strong>Stripe</strong> (payments): processes your payment and billing details under its own privacy policy.</li>
@@ -239,7 +244,7 @@ function PrivacyPolicyEn() {
       <h2>7. Storage on your device</h2>
       <p>
         The app keeps your device identifier, settings and a few interface preferences in your browser's local storage. They are needed for the app to work
-        and are not used for tracking. We do not use advertising or analytics cookies.
+        and are not used for tracking. We do not use advertising or analytics cookies. The FlipLens browser extension keeps a copy of the device identifier and settings, and your check results for 24 hours, in its own extension storage.
       </p>
 
       <h2>8. Children</h2>
@@ -403,6 +408,11 @@ function PrivacyPolicyDe() {
             <td>Vertrag (Art. 6 Abs. 1 lit. b)</td>
           </tr>
           <tr>
+            <td>Browser-Erweiterung: das geprüfte Angebot auf einem Marktplatz (Titel, Beschreibung, die auf der Seite angezeigten Details, Preis und der Link zum ersten Foto) sowie die Adresse des Angebots, wenn Sie den Artikel als gekauft markieren</td>
+            <td>Das Produkt erkennen und bewerten. Vor dem Klick auf Prüfen wird nichts gelesen, und nur das Angebot, das Sie gerade ansehen. Die daraus entstehende Prüfung speichern wir wie jede andere; die Adresse des Angebots nur in Ihrem Bestand</td>
+            <td>Vertrag (Art. 6 Abs. 1 lit. b)</td>
+          </tr>
+          <tr>
             <td>Barcode-Nummern, die Sie scannen</td>
             <td>Das Produkt in Marktplatz-Angeboten finden</td>
             <td>Vertrag (Art. 6 Abs. 1 lit. b)</td>
@@ -448,7 +458,7 @@ function PrivacyPolicyDe() {
       <p>Wir nutzen die folgenden Dienstleister. Sie verarbeiten Daten in unserem Auftrag oder, wo angegeben, als eigenständige Anbieter für den Teil, den Sie direkt nutzen:</p>
       <ul>
         <li><strong>Neon</strong> (Datenbank-Hosting, Server in Frankfurt, Deutschland): speichert die oben genannten Daten.</li>
-        <li><strong>OpenAI</strong> (Produkterkennung): erhält Ihre Fotos oder, bei Barcodes, die zu dieser Nummer gefundenen Angebotstitel und liefert die Produktidentität zurück. Wir weisen OpenAI an, Anfragen nicht zum späteren Abruf zu speichern; OpenAI kann API-Daten nach seinen API-Datenrichtlinien für begrenzte Zeit zur Missbrauchsüberwachung aufbewahren.</li>
+        <li><strong>OpenAI</strong> (Produkterkennung): erhält Ihre Fotos oder, bei Barcodes, die zu dieser Nummer gefundenen Angebotstitel oder, bei der Browser-Erweiterung, Text und erstes Foto des geprüften Angebots und liefert die Produktidentität zurück. Wir weisen OpenAI an, Anfragen nicht zum späteren Abruf zu speichern; OpenAI kann API-Daten nach seinen API-Datenrichtlinien für begrenzte Zeit zur Missbrauchsüberwachung aufbewahren.</li>
         <li><strong>eBay</strong> (Marktdaten): erhält den Produktnamen oder die Barcode-Nummer, nach der wir suchen. Personenbezogene Daten über Sie werden nicht übermittelt. Wenn Sie Ihr eBay-Konto verbinden und ein Angebot veröffentlichen, erhält eBay außerdem Angebotstext, Fotos und Preis nach seiner eigenen Datenschutzerklärung.</li>
         <li><strong>Google</strong> (Anmeldung): Wenn Sie "Mit Google fortfahren" nutzen, verarbeitet Google Ihre Anmeldung nach seiner eigenen Datenschutzerklärung und kann für das Anmeldefenster eigene Cookies setzen.</li>
         <li><strong>Stripe</strong> (Zahlungen): verarbeitet Ihre Zahlungs- und Abrechnungsdaten nach seiner eigenen Datenschutzerklärung.</li>
@@ -485,7 +495,7 @@ function PrivacyPolicyDe() {
       <h2>7. Speicherung auf Ihrem Gerät</h2>
       <p>
         Die App speichert Ihre Gerätekennung, Ihre Einstellungen und einige Oberflächeneinstellungen im lokalen Speicher Ihres Browsers. Sie sind für das Funktionieren
-        der App erforderlich und werden nicht zum Tracking verwendet. Wir verwenden keine Werbe- oder Analyse-Cookies.
+        der App erforderlich und werden nicht zum Tracking verwendet. Wir verwenden keine Werbe- oder Analyse-Cookies. Die FlipLens-Browser-Erweiterung speichert eine Kopie der Gerätekennung und der Einstellungen sowie Ihre Prüfergebnisse für 24 Stunden in ihrem eigenen Erweiterungsspeicher.
       </p>
 
       <h2>8. Kinder</h2>
@@ -649,6 +659,11 @@ function PrivacyPolicyIt() {
             <td>Contratto (art. 6, par. 1, lett. b)</td>
           </tr>
           <tr>
+            <td>Estensione del browser: l'annuncio che verifichi su un marketplace (titolo, descrizione, i dettagli mostrati nella pagina, prezzo e il link alla prima foto) e l'indirizzo dell'annuncio se segni l'articolo come acquistato</td>
+            <td>Identificare e valutare il prodotto. Nulla viene letto prima che tu faccia clic su Verifica, e solo l'annuncio che stai guardando. Conserviamo la verifica risultante come ogni altra; l'indirizzo dell'annuncio solo nel tuo inventario</td>
+            <td>Contratto (art. 6, par. 1, lett. b)</td>
+          </tr>
+          <tr>
             <td>I numeri dei codici a barre che scansioni</td>
             <td>Trovare il prodotto negli annunci dei marketplace</td>
             <td>Contratto (art. 6, par. 1, lett. b)</td>
@@ -694,7 +709,7 @@ function PrivacyPolicyIt() {
       <p>Ci avvaliamo dei seguenti fornitori di servizi. Trattano i dati per nostro conto oppure, dove indicato, come fornitori indipendenti per la parte che utilizzi direttamente:</p>
       <ul>
         <li><strong>Neon</strong> (hosting del database, server a Francoforte, Germania): conserva i dati elencati sopra.</li>
-        <li><strong>OpenAI</strong> (riconoscimento dei prodotti): riceve le tue foto oppure, per i codici a barre, i titoli degli annunci trovati per quel codice, e restituisce l'identità del prodotto. Chiediamo a OpenAI di non conservare le richieste per un successivo recupero; OpenAI può conservare i dati delle API per un periodo limitato a fini di monitoraggio degli abusi, secondo la propria politica sui dati delle API.</li>
+        <li><strong>OpenAI</strong> (riconoscimento dei prodotti): riceve le tue foto oppure, per i codici a barre, i titoli degli annunci trovati per quel codice, oppure, per l'estensione del browser, il testo e la prima foto dell'annuncio che verifichi, e restituisce l'identità del prodotto. Chiediamo a OpenAI di non conservare le richieste per un successivo recupero; OpenAI può conservare i dati delle API per un periodo limitato a fini di monitoraggio degli abusi, secondo la propria politica sui dati delle API.</li>
         <li><strong>eBay</strong> (dati di mercato): riceve il nome del prodotto o il numero del codice a barre che cerchiamo. Non viene inviato alcun dato personale che ti riguarda. Se colleghi il tuo account eBay e pubblichi un annuncio, eBay riceve anche testo, foto e prezzo dell'annuncio, secondo la propria informativa sulla privacy.</li>
         <li><strong>Google</strong> (accesso): quando usi "Continua con Google", Google tratta il tuo accesso secondo la propria informativa sulla privacy e può impostare propri cookie per la finestra di accesso.</li>
         <li><strong>Stripe</strong> (pagamenti): tratta i tuoi dati di pagamento e di fatturazione secondo la propria informativa sulla privacy.</li>
@@ -730,7 +745,7 @@ function PrivacyPolicyIt() {
       <h2>7. Memorizzazione sul tuo dispositivo</h2>
       <p>
         L'app conserva l'identificativo del dispositivo, le impostazioni e alcune preferenze dell'interfaccia nella memoria locale del browser. Sono necessari per il funzionamento
-        dell'app e non vengono usati per il tracciamento. Non utilizziamo cookie pubblicitari o di analisi.
+        dell'app e non vengono usati per il tracciamento. Non utilizziamo cookie pubblicitari o di analisi. L'estensione del browser FlipLens conserva una copia dell'identificativo del dispositivo e delle impostazioni, e i risultati delle verifiche per 24 ore, nella propria memoria dell'estensione.
       </p>
 
       <h2>8. Minori</h2>
@@ -893,6 +908,11 @@ function PrivacyPolicyFr() {
             <td>Contrat (art. 6, par. 1, point b)</td>
           </tr>
           <tr>
+            <td>Extension de navigateur : l'annonce que vous vérifiez sur une place de marché (titre, description, détails affichés sur la page, prix et lien vers la première photo), ainsi que l'adresse de l'annonce si vous marquez l'article comme acheté</td>
+            <td>Identifier et évaluer le produit. Rien n'est lu avant que vous cliquiez sur Vérifier, et uniquement l'annonce que vous consultez. Nous conservons la vérification obtenue comme les autres ; l'adresse de l'annonce uniquement dans votre stock</td>
+            <td>Contrat (art. 6, par. 1, point b)</td>
+          </tr>
+          <tr>
             <td>Les numéros de codes-barres que vous scannez</td>
             <td>Trouver le produit dans les annonces des places de marché</td>
             <td>Contrat (art. 6, par. 1, point b)</td>
@@ -939,7 +959,7 @@ function PrivacyPolicyFr() {
       <p>Nous faisons appel aux prestataires suivants. Ils traitent les données pour notre compte ou, lorsque cela est indiqué, en tant que prestataires indépendants pour la partie que vous utilisez directement :</p>
       <ul>
         <li><strong>Neon</strong> (hébergement de la base de données, serveurs à Francfort, Allemagne) : conserve les données énumérées ci-dessus.</li>
-        <li><strong>OpenAI</strong> (reconnaissance des produits) : reçoit vos photos ou, pour les codes-barres, les titres d'annonces trouvés pour ce code, et renvoie l'identité du produit. Nous demandons à OpenAI de ne pas conserver les requêtes en vue d'une consultation ultérieure ; OpenAI peut conserver les données de l'API pendant une durée limitée à des fins de détection des abus, conformément à sa politique relative aux données de l'API.</li>
+        <li><strong>OpenAI</strong> (reconnaissance des produits) : reçoit vos photos ou, pour les codes-barres, les titres d'annonces trouvés pour ce code, ou, pour l'extension de navigateur, le texte et la première photo de l'annonce que vous vérifiez, et renvoie l'identité du produit. Nous demandons à OpenAI de ne pas conserver les requêtes en vue d'une consultation ultérieure ; OpenAI peut conserver les données de l'API pendant une durée limitée à des fins de détection des abus, conformément à sa politique relative aux données de l'API.</li>
         <li><strong>eBay</strong> (données de marché) : reçoit le nom du produit ou le numéro de code-barres que nous recherchons. Aucune donnée personnelle vous concernant n'est transmise. Si vous connectez votre compte eBay et publiez une annonce, eBay reçoit aussi le texte, les photos et le prix de l'annonce, conformément à sa propre politique de confidentialité.</li>
         <li><strong>Google</strong> (connexion) : lorsque vous utilisez « Continuer avec Google », Google traite votre connexion conformément à sa propre politique de confidentialité et peut déposer ses propres cookies pour la fenêtre de connexion.</li>
         <li><strong>Stripe</strong> (paiements) : traite vos données de paiement et de facturation conformément à sa propre politique de confidentialité.</li>
@@ -976,7 +996,7 @@ function PrivacyPolicyFr() {
       <h2>7. Stockage sur votre appareil</h2>
       <p>
         L'application conserve l'identifiant de votre appareil, vos paramètres et quelques préférences d'interface dans le stockage local de votre navigateur. Ils sont
-        nécessaires au fonctionnement de l'application et ne sont pas utilisés à des fins de suivi. Nous n'utilisons pas de cookies publicitaires ni de mesure d'audience.
+        nécessaires au fonctionnement de l'application et ne sont pas utilisés à des fins de suivi. Nous n'utilisons pas de cookies publicitaires ni de mesure d'audience. L'extension de navigateur FlipLens conserve une copie de l'identifiant de l'appareil et des paramètres, ainsi que vos résultats de vérification pendant 24 heures, dans son propre stockage d'extension.
       </p>
 
       <h2>8. Enfants</h2>
