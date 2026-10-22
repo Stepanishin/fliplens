@@ -39,7 +39,7 @@ const plans = Object.values(PLANS);
 const paid = plans.filter((p) => p.priceMonthlyMinor > 0);
 const planLine = plans.map((p) => `${p.name} at ${p.priceMonthlyMinor ? `${eur(p.priceMonthlyMinor)}/month` : '€0'}: ${p.features[0]!.toLowerCase().replace(/\s*\((.*)\)/, ', $1')}`).join('; ');
 
-const CTA = `<p class="cta"><a class="btn" href="/">Check an item for free</a><span>Try one check without an account, then 10 free checks a month with Google sign-in. No card needed.</span></p>`;
+const CTA = `<p class="cta"><a class="btn" href="/">Check an item for free</a><span>Try two checks without an account, then 10 free checks a month with Google sign-in. No card needed.</span></p>`;
 
 const LISTING_CTA = `<p class="cta"><a class="btn" href="/?tool=listing">Write my listing free</a><span>${PLANS.free.monthlyListings} free listings a month. Try one without an account. No card needed.</span></p>`;
 
@@ -827,7 +827,7 @@ const deNum = (n: number): string => n.toLocaleString('de-DE');
 /** German plan feature lines (keep in step with apps/web/src/i18n.ts). */
 const DE_FEATURES: Record<string, readonly string[]> = PLAN_FEATURES_BY_LANG.de;
 
-const CTA_DE = `<p class="cta"><a class="btn" href="/de">Kostenlos prüfen</a><span>${PLANS.free.monthlyValuations} Checks pro Monat gratis. Einen Check kannst du ganz ohne Konto testen. Keine Karte nötig.</span></p>`;
+const CTA_DE = `<p class="cta"><a class="btn" href="/de">Kostenlos prüfen</a><span>${PLANS.free.monthlyValuations} Checks pro Monat gratis. Zwei Checks kannst du ganz ohne Konto testen. Keine Karte nötig.</span></p>`;
 const LISTING_CTA_DE = `<p class="cta"><a class="btn" href="/de?tool=listing">Anzeige kostenlos schreiben</a><span>${PLANS.free.monthlyListings} Anzeigen pro Monat gratis. Eine kannst du ganz ohne Konto testen. Keine Karte nötig.</span></p>`;
 
 const COMMON_FAQ_DE: Faq[] = [

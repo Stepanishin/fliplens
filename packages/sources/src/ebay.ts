@@ -92,6 +92,8 @@ const CATEGORY_BY_EBAY: Record<string, CategorySlug> = {
   '261186': 'books', // Bücher (German leaf under 267)
 };
 
+const LENS_NAME = /\d{1,4}(?:[.,]\d)?\s?mm|(?<![a-z])f\s?\/?\s?\d|(?<![a-z])(?:objektiv|lens|obiettivo|objectif|objetivo|zuiko|nikkor|sigma|tamron|samyang|tokina)(?![a-z])/i;
+
 export function ebayCategoryFor(p: NormalizedProduct): string | undefined {
   return ebayCategoriesFor(p)[0];
 }
@@ -230,6 +232,9 @@ export class EbayAdapter implements MarketplaceAdapter {
     let found: CategorySuggestion | undefined;
     for (const sug of body.categorySuggestions ?? []) {
       const slug = CATEGORY_BY_EBAY[sug.category.categoryId];
+      // eBay often suggests lenses for a camera body name ("Olympus OM10": lenses made for it). Only a name that
+      // reads like a lens (focal length, aperture or the word) counts as a lens; otherwise try the next suggestion.
+      if (slug === 'lenses' && !LENS_NAME.test(query)) continue;
       if (slug) {
         found = { category: slug };
         break;

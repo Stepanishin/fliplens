@@ -16,8 +16,8 @@ const IT_FEATURES: Record<string, readonly string[]> = PLAN_FEATURES_BY_LANG.it;
 const plans = Object.values(PLANS);
 const paid = plans.filter((p) => p.priceMonthlyMinor > 0);
 
-const CTA_IT = `<p class="cta"><a class="btn" href="/it">Controlla gratis</a><span>${PLANS.free.monthlyValuations} controlli al mese gratis. Puoi provarne uno anche senza account. Nessuna carta richiesta.</span></p>`;
-const LISTING_CTA_IT = `<p class="cta"><a class="btn" href="/it?tool=listing">Scrivi il mio annuncio gratis</a><span>${PLANS.free.monthlyListings} annunci al mese gratis. Puoi provarne uno anche senza account. Nessuna carta richiesta.</span></p>`;
+const CTA_IT = `<p class="cta"><a class="btn" href="/it">Controlla gratis</a><span>${PLANS.free.monthlyValuations} controlli al mese gratis. Puoi provarne due anche senza account. Nessuna carta richiesta.</span></p>`;
+const LISTING_CTA_IT = `<p class="cta"><a class="btn" href="/it?tool=listing">Scrivi il mio annuncio gratis</a><span>${PLANS.free.monthlyListings} annunci al mese gratis. Puoi provarne due anche senza account. Nessuna carta richiesta.</span></p>`;
 
 const COMMON_FAQ_IT: Faq[] = [
   {

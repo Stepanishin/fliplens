@@ -264,8 +264,9 @@ function enabled(db: Db, log: FastifyBaseLogger, auth: AuthConfig): Persistence 
    * IP and per day overall so a viral video cannot run up the AI bill. Counters per IP/day live in memory (one
    * instance); per device they come from the database. Exceeded: 401 trial_used (the app then asks to sign in).
    */
-  const TRIAL_PER_DEVICE = { valuation: 1, identification: 3, listing: 1 } as const;
-  const TRIAL_PER_IP_DAY = { valuation: 3, identification: 9, listing: 3 } as const;
+  // Two checks: guests who tried one and wanted a second left at the limit instead of signing in (ADR-032).
+  const TRIAL_PER_DEVICE = { valuation: 2, identification: 5, listing: 1 } as const;
+  const TRIAL_PER_IP_DAY = { valuation: 6, identification: 15, listing: 3 } as const;
   const TRIAL_PER_DAY = { valuation: 400, identification: 1200, listing: 400 } as const;
   type TrialKind = keyof typeof TRIAL_PER_DEVICE;
   const trialCounts = new Map<string, number>();

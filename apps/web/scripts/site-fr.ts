@@ -17,7 +17,7 @@ const paid = plans.filter((p) => p.priceMonthlyMinor > 0);
 /** French plan feature lines (keep in step with apps/web/src/i18n.ts). */
 const FR_FEATURES: Record<string, readonly string[]> = PLAN_FEATURES_BY_LANG.fr;
 
-const CTA = `<p class="cta"><a class="btn" href="/fr">Vérifier gratuitement</a><span>${PLANS.free.monthlyValuations} vérifications gratuites par mois. Tu peux tester une vérification sans compte. Pas de carte bancaire.</span></p>`;
+const CTA = `<p class="cta"><a class="btn" href="/fr">Vérifier gratuitement</a><span>${PLANS.free.monthlyValuations} vérifications gratuites par mois. Tu peux tester deux vérifications sans compte. Pas de carte bancaire.</span></p>`;
 const LISTING_CTA = `<p class="cta"><a class="btn" href="/fr?tool=listing">Écrire mon annonce gratuitement</a><span>${PLANS.free.monthlyListings} annonces gratuites par mois. Tu peux en tester une sans compte. Pas de carte bancaire.</span></p>`;
 
 const COMMON_FAQ: Faq[] = [
