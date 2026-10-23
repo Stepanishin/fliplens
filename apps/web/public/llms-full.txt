@@ -79,7 +79,7 @@ FlipLens is a web app for resellers in Europe. Take a photo, scan a barcode or t
 From active eBay listings, read through the official eBay API: eBay in five EU countries in euro (converted with ECB exchange rates), or eBay.co.uk in pounds if you sell in the UK. Asking prices are usually above what items finally sell for, so FlipLens adjusts them down and always shows how many listings an estimate is based on. You can open every listing it used.
 
 **Which items work best?**
-Consumer electronics, gaming and cameras: headphones, smartphones, tablets, laptops, smartwatches, speakers, consoles, handhelds, controllers, games, camera bodies, lenses, action and compact cameras, plus power tools. Branded clothes, shoes and bags are priced too, by brand, type and condition (a rougher estimate than for electronics). LEGO sets by set number; books, vinyl, CDs and DVDs by barcode.
+Consumer electronics, gaming and cameras: headphones, smartphones, tablets, laptops, smartwatches, speakers, consoles, handhelds, controllers, games, camera bodies, lenses, action and compact cameras, plus power tools. Branded clothes, shoes and bags are priced too, by brand, type and condition (a rougher estimate than for electronics). LEGO sets by set number; books, vinyl, CDs and DVDs by barcode. Watches by model; branded jewellery by brand and type (unbranded gold and silver, furniture and vehicles are not priced).
 
 **Do I need to enter a price?**
 No. Without a price FlipLens shows what the item sells for and the maximum price worth paying for your target return. With a price you get a verdict, profit and ROI for that exact deal.

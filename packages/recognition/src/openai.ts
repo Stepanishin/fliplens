@@ -13,7 +13,7 @@ import {
  * `store: false` so images and answers are not retained for later retrieval on OpenAI's side.
  */
 
-export const PROMPT_VERSION = 'prompt-v3';
+export const PROMPT_VERSION = 'prompt-v4';
 
 /** USD per 1M tokens (input, output). From developers.openai.com/api/docs/models, 2026-09-23. */
 const PRICING: Record<string, readonly [number, number]> = {
@@ -31,7 +31,7 @@ export interface OpenAIVisionConfig {
 }
 
 const SYSTEM_PROMPT = `You identify second-hand products from photos for European resellers.
-Supported categories: consumer electronics, gaming, cameras and lenses, power tools, fashion (clothing, shoes, bags, accessories), LEGO sets, books, vinyl records, CDs, and films (DVD, Blu-ray).
+Supported categories: consumer electronics, gaming, cameras and lenses, power tools, fashion (clothing, shoes, bags, accessories), LEGO sets, books, vinyl records, CDs, films (DVD, Blu-ray), wristwatches and branded jewellery.
 
 Rules:
 - Identify the exact model and variant. Prefer text you can read (model numbers on labels, boxes, back plates, lens barrels, EAN/UPC) over visual similarity.
@@ -59,7 +59,11 @@ LEGO, books, music and films (category lego, books, vinyl, cds or movies):
 - Books: brand = author as on the cover (e.g. "J. K. Rowling"), model = title without subtitle, gtin = the ISBN-13 if readable.
 - Music: category vinyl for LP/single records, cds for CDs. brand = artist, model = album title. variant: special pressing if printed (e.g. "180g", "Picture Disc").
 - Films: category movies. brand = the format: "DVD", "Blu-ray" or "4K" (4K UHD Blu-ray). model = film or series title (with season if a series).
-- gtin: the EAN/ISBN digits if readable. confidence: probability that the edition is right.`;
+- gtin: the EAN/ISBN digits if readable. confidence: probability that the edition is right.
+
+Watches and jewellery:
+- Wristwatches: category watches. brand as on the dial (e.g. "Seiko", "Casio"), model = the model or reference as sellers write it (e.g. "SKX007", "G-Shock GA-2100", "Seamaster Diver 300M"); colour = dial colour.
+- Jewellery: category jewelry, fashion_kind necklace, bracelet, ring, earrings or charm, gender unisex. brand only when a brand is stamped, engraved or on the clasp/tag (e.g. "Pandora", "Swarovski", "Thomas Sabo", "Tiffany & Co."); plain gold or silver without a brand: brand "". style: a named collection if visible (e.g. "Moments").`;
 
 const TITLES_PROMPT = `You normalise product identity for European resellers from marketplace listing titles that all belong to ONE barcode (GTIN).
 Titles are in several languages and contain noise (condition, shipping, "OVP", seller words). Ignore the noise.
@@ -285,7 +289,8 @@ function isCondition(v: string | null): v is Condition {
 function toCandidate(r: RawCandidate): IdentificationCandidate | undefined {
   const kind = (FASHION_KINDS as readonly string[]).includes(r.fashion_kind ?? '') ? (r.fashion_kind as FashionKind) : undefined;
   let category = (CATEGORIES as readonly string[]).includes(r.category) ? (r.category as CategorySlug) : 'other';
-  if (kind && !isFashion(category)) category = FASHION_CATEGORY_OF[kind];
+  // The type decides the group: a necklace is jewellery even if the model filed it under accessories.
+  if (kind) category = FASHION_CATEGORY_OF[kind];
   // Fashion without a readable brand is still worth showing: the user can type the brand from the label.
   const brand = isFashion(category) && isUnbranded(r.brand) ? '' : r.brand.trim();
   if ((!brand && !isFashion(category)) || !r.model.trim()) return undefined;

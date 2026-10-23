@@ -1,7 +1,7 @@
 import { DEFAULT_PRICING_CONFIG, type PricingConfig } from './config.js';
 import { computeConfidence, type Confidence } from './confidence.js';
 import { isFashion, matchFashionTitle } from './fashion.js';
-import { isMedia, matchMediaTitle } from './media.js';
+import { isMedia, matchMediaTitle, matchWatchTitle } from './media.js';
 import { compact, matchTitle } from './matching.js';
 import { convert, MissingFxRateError, type CurrencyCode, type FxRateTable, type Money } from './money.js';
 import { distribution, percentile } from './stats.js';
@@ -148,7 +148,9 @@ export function estimatePrice(input: PriceEstimateInput): PriceEstimate | Insuff
       ? matchFashionTitle(product, w.item.title)
       : isMedia(product.category)
         ? matchMediaTitle(product, w.item.title)
-        : matchTitle(product, w.item.title);
+        : product.category === 'watches'
+          ? matchWatchTitle(product, w.item.title)
+          : matchTitle(product, w.item.title);
     w.similarity = m.similarity;
     if (m.reason !== undefined) exclude(w, m.reason, m.detail);
     if (w.item.condition === 'for_parts' && targetCondition !== 'for_parts') exclude(w, 'for_parts', 'condition');

@@ -77,6 +77,7 @@ const EBAY_CATEGORY: Partial<Record<CategorySlug, string>> = {
   vinyl: '176985',
   cds: '176984',
   movies: '617',
+  watches: '31387',
 };
 
 /** eBay leaf category > our category (for auto-detect). First slug wins where several share an eBay category. */
@@ -106,7 +107,15 @@ export function ebayCategoriesFor(p: NormalizedProduct): string[] {
   return id ? [id] : [];
 }
 
+/**
+ * eBay top categories we do not price (ADR-034): furniture and home, vehicles, real estate, tickets. Their prices depend
+ * on local pickup, size or condition we cannot read from listings, so a guess would mislead.
+ */
+const UNSUPPORTED_ROOTS: Readonly<Record<string, string>> = { '11700': 'furniture', '3197': 'furniture', '9800': 'vehicles', '10542': 'real_estate', '1305': 'tickets' };
+
 export interface CategorySuggestion {
+  /** Set when eBay files the item under something we do not price (furniture, vehicles, ...). */
+  readonly unsupported?: string;
   readonly category: CategorySlug;
   /** Clothes, shoes, bags: type and department read from the suggested eBay category. */
   readonly fashion?: FashionAttributes;
@@ -239,9 +248,16 @@ export class EbayAdapter implements MarketplaceAdapter {
         found = { category: slug };
         break;
       }
-      const fashion = fashionFromEbay([sug.category.categoryId, ...(sug.categoryTreeNodeAncestors ?? []).map((a) => a.categoryId)]);
+      const path = [sug.category.categoryId, ...(sug.categoryTreeNodeAncestors ?? []).map((a) => a.categoryId)];
+      const fashion = fashionFromEbay(path);
       if (fashion) {
         found = fashion;
+        break;
+      }
+      // Only the first suggestion decides "not supported": later ones are weaker guesses.
+      const unsupported = path.map((id) => UNSUPPORTED_ROOTS[id]).find(Boolean);
+      if (unsupported && found === undefined && sug === body.categorySuggestions![0]) {
+        found = { category: 'other', unsupported };
         break;
       }
     }

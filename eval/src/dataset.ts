@@ -56,6 +56,7 @@ const PREFIX: Record<CategorySlug, 'el' | 'gm' | 'cm' | 'tl' | 'fa' | 'md'> = {
   power_tools: 'tl', other: 'tl',
   clothing: 'fa', shoes: 'fa', bags: 'fa', accessories: 'fa',
   lego: 'md', books: 'md', vinyl: 'md', cds: 'md', movies: 'md',
+  watches: 'el', jewelry: 'fa',
 };
 
 export async function loadItems(): Promise<BenchmarkItem[]> {

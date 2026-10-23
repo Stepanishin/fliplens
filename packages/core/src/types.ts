@@ -10,6 +10,7 @@ export const CATEGORIES = [
   'power_tools',
   'clothing', 'shoes', 'bags', 'accessories',
   'lego', 'books', 'vinyl', 'cds', 'movies',
+  'watches', 'jewelry',
   'other',
 ] as const;
 export type CategorySlug = (typeof CATEGORIES)[number];
@@ -40,6 +41,7 @@ export const FASHION_KINDS = [
   'sneakers', 'boots', 'shoes', 'sandals',
   'handbag', 'backpack', 'wallet',
   'belt', 'hat', 'scarf', 'sunglasses',
+  'necklace', 'bracelet', 'ring', 'earrings', 'charm',
 ] as const;
 export type FashionKind = (typeof FASHION_KINDS)[number];
 export const FASHION_GENDERS = ['women', 'men', 'unisex', 'kids'] as const;

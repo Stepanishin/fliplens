@@ -30,7 +30,7 @@ const COMMON_FAQ_IT: Faq[] = [
   },
   {
     q: 'Quali articoli funzionano meglio?',
-    a: `Elettronica di consumo, gaming e fotografia: cuffie, smartphone, tablet, laptop, smartwatch, altoparlanti, console, console portatili, controller, giochi, corpi macchina, obiettivi, action cam e fotocamere compatte, oltre agli elettroutensili. Anche abbigliamento, scarpe e borse di marca vengono valutati, per marca, tipo e condizione (stima più approssimativa che per l'elettronica). Set LEGO per numero del set; libri, vinili, CD e DVD con il codice a barre.`,
+    a: `Elettronica di consumo, gaming e fotografia: cuffie, smartphone, tablet, laptop, smartwatch, altoparlanti, console, console portatili, controller, giochi, corpi macchina, obiettivi, action cam e fotocamere compatte, oltre agli elettroutensili. Anche abbigliamento, scarpe e borse di marca vengono valutati, per marca, tipo e condizione (stima più approssimativa che per l'elettronica). Set LEGO per numero del set; libri, vinili, CD e DVD con il codice a barre. Orologi per modello; gioielli di marca per marca e tipo (oro e argento senza marca, mobili e veicoli non vengono valutati).`,
   },
   {
     q: 'Devo inserire un prezzo?',

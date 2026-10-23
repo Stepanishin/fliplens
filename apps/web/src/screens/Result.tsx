@@ -212,12 +212,14 @@ interface Props {
   onBought?: (priceMinor: number) => void;
   /** Open the listing writer with the same photos (the way forward when there is no price data, e.g. clothes). */
   onWriteListing?: () => void;
+  /** Shown right under the verdict (guests: keep the result by signing in). */
+  topSlot?: ReactNode;
   /** Signed-in users: offer a price alert for this item. */
   alertSettings?: Settings;
   children?: ReactNode;
 }
 
-export function Result({ resp, query, country, onNewScan, onEdit, targetRoiPct, onBought, onWriteListing, alertSettings, children }: Props) {
+export function Result({ resp, query, country, onNewScan, onEdit, targetRoiPct, onBought, onWriteListing, alertSettings, topSlot, children }: Props) {
   const r = resp.result;
   const askedMinor = r.status === 'ok' ? r.profit.expected.purchasePrice.amountMinor : 0;
   // "What if I pay X?": recomputed locally with the same core logic, no new check, no quota.
@@ -240,6 +242,7 @@ export function Result({ resp, query, country, onNewScan, onEdit, targetRoiPct, 
             {r.reason === 'too_few_comparables' ? T.tooFew(r.includedCount) : T.uncertain}
           </div>
         </div>
+        {topSlot}
         {onWriteListing && (
           <button type="button" className="home-tool" onClick={onWriteListing}>
             <span className="home-tool-icon"><IconSpark size={20} /></span>
@@ -350,6 +353,7 @@ export function Result({ resp, query, country, onNewScan, onEdit, targetRoiPct, 
         </div>
       )}
 
+      {topSlot}
       {isFashion(resp.category) && onWriteListing && (
         <button type="button" className="primary wide pc-list" onClick={onWriteListing}>
           <IconSpark size={18} /> {T.listVinted}

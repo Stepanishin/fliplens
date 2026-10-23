@@ -54,7 +54,7 @@ const COMMON_FAQ: Faq[] = [
   },
   {
     q: 'Which items work best?',
-    a: 'Consumer electronics, gaming and cameras: headphones, smartphones, tablets, laptops, smartwatches, speakers, consoles, handhelds, controllers, games, camera bodies, lenses, action and compact cameras, plus power tools. Branded clothes, shoes and bags are priced too, by brand, type and condition (a rougher estimate than for electronics). LEGO sets by set number; books, vinyl, CDs and DVDs by barcode.',
+    a: 'Consumer electronics, gaming and cameras: headphones, smartphones, tablets, laptops, smartwatches, speakers, consoles, handhelds, controllers, games, camera bodies, lenses, action and compact cameras, plus power tools. Branded clothes, shoes and bags are priced too, by brand, type and condition (a rougher estimate than for electronics). LEGO sets by set number; books, vinyl, CDs and DVDs by barcode. Watches by model; branded jewellery by brand and type (unbranded gold and silver, furniture and vehicles are not priced).',
   },
   {
     q: 'Do I need to enter a price?',
@@ -841,7 +841,7 @@ const COMMON_FAQ_DE: Faq[] = [
   },
   {
     q: 'Welche Artikel funktionieren am besten?',
-    a: 'Unterhaltungselektronik, Gaming und Kameras: Kopfhörer, Smartphones, Tablets, Laptops, Smartwatches, Lautsprecher, Konsolen, Handhelds, Controller, Spiele, Kameragehäuse, Objektive, Action- und Kompaktkameras sowie Elektrowerkzeuge. Markenkleidung, Schuhe und Taschen werden auch bewertet, nach Marke, Art und Zustand (gröber als bei Elektronik). LEGO-Sets nach Setnummer; Bücher, Schallplatten, CDs und DVDs per Barcode.',
+    a: 'Unterhaltungselektronik, Gaming und Kameras: Kopfhörer, Smartphones, Tablets, Laptops, Smartwatches, Lautsprecher, Konsolen, Handhelds, Controller, Spiele, Kameragehäuse, Objektive, Action- und Kompaktkameras sowie Elektrowerkzeuge. Markenkleidung, Schuhe und Taschen werden auch bewertet, nach Marke, Art und Zustand (gröber als bei Elektronik). LEGO-Sets nach Setnummer; Bücher, Schallplatten, CDs und DVDs per Barcode. Uhren nach Modell; Markenschmuck nach Marke und Art (Gold und Silber ohne Marke, Möbel und Fahrzeuge werden nicht bewertet).',
   },
   {
     q: 'Muss ich einen Preis eingeben?',
@@ -1876,7 +1876,7 @@ function llms(): string {
 > FlipLens (${SITE}) is a web app for resellers in Europe that answers "I can buy this for €X: is it worth buying to resell?". From a photo, a barcode or a typed model it identifies the exact product, reads comparable active eBay listings in Germany, France, Italy, Spain and the Netherlands (in euro) or on eBay.co.uk (in pounds), estimates the resale value, subtracts marketplace fees and shipping, and returns profit, ROI, the maximum price worth paying and a verdict (strong buy, buy, borderline, skip). It is independent, not affiliated with eBay, and does not buy, sell or ship items.
 
 Key facts:
-- Works best for consumer electronics, gaming and cameras (headphones, phones, tablets, laptops, consoles, controllers, games, camera bodies, lenses) and power tools. Branded clothes, shoes and bags are priced too, by brand, type and condition (a rougher estimate than for electronics). LEGO sets by set number; books, vinyl, CDs and DVDs by barcode.
+- Works best for consumer electronics, gaming and cameras (headphones, phones, tablets, laptops, consoles, controllers, games, camera bodies, lenses) and power tools. Branded clothes, shoes and bags are priced too, by brand, type and condition (a rougher estimate than for electronics). LEGO sets by set number; books, vinyl, CDs and DVDs by barcode. Watches by model; branded jewellery by brand and type (unbranded gold and silver, furniture and vehicles are not priced).
 - The purchase price is optional: without it FlipLens shows the maximum price worth paying for the user's target ROI.
 - Fee profiles: eBay.de private and business sellers, eBay.it and eBay.fr private sellers, eBay.co.uk private sellers, Vinted, local pickup. Each shows when it was last checked.
 - Table scan: one photo of a stall, box or shelf finds up to 6 items and checks each against eBay listings, best buys first. Live radar: with the camera open, items get boxes with their names as the phone moves; a tap runs a real check before any price is shown. Both for Google sign-in accounts, Free included.

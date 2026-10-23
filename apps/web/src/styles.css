@@ -894,3 +894,9 @@ button.ghost.small { min-height: 34px; padding: 6px 12px; font-size: 13px; }
 .lp-hero-copy { min-width: 0; }
 .lp-cats { max-width: 100%; }
 .lp-hero-copy .lp-consent { margin-top: 12px; }
+
+/* ---------- Guest: keep the result ---------- */
+.save-card { border-color: var(--accent-2); }
+.save-points { list-style: none; padding: 0; margin: 4px 0 12px; display: grid; gap: 6px; }
+.save-points li { display: flex; align-items: center; gap: 8px; font-weight: 550; }
+.save-points svg { color: var(--strong-buy); flex: none; }

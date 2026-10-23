@@ -39,7 +39,7 @@ function pushSettings(s: Settings): Promise<unknown> {
 }
 import { track } from './track.js';
 import { currencyFor, errorText, setCurrency, tr } from './i18n.js';
-import { IconBack, IconBox, IconCamera, IconClock, IconHome, IconUser } from './ui/icons.js';
+import { IconBack, IconBox, IconCamera, IconCheck, IconClock, IconHome, IconUser } from './ui/icons.js';
 import { resizeToJpegDataUrl } from './image.js';
 import { Confirm } from './screens/Confirm.js';
 import { History, ScanDetail } from './screens/History.js';
@@ -68,6 +68,9 @@ const T = tr({
   en: {
     guestTitle: 'Save your checks',
     guestText: 'Sign in with Google to keep this check and get 10 free checks every month. No password, no card.',
+    saveTitle: "Keep this result",
+    savePoints: ["Saved in your history", "10 free checks every month", "A price alert when it gets cheaper"] as readonly string[],
+    saveNote: "One tap with Google. No password, no card.",
     guestGate: 'Sign in to see your checks and stock.',
     titles: { confirm: 'Identify', price: 'Price', result: 'Verdict', scan: 'Saved scan', profile: 'Profile', admin: 'Admin', listing: 'Write listing', referral: 'Invite friends', shelf: 'Table scan' } as Partial<Record<string, string>>,
     steps: ['Identify', 'Price', 'Verdict'] as readonly string[],
@@ -91,6 +94,9 @@ const T = tr({
   de: {
     guestTitle: 'Speicher deine Checks',
     guestText: 'Melde dich mit Google an, um diesen Check zu behalten und jeden Monat 10 kostenlose Checks zu bekommen. Kein Passwort, keine Karte.',
+    saveTitle: "Ergebnis behalten",
+    savePoints: ["Gespeichert in deinem Verlauf", "10 kostenlose Checks jeden Monat", "Preisalarm, wenn es günstiger wird"] as readonly string[],
+    saveNote: "Ein Tipp mit Google. Kein Passwort, keine Karte.",
     guestGate: 'Melde dich an, um deine Checks und dein Lager zu sehen.',
     titles: { confirm: 'Erkennen', price: 'Preis', result: 'Ergebnis', scan: 'Gespeicherter Scan', profile: 'Profil', admin: 'Admin', listing: 'Anzeige schreiben', referral: 'Freunde einladen', shelf: 'Tisch-Scan' } as Partial<Record<string, string>>,
     steps: ['Erkennen', 'Preis', 'Ergebnis'] as readonly string[],
@@ -114,6 +120,9 @@ const T = tr({
   it: {
     guestTitle: 'Salva i tuoi controlli',
     guestText: 'Accedi con Google per conservare questo controllo e ricevere 10 controlli gratuiti ogni mese. Niente password, niente carta.',
+    saveTitle: "Conserva questo risultato",
+    savePoints: ["Salvato nella tua cronologia", "10 controlli gratuiti ogni mese", "Un avviso quando il prezzo scende"] as readonly string[],
+    saveNote: "Un tocco con Google. Niente password, niente carta.",
     guestGate: 'Accedi per vedere i tuoi controlli e il tuo magazzino.',
     titles: { confirm: 'Riconosci', price: 'Prezzo', result: 'Verdetto', scan: 'Scansione salvata', profile: 'Profilo', admin: 'Admin', listing: 'Scrivi annuncio', referral: 'Invita amici', shelf: 'Scansione del tavolo' } as Partial<Record<string, string>>,
     steps: ['Riconosci', 'Prezzo', 'Verdetto'] as readonly string[],
@@ -137,6 +146,9 @@ const T = tr({
   fr: {
     guestTitle: 'Enregistre tes vérifications',
     guestText: 'Connecte-toi avec Google pour garder cette vérification et recevoir 10 vérifications gratuites chaque mois. Sans mot de passe, sans carte.',
+    saveTitle: "Garde ce résultat",
+    savePoints: ["Enregistré dans ton historique", "10 vérifications gratuites chaque mois", "Une alerte quand le prix baisse"] as readonly string[],
+    saveNote: "Un appui avec Google. Sans mot de passe, sans carte.",
     guestGate: 'Connecte-toi pour voir tes vérifications et ton stock.',
     titles: { confirm: 'Identifier', price: 'Prix', result: 'Verdict', scan: 'Scan enregistré', profile: 'Profil', admin: 'Admin', listing: "Rédiger l'annonce", referral: 'Inviter des amis', shelf: 'Scan de la table' } as Partial<Record<string, string>>,
     steps: ['Identifier', 'Prix', 'Verdict'] as readonly string[],
@@ -629,6 +641,19 @@ export function App() {
   }, [account, go]);
 
   const isGuest = dbOn && meLoaded && !account;
+  /** Right under a guest's first result: what signing in gives, with the Google button at hand. */
+  const saveCard = (
+    <section className="card guest-card save-card">
+      <h2>{T.saveTitle}</h2>
+      <ul className="save-points">
+        {T.savePoints.map((x) => <li key={x}><IconCheck size={16} /> {x}</li>)}
+      </ul>
+      {health?.auth.google && <GoogleButton clientId={health.auth.google} onCredential={(c) => void signIn(c)} />}
+      <p className="muted small">{T.saveNote}</p>
+      {authError && <div className="banner bad">{authError}</div>}
+    </section>
+  );
+
   const guestCard = (text: string) => (
     <section className="card guest-card">
       <h2>{T.guestTitle}</h2>
@@ -807,6 +832,7 @@ export function App() {
             country={settings.country}
             targetRoiPct={settings.targetRoiPct}
             {...(account && { alertSettings: settings })}
+            {...(isGuest && { topSlot: saveCard })}
             onNewScan={newScan}
             onEdit={() => go({ name: 'confirm' })}
             {...(resp.scanId && { onBought: (m: number) => setBoughtPriceMinor(m) })}
@@ -816,7 +842,6 @@ export function App() {
             }}
           >
             {devTools && isAdmin && draft.photos.length > 0 && <BenchmarkAdd photos={draft.photos} request={buildRequest(draft, settings)} />}
-            {isGuest && guestCard(T.guestText)}
           </Result>
         )}
         {route.name === 'plans' && <Plans billing={billing} account={account} notice={plansNotice} onSignIn={() => tab({ name: 'profile' })} />}

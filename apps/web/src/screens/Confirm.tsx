@@ -43,6 +43,7 @@ const T = tr({
     condition: 'Condition',
     suggested: (c: string) => ` (suggested: ${c})`,
     cont: 'Continue',
+    noBrandJewelry: "No brand found. Unbranded gold and silver is priced by weight, which we cannot do from a photo. Type the brand if it has one.",
     author: "Author",
     artist: "Artist",
     title: "Title",
@@ -93,6 +94,7 @@ const T = tr({
     condition: 'Zustand',
     suggested: (c: string) => ` (Vorschlag: ${c})`,
     cont: 'Weiter',
+    noBrandJewelry: "Keine Marke gefunden. Gold und Silber ohne Marke wird nach Gewicht bewertet, das geht nicht per Foto. Gib die Marke ein, falls es eine gibt.",
     author: "Autor",
     artist: "Künstler",
     title: "Titel",
@@ -143,6 +145,7 @@ const T = tr({
     condition: 'Condizione',
     suggested: (c: string) => ` (suggerita: ${c})`,
     cont: 'Continua',
+    noBrandJewelry: "Nessuna marca trovata. Oro e argento senza marca si valutano a peso, non da una foto. Scrivi la marca se c’è.",
     author: "Autore",
     artist: "Artista",
     title: "Titolo",
@@ -193,6 +196,7 @@ const T = tr({
     condition: 'État',
     suggested: (c: string) => ` (suggéré : ${c})`,
     cont: 'Continuer',
+    noBrandJewelry: "Aucune marque trouvée. L’or et l’argent sans marque s’estiment au poids, pas sur photo. Saisis la marque s’il y en a une.",
     author: "Auteur",
     artist: "Artiste",
     title: "Titre",
@@ -331,7 +335,7 @@ export function Confirm({ draft, identifying, error, onChangeProduct, onDetected
           <span>{modelLabel}</span>
           <input value={p.model} onChange={(e) => onChangeProduct({ model: e.target.value })} placeholder={modelPh} />
         </label>
-        {fashion && !p.brand.trim() && p.model.trim() !== '' && <p className="hint warn">{T.noBrand}</p>}
+        {fashion && !p.brand.trim() && p.model.trim() !== '' && <p className="hint warn">{p.category === 'jewelry' ? T.noBrandJewelry : T.noBrand}</p>}
         {fashion && (
           <>
             <div className="row2">
@@ -341,20 +345,21 @@ export function Confirm({ draft, identifying, error, onChangeProduct, onDetected
                   value={p.fashionKind}
                   onChange={(e) => {
                     const kind = e.target.value as FashionKind | '';
-                    onChangeProduct({ fashionKind: kind, ...(kind && { category: FASHION_CATEGORY_OF[kind], categoryAuto: false }) });
+                    // Jewellery has no department: unisex.
+                    onChangeProduct({ fashionKind: kind, ...(kind && { category: FASHION_CATEGORY_OF[kind], categoryAuto: false }), ...(kind && FASHION_CATEGORY_OF[kind] === 'jewelry' && { gender: 'unisex' }) });
                   }}
                 >
                   <option value="">{T.choose}</option>
-                  {FASHION_KINDS.map((k) => <option key={k} value={k}>{FASHION_KIND_NAME[k]}</option>)}
+                  {FASHION_KINDS.filter((k) => (FASHION_CATEGORY_OF[k] === 'jewelry') === (p.category === 'jewelry')).map((k) => <option key={k} value={k}>{FASHION_KIND_NAME[k]}</option>)}
                 </select>
               </label>
-              <label className="field">
+              {p.category !== 'jewelry' && <label className="field">
                 <span>{T.gender}</span>
                 <select value={p.gender} onChange={(e) => onChangeProduct({ gender: e.target.value as FashionGender | '' })}>
                   <option value="">{T.choose}</option>
                   {FASHION_GENDERS.map((g) => <option key={g} value={g}>{FASHION_GENDER_NAME[g]}</option>)}
                 </select>
-              </label>
+              </label>}
             </div>
             <label className="field">
               <span>{T.style}</span>

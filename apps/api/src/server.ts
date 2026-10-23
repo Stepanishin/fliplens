@@ -9,6 +9,7 @@ import {
   FEE_PRESETS,
   isFashion,
   isUnbranded,
+  jewelryKindFromText,
   resolveFeeProfile,
   feeProfileIn,
   marketFor,
@@ -343,18 +344,30 @@ app.post('/api/valuation', async (req, reply) => {
   }
   let category = b.product.category;
   let fashion = b.product.fashion;
-  // No category, or clothes without type / department: ask eBay's category suggestions for brand + model.
-  if (!category || (isFashion(category) && !fashion)) {
-    const s = await ebay.suggest(`${b.product.brand} ${b.product.model}`).catch((e: unknown) => {
+  // No category ("other" too), or clothes without type / department: ask eBay's category suggestions for brand + model.
+  if (!category || category === 'other' || (isFashion(category) && !fashion)) {
+    const s = await ebay.suggest(`${b.product.brand} ${b.product.model}`).catch((e: unknown): { category: 'other'; fashion?: undefined; unsupported?: undefined } => {
       req.log.warn({ event: 'category_detect_failed', err: e instanceof Error ? e.message : String(e) }, 'category auto-detect failed');
-      return { category: 'other' as const, fashion: undefined };
+      return { category: 'other' };
     });
-    if (!category) category = s.category;
+    // Furniture, vehicles and the like: say so instead of pricing from unrelated listings (no check used).
+    if ((!category || category === 'other') && s.unsupported) {
+      req.log.info({ event: 'unsupported_item', kind: s.unsupported }, 'unsupported item');
+      return reply.code(422).send({ error: 'unsupported_item', kind: s.unsupported, message: 'FlipLens does not price this kind of item yet.' });
+    }
+    if (!category || category === 'other') category = s.category;
     if (isFashion(category) && isFashion(s.category)) fashion = s.fashion;
   }
   if (!isFashion(category)) fashion = undefined;
+  // Jewellery: a type named in the text beats eBay's merged "bracelets & charms" category.
+  if (category === 'jewelry') {
+    const named = jewelryKindFromText(`${b.product.model} ${b.product.fashion?.style ?? ''}`);
+    if (named && named !== fashion?.kind) fashion = { ...(fashion ?? { gender: 'unisex' as const }), kind: named };
+  }
   // Unbranded clothes have no market price we can read: "blue hoodie" matches thousands of unrelated listings.
   if (isFashion(category) && isUnbranded(b.product.brand)) {
+    // Unbranded gold and silver is worth its weight and purity, which no photo or listing title tells us.
+    if (category === 'jewelry') return reply.code(422).send({ error: 'jewelry_unbranded', message: 'Unbranded gold and silver jewellery is priced by weight and purity. Ask a jeweller, or type the brand if it has one.' });
     return reply.code(422).send({ error: 'brand_required', message: 'Clothes, shoes and bags are priced by brand. Type the brand from the label.' });
   }
   const product: NormalizedProduct = stripUndefined({ ...b.product, category, fashion: fashion && stripUndefined(fashion) });

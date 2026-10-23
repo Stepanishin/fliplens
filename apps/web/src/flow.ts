@@ -116,8 +116,8 @@ export function buildRequest(d: Draft, s: Settings): ValuationRequest {
       // Books, music, films: search the exact edition by its barcode (unless the user changed the item).
       ...(p.category !== '' && ['books', 'vinyl', 'cds', 'movies'].includes(p.category) && !d.edited && (r?.gtin ?? chosen?.gtin) && { gtin: (r?.gtin ?? chosen?.gtin)! }),
       // Without a department the server detects type and department from brand + model.
-      ...(showsFashion(p.category) && p.gender && {
-        fashion: { ...(p.fashionKind && { kind: p.fashionKind }), gender: p.gender, ...(p.style.trim() && { style: p.style.trim() }) },
+      ...(showsFashion(p.category) && (p.gender || p.category === 'jewelry') && {
+        fashion: { ...(p.fashionKind && { kind: p.fashionKind }), gender: p.gender || 'unisex', ...(p.style.trim() && { style: p.style.trim() }) },
       }),
     },
     condition: d.condition,

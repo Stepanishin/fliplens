@@ -30,7 +30,7 @@ export const CATEGORY_NAME: Record<string, string> = tr<Record<string, string>>(
     controllers: 'Controllers', games: 'Video games', camera_bodies: 'Cameras', lenses: 'Lenses', action_cameras: 'Action cameras',
     compact_cameras: 'Compact cameras', power_tools: 'Power tools',
     clothing: 'Clothing', shoes: 'Shoes', bags: 'Bags', accessories: 'Fashion accessories',
-    lego: 'LEGO sets', books: 'Books', vinyl: 'Vinyl records', cds: 'CDs', movies: 'DVDs & Blu-rays', other: 'Other',
+    lego: 'LEGO sets', books: 'Books', vinyl: 'Vinyl records', cds: 'CDs', movies: 'DVDs & Blu-rays', watches: 'Watches', jewelry: 'Jewellery', other: 'Other',
   },
   de: {
     headphones: 'Kopfhörer', smartphones: 'Smartphones', tablets: 'Tablets', laptops: 'Laptops', smartwatches: 'Smartwatches',
@@ -38,7 +38,7 @@ export const CATEGORY_NAME: Record<string, string> = tr<Record<string, string>>(
     controllers: 'Controller', games: 'Videospiele', camera_bodies: 'Kameras', lenses: 'Objektive', action_cameras: 'Actioncams',
     compact_cameras: 'Kompaktkameras', power_tools: 'Elektrowerkzeuge',
     clothing: 'Kleidung', shoes: 'Schuhe', bags: 'Taschen', accessories: 'Mode-Accessoires',
-    lego: 'LEGO-Sets', books: 'Bücher', vinyl: 'Schallplatten', cds: 'CDs', movies: 'DVDs & Blu-rays', other: 'Sonstiges',
+    lego: 'LEGO-Sets', books: 'Bücher', vinyl: 'Schallplatten', cds: 'CDs', movies: 'DVDs & Blu-rays', watches: 'Uhren', jewelry: 'Schmuck', other: 'Sonstiges',
   },
   it: {
     headphones: 'Cuffie', smartphones: 'Smartphone', tablets: 'Tablet', laptops: 'Portatili', smartwatches: 'Smartwatch',
@@ -46,7 +46,7 @@ export const CATEGORY_NAME: Record<string, string> = tr<Record<string, string>>(
     controllers: 'Controller', games: 'Videogiochi', camera_bodies: 'Fotocamere', lenses: 'Obiettivi', action_cameras: 'Action cam',
     compact_cameras: 'Fotocamere compatte', power_tools: 'Elettroutensili',
     clothing: 'Abbigliamento', shoes: 'Scarpe', bags: 'Borse', accessories: 'Accessori moda',
-    lego: 'Set LEGO', books: 'Libri', vinyl: 'Vinili', cds: 'CD', movies: 'DVD e Blu-ray', other: 'Altro',
+    lego: 'Set LEGO', books: 'Libri', vinyl: 'Vinili', cds: 'CD', movies: 'DVD e Blu-ray', watches: 'Orologi', jewelry: 'Gioielli', other: 'Altro',
   },
   fr: {
     headphones: 'Casques et écouteurs', smartphones: 'Smartphones', tablets: 'Tablettes', laptops: 'Ordinateurs portables', smartwatches: 'Montres connectées',
@@ -54,7 +54,7 @@ export const CATEGORY_NAME: Record<string, string> = tr<Record<string, string>>(
     controllers: 'Manettes', games: 'Jeux vidéo', camera_bodies: 'Appareils photo', lenses: 'Objectifs', action_cameras: 'Caméras d’action',
     compact_cameras: 'Appareils photo compacts', power_tools: 'Outillage électrique',
     clothing: 'Vêtements', shoes: 'Chaussures', bags: 'Sacs', accessories: 'Accessoires de mode',
-    lego: 'Sets LEGO', books: 'Livres', vinyl: 'Vinyles', cds: 'CD', movies: 'DVD et Blu-ray', other: 'Autres',
+    lego: 'Sets LEGO', books: 'Livres', vinyl: 'Vinyles', cds: 'CD', movies: 'DVD et Blu-ray', watches: 'Montres', jewelry: 'Bijoux', other: 'Autres',
   },
 });
 
@@ -66,24 +66,28 @@ export const FASHION_KIND_NAME: KindMap = tr<KindMap>({
     shirt: 'Shirt / blouse', sweater: 'Sweater / knit', hoodie: 'Hoodie / sweatshirt', jacket: 'Jacket', coat: 'Coat', suit: 'Suit / blazer',
     swimwear: 'Swimwear', activewear: 'Sportswear', sneakers: 'Sneakers', boots: 'Boots', shoes: 'Shoes', sandals: 'Sandals',
     handbag: 'Handbag', backpack: 'Backpack', wallet: 'Wallet', belt: 'Belt', hat: 'Hat / cap', scarf: 'Scarf', sunglasses: 'Sunglasses',
+    necklace: 'Necklace / pendant', bracelet: 'Bracelet', ring: 'Ring', earrings: 'Earrings', charm: 'Charm',
   },
   de: {
     jeans: 'Jeans', trousers: 'Hose', shorts: 'Shorts', skirt: 'Rock', dress: 'Kleid', jumpsuit: 'Jumpsuit', top: 'T-Shirt / Top',
     shirt: 'Hemd / Bluse', sweater: 'Pullover / Strick', hoodie: 'Hoodie / Sweatshirt', jacket: 'Jacke', coat: 'Mantel', suit: 'Anzug / Blazer',
     swimwear: 'Bademode', activewear: 'Sportbekleidung', sneakers: 'Sneaker', boots: 'Stiefel', shoes: 'Schuhe', sandals: 'Sandalen',
     handbag: 'Handtasche', backpack: 'Rucksack', wallet: 'Geldbörse', belt: 'Gürtel', hat: 'Mütze / Cap', scarf: 'Schal', sunglasses: 'Sonnenbrille',
+    necklace: 'Kette / Anhänger', bracelet: 'Armband', ring: 'Ring', earrings: 'Ohrringe', charm: 'Charm',
   },
   it: {
     jeans: 'Jeans', trousers: 'Pantaloni', shorts: 'Shorts', skirt: 'Gonna', dress: 'Abito', jumpsuit: 'Tuta', top: 'T-shirt / top',
     shirt: 'Camicia / blusa', sweater: 'Maglione', hoodie: 'Felpa', jacket: 'Giacca', coat: 'Cappotto', suit: 'Completo / blazer',
     swimwear: 'Costumi da bagno', activewear: 'Abbigliamento sportivo', sneakers: 'Sneakers', boots: 'Stivali', shoes: 'Scarpe', sandals: 'Sandali',
     handbag: 'Borsa', backpack: 'Zaino', wallet: 'Portafoglio', belt: 'Cintura', hat: 'Cappello', scarf: 'Sciarpa', sunglasses: 'Occhiali da sole',
+    necklace: 'Collana / ciondolo', bracelet: 'Bracciale', ring: 'Anello', earrings: 'Orecchini', charm: 'Charm',
   },
   fr: {
     jeans: 'Jean', trousers: 'Pantalon', shorts: 'Short', skirt: 'Jupe', dress: 'Robe', jumpsuit: 'Combinaison', top: 'T-shirt / haut',
     shirt: 'Chemise / blouse', sweater: 'Pull / maille', hoodie: 'Sweat à capuche', jacket: 'Veste', coat: 'Manteau', suit: 'Costume / blazer',
     swimwear: 'Maillot de bain', activewear: 'Vêtements de sport', sneakers: 'Baskets', boots: 'Bottes', shoes: 'Chaussures', sandals: 'Sandales',
     handbag: 'Sac à main', backpack: 'Sac à dos', wallet: 'Portefeuille', belt: 'Ceinture', hat: 'Chapeau / casquette', scarf: 'Écharpe', sunglasses: 'Lunettes de soleil',
+    necklace: 'Collier / pendentif', bracelet: 'Bracelet', ring: 'Bague', earrings: 'Boucles d’oreilles', charm: 'Charm',
   },
 });
 

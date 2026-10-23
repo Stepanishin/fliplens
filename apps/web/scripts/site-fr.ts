@@ -31,7 +31,7 @@ const COMMON_FAQ: Faq[] = [
   },
   {
     q: `Quels articles fonctionnent le mieux?`,
-    a: `L'électronique grand public, le gaming et la photo: casques et écouteurs, smartphones, tablettes, ordinateurs portables, montres connectées, enceintes, consoles, consoles portables, manettes, jeux, boîtiers photo, objectifs, caméras d'action et compacts, ainsi que l'outillage électrique. Les vêtements, chaussures et sacs de marque sont aussi estimés, selon la marque, le type et l'état (estimation plus approximative que pour l'électronique). Les sets LEGO par numéro de set; livres, vinyles, CD et DVD par code-barres.`,
+    a: `L'électronique grand public, le gaming et la photo: casques et écouteurs, smartphones, tablettes, ordinateurs portables, montres connectées, enceintes, consoles, consoles portables, manettes, jeux, boîtiers photo, objectifs, caméras d'action et compacts, ainsi que l'outillage électrique. Les vêtements, chaussures et sacs de marque sont aussi estimés, selon la marque, le type et l'état (estimation plus approximative que pour l'électronique). Les sets LEGO par numéro de set; livres, vinyles, CD et DVD par code-barres. Les montres par modèle; les bijoux de marque par marque et type (or et argent sans marque, meubles et véhicules ne sont pas estimés).`,
   },
   {
     q: `Dois-je saisir un prix?`,

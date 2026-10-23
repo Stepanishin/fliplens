@@ -1,4 +1,4 @@
-import { compact, normalizeText, type MatchResult } from './matching.js';
+import { compact, matchTitle, normalizeText, type MatchResult } from './matching.js';
 import type { CategorySlug, NormalizedProduct } from './types.js';
 
 /**
@@ -86,4 +86,15 @@ export function matchMediaTitle(p: NormalizedProduct, title: string): MatchResul
     return { reason: 'model_not_found', similarity: 0, detail: 'artist' };
   }
   return { similarity: p.category === 'books' && !named ? 0.8 : 0.9 };
+}
+
+/** Wristwatches: matched like devices (model or reference in the title), minus fakes, homages and loose parts. */
+const WATCH_FAKE = words(['replica', 'replika', 'fake', 'homage', 'hommage', 'omaggio', 'nachbau', 'style', 'look ?alike', 'aaa']);
+const WATCH_PART = words(['zifferblatt', 'dial only', 'nur zifferblatt', 'lunette', 'bezel insert', 'inlay', 'uhrwerk', 'movement only', 'gehause', 'case only', 'strap only', 'nur armband', 'band only', 'crown', 'krone', 'glas', 'crystal', 'ersatzteil', 'spare']);
+
+export function matchWatchTitle(p: NormalizedProduct, title: string): MatchResult {
+  const t = normalizeText(title);
+  if (WATCH_FAKE.test(t)) return { reason: 'wrong_variant', similarity: 0, detail: 'homage/replica' };
+  if (WATCH_PART.test(t)) return { reason: 'accessory_only', similarity: 0, detail: 'part' };
+  return matchTitle(p, title);
 }
