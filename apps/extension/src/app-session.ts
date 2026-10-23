@@ -29,6 +29,8 @@ function sync(): void {
   void send({ type: 'session', session: s });
 }
 
+// Lets the app hide its "Add to Chrome" offers (apps/web/src/extension.ts).
+document.documentElement.dataset.fliplensExtension = '1';
 sync();
 // The app writes the key and settings while it runs (first visit, sign-out, settings screen).
 setInterval(() => {

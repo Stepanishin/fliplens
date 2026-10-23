@@ -149,6 +149,7 @@ const PAGES: Page[] = [
       { q: 'Which marketplaces are the fees calculated for?', a: 'eBay.de for private and business sellers, eBay.co.uk for private sellers, Vinted and local pickup with cash. Each fee profile shows when it was last checked.' },
       { q: 'Can FlipLens write my listing?', a: `Yes. Take a photo of any item, clothes included, and FlipLens writes a title, description and condition text in the style of Vinted, eBay or Kleinanzeigen, in your language, ready to copy. Free includes ${PLANS.free.monthlyListings} listings a month, Pro ${PLANS.pro.monthlyListings}. FlipLens never posts on your behalf.` },
       { q: 'Is there a mobile app?', a: 'FlipLens is a web app that installs on your phone: open fliplens.eu and choose "Add to Home Screen" (iPhone) or "Install app" (Android). It then opens full screen like a native app.' },
+      { q: 'Is there a browser extension?', a: 'Yes, for Chrome, Edge and Brave on a computer. On a listing on Vinted, Kleinanzeigen, eBay, Subito, leboncoin, Wallapop, Marktplaats, 2dehands or willhaben it shows a FlipLens panel: one click and you see what the item resells for, your profit after fees and the most to pay, with your app settings. It reads only the listing you open, and only after you click. Open fliplens.eu on your computer and choose "Add to Chrome", then sign in once in the app.' },
       { q: 'Why do I need to sign in?', a: 'Your free checks, history and plan belong to your account, so they work on all your devices. Sign in with Google in one tap; there is no password to create.' },
     ],
   },
@@ -801,7 +802,7 @@ PAGES.push({
     },
     {
       h2: 'Content ideas',
-      html: '<ul><li>Flea market check: "Is it worth buying?" with the verdict on screen.</li><li>Before and after flips with the real profit.</li><li>"I turned this into a Vinted listing in 10 seconds."</li><li>Share-your-find cards from the app in your stories.</li></ul>',
+      html: '<ul><li>Flea market check: "Is it worth buying?" with the verdict on screen.</li><li>Before and after flips with the real profit.</li><li>"I turned this into a Vinted listing in 10 seconds."</li><li>Share-your-find cards from the app in your stories.</li><li>Desktop sourcing: scroll Vinted or eBay with the FlipLens browser extension and check deals live.</li></ul>',
     },
     {
       h2: 'Rules',
@@ -937,6 +938,7 @@ const PAGES_DE: Page[] = [
       { q: 'Für welche Marktplätze werden die Gebühren berechnet?', a: 'eBay.de für private und gewerbliche Verkäufer, eBay.co.uk für private Verkäufer, Vinted und Abholung gegen Bargeld. Jedes Gebührenprofil zeigt, wann es zuletzt geprüft wurde.' },
       { q: 'Kann FlipLens meine Anzeige schreiben?', a: `Ja. Fotografier einen beliebigen Artikel, auch Kleidung, und FlipLens schreibt Titel, Beschreibung und Zustandstext im Stil von Vinted, eBay oder Kleinanzeigen, in deiner Sprache und fertig zum Kopieren. Free enthält ${PLANS.free.monthlyListings} Anzeigen pro Monat, Pro ${PLANS.pro.monthlyListings}. FlipLens veröffentlicht nie etwas in deinem Namen.` },
       { q: 'Gibt es eine App fürs Handy?', a: 'FlipLens ist eine Web-App, die du auf dem Handy installieren kannst: Öffne fliplens.eu und wähle "Zum Home-Bildschirm" (iPhone) oder "App installieren" (Android). Danach startet sie im Vollbild wie eine normale App.' },
+      { q: 'Gibt es eine Browser-Erweiterung?', a: 'Ja, für Chrome, Edge und Brave auf dem Computer. In einem Angebot auf Vinted, Kleinanzeigen, eBay, Subito, leboncoin, Wallapop, Marktplaats, 2dehands oder willhaben zeigt sie ein FlipLens-Feld: Ein Klick zeigt, wofür sich der Artikel weiterverkaufen lässt, deinen Gewinn nach Gebühren und den Höchstpreis, mit deinen Einstellungen aus der App. Sie liest nur das Angebot, das du öffnest, und erst nach deinem Klick. Öffne fliplens.eu auf dem Computer, wähle "Zu Chrome hinzufügen" und melde dich einmal in der App an.' },
       { q: 'Warum muss ich mich anmelden?', a: 'Deine kostenlosen Checks, dein Verlauf und dein Tarif gehören zu deinem Konto und funktionieren so auf allen Geräten. Die Anmeldung mit Google geht mit einem Tipp, ein Passwort brauchst du nicht.' },
     ],
   },
@@ -1586,7 +1588,7 @@ PAGES_DE.push({
     },
     {
       h2: 'Ideen für Content',
-      html: '<ul><li>Flohmarkt-Check: "Lohnt sich der Kauf?" mit dem Urteil im Bild.</li><li>Vorher-nachher-Flips mit dem echten Gewinn.</li><li>"Daraus habe ich in 10 Sekunden eine Vinted-Anzeige gemacht."</li><li>Fund-Karten aus der App in deinen Storys teilen.</li></ul>',
+      html: '<ul><li>Flohmarkt-Check: "Lohnt sich der Kauf?" mit dem Urteil im Bild.</li><li>Vorher-nachher-Flips mit dem echten Gewinn.</li><li>"Daraus habe ich in 10 Sekunden eine Vinted-Anzeige gemacht."</li><li>Fund-Karten aus der App in deinen Storys teilen.</li><li>Einkauf am Computer: Vinted oder eBay mit der FlipLens-Browser-Erweiterung durchscrollen und Deals live prüfen.</li></ul>',
     },
     {
       h2: 'Regeln',

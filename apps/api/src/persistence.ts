@@ -132,6 +132,7 @@ const EVENT_NAMES = [
   'item_status_changed', 'listing_generated', 'listing_copied', 'visit', 'page_view', 'cta_clicked', 'signin_started', 'quick_listing_opened', 'find_shared', 'referral_link_copied', 'referral_link_shared', 'referral_payout_requested', 'shelf_scan_started', 'shelf_scan_done', 'inapp_link_copied', 'inapp_open_chrome', 'guest_started', 'trial_used',
   'landing_engaged', 'landing_try', 'batch_opened', 'batch_started', 'batch_item_valued', 'batch_listings_all', 'price_alert_created', 'clothes_platform_set', 'app_updated',
   'radar_started', 'radar_frame', 'radar_check', 'market_compare', 'ebay_connect_started', 'ebay_publish_opened', 'ebay_published',
+  'extension_install_clicked',
 ] as const;
 const EventsBody = z.object({
   events: z

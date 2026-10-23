@@ -126,6 +126,7 @@ const PAGES: Page[] = [
       { q: 'Pour quelles plateformes les frais sont-ils calculés?', a: `eBay.de pour les vendeurs particuliers et professionnels, eBay.co.uk pour les vendeurs particuliers, Vinted et la remise en main propre contre espèces. Chaque profil de frais indique quand il a été vérifié pour la dernière fois.` },
       { q: 'FlipLens peut-il écrire mon annonce?', a: `Oui. Prends en photo n'importe quel article, vêtements compris, et FlipLens écrit un titre, une description et un texte sur l'état dans le style de Vinted, eBay ou Kleinanzeigen, dans ta langue, prêts à copier. Free inclut ${PLANS.free.monthlyListings} annonces par mois, Pro ${PLANS.pro.monthlyListings}. FlipLens ne publie jamais rien à ta place.` },
       { q: 'Y a-t-il une application mobile?', a: `FlipLens est une application web qui s'installe sur ton téléphone: ouvre fliplens.eu et choisis « Sur l'écran d'accueil » (iPhone) ou « Installer l'application » (Android). Elle s'ouvre ensuite en plein écran comme une application native.` },
+      { q: 'Y a-t-il une extension de navigateur?', a: `Oui, pour Chrome, Edge et Brave sur ordinateur. Sur une annonce leboncoin, Vinted, eBay, Kleinanzeigen, Subito, Wallapop, Marktplaats, 2ememain ou willhaben, elle affiche un panneau FlipLens: en un clic, tu vois à combien l'article se revend, ton bénéfice après frais et le prix maximum à payer, avec les réglages de l'application. Elle lit uniquement l'annonce que tu ouvres, et seulement après ton clic. Ouvre fliplens.eu sur ton ordinateur, choisis « Ajouter à Chrome », puis connecte-toi une fois dans l'application.` },
       { q: 'Pourquoi dois-je me connecter?', a: `Tes vérifications gratuites, ton historique et ton forfait sont liés à ton compte, ils fonctionnent donc sur tous tes appareils. La connexion avec Google se fait en un appui, sans mot de passe à créer.` },
     ],
   },
@@ -765,7 +766,7 @@ PAGES.push({
     },
     {
       h2: 'Idées de contenu',
-      html: `<ul><li>Vérification en brocante: « Est-ce que ça vaut le coup? » avec le verdict à l'écran.</li><li>Avant et après d'une revente, avec le vrai bénéfice.</li><li>« J'ai transformé ça en annonce Vinted en 10 secondes. »</li><li>Les cartes de trouvailles de l'application partagées dans tes stories.</li></ul>`,
+      html: `<ul><li>Vérification en brocante: « Est-ce que ça vaut le coup? » avec le verdict à l'écran.</li><li>Avant et après d'une revente, avec le vrai bénéfice.</li><li>« J'ai transformé ça en annonce Vinted en 10 secondes. »</li><li>Les cartes de trouvailles de l'application partagées dans tes stories.</li><li>Achats depuis l'ordinateur: fais défiler Vinted ou eBay avec l'extension de navigateur FlipLens et vérifie les bonnes affaires en direct.</li></ul>`,
     },
     {
       h2: 'Règles',

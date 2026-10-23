@@ -4,6 +4,8 @@ import { PLANS } from '@fliplens/core';
 import { GoogleButton } from '../ui/GoogleButton.js';
 import { ShelfDemo } from '../ui/ShelfDemo.js';
 import { RadarDemo } from '../ui/RadarDemo.js';
+import { ExtensionDemo } from '../ui/ExtensionDemo.js';
+import { EXTENSION_URL, canInstallExtension } from '../extension.js';
 import { api } from '../api.js';
 import { inviteCode } from '../track.js';
 import { track } from '../track.js';
@@ -96,6 +98,12 @@ const T = tr({
     radarTitle: 'Or just keep the camera open',
     radarText: 'Walk along the stalls with the live radar on. Items on the table get a box with their name as you move. Tap one and FlipLens checks it against real eBay listings: the price appears only then, never guessed.',
     radarPoints: ['Boxes follow the items as you move', 'Price after a real check, 1 check per item', 'For Google sign-in accounts, Free included'] as readonly string[],
+    extBadge: 'Browser extension',
+    extTitle: 'Sourcing online? Check right on the listing',
+    extText: 'Add FlipLens to Chrome and every listing on Vinted, eBay, Kleinanzeigen and other European marketplaces gets a FlipLens panel. One click shows what the item resells for, your profit and the most to pay.',
+    extPoints: ['Reads only the listing you open, after you click', 'Same account, settings and checks as the app', 'Add an item to your stock from the listing'] as readonly string[],
+    extAdd: 'Add to Chrome, free',
+    extDesktop: 'Works in Chrome, Edge and Brave on your computer.',
     f6: 'A whole stall at once',
     f6Text: 'Photograph a table or a box, or keep the camera open with the live radar. Every item gets a box, the best buys come first.',
     f5: 'Listings written for you',
@@ -190,6 +198,12 @@ const T = tr({
     radarTitle: 'Oder lass einfach die Kamera offen',
     radarText: 'Geh mit dem Live-Radar an den Ständen entlang. Artikel auf dem Tisch bekommen beim Bewegen einen Rahmen mit Namen. Tipp auf einen, und FlipLens prüft ihn mit echten eBay-Angeboten: erst dann erscheint der Preis, nie geschätzt.',
     radarPoints: ['Die Rahmen folgen den Artikeln beim Bewegen', 'Preis nach echtem Check, 1 Check pro Artikel', 'Für Konten mit Google-Anmeldung, auch im Free-Tarif'] as readonly string[],
+    extBadge: 'Browser-Erweiterung',
+    extTitle: 'Online einkaufen? Direkt im Angebot prüfen',
+    extText: 'Füge FlipLens zu Chrome hinzu, und jedes Angebot auf Vinted, eBay, Kleinanzeigen und anderen europäischen Marktplätzen bekommt ein FlipLens-Feld. Ein Klick zeigt, wofür sich der Artikel weiterverkaufen lässt, deinen Gewinn und den Höchstpreis.',
+    extPoints: ['Liest nur das Angebot, das du öffnest, und erst nach deinem Klick', 'Gleiches Konto, gleiche Einstellungen und Checks wie in der App', 'Artikel direkt aus dem Angebot in den Bestand übernehmen'] as readonly string[],
+    extAdd: 'Kostenlos zu Chrome hinzufügen',
+    extDesktop: 'Funktioniert in Chrome, Edge und Brave auf dem Computer.',
     f6: 'Ein ganzer Stand auf einmal',
     f6Text: 'Fotografier einen Tisch oder eine Kiste, oder lass die Kamera mit dem Live-Radar offen. Jeder Artikel bekommt einen Rahmen, die besten Käufe zuerst.',
     f5: 'Anzeigen für dich geschrieben',
@@ -284,6 +298,12 @@ const T = tr({
     radarTitle: 'Oppure tieni semplicemente la fotocamera aperta',
     radarText: "Cammina tra le bancarelle con il radar live attivo. Mentre ti muovi, gli articoli sul tavolo ricevono un riquadro con il loro nome. Toccane uno e FlipLens lo controlla con annunci eBay reali: solo allora appare il prezzo, mai inventato.",
     radarPoints: ['I riquadri seguono gli articoli mentre ti muovi', 'Prezzo dopo un controllo reale, 1 controllo per articolo', 'Per gli account con accesso Google, anche nel piano Free'] as readonly string[],
+    extBadge: 'Estensione del browser',
+    extTitle: 'Compri online? Verifica direttamente nell’annuncio',
+    extText: 'Aggiungi FlipLens a Chrome e ogni annuncio su Vinted, eBay, Subito e altri marketplace europei avrà un pannello FlipLens. Un clic mostra a quanto si rivende l’articolo, il tuo profitto e il prezzo massimo da pagare.',
+    extPoints: ['Legge solo l’annuncio che apri, dopo il tuo clic', 'Stesso account, impostazioni e controlli dell’app', 'Aggiungi un articolo all’inventario dall’annuncio'] as readonly string[],
+    extAdd: 'Aggiungi a Chrome, gratis',
+    extDesktop: 'Funziona in Chrome, Edge e Brave sul computer.',
     f6: 'Una bancarella intera in una volta',
     f6Text: 'Fotografa un tavolo o una scatola, oppure tieni la fotocamera aperta con il radar live. Ogni articolo riceve un riquadro, prima gli acquisti migliori.',
     f5: 'Annunci scritti per te',
@@ -378,6 +398,12 @@ const T = tr({
     radarTitle: "Ou garde simplement l'appareil photo ouvert",
     radarText: "Longe les stands avec le radar en direct activé. Quand tu bouges, les articles sur la table sont encadrés avec leur nom. Touches-en un et FlipLens le vérifie avec de vraies annonces eBay : le prix n'apparaît qu'à ce moment, jamais deviné.",
     radarPoints: ['Les cadres suivent les articles quand tu bouges', 'Prix après une vraie vérification, 1 vérification par article', 'Pour les comptes connectés avec Google, Free compris'] as readonly string[],
+    extBadge: 'Extension de navigateur',
+    extTitle: 'Tu chines en ligne ? Vérifie directement sur l’annonce',
+    extText: 'Ajoute FlipLens à Chrome et chaque annonce sur Vinted, eBay, leboncoin et d’autres places de marché européennes affiche un panneau FlipLens. Un clic montre à combien l’article se revend, ton bénéfice et le prix maximum à payer.',
+    extPoints: ['Lit uniquement l’annonce que tu ouvres, après ton clic', 'Même compte, mêmes réglages et vérifications que l’app', 'Ajoute un article à ton stock depuis l’annonce'] as readonly string[],
+    extAdd: 'Ajouter à Chrome, gratuit',
+    extDesktop: 'Fonctionne dans Chrome, Edge et Brave sur ordinateur.',
     f6: 'Un stand entier d’un coup',
     f6Text: "Photographie une table ou un carton, ou garde l'appareil photo ouvert avec le radar en direct. Chaque article est encadré, les meilleurs achats en premier.",
     f5: 'Des annonces rédigées pour toi',
@@ -578,6 +604,26 @@ export function Landing({ signedIn, onOpenApp, googleClientId, authError, onGoog
           </ul>
         </div>
         <RadarDemo />
+      </section>
+
+      <section className="lp-section lp-shelf">
+        <div className="lp-shelf-copy">
+          <span className="lp-badge"><IconSpark size={14} /> {T.extBadge}</span>
+          <h2>{T.extTitle}</h2>
+          <p className="lp-lead">{T.extText}</p>
+          <ul className="lp-trust">
+            {T.extPoints.map((pt) => <li key={pt}><IconCheck size={16} /> {pt}</li>)}
+          </ul>
+          <div className="lp-ext-cta">
+            {canInstallExtension() && (
+              <a className="primary" href={EXTENSION_URL} target="_blank" rel="noopener" onClick={() => track('extension_install_clicked', { from: 'landing' })}>
+                {T.extAdd}
+              </a>
+            )}
+            <span className="muted small">{T.extDesktop}</span>
+          </div>
+        </div>
+        <ExtensionDemo />
       </section>
 
       <section id="how" className="lp-section">

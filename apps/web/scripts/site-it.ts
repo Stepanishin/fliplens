@@ -127,6 +127,7 @@ const PAGES_IT: Page[] = [
       { q: 'Per quali marketplace vengono calcolate le commissioni?', a: `eBay.de per venditori privati e professionali, eBay.co.uk per venditori privati, Vinted e ritiro di persona con pagamento in contanti. Ogni profilo commissioni mostra quando è stato verificato l'ultima volta.` },
       { q: 'FlipLens può scrivere il mio annuncio?', a: `Sì. Scatta una foto di qualsiasi articolo, anche abbigliamento, e FlipLens scrive titolo, descrizione e testo sulle condizioni nello stile di Vinted, eBay o Kleinanzeigen, nella tua lingua e pronti da copiare. Free include ${PLANS.free.monthlyListings} annunci al mese, Pro ${PLANS.pro.monthlyListings}. FlipLens non pubblica mai nulla al posto tuo.` },
       { q: `Esiste un'app per il telefono?`, a: `FlipLens è una web app che puoi installare sul telefono: apri fliplens.eu e scegli "Aggiungi alla schermata Home" (iPhone) o "Installa app" (Android). Da quel momento si apre a schermo intero come un'app normale.` },
+      { q: "C'è un'estensione per il browser?", a: `Sì, per Chrome, Edge e Brave sul computer. In un annuncio su Vinted, Subito, eBay, Kleinanzeigen, leboncoin, Wallapop, Marktplaats, 2dehands o willhaben mostra un pannello FlipLens: con un clic vedi a quanto si rivende l'articolo, il tuo profitto al netto delle commissioni e il prezzo massimo da pagare, con le impostazioni dell'app. Legge solo l'annuncio che apri, e solo dopo il tuo clic. Apri fliplens.eu sul computer, scegli "Aggiungi a Chrome" e accedi una volta nell'app.` },
       { q: 'Perché devo accedere?', a: `I tuoi controlli gratuiti, la cronologia e il piano sono legati al tuo account, così funzionano su tutti i tuoi dispositivi. Accedi con Google con un tocco; non serve creare una password.` },
     ],
   },
@@ -771,7 +772,7 @@ PAGES_IT.push({
     },
     {
       h2: 'Idee per i contenuti',
-      html: `<ul><li>Controllo al mercatino: "Conviene comprarlo?" con il verdetto a schermo.</li><li>Flip prima e dopo con il profitto reale.</li><li>"Ho trasformato questo in un annuncio Vinted in 10 secondi."</li><li>Le schede "condividi il tuo affare" dell'app nelle tue storie.</li></ul>`,
+      html: `<ul><li>Controllo al mercatino: "Conviene comprarlo?" con il verdetto a schermo.</li><li>Flip prima e dopo con il profitto reale.</li><li>"Ho trasformato questo in un annuncio Vinted in 10 secondi."</li><li>Le schede "condividi il tuo affare" dell'app nelle tue storie.</li><li>Acquisti dal computer: scorri Vinted o eBay con l'estensione del browser FlipLens e verifica gli affari in diretta.</li></ul>`,
     },
     {
       h2: 'Regole',

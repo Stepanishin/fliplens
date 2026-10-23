@@ -108,6 +108,9 @@ Yes. Take a photo of any item, clothes included, and FlipLens writes a title, de
 **Is there a mobile app?**
 FlipLens is a web app that installs on your phone: open fliplens.eu and choose "Add to Home Screen" (iPhone) or "Install app" (Android). It then opens full screen like a native app.
 
+**Is there a browser extension?**
+Yes, for Chrome, Edge and Brave on a computer. On a listing on Vinted, Kleinanzeigen, eBay, Subito, leboncoin, Wallapop, Marktplaats, 2dehands or willhaben it shows a FlipLens panel: one click and you see what the item resells for, your profit after fees and the most to pay, with your app settings. It reads only the listing you open, and only after you click. Open fliplens.eu on your computer and choose "Add to Chrome", then sign in once in the app.
+
 **Why do I need to sign in?**
 Your free checks, history and plan belong to your account, so they work on all your devices. Sign in with Google in one tap; there is no password to create.
 
@@ -851,6 +854,7 @@ Want a custom code such as ?ref=anna? Write to support@fliplens.eu (mailto:suppo
 - Before and after flips with the real profit.
 - "I turned this into a Vinted listing in 10 seconds."
 - Share-your-find cards from the app in your stories.
+- Desktop sourcing: scroll Vinted or eBay with the FlipLens browser extension and check deals live.
 
 ### Rules
 
