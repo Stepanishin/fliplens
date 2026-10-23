@@ -10,6 +10,7 @@ import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { PLANS, REFERRAL } from '@fliplens/core';
 import { LEGAL } from '../src/legal.js';
+import { EXTENSION_URL } from '../src/extension.js';
 import { PLAN_FEATURES_BY_LANG } from '../src/i18n.js';
 import { EXAMPLE_PEOPLE, INVITE_BONUS_CHECKS, LANG_NAMES, LANGS, SITE, UPDATED, esc, exampleMinor, href, type Faq, type Lang, type LangPack, type Page, type UiStrings } from './site-common.js';
 import { IT } from './site-it.js';
@@ -1656,7 +1657,7 @@ function footer(lang: Lang, path: string): string {
   return `<footer><p>${links.join(' · ')}</p><p>${switcher}</p><p>© ${new Date().getFullYear()} ${esc(LEGAL.operator)}. ${u.disclaimer}</p></footer>`;
 }
 
-const ORG = { '@type': 'Organization', '@id': `${SITE}/#org`, name: 'FlipLens', url: SITE, logo: `${SITE}/icons/icon-512.png`, email: LEGAL.supportEmail };
+const ORG = { '@type': 'Organization', '@id': `${SITE}/#org`, name: 'FlipLens', url: SITE, logo: `${SITE}/icons/icon-512.png`, email: LEGAL.supportEmail, sameAs: [EXTENSION_URL] };
 
 function faqLd(faq: Faq[], lang: Lang) {
   return { '@type': 'FAQPage', inLanguage: lang, mainEntity: faq.map((f) => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.a } })) };
@@ -1765,6 +1766,19 @@ function homeHead(): string {
         inLanguage: [...LANGS],
         publisher: { '@id': `${SITE}/#org` },
         offers: plans.map((p) => ({ '@type': 'Offer', name: p.name, price: (p.priceMonthlyMinor / 100).toFixed(2), priceCurrency: 'EUR', description: p.features.join('; '), url: `${SITE}/pricing` })),
+      },
+      {
+        // The browser extension (ADR-032). No rating until the store has real reviews.
+        '@type': 'SoftwareApplication',
+        '@id': `${SITE}/#extension`,
+        name: 'FlipLens: resale profit checker',
+        applicationCategory: 'BrowserApplication',
+        operatingSystem: 'Chrome, Edge, Brave',
+        description: 'Browser extension: shows on a second-hand marketplace listing what the item resells for, the profit after fees and the maximum price worth paying.',
+        url: EXTENSION_URL,
+        installUrl: EXTENSION_URL,
+        publisher: { '@id': `${SITE}/#org` },
+        offers: { '@type': 'Offer', price: '0', priceCurrency: 'EUR' },
       },
       faqLd(COMMON_FAQ, 'en'),
     ],
