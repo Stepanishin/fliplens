@@ -221,3 +221,9 @@ Status: accepted 2026-10-23.
 - Items we do not price: when eBay's first category suggestion is under furniture/home, vehicles, real estate or tickets, the check stops with 422 unsupported_item and lists what works (no check used). Items in other unmapped categories (e.g. Dyson, Thermomix) are still priced as before.
 - Recognition prompt-v4: watches and jewellery rules; a returned type decides the group (a necklace is jewellery even if filed under accessories). pricing-0.1.10 (asking-to-sold 0.85 watches, 0.75 jewellery).
 - Guests: "Keep this result" (history, 10 free checks a month, price alerts, Google button) now sits right under the verdict instead of at the bottom of the result.
+
+## ADR-035: Category detection from the first suggestion; film cameras
+Status: accepted 2026-11-01.
+- Real users typed "Marcato Atlas 150" (pasta machine) and "Philips Mini Rice Cooker" and got "books" (too few listings): eBay's first suggestion was a category we do not map, and the code took the first mapped one further down. Now only the first suggestion decides (unmapped means a search without category filter, which works for such items). Exceptions: a lens suggestion for a name that is not a lens moves on to the next one (ADR-032); books, films and music count only when the second suggestion is media too ("Worlds of Wonder Teddy Ruxpin" is suggested as a book first, a toy second).
+- Film cameras (category film_cameras, eBay Analogkameras 15230, also SLR "Alte Kameras" 11720; the same on all six sites): eBay now suggests them first for names like "Olympus OM10". Searched in that category: OM10 €99 from 188 listings (was €141 from 5 in digital cameras), Canon AE-1 €145, Nikon FM2 €389, Pentax K1000 €187. Prompt-v5, pricing-0.1.11.
+- valuation_failed now records the API error code (brand_required, unsupported_item, jewelry_unbranded, ...) instead of a bare "error".

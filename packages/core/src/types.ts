@@ -6,7 +6,7 @@ export type Condition = (typeof CONDITIONS)[number];
 export const CATEGORIES = [
   'headphones', 'smartphones', 'tablets', 'laptops', 'smartwatches', 'speakers', 'routers', 'streaming',
   'consoles', 'handhelds', 'controllers', 'games',
-  'camera_bodies', 'lenses', 'action_cameras', 'compact_cameras',
+  'camera_bodies', 'lenses', 'action_cameras', 'compact_cameras', 'film_cameras',
   'power_tools',
   'clothing', 'shoes', 'bags', 'accessories',
   'lego', 'books', 'vinyl', 'cds', 'movies',

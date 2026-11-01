@@ -29,7 +29,7 @@ const base = {
 /** eBay.de categories that get the device rate (5% used / 7% new since 2026-07-01). */
 const EBAY_DEVICE_CATEGORIES: ReadonlySet<CategorySlug> = new Set([
   'headphones', 'smartphones', 'tablets', 'laptops', 'smartwatches', 'speakers', 'routers', 'streaming',
-  'consoles', 'handhelds', 'games', 'camera_bodies', 'lenses', 'action_cameras', 'compact_cameras',
+  'consoles', 'handhelds', 'games', 'camera_bodies', 'lenses', 'action_cameras', 'compact_cameras', 'film_cameras',
 ]);
 
 const EBAY_DE_BUSINESS_URL = 'https://onlinemarktplatz.de/267961/neue-ebay-gebuehren-fuer-gewebliche-verkaeufer-ab-1-juli-2026/';

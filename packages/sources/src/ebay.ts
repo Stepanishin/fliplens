@@ -71,6 +71,8 @@ const EBAY_CATEGORY: Partial<Record<CategorySlug, string>> = {
   camera_bodies: '31388',
   compact_cameras: '31388',
   lenses: '3323',
+  // Film cameras (Analogkameras), the same on all six sites (checked 2026-11-01).
+  film_cameras: '15230',
   // Same IDs on DE, FR, IT, ES, NL and UK (checked 2026-10-19). Books: the top category, the leaf differs per site.
   lego: '19006',
   books: '267',
@@ -91,6 +93,7 @@ const CATEGORY_BY_EBAY: Record<string, CategorySlug> = {
   '101270': 'routers',
   '184655': 'power_tools',
   '261186': 'books', // Bücher (German leaf under 267)
+  '11720': 'film_cameras', // Spiegelreflexkameras under Alte Kameras
 };
 
 const LENS_NAME = /\d{1,4}(?:[.,]\d)?\s?mm|(?<![a-z])f\s?\/?\s?\d|(?<![a-z])(?:objektiv|lens|obiettivo|objectif|objetivo|zuiko|nikkor|sigma|tamron|samyang|tokina)(?![a-z])/i;
@@ -111,6 +114,10 @@ export function ebayCategoriesFor(p: NormalizedProduct): string[] {
  * eBay top categories we do not price (ADR-034): furniture and home, vehicles, real estate, tickets. Their prices depend
  * on local pickup, size or condition we cannot read from listings, so a guess would mislead.
  */
+/** Books & Magazines, Films & TV, Music (top categories, the same on all sites). */
+const MEDIA_ROOTS: ReadonlySet<string> = new Set(['267', '11232', '11233']);
+const MEDIA_SLUGS: ReadonlySet<CategorySlug> = new Set(['books', 'movies', 'cds', 'vinyl']);
+
 const UNSUPPORTED_ROOTS: Readonly<Record<string, string>> = { '11700': 'furniture', '3197': 'furniture', '9800': 'vehicles', '10542': 'real_estate', '1305': 'tickets' };
 
 export interface CategorySuggestion {
@@ -239,24 +246,34 @@ export class EbayAdapter implements MarketplaceAdapter {
       categorySuggestions?: { category: { categoryId: string }; categoryTreeNodeAncestors?: { categoryId: string }[] }[];
     };
     let found: CategorySuggestion | undefined;
-    for (const sug of body.categorySuggestions ?? []) {
+    let skippedLens = false;
+    const sugs = body.categorySuggestions ?? [];
+    const pathOf = (sug: (typeof sugs)[number]) => [sug.category.categoryId, ...(sug.categoryTreeNodeAncestors ?? []).map((a) => a.categoryId)];
+    for (const [i, sug] of sugs.entries()) {
+      // Only the first suggestion decides: a later one is a weaker guess ("Marcato Atlas 150": pasta machines first,
+      // books third). Exception: a lens suggestion for a name that is not a lens (eBay suggests lenses for camera
+      // bodies such as "Olympus OM10"), where the next suggestion is used.
+      if (i > 0 && !skippedLens) break;
       const slug = CATEGORY_BY_EBAY[sug.category.categoryId];
-      // eBay often suggests lenses for a camera body name ("Olympus OM10": lenses made for it). Only a name that
-      // reads like a lens (focal length, aperture or the word) counts as a lens; otherwise try the next suggestion.
-      if (slug === 'lenses' && !LENS_NAME.test(query)) continue;
+      if (slug === 'lenses' && !LENS_NAME.test(query)) {
+        skippedLens = true;
+        continue;
+      }
+      // Books, films, music: only when the next suggestion agrees it is media. "Worlds of Wonder Teddy Ruxpin" is
+      // suggested as a book first and as a toy second.
+      if (slug && MEDIA_SLUGS.has(slug) && sugs[i + 1] && !pathOf(sugs[i + 1]!).some((id) => MEDIA_ROOTS.has(id))) break;
       if (slug) {
         found = { category: slug };
         break;
       }
-      const path = [sug.category.categoryId, ...(sug.categoryTreeNodeAncestors ?? []).map((a) => a.categoryId)];
+      const path = pathOf(sug);
       const fashion = fashionFromEbay(path);
       if (fashion) {
         found = fashion;
         break;
       }
-      // Only the first suggestion decides "not supported": later ones are weaker guesses.
       const unsupported = path.map((id) => UNSUPPORTED_ROOTS[id]).find(Boolean);
-      if (unsupported && found === undefined && sug === body.categorySuggestions![0]) {
+      if (unsupported) {
         found = { category: 'other', unsupported };
         break;
       }

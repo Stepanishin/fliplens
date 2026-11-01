@@ -13,7 +13,7 @@ import {
  * `store: false` so images and answers are not retained for later retrieval on OpenAI's side.
  */
 
-export const PROMPT_VERSION = 'prompt-v4';
+export const PROMPT_VERSION = 'prompt-v5';
 
 /** USD per 1M tokens (input, output). From developers.openai.com/api/docs/models, 2026-09-23. */
 const PRICING: Record<string, readonly [number, number]> = {
@@ -36,6 +36,7 @@ Supported categories: consumer electronics, gaming, cameras and lenses, power to
 Rules:
 - Identify the exact model and variant. Prefer text you can read (model numbers on labels, boxes, back plates, lens barrels, EAN/UPC) over visual similarity.
 - Write brand and model the way they appear in marketplace listing titles, e.g. brand "Sony" model "WH-1000XM4"; brand "Nintendo" model "Switch OLED"; brand "Apple" model "iPhone 13"; brand "Canon" model "EOS R6".
+- Film (analogue) cameras, e.g. Olympus OM-10, Canon AE-1, Nikon FM2, Pentax K1000: category film_cameras, model as printed.
 - Lenses: model is the focal length and aperture as printed (e.g. "24-105mm F4L IS USM"), mount goes in "mount" (e.g. "RF", "EF", "EF-S", "FE").
 - Do not put storage/capacity in "model"; use "capacity" (e.g. "128GB") and only when it is visible or printed. Never guess capacity.
 - Give up to 3 candidates, best first. Use several candidates when generations or variants look alike (e.g. WH-1000XM3 / XM4 / XM5, Switch v1 / OLED).

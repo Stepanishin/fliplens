@@ -582,7 +582,8 @@ export function App() {
         openPlans(errorText(e));
         return;
       }
-      track('valuation_failed', { reason: 'error' });
+      // The error code (brand_required, unsupported_item, ...) tells what to fix; 'error' alone hid it.
+      track('valuation_failed', { reason: e instanceof ApiError && e.code ? e.code : 'error' });
       setFlowError(errorText(e, T.valuationFailed));
     } finally {
       setBusy(false);
