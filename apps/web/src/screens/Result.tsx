@@ -20,6 +20,7 @@ const T = tr({
     sharing: 'Creating image…',
     notEnough: 'Not enough market data',
     tooFew: (n: number) => `Only ${n} matching listings after filtering (5 needed). We don't guess.`,
+    notCounted: "This check was not counted.",
     uncertain: 'The product identification is too uncertain to value.',
     writeTitle: 'Selling it? Write the listing from your photo',
     listVinted: 'Write the Vinted listing',
@@ -66,6 +67,7 @@ const T = tr({
     sharing: 'Bild wird erstellt…',
     notEnough: 'Nicht genug Marktdaten',
     tooFew: (n: number) => `Nur ${n} passende Angebote nach dem Filtern (5 nötig). Wir raten nicht.`,
+    notCounted: "Dieser Check wurde nicht gezählt.",
     uncertain: 'Das Produkt ist zu unsicher erkannt, um es zu bewerten.',
     writeTitle: 'Willst du es verkaufen? Schreib die Anzeige aus deinem Foto',
     listVinted: 'Vinted-Anzeige schreiben',
@@ -112,6 +114,7 @@ const T = tr({
     sharing: 'Creo l’immagine…',
     notEnough: 'Dati di mercato insufficienti',
     tooFew: (n: number) => `Solo ${n} annunci corrispondenti dopo il filtro (ne servono 5). Non tiriamo a indovinare.`,
+    notCounted: "Questo controllo non è stato conteggiato.",
     uncertain: 'Il riconoscimento del prodotto è troppo incerto per una valutazione.',
     writeTitle: 'Vuoi venderlo? Scrivi l’annuncio dalla tua foto',
     listVinted: 'Scrivi l’annuncio Vinted',
@@ -158,6 +161,7 @@ const T = tr({
     sharing: 'Création de l’image…',
     notEnough: 'Pas assez de données de marché',
     tooFew: (n: number) => `Seulement ${n} annonces correspondantes après filtrage (5 nécessaires). On ne devine pas.`,
+    notCounted: "Cette vérification n’a pas été comptée.",
     uncertain: 'L’identification du produit est trop incertaine pour l’évaluer.',
     writeTitle: 'Tu veux le vendre ? Rédige l’annonce à partir de ta photo',
     listVinted: 'Rédiger l’annonce Vinted',
@@ -239,7 +243,7 @@ export function Result({ resp, query, country, onNewScan, onEdit, targetRoiPct, 
         <div className="hero d-insufficient">
           <div className="hero-title">{T.notEnough}</div>
           <div className="hero-sub">
-            {r.reason === 'too_few_comparables' ? T.tooFew(r.includedCount) : T.uncertain}
+            {r.reason === 'too_few_comparables' ? T.tooFew(r.includedCount) : T.uncertain} {T.notCounted}
           </div>
         </div>
         {topSlot}

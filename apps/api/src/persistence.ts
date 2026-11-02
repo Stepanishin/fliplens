@@ -285,7 +285,8 @@ function enabled(db: Db, log: FastifyBaseLogger, auth: AuthConfig): Persistence 
     const day = new Date().toISOString().slice(0, 10);
     const usedHere =
       kind === 'valuation'
-        ? (await listScans(db, uid, 5)).length
+        ? // Only checks with a price count: "not enough data" gave the guest nothing (the per-IP cap still applies).
+          (await listScans(db, uid, 20)).filter((x) => x.scan.status === 'valued').length
         : kind === 'identification'
           ? await identificationsThisMonth(db, uid)
           : await listingsThisMonth(db, uid);

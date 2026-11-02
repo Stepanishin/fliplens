@@ -358,13 +358,22 @@ export async function userIdByStripeCustomer(db: Db, customerId: string): Promis
   return u?.id;
 }
 
-/** Valuations this calendar month (UTC): the unit the plans are metered in. */
+/** Checks with "not enough data" that do not count, per month: no result, no charge (beyond this, they count). */
+export const FREE_INSUFFICIENT_PER_MONTH = 10;
+
+/**
+ * Valuations this calendar month (UTC): the unit the plans are metered in. Checks that found too little data to price
+ * do not count, up to FREE_INSUFFICIENT_PER_MONTH a month (so nonsense queries cannot run up the eBay quota).
+ */
 export async function valuationsThisMonth(db: Db, userId: string): Promise<number> {
   const [row] = await db
-    .select({ n: sql<number>`count(*)::int` })
+    .select({
+      valued: sql<number>`count(*) filter (where ${scans.status} = 'valued')::int`,
+      empty: sql<number>`count(*) filter (where ${scans.status} <> 'valued')::int`,
+    })
     .from(scans)
     .where(and(eq(scans.userId, userId), gte(scans.createdAt, sql`date_trunc('month', now())`)));
-  return row?.n ?? 0;
+  return (row?.valued ?? 0) + Math.max(0, (row?.empty ?? 0) - FREE_INSUFFICIENT_PER_MONTH);
 }
 
 /** Recognition calls this calendar month: capped separately because each one costs an AI request. */
