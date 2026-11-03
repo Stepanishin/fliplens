@@ -2,7 +2,7 @@
  * Italian language pack of the static site (published under /it). Same base paths as the English PAGES in site.ts.
  * Imported by site.ts; must not import site.ts (it has side effects).
  */
-import { PLANS, REFERRAL } from '@fliplens/core';
+import { PLANS, REFERRAL, TRIAL } from '@fliplens/core';
 import { LEGAL } from '../src/legal.js';
 import { PLAN_FEATURES_BY_LANG } from '../src/i18n.js';
 import { EXAMPLE_PEOPLE, INVITE_BONUS_CHECKS, esc, eurIn, exampleMinor, href, numIn, type Faq, type LangPack, type Page, type UiStrings } from './site-common.js';
@@ -107,6 +107,7 @@ const PAGES_IT: Page[] = [
     faq: [
       { q: 'Esiste un piano gratuito?', a: `Sì. ${PLANS.free.name} include ${PLANS.free.monthlyValuations} controlli al mese con riconoscimento da foto e codice a barre, profitto e ROI, magazzino e ${PLANS.free.monthlyListings} annunci con IA. Nessuna carta richiesta.` },
       { q: 'Cosa aggiungono i piani a pagamento?', a: paid.map((p) => `${p.name} (${eur(p.priceMonthlyMinor)}/mese): ${(IT_FEATURES[p.id] ?? []).join(', ')}.`).join(' ') },
+      { q: 'C’è una prova gratuita?', a: `Sì. Il tuo primo abbonamento ${PLANS[TRIAL.plan].name} inizia con ${TRIAL.days} giorni gratis. Serve una carta; se disdici prima della fine della prova non paghi nulla. Una prova per persona e carta.` },
       { q: 'Posso disdire quando voglio?', a: `Sì. Disdici dal portale clienti nel tuo profilo; il piano resta attivo fino alla fine del mese già pagato.` },
     ],
   },

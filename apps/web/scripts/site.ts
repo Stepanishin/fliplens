@@ -8,7 +8,7 @@
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { PLANS, REFERRAL } from '@fliplens/core';
+import { PLANS, REFERRAL, TRIAL } from '@fliplens/core';
 import { LEGAL } from '../src/legal.js';
 import { EXTENSION_URL } from '../src/extension.js';
 import { PLAN_FEATURES_BY_LANG } from '../src/i18n.js';
@@ -130,6 +130,7 @@ const PAGES: Page[] = [
     faq: [
       { q: 'Is there a free plan?', a: `Yes. ${PLANS.free.name} includes ${PLANS.free.features[0]!.toLowerCase()} with photo and barcode recognition, profit and ROI, and stock tracking. No card is needed.` },
       { q: 'What do the paid plans add?', a: paid.map((p) => `${p.name} (${eur(p.priceMonthlyMinor)}/month): ${p.features.join(', ').toLowerCase()}.`).join(' ') },
+      { q: 'Is there a free trial?', a: `Yes. Your first ${PLANS[TRIAL.plan].name} subscription starts with ${TRIAL.days} days free. A card is needed; cancel before the trial ends and nothing is charged. One trial per person and card.` },
       { q: 'Can I cancel anytime?', a: 'Yes. Cancel in the customer portal from your profile; the plan stays active until the end of the paid month.' },
     ],
   },
@@ -919,6 +920,7 @@ const PAGES_DE: Page[] = [
     faq: [
       { q: 'Gibt es einen kostenlosen Tarif?', a: `Ja. ${PLANS.free.name} enthält ${PLANS.free.monthlyValuations} Checks pro Monat mit Foto- und Barcode-Erkennung, Gewinn und ROI, Lager und ${PLANS.free.monthlyListings} KI-Anzeigen. Keine Karte nötig.` },
       { q: 'Was bringen die bezahlten Tarife?', a: paid.map((p) => `${p.name} (${deEur(p.priceMonthlyMinor)}/Monat): ${(DE_FEATURES[p.id] ?? []).join(', ')}.`).join(' ') },
+      { q: 'Gibt es eine kostenlose Testphase?', a: `Ja. Dein erstes ${PLANS[TRIAL.plan].name}-Abo startet mit ${TRIAL.days} Tagen kostenlos. Eine Karte ist nötig; kündigst du vor Ende der Testphase, wird nichts berechnet. Eine Testphase pro Person und Karte.` },
       { q: 'Kann ich jederzeit kündigen?', a: 'Ja. Kündige im Kundenportal über dein Profil; der Tarif bleibt bis zum Ende des bezahlten Monats aktiv.' },
     ],
   },

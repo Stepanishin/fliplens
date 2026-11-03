@@ -15,6 +15,9 @@ const eur = (minor: number): string => money(minor, 2, 'EUR');
 
 const T = tr({
   en: {
+    tryFree: (n: string, d: number) => `Try ${n} free for ${d} days`,
+    trialNote: (d: number, p: string) => `Free for ${d} days, then ${p} a month. Cancel before the trial ends and you pay nothing. One trial per person and card.`,
+    trialUntil: 'Free trial until',
     checkoutFail: 'Could not start checkout',
     billingFail: 'Could not open billing',
     plans: 'Plans',
@@ -40,6 +43,9 @@ const T = tr({
     footC: '.',
   },
   de: {
+    tryFree: (n: string, d: number) => `${n} ${d} Tage kostenlos testen`,
+    trialNote: (d: number, p: string) => `${d} Tage kostenlos, danach ${p} im Monat. Kündigst du vor Ende der Testphase, zahlst du nichts. Eine Testphase pro Person und Karte.`,
+    trialUntil: 'Kostenlos bis',
     checkoutFail: 'Die Bezahlung konnte nicht gestartet werden',
     billingFail: 'Die Abo-Verwaltung konnte nicht geöffnet werden',
     plans: 'Tarife',
@@ -65,6 +71,9 @@ const T = tr({
     footC: '.',
   },
   it: {
+    tryFree: (n: string, d: number) => `Prova ${n} gratis per ${d} giorni`,
+    trialNote: (d: number, p: string) => `Gratis per ${d} giorni, poi ${p} al mese. Se disdici prima della fine della prova non paghi nulla. Una prova per persona e carta.`,
+    trialUntil: 'Prova gratuita fino al',
     checkoutFail: 'Impossibile avviare il pagamento',
     billingFail: "Impossibile aprire la gestione dell'abbonamento",
     plans: 'Piani',
@@ -90,6 +99,9 @@ const T = tr({
     footC: '.',
   },
   fr: {
+    tryFree: (n: string, d: number) => `Essaie ${n} gratuitement ${d} jours`,
+    trialNote: (d: number, p: string) => `Gratuit pendant ${d} jours, puis ${p} par mois. Résilie avant la fin de l'essai et tu ne paies rien. Un essai par personne et par carte.`,
+    trialUntil: "Essai gratuit jusqu'au",
     checkoutFail: 'Impossible de lancer le paiement',
     billingFail: "Impossible d'ouvrir la gestion de l'abonnement",
     plans: 'Offres',
@@ -127,7 +139,7 @@ export function Plans({ billing, account, notice, onSignIn }: Props) {
   async function upgrade(plan: 'pro' | 'reseller') {
     setError(null);
     setBusy(plan);
-    track('subscription_started', { plan, step: 'checkout' });
+    track('subscription_started', { plan, step: 'checkout', trial: billing?.trial?.plan === plan });
     try {
       const { url } = await api.checkout(plan);
       window.location.href = url;
@@ -167,8 +179,8 @@ export function Plans({ billing, account, notice, onSignIn }: Props) {
         </div>
         {sub && (
           <p className="muted small">
-            {sub.cancelAtPeriodEnd ? T.ends : T.renews} {sub.currentPeriodEnd ? date(sub.currentPeriodEnd, { day: 'numeric', month: 'short' }) : ''}
-            {sub.status !== 'active' ? ` · ${sub.status.replace('_', ' ')}` : ''}
+            {sub.status === 'trialing' && !sub.cancelAtPeriodEnd ? T.trialUntil : sub.cancelAtPeriodEnd ? T.ends : T.renews} {sub.currentPeriodEnd ? date(sub.currentPeriodEnd, { day: 'numeric', month: 'short' }) : ''}
+            {sub.status !== 'active' && sub.status !== 'trialing' ? ` · ${sub.status.replace('_', ' ')}` : ''}
           </p>
         )}
         {sub && <button type="button" className="ghost wide" disabled={busy !== null} onClick={() => void manage()}>{busy === 'portal' ? T.opening : T.manage}</button>}
@@ -178,6 +190,7 @@ export function Plans({ billing, account, notice, onSignIn }: Props) {
         {billing.plans.map((p) => {
           const isCurrent = p.id === current;
           const paid = p.id !== 'free';
+          const trial = billing.trial?.plan === p.id ? billing.trial : null;
           return (
             <section key={p.id} className={`card plan ${p.id === 'pro' ? 'featured' : ''} ${isCurrent ? 'current' : ''}`}>
               <div className="card-head">
@@ -193,12 +206,13 @@ export function Plans({ billing, account, notice, onSignIn }: Props) {
               {paid && !isCurrent && !sub && (
                 account ? (
                   <button type="button" className="primary" disabled={!billing.enabled || busy !== null} onClick={() => void upgrade(p.id as 'pro' | 'reseller')}>
-                    {busy === p.id ? T.openingCheckout : T.get(p.name)}
+                    {busy === p.id ? T.openingCheckout : trial ? T.tryFree(p.name, trial.days) : T.get(p.name)}
                   </button>
                 ) : (
                   <button type="button" className="ghost wide" onClick={onSignIn}>{T.signInToSub}</button>
                 )
               )}
+              {paid && !isCurrent && !sub && trial && <p className="muted small">{T.trialNote(trial.days, eur(p.priceMonthlyMinor))}</p>}
               {paid && !isCurrent && sub && <p className="muted small">{T.switchHint}</p>}
             </section>
           );

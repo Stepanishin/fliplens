@@ -70,6 +70,9 @@ export function planByLookupKey(key: string | null | undefined): PaidPlanId | un
   return PAID_PLANS.find((p) => PLANS[p].stripeLookupKey === key);
 }
 
+/** Free trial (ADR-037): first subscription to this plan only, card required, one per account and per card. */
+export const TRIAL = { plan: 'pro' as PaidPlanId, days: 30 } as const;
+
 /** Referral programme: share of what an invited user pays during their first months. Shown in the app and Terms. */
 export const REFERRAL = {
   sharePct: 20,

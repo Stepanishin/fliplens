@@ -27,6 +27,7 @@ const T = tr({
     plan: 'Plan',
     used: (u: number, l: number) => `${u} of ${l} checks used this month.`,
     seePlans: 'See plans',
+    tryPro: (d: number) => `Try Pro free for ${d} days`,
     managePlan: 'Manage plan',
     language: 'Language',
     selling: 'Selling',
@@ -63,6 +64,7 @@ const T = tr({
     plan: 'Tarif',
     used: (u: number, l: number) => `${u} von ${l} Checks diesen Monat genutzt.`,
     seePlans: 'Tarife ansehen',
+    tryPro: (d: number) => `Pro ${d} Tage kostenlos testen`,
     managePlan: 'Tarif verwalten',
     language: 'Sprache',
     selling: 'Verkaufen',
@@ -99,6 +101,7 @@ const T = tr({
     plan: 'Piano',
     used: (u: number, l: number) => `${u} di ${l} controlli usati questo mese.`,
     seePlans: 'Vedi i piani',
+    tryPro: (d: number) => `Prova Pro gratis per ${d} giorni`,
     managePlan: 'Gestisci piano',
     language: 'Lingua',
     selling: 'Vendita',
@@ -135,6 +138,7 @@ const T = tr({
     plan: 'Offre',
     used: (u: number, l: number) => `${u} vérifications sur ${l} utilisées ce mois-ci.`,
     seePlans: 'Voir les offres',
+    tryPro: (d: number) => `Essaie Pro gratuitement ${d} jours`,
     managePlan: "Gérer l'offre",
     language: 'Langue',
     selling: 'Vente',
@@ -269,7 +273,7 @@ export function Profile({ billing, onOpenPlans, account, googleClientId, onGoogl
             <span className="pill soft">{billing.plans.find((p) => p.id === billing.quota.plan)?.name}</span>
           </div>
           <p className="muted small">{T.used(billing.quota.used, billing.quota.limit)}</p>
-          <button type="button" className="ghost wide" onClick={onOpenPlans}>{billing.quota.plan === 'free' ? T.seePlans : T.managePlan}</button>
+          <button type="button" className="ghost wide" onClick={onOpenPlans}>{billing.quota.plan === 'free' ? (billing.trial ? T.tryPro(billing.trial.days) : T.seePlans) : T.managePlan}</button>
         </section>
       )}
 

@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { PLANS, REFERRAL } from '@fliplens/core';
+import { PLANS, REFERRAL, TRIAL } from '@fliplens/core';
 import { LEGAL, LEGAL_IS_DRAFT } from '../legal.js';
 import { LANG, money, tr } from '../i18n.js';
 
@@ -183,7 +183,7 @@ function PrivacyPolicyEn() {
             <td>Legitimate interest (Art. 6(1)(f))</td>
           </tr>
           <tr>
-            <td>If you subscribe: your Stripe customer ID, plan, subscription status and billing period. Card details are entered on Stripe's page and never reach us</td>
+            <td>If you subscribe: your Stripe customer ID, plan, subscription status and billing period. Card details are entered on Stripe's page and never reach us. If you start a free trial: a one-way hash of the card's Stripe fingerprint, kept to allow one trial per card, also after account deletion</td>
             <td>Provide the paid plan; keep required accounting records</td>
             <td>Contract (Art. 6(1)(b)); legal obligation (Art. 6(1)(c))</td>
           </tr>
@@ -296,10 +296,15 @@ function TermsOfServiceEn() {
         ))}
       </ul>
       <p>
-        Every valuation counts as a check, also when there is not enough market data. Photo and barcode recognition is limited to one and a half times your plan's
+        Every valuation counts as a check. Up to 10 valuations per month that end with "not enough market data" are not counted; further ones are. Photo and barcode recognition is limited to one and a half times your plan's
         monthly checks. Prices shown are final prices; no fees or taxes are added at checkout. Paid plans are billed monthly in advance through Stripe and renew automatically until cancelled. You can cancel at any time in
         "Manage subscription"; the plan then stays active until the end of the paid period and is not renewed. Unused checks do not carry over. We may change
         prices for future billing periods with at least 30 days' notice; you can cancel before the change takes effect.
+      </p>
+      <p>
+        Free trial: your first {PLANS[TRIAL.plan].name} subscription starts with {TRIAL.days} days free. A payment card is required. If you cancel before the trial ends,
+        nothing is charged; otherwise the first monthly payment is taken when the trial ends and Stripe emails you a reminder before that. There is one trial per person
+        and per card: if the card was already used for a trial on another account, the subscription starts without a trial and the first month is charged at once.
       </p>
 
       <h2>5. Right of withdrawal (EU consumers)</h2>
@@ -433,7 +438,7 @@ function PrivacyPolicyDe() {
             <td>Berechtigtes Interesse (Art. 6 Abs. 1 lit. f)</td>
           </tr>
           <tr>
-            <td>Wenn Sie ein Abo abschließen: Ihre Stripe-Kunden-ID, Tarif, Abo-Status und Abrechnungszeitraum. Kartendaten geben Sie auf der Seite von Stripe ein; sie erreichen uns nie</td>
+            <td>Wenn Sie ein Abo abschließen: Ihre Stripe-Kunden-ID, Tarif, Abo-Status und Abrechnungszeitraum. Kartendaten geben Sie auf der Seite von Stripe ein; sie erreichen uns nie. Bei einer kostenlosen Testphase: ein nicht umkehrbarer Hash des Stripe-Kartenmerkmals, gespeichert, damit es eine Testphase pro Karte gibt, auch nach der Kontolöschung</td>
             <td>Den kostenpflichtigen Tarif bereitstellen; gesetzlich vorgeschriebene Buchhaltungsunterlagen führen</td>
             <td>Vertrag (Art. 6 Abs. 1 lit. b); rechtliche Verpflichtung (Art. 6 Abs. 1 lit. c)</td>
           </tr>
@@ -542,11 +547,17 @@ function TermsOfServiceDe() {
         ))}
       </ul>
       <p>
-        Jede Bewertung zählt als Check, auch wenn nicht genügend Marktdaten vorliegen. Die Foto- und Barcode-Erkennung ist auf das Eineinhalbfache der monatlichen Checks
+        Jede Bewertung zählt als Check. Bis zu 10 Bewertungen pro Monat, die mit "nicht genügend Marktdaten" enden, werden nicht gezählt; weitere schon. Die Foto- und Barcode-Erkennung ist auf das Eineinhalbfache der monatlichen Checks
         Ihres Tarifs begrenzt. Die angezeigten Preise sind Endpreise; beim Bezahlen kommen keine Gebühren oder Steuern hinzu. Kostenpflichtige Tarife werden monatlich im
         Voraus über Stripe abgerechnet und verlängern sich automatisch bis zur Kündigung. Sie können jederzeit unter "Abo verwalten" kündigen; der Tarif bleibt dann bis
         zum Ende des bezahlten Zeitraums aktiv und wird nicht verlängert. Nicht genutzte Checks verfallen. Wir können die Preise für künftige Abrechnungszeiträume mit
         einer Frist von mindestens 30 Tagen ändern; Sie können vor Inkrafttreten der Änderung kündigen.
+      </p>
+      <p>
+        Kostenlose Testphase: Ihr erstes {PLANS[TRIAL.plan].name}-Abo beginnt mit {TRIAL.days} kostenlosen Tagen. Eine Zahlungskarte ist erforderlich. Kündigen Sie vor
+        Ende der Testphase, wird nichts berechnet; andernfalls wird die erste Monatszahlung zum Ende der Testphase fällig, und Stripe erinnert Sie vorher per E-Mail.
+        Es gibt eine Testphase pro Person und pro Karte: Wurde die Karte bereits für eine Testphase in einem anderen Konto genutzt, beginnt das Abo ohne Testphase und
+        der erste Monat wird sofort berechnet.
       </p>
 
       <h2>5. Widerrufsrecht (Verbraucher in der EU)</h2>

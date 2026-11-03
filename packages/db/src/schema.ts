@@ -328,3 +328,13 @@ export const pushSubscriptions = pgTable(
   },
   (t) => [index('push_user_idx').on(t.userId)],
 );
+
+/**
+ * Free trial: one per card (ADR-037). A one-way hash of the Stripe card fingerprint, kept after account deletion
+ * (no foreign key) so a new account with the same card does not get a second free month.
+ */
+export const trialCards = pgTable('trial_cards', {
+  cardHash: text('card_hash').primaryKey(),
+  userId: uuid('user_id').notNull(),
+  createdAt: createdAt(),
+});

@@ -2,7 +2,7 @@
  * French language pack of the static site (published under /fr). Same base paths as the English PAGES in site.ts.
  * Links inside point to French pages; /privacy and /terms stay unprefixed.
  */
-import { PLANS, REFERRAL } from '@fliplens/core';
+import { PLANS, REFERRAL, TRIAL } from '@fliplens/core';
 import { LEGAL } from '../src/legal.js';
 import { PLAN_FEATURES_BY_LANG } from '../src/i18n.js';
 import { EXAMPLE_PEOPLE, INVITE_BONUS_CHECKS, esc, eurIn, exampleMinor, href, numIn, type Faq, type LangPack, type Page, type UiStrings } from './site-common.js';
@@ -106,6 +106,7 @@ const PAGES: Page[] = [
     faq: [
       { q: 'Y a-t-il un forfait gratuit?', a: `Oui. ${PLANS.free.name} inclut ${PLANS.free.monthlyValuations} vérifications par mois avec reconnaissance par photo et code-barres, bénéfice et ROI, suivi du stock et ${PLANS.free.monthlyListings} annonces IA. Pas de carte bancaire.` },
       { q: `Qu'apportent les forfaits payants?`, a: paid.map((p) => `${p.name} (${eur(p.priceMonthlyMinor)}/mois): ${(FR_FEATURES[p.id] ?? []).join(', ')}.`).join(' ') },
+      { q: 'Y a-t-il un essai gratuit?', a: `Oui. Ton premier abonnement ${PLANS[TRIAL.plan].name} commence par ${TRIAL.days} jours gratuits. Une carte est nécessaire; résilie avant la fin de l'essai et rien n'est débité. Un essai par personne et par carte.` },
       { q: 'Puis-je résilier à tout moment?', a: `Oui. Résilie dans le portail client depuis ton profil; le forfait reste actif jusqu'à la fin du mois payé.` },
     ],
   },

@@ -1,6 +1,6 @@
 import { and, desc, eq, gte, inArray, isNull, lt, or, sql } from 'drizzle-orm';
 import type { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
-import { ebayAccounts, events, inventoryItems, pushSubscriptions, watches, referralCommissions, referralPayouts, productIdentifications, scans, subscriptions, usageCosts, userDevices, userSettings, users, valuations } from './schema.js';
+import { ebayAccounts, events, inventoryItems, pushSubscriptions, watches, referralCommissions, referralPayouts, productIdentifications, scans, subscriptions, trialCards, usageCosts, userDevices, userSettings, users, valuations } from './schema.js';
 import type * as schema from './schema.js';
 
 type Db = PostgresJsDatabase<typeof schema>;
@@ -339,6 +339,21 @@ export async function getSubscription(db: Db, userId: string): Promise<Subscript
 
 export function effectivePlan(sub: SubscriptionRow | undefined): 'free' | 'pro' | 'reseller' {
   return sub && ACTIVE_STATUSES.has(sub.status) ? sub.plan : 'free';
+}
+
+/** The free trial is for first subscriptions only: anyone who ever had one (any status) pays from day one. */
+export async function hadSubscription(db: Db, userId: string): Promise<boolean> {
+  return (await getSubscription(db, userId)) !== undefined;
+}
+
+/**
+ * Claims the free trial for a card. True when the card is new or already belongs to this user (webhook retries);
+ * false when another account used it for a trial before.
+ */
+export async function claimTrialCard(db: Db, cardHash: string, userId: string): Promise<boolean> {
+  await db.insert(trialCards).values({ cardHash, userId }).onConflictDoNothing();
+  const [row] = await db.select({ userId: trialCards.userId }).from(trialCards).where(eq(trialCards.cardHash, cardHash));
+  return row?.userId === userId;
 }
 
 export async function upsertSubscription(db: Db, s: Omit<typeof subscriptions.$inferInsert, 'updatedAt'>): Promise<void> {

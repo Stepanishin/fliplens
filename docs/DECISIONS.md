@@ -231,3 +231,11 @@ Status: accepted 2026-11-01.
 ## ADR-036: "Not enough data" is not charged
 Status: accepted 2026-11-02.
 - A guest spent both free checks on an unknown boot brand and got "not enough data" twice. Checks without a price no longer count: guests' two trial checks count only priced results (the per-IP daily cap still counts every attempt), and the monthly plan quota counts priced results plus empty ones beyond 10 a month (FREE_INSUFFICIENT_PER_MONTH), so nonsense queries cannot run up the eBay API quota. The result says "This check was not counted".
+
+## ADR-037: One free month of Pro
+Status: accepted 2026-11-03.
+- No one has paid yet, while free users who hit the 10-check limit come back (one opened a second Google account instead of paying). The first Pro subscription now starts with 30 days free (TRIAL in packages/core/src/plans.ts): Stripe Checkout with `trial_period_days`, card required (`payment_method_collection: always`), and without a card at the end the subscription is cancelled. Reseller has no trial.
+- One trial per account: offered only to users without any subscription row (any status), so a cancelled or ended subscription does not get a second one.
+- One trial per card: when a trialing subscription syncs, a SHA-256 hash of the card's Stripe fingerprint is claimed in `trial_cards` (no foreign key, kept after account deletion). If another account claimed it first, the trial is ended at once (`trial_end: now`) and the first month is charged. Checkout, the plans screen, the Terms and the pricing FAQ say so.
+- Stripe dashboard: trial reminder email 7 days before the end, failed-payment emails, the "trial over" statement descriptor, and the customer portal (cancel at period end, plan switching between Pro and Reseller).
+- Terms also corrected for ADR-036 (empty checks are not counted up to 10 a month); effective date 2026-11-03.

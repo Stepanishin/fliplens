@@ -165,6 +165,8 @@ export interface BillingInfo {
   quota: { plan: 'free' | 'pro' | 'reseller'; used: number; limit: number; remaining: number };
   subscription: { plan: 'pro' | 'reseller'; status: string; currentPeriodEnd: string | null; cancelAtPeriodEnd: boolean } | null;
   plans: { id: 'free' | 'pro' | 'reseller'; name: string; priceMonthlyMinor: number; monthlyValuations: number; features: string[] }[];
+  /** Free trial offered on the first subscription (ADR-037). */
+  trial?: { plan: 'pro' | 'reseller'; days: number } | null;
 }
 
 export interface AdminOverview {

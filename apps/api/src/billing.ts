@@ -1,9 +1,12 @@
 import type { FastifyBaseLogger, FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import Stripe from 'stripe';
 import { z } from 'zod';
-import { PLANS, REFERRAL, planByLookupKey, type PlanId } from '@fliplens/core';
+import { createHash } from 'node:crypto';
+import { PLANS, REFERRAL, TRIAL, planByLookupKey, type PlanId } from '@fliplens/core';
 import {
+  claimTrialCard,
   firstReferralPaymentAt,
+  hadSubscription,
   recordReferralCommission,
   referrerOf,
   effectivePlan,
@@ -36,18 +39,18 @@ export interface BillingConfig {
 /** UI languages; Stripe Checkout, Customer Portal and receipts follow them. */
 const LOCALE = z.enum(['en', 'de', 'it', 'fr']);
 
-/** Checkout consent line under the pay button, in the user's language. */
-function termsConsent(locale: string | undefined, base: string): string {
+/** Checkout consent line under the pay button, in the user's language (with the trial terms when there is one). */
+function termsConsent(locale: string | undefined, base: string, trialDays?: number): string {
   const terms = `${base}/terms`;
   switch (locale) {
     case 'de':
-      return `Mit dem Abo stimmst du den FlipLens-Nutzungsbedingungen zu (${terms}). Verbraucher in der EU haben ein 14-tägiges Widerrufsrecht.`;
+      return `${trialDays ? `${trialDays} Tage kostenlos, danach monatlich. Vor Ende der Testphase kündigen und nichts zahlen. Eine Testphase pro Person und Karte. ` : ''}Mit dem Abo stimmst du den FlipLens-Nutzungsbedingungen zu (${terms}). Verbraucher in der EU haben ein 14-tägiges Widerrufsrecht.`;
     case 'it':
-      return `Abbonandoti accetti i Termini di FlipLens (${terms}). I consumatori nell'UE hanno un diritto di recesso di 14 giorni.`;
+      return `${trialDays ? `${trialDays} giorni gratis, poi mensile. Disdici prima della fine della prova e non paghi nulla. Una prova per persona e carta. ` : ''}Abbonandoti accetti i Termini di FlipLens (${terms}). I consumatori nell'UE hanno un diritto di recesso di 14 giorni.`;
     case 'fr':
-      return `En t'abonnant, tu acceptes les Conditions de FlipLens (${terms}). Les consommateurs de l'UE disposent d'un droit de rétractation de 14 jours.`;
+      return `${trialDays ? `${trialDays} jours gratuits, puis mensuel. Résilie avant la fin de l'essai et tu ne paies rien. Un essai par personne et par carte. ` : ''}En t'abonnant, tu acceptes les Conditions de FlipLens (${terms}). Les consommateurs de l'UE disposent d'un droit de rétractation de 14 jours.`;
     default:
-      return `By subscribing you agree to the FlipLens Terms (${terms}). EU consumers have a 14-day right of withdrawal.`;
+      return `${trialDays ? `${trialDays} days free, then monthly. Cancel before the trial ends and pay nothing. One trial per person and card. ` : ''}By subscribing you agree to the FlipLens Terms (${terms}). EU consumers have a 14-day right of withdrawal.`;
   }
 }
 
@@ -133,6 +136,18 @@ export function createBilling(db: Db, cfg: BillingConfig, log: FastifyBaseLogger
     return { plan, used, limit, remaining: Math.max(0, limit - used), ...(admin && { admin: true as const }) };
   }
 
+  /** One free trial per card: hash of the card fingerprint, claimed by the first account that uses it. */
+  async function trialCardOk(sub: Stripe.Subscription, userId: string): Promise<boolean> {
+    if (!stripe) return true;
+    const pmId = typeof sub.default_payment_method === 'string' ? sub.default_payment_method : sub.default_payment_method?.id;
+    if (!pmId) return true; // no card on file: Stripe cancels the trial at its end (missing_payment_method: cancel)
+    const pm = await stripe.paymentMethods.retrieve(pmId);
+    const fingerprint = pm.card?.fingerprint ?? pm.sepa_debit?.fingerprint ?? null;
+    if (!fingerprint) return true;
+    const cardHash = createHash('sha256').update(`fliplens-trial:${fingerprint}`).digest('hex');
+    return claimTrialCard(db, cardHash, userId);
+  }
+
   async function syncSubscription(sub: Stripe.Subscription): Promise<void> {
     // The Stripe account may also serve other products: only subscriptions to a FlipLens price are ours.
     const item = sub.items.data[0];
@@ -149,7 +164,17 @@ export function createBilling(db: Db, cfg: BillingConfig, log: FastifyBaseLogger
       log.error({ event: 'billing_unknown_customer', customerId }, 'subscription for unknown customer');
       return;
     }
-    const periodEnd = item?.current_period_end;
+    if (sub.status === 'trialing' && !(await trialCardOk(sub, userId))) {
+      // This card already had a free month on another account: the trial ends now and the first month is charged.
+      log.info({ event: 'trial_card_reused' }, 'card already used for a trial: ending the trial');
+      try {
+        sub = await stripe!.subscriptions.update(sub.id, { trial_end: 'now', proration_behavior: 'none' });
+      } catch {
+        // Two webhooks for the same checkout can race: the other one has ended the trial already.
+        sub = await stripe!.subscriptions.retrieve(sub.id);
+      }
+    }
+    const periodEnd = sub.items.data[0]?.current_period_end;
     await upsertSubscription(db, {
       userId,
       stripeSubscriptionId: sub.id,
@@ -228,6 +253,8 @@ export function createBilling(db: Db, cfg: BillingConfig, log: FastifyBaseLogger
             cancelAtPeriodEnd: sub.cancelAtPeriodEnd,
           },
           plans: Object.values(PLANS).map((p) => ({ id: p.id, name: p.name, priceMonthlyMinor: p.priceMonthlyMinor, monthlyValuations: p.monthlyValuations, features: p.features })),
+          // Offered on the first subscription only (ADR-037).
+          trial: stripe && !stored ? { plan: TRIAL.plan, days: TRIAL.days } : null,
         };
       });
 
@@ -253,16 +280,22 @@ export function createBilling(db: Db, cfg: BillingConfig, log: FastifyBaseLogger
           customerId = c.id;
           await setStripeCustomer(db, uid, customerId);
         }
+        // Free month on the first subscription (ADR-037). Card required; without one at the end, Stripe cancels.
+        const trialDays = body.data.plan === TRIAL.plan && !(await hadSubscription(db, uid)) ? TRIAL.days : undefined;
         const params = (withConsent: boolean): Stripe.Checkout.SessionCreateParams => ({
           mode: 'subscription',
           ...(body.data.locale && { locale: body.data.locale }),
           customer: customerId,
           client_reference_id: uid,
           line_items: [{ price: price.id, quantity: 1 }],
-          subscription_data: { metadata: { userId: uid, plan: body.data.plan } },
+          subscription_data: {
+            metadata: { userId: uid, plan: body.data.plan },
+            ...(trialDays && { trial_period_days: trialDays, trial_settings: { end_behavior: { missing_payment_method: 'cancel' as const } } }),
+          },
+          ...(trialDays && { payment_method_collection: 'always' as const }),
           allow_promotion_codes: true,
           custom_text: {
-            submit: { message: termsConsent(body.data.locale, base) },
+            submit: { message: termsConsent(body.data.locale, base, trialDays) },
           },
           ...(withConsent && { consent_collection: { terms_of_service: 'required' as const } }),
           ...(cfg.automaticTax && { automatic_tax: { enabled: true }, customer_update: { address: 'auto' as const }, billing_address_collection: 'required' as const }),
@@ -279,7 +312,7 @@ export function createBilling(db: Db, cfg: BillingConfig, log: FastifyBaseLogger
           req.log.error({ event: 'stripe_terms_url_missing' }, 'Set the Terms of service URL in Stripe > Settings > Public details');
           session = await stripe.checkout.sessions.create(params(false));
         }
-        req.log.info({ event: 'checkout_started', plan: body.data.plan }, 'checkout started');
+        req.log.info({ event: 'checkout_started', plan: body.data.plan, trial: Boolean(trialDays) }, 'checkout started');
         return { url: session.url };
       });
 
