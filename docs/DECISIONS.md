@@ -243,3 +243,9 @@ Status: accepted 2026-11-03.
 ## ADR-038: Storage size fallback
 Status: accepted 2026-11-06.
 - A guest picked "500 GB" for a PS5 Digital Edition (a PS4 size) and got "not enough data": 7 listings instead of 61. When a check with a storage size ends without a price, it is searched again without the size; if that gives a price, it is shown with a note ("Almost no listings for 500 GB, so this price covers all storage sizes") and the response carries `capacityDropped`. Otherwise the original "not enough data" stands. The extra eBay search only happens in that case. Live: PS5 Digital "500GB" now €545 from 62 listings; iPhone 13 128GB unchanged (108 listings, no fallback).
+
+## ADR-039: Resale-value pages per item
+Status: accepted 2026-11-06.
+- Most visitors come from ChatGPT, which answers "how much is a used X worth" from pages Bing has indexed; the site only had category guides. Now one English page per popular item under `/resale-value/<slug>` (26 items, `apps/web/scripts/site-items.ts`) plus an index at `/resale-value`: how to identify the exact model, what decides the price, what to check before buying, where it sells, FAQ.
+- No fixed prices: they move weekly and eBay data may not be stored or republished (ADR-009). Every page links to `/?q=<model>`, which opens a check with that model filled in.
+- English only for now: no hreflang alternates, language links go to the start pages. Items come from what users check and common resale searches; add more by appending to `ITEMS`.

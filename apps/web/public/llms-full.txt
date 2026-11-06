@@ -819,6 +819,10 @@ Short, practical guides for sourcing and reselling second-hand items in Europe.
 - How much is my LEGO set worth? (/guides/lego-set-value)What decides the resale value of a used LEGO set: the set number, condition, completeness, minifigures and whether it is retired, plus where to sell it.
 - Resale value of books, vinyl records, CDs and DVDs (/guides/resale-value-books-vinyl-dvds)How to find what your used books, vinyl records, CDs and DVDs are worth: barcode, edition and format, buyback services versus selling yourself.
 
+### Resale values of popular items
+
+How much is a used Nintendo Switch, PS5, AirPods, Ralph Lauren jumper or pair of Dunks worth? Resale values of popular items (/resale-value): what decides the price of each and a live check.
+
 
 ## Earn 20% for 6 months
 
@@ -882,3 +886,1122 @@ Earnings become available 14 days after each payment. From €20 you can request
 
 **Who pays taxes on my earnings?**
 You do. Earnings are paid without tax deductions; declare them as required in your country.
+
+
+## How much is it worth? Resale values of popular items
+
+URL: https://fliplens.eu/resale-value
+
+One page per popular second-hand item: how to identify the exact model, what changes the price, what to check before buying, and a one-tap check of today's price.
+
+### Consoles and handhelds
+
+- Nintendo Switch OLED (/resale-value/nintendo-switch-oled)Depends on edition, Joy-Con condition, screen and completeness.
+- Nintendo Switch 2 (/resale-value/nintendo-switch-2)Depends on bundle, game codes, condition and completeness.
+- Nintendo Switch Lite (/resale-value/nintendo-switch-lite)Depends on stick drift, screen, colour and charger.
+- PlayStation 5 (/resale-value/playstation-5)Depends on model (original, Slim or Pro), disc drive, storage and controller.
+- Xbox Series X (/resale-value/xbox-series-x)Depends on version, storage, controller and condition.
+- Steam Deck (/resale-value/steam-deck)Depends on LCD or OLED, storage, screen and stick drift.
+
+### Headphones
+
+- Sony WH-1000XM4 (/resale-value/sony-wh-1000xm4)Depends on condition of earpads and headband, case, colour and battery.
+- Sony WH-1000XM5 (/resale-value/sony-wh-1000xm5)Depends on condition, case, battery and authenticity.
+- AirPods Pro 2 (/resale-value/airpods-pro-2)Depends on case type, battery, authenticity and Find My lock.
+
+### Phones and laptops
+
+- iPhone 13 (/resale-value/iphone-13)Depends on storage, battery health, replaced parts and locks.
+- MacBook Air M1 (/resale-value/macbook-air-m1)Depends on memory, storage, battery cycles, keyboard layout and locks.
+
+### Cameras
+
+- Fujifilm X100V (/resale-value/fujifilm-x100v)Depends on condition, finish, accessories and authenticity.
+- Sony A7 III (/resale-value/sony-a7-iii)Depends on shutter count, sensor, kit and accessories.
+
+### Branded clothes
+
+- Polo Ralph Lauren cable-knit sweater (/resale-value/polo-ralph-lauren-cable-knit-sweater)Depends on material, size, colour, condition and authenticity.
+- Ralph Lauren Polo Bear sweater (/resale-value/ralph-lauren-polo-bear-sweater)Depends on design, age, size and condition.
+- Supreme Box Logo hoodie (/resale-value/supreme-box-logo-hoodie)Depends on season, colour, size, condition and authenticity.
+- Levi's 501 jeans (/resale-value/levis-501)Depends on age, origin, size and fades.
+- The North Face Nuptse jacket (/resale-value/the-north-face-nuptse)Depends on model, size, colour, down condition and authenticity.
+- Carhartt Detroit jacket (/resale-value/carhartt-detroit-jacket)Depends on vintage or WIP, wear, size and colour.
+- Barbour wax jacket (/resale-value/barbour-wax-jacket)Depends on model, size, wax condition and origin.
+- Patagonia fleece (/resale-value/patagonia-fleece)Depends on model, age, size and pilling.
+- Stone Island jacket (/resale-value/stone-island-jacket)Depends on model, material, badge and authenticity.
+
+### Shoes and sneakers
+
+- Nike Dunk Low (/resale-value/nike-dunk-low)Depends on colourway, size, condition and authenticity.
+- Air Jordan 1 (/resale-value/air-jordan-1)Depends on High, Mid or Low, colourway, size and condition.
+- Dr. Martens 1460 boots (/resale-value/dr-martens-1460)Depends on line, size, wear and origin.
+
+
+## How much is a used Nintendo Switch OLED worth?
+
+URL: https://fliplens.eu/resale-value/nintendo-switch-oled
+
+The Switch OLED is one of the most traded consoles on eBay and Vinted. Since the Switch 2 came out in 2025 many more are for sale, so old price guides are out of date: compare current listings only.
+
+### Which one do you have?
+
+The OLED model has a 7-inch screen, a wide adjustable stand along the whole back and a dock with a LAN port. The model number on the back is HEG-001. The original Switch (HAC-001) and the Switch Lite (HDH-001) are different products with lower prices, so make sure listings you compare with are the OLED.
+
+### What decides the price
+
+- Edition: special editions (for example Zelda or Pokémon designs) usually sell above the white and neon versions, but only when the matching dock and Joy-Con are included.
+- Joy-Con: stick drift is the most common fault and lowers the price. Original Joy-Con sell better than third-party ones.
+- Screen: scratches on the OLED screen are hard to hide in photos and cost more than scratches on the back.
+- Completeness: dock, power supply, HDMI cable, Joy-Con grip and straps, and the original box.
+- Bundles: games and cases add less than their shop price. Compare a console alone with consoles alone.
+
+### Check before you buy
+
+- Joy-Con: move both sticks slowly in a circle in System Settings, Controllers and Sensors, Calibrate Control Sticks.
+- Screen: look for scratches, dead pixels and lines on a white and a dark background.
+- Dock: test TV output, the console should charge in the dock.
+- Account: the seller should have removed their Nintendo Account and reset the console.
+- Ask whether the console has been banned from online play.
+
+### Where it sells best
+
+Sells well on eBay and Vinted, and locally where buyers can test it. Ship in the original box or a padded box: the console and dock are fragile and heavy enough that shipping cost matters for your profit.
+
+### Today's price
+
+Prices for a used Nintendo Switch OLED change every week, so this page gives no fixed numbers. FlipLens reads current eBay listings for the exact model and condition, removes bundles, broken items and other models, and shows a quick-sale, expected and high price, your profit after fees and the most to pay. Check your Nintendo Switch OLED (/?q=Nintendo%20Switch%20OLED).
+More: How much is my console worth? (/guides/how-much-is-my-console-worth) · Nintendo Switch 2 (/resale-value/nintendo-switch-2) · Nintendo Switch Lite (/resale-value/nintendo-switch-lite) · PlayStation 5 (/resale-value/playstation-5) · Xbox Series X (/resale-value/xbox-series-x)
+
+**How much is a used Nintendo Switch OLED worth?**
+It depends on edition, Joy-Con condition, screen and completeness. Prices change weekly, so check today's value: type "Nintendo Switch OLED" and the condition into FlipLens (fliplens.eu), which compares current eBay listings in the UK and five EU countries and shows the expected sale price and the most worth paying.
+
+**Did the Switch 2 make the Switch OLED worth less?**
+More used Switch OLED consoles came on the market after the Switch 2 launch in 2025, which pushed prices down. The OLED still sells steadily because it is cheaper and plays the same Switch games, so check the current price, not last year's.
+
+**Is a Switch OLED without the box worth much less?**
+Usually somewhat less, and it is harder to ship safely. The power supply and dock matter more than the box: a console without its dock is clearly worth less.
+
+
+## How much is a used Nintendo Switch 2 worth?
+
+URL: https://fliplens.eu/resale-value/nintendo-switch-2
+
+The Switch 2 launched in June 2025 and is still current, so used ones trade close to the new price. Small details, such as whether a game code was used, change what it is worth.
+
+### Which one do you have?
+
+The Switch 2 is larger than the original Switch, with a 7.9-inch screen and Joy-Con 2 controllers that attach with magnets. It came alone and in bundles with a game. Check whether a listing includes the game on a cartridge, as an unused download code, or not at all.
+
+### What decides the price
+
+- Bundle: a console with an unused game code is worth more than one where the code was redeemed. A used code adds nothing.
+- Condition: as a current console, buyers expect it to look nearly new. Scratches and missing parts cost more than on older consoles.
+- Completeness: dock, Joy-Con 2, grip, straps, power supply, cable and box.
+- Region: a Japan-only version sold in Japan is limited to Japanese language and Japanese accounts. Check before buying an import.
+
+### Check before you buy
+
+- Ask for the receipt: it proves the console is not stolen and may still be under warranty.
+- Test both Joy-Con 2 for drift and check the magnets hold firmly.
+- The seller should remove their Nintendo Account and reset the console.
+- If a game code is included, make sure it has not been redeemed.
+
+### Where it sells best
+
+Sells fast on eBay and Vinted. Because it is current, buyers compare with shop prices: a used console only sells well clearly below the new price.
+
+### Today's price
+
+Prices for a used Nintendo Switch 2 change every week, so this page gives no fixed numbers. FlipLens reads current eBay listings for the exact model and condition, removes bundles, broken items and other models, and shows a quick-sale, expected and high price, your profit after fees and the most to pay. Check your Nintendo Switch 2 (/?q=Nintendo%20Switch%202).
+More: How much is my console worth? (/guides/how-much-is-my-console-worth) · Nintendo Switch OLED (/resale-value/nintendo-switch-oled) · Nintendo Switch Lite (/resale-value/nintendo-switch-lite) · PlayStation 5 (/resale-value/playstation-5) · Xbox Series X (/resale-value/xbox-series-x)
+
+**How much is a used Nintendo Switch 2 worth?**
+It depends on bundle, game codes, condition and completeness. Prices change weekly, so check today's value: type "Nintendo Switch 2" and the condition into FlipLens (fliplens.eu), which compares current eBay listings in the UK and five EU countries and shows the expected sale price and the most worth paying.
+
+**Can I resell a Switch 2 for more than I paid?**
+Only rarely, in short periods when it is out of stock. Most of the time a used Switch 2 sells below the shop price, so resale profit comes from buying cheap, not from scarcity.
+
+**Does an included game code add value?**
+Only if it has not been redeemed. Ask the seller to show the unused code card or the email.
+
+
+## How much is a used Nintendo Switch Lite worth?
+
+URL: https://fliplens.eu/resale-value/nintendo-switch-lite
+
+The Switch Lite is cheap to buy and easy to ship, which makes it a popular flip. The catch is that its controllers are built in, so one fault affects the whole console.
+
+### Which one do you have?
+
+The Switch Lite (model HDH-001) is handheld only: no detachable Joy-Con and no TV output. It comes in several colours and some special editions. It is a different product from the Switch and Switch OLED, with a lower price.
+
+### What decides the price
+
+- Stick drift: the sticks cannot be swapped like Joy-Con, so drift lowers the price a lot.
+- Screen: scratches and pressure marks.
+- Colour and edition: special editions can sell for more than the standard colours.
+- Charger: many are sold without one. It is cheap to replace, but buyers still pay less.
+
+### Check before you buy
+
+- Calibrate both sticks in System Settings and watch for movement when you let go.
+- Press every button, including the D-pad and shoulder buttons.
+- Check the battery: charge it and play for a few minutes.
+- The seller should remove their Nintendo Account.
+
+### Where it sells best
+
+Small and light, so shipping is cheap. Sells well on Vinted and eBay, often with a game or a case. Price the console on its own first, then decide if the extras are worth listing separately.
+
+### Today's price
+
+Prices for a used Nintendo Switch Lite change every week, so this page gives no fixed numbers. FlipLens reads current eBay listings for the exact model and condition, removes bundles, broken items and other models, and shows a quick-sale, expected and high price, your profit after fees and the most to pay. Check your Nintendo Switch Lite (/?q=Nintendo%20Switch%20Lite).
+More: How much is my console worth? (/guides/how-much-is-my-console-worth) · Nintendo Switch OLED (/resale-value/nintendo-switch-oled) · Nintendo Switch 2 (/resale-value/nintendo-switch-2) · PlayStation 5 (/resale-value/playstation-5) · Xbox Series X (/resale-value/xbox-series-x)
+
+**How much is a used Nintendo Switch Lite worth?**
+It depends on stick drift, screen, colour and charger. Prices change weekly, so check today's value: type "Nintendo Switch Lite" and the condition into FlipLens (fliplens.eu), which compares current eBay listings in the UK and five EU countries and shows the expected sale price and the most worth paying.
+
+**Can a Switch Lite with drift still be sold?**
+Yes, but for much less, and you must describe the fault. Some buyers repair them, so faulty consoles still find buyers as "for parts or repair".
+
+**Is the Switch Lite worth less than the Switch?**
+Yes. It is a cheaper console without TV output, so used prices are lower as well.
+
+
+## How much is a used PlayStation 5 worth?
+
+URL: https://fliplens.eu/resale-value/playstation-5
+
+There are three PS5 generations, each with and without a disc drive. They look similar in photos but sell for clearly different prices, so knowing the exact model is the most important step.
+
+### Which one do you have?
+
+The model number on the back or the bottom starts with CFI. CFI-10xx and CFI-11xx are the original PS5 (825 GB). CFI-20xx is the PS5 Slim (1 TB) from 2023. CFI-70xx is the PS5 Pro (2 TB) from 2024, which has no disc drive. The Digital Edition has no disc drive; the Slim Digital Edition can get one as an add-on.
+
+### What decides the price
+
+- Model: Pro, Slim and original are three different price levels. Compare only with the same one.
+- Disc drive: the disc version usually sells above the Digital Edition. A Slim Digital with the add-on drive sits in between.
+- Controller: a DualSense with drift or worn sticks lowers the price.
+- Condition: scratches on the glossy parts, yellowing of the white panels, fan noise.
+- Bundles: games add less than their shop price. Value the console alone first.
+
+### Check before you buy
+
+- Read the model number (CFI-...) and the storage in Settings, System, System Software.
+- Start a game: listen for loud fan noise and watch for crashes.
+- Disc version: insert a disc and check it reads and ejects.
+- The seller should sign out of PlayStation Network and reset the console.
+- Test the controller for drift and check all buttons and triggers.
+
+### Where it sells best
+
+Sells well on eBay and locally. It is heavy, so ship in a sturdy box and include the shipping cost in your price. Local pickup avoids shipping damage and lets the buyer test it.
+
+### Today's price
+
+Prices for a used PlayStation 5 change every week, so this page gives no fixed numbers. FlipLens reads current eBay listings for the exact model and condition, removes bundles, broken items and other models, and shows a quick-sale, expected and high price, your profit after fees and the most to pay. Check your PlayStation 5 (/?q=Sony%20PlayStation%205).
+More: How much is my console worth? (/guides/how-much-is-my-console-worth) · Nintendo Switch OLED (/resale-value/nintendo-switch-oled) · Nintendo Switch 2 (/resale-value/nintendo-switch-2) · Nintendo Switch Lite (/resale-value/nintendo-switch-lite) · Xbox Series X (/resale-value/xbox-series-x)
+
+**How much is a used PlayStation 5 worth?**
+It depends on model (original, Slim or Pro), disc drive, storage and controller. Prices change weekly, so check today's value: type "Sony PlayStation 5" and the condition into FlipLens (fliplens.eu), which compares current eBay listings in the UK and five EU countries and shows the expected sale price and the most worth paying.
+
+**How much less is a PS5 Digital Edition worth?**
+It usually sells below the disc version of the same generation. The gap changes over time, so compare with Digital Editions of the same model number only.
+
+**Why do PS5 prices on eBay vary so much?**
+Listings mix original, Slim and Pro, disc and digital, and bundles with games. Filter to your exact model and console-only listings, or let FlipLens do it.
+
+
+## How much is a used Xbox Series X worth?
+
+URL: https://fliplens.eu/resale-value/xbox-series-x
+
+The Xbox Series X is a steady seller, but it is easy to mix up with the cheaper Series S. Here is what decides the price.
+
+### Which one do you have?
+
+The Series X is a tall black box with a disc drive (1 TB). Since 2024 there is also an all-digital white version and a 2 TB edition. The Xbox Series S is much smaller, mostly white, has no disc drive and sells for considerably less.
+
+### What decides the price
+
+- Version: disc, digital or 2 TB edition.
+- Controller: included, working, no drift.
+- Condition: scratches, dust in the vents, fan noise.
+- Completeness: power cable, HDMI cable, box.
+
+### Check before you buy
+
+- Confirm it is a Series X, not a Series S.
+- Start a game and listen to the fan.
+- Test the disc drive with a disc.
+- The seller should remove their Microsoft account and reset the console.
+
+### Where it sells best
+
+Heavy and bulky, so local pickup or a well-packed parcel. Sells on eBay and local marketplaces; Vinted works too for buyers nearby.
+
+### Today's price
+
+Prices for a used Xbox Series X change every week, so this page gives no fixed numbers. FlipLens reads current eBay listings for the exact model and condition, removes bundles, broken items and other models, and shows a quick-sale, expected and high price, your profit after fees and the most to pay. Check your Xbox Series X (/?q=Microsoft%20Xbox%20Series%20X).
+More: How much is my console worth? (/guides/how-much-is-my-console-worth) · Nintendo Switch OLED (/resale-value/nintendo-switch-oled) · Nintendo Switch 2 (/resale-value/nintendo-switch-2) · Nintendo Switch Lite (/resale-value/nintendo-switch-lite) · PlayStation 5 (/resale-value/playstation-5)
+
+**How much is a used Xbox Series X worth?**
+It depends on version, storage, controller and condition. Prices change weekly, so check today's value: type "Microsoft Xbox Series X" and the condition into FlipLens (fliplens.eu), which compares current eBay listings in the UK and five EU countries and shows the expected sale price and the most worth paying.
+
+**Is an Xbox Series S worth as much as a Series X?**
+No. The Series S is a smaller, cheaper console and resells for clearly less.
+
+**Does Game Pass affect the resale value?**
+No. Subscriptions are tied to the account, not the console. Make sure the seller has removed their account.
+
+
+## How much is a used Steam Deck worth?
+
+URL: https://fliplens.eu/resale-value/steam-deck
+
+The Steam Deck has two generations and several storage sizes. The difference between them is bigger than most listings make clear.
+
+### Which one do you have?
+
+The LCD model (2022) came with 64 GB, 256 GB or 512 GB. The OLED model (2023) has a larger, brighter screen and comes with 512 GB or 1 TB. The storage is shown in Settings, System. The OLED is worth noticeably more than the LCD.
+
+### What decides the price
+
+- Generation: OLED versus LCD.
+- Storage: the 64 GB LCD model sells for least. An upgraded SSD can add a little, but buyers pay mostly for the original specification.
+- Sticks and screen: drift, scratches and dead pixels.
+- Case and charger: the original carrying case and the 45 W charger.
+
+### Check before you buy
+
+- Check the model and storage in Settings, System.
+- Test both sticks and the trackpads.
+- Look for dead pixels on a white background.
+- The seller should log out of Steam and reset the device.
+
+### Where it sells best
+
+Sells well on eBay and Vinted. Ship it in its case inside a padded box.
+
+### Today's price
+
+Prices for a used Steam Deck change every week, so this page gives no fixed numbers. FlipLens reads current eBay listings for the exact model and condition, removes bundles, broken items and other models, and shows a quick-sale, expected and high price, your profit after fees and the most to pay. Check your Steam Deck (/?q=Valve%20Steam%20Deck).
+More: How much is my console worth? (/guides/how-much-is-my-console-worth) · Nintendo Switch OLED (/resale-value/nintendo-switch-oled) · Nintendo Switch 2 (/resale-value/nintendo-switch-2) · Nintendo Switch Lite (/resale-value/nintendo-switch-lite) · PlayStation 5 (/resale-value/playstation-5)
+
+**How much is a used Steam Deck worth?**
+It depends on LCD or OLED, storage, screen and stick drift. Prices change weekly, so check today's value: type "Valve Steam Deck" and the condition into FlipLens (fliplens.eu), which compares current eBay listings in the UK and five EU countries and shows the expected sale price and the most worth paying.
+
+**Is an LCD Steam Deck still worth buying to resell?**
+Yes, if the price is right: it is still in demand as a cheaper handheld PC. Compare only with LCD models of the same storage.
+
+**Does an SSD upgrade raise the price?**
+A little. Most buyers value the original model and storage, so do not expect to recover the cost of the upgrade.
+
+
+## How much is a used Sony WH-1000XM4 worth?
+
+URL: https://fliplens.eu/resale-value/sony-wh-1000xm4
+
+The WH-1000XM4 is one of the most traded noise-cancelling headphones. It is often confused with the XM3 and XM5, which have different prices.
+
+### Which one do you have?
+
+The model name is printed inside the headband. The XM4 (2020) folds and looks very similar to the XM3. The XM5 (2022) has a smoother design and does not fold; the XM6 followed in 2025. Compare only with the same generation.
+
+### What decides the price
+
+- Earpads and headband: worn, flaking or dirty earpads lower the price. New pads are cheap and can raise it.
+- Case and cable: the hard case, the audio cable and the airplane adapter.
+- Battery: it should last many hours with noise cancelling on.
+- Colour: black and silver are the most common.
+- Fakes: cheap copies exist. Check the app pairing and the build quality.
+
+### Check before you buy
+
+- Connect them to the Sony app and check noise cancelling works on both sides.
+- Listen for crackling and test the touch controls.
+- Look at the hinges and headband for cracks.
+- Check the earpads for flaking.
+
+### Where it sells best
+
+Light and easy to ship. Sells well on eBay, Vinted and local marketplaces. Clean the earpads and show the case in photos.
+
+### Today's price
+
+Prices for a used Sony WH-1000XM4 change every week, so this page gives no fixed numbers. FlipLens reads current eBay listings for the exact model and condition, removes bundles, broken items and other models, and shows a quick-sale, expected and high price, your profit after fees and the most to pay. Check your Sony WH-1000XM4 (/?q=Sony%20WH-1000XM4).
+More: Resale value of headphones (/guides/resale-value-headphones) · Sony WH-1000XM5 (/resale-value/sony-wh-1000xm5) · AirPods Pro 2 (/resale-value/airpods-pro-2)
+
+**How much is a used Sony WH-1000XM4 worth?**
+It depends on condition of earpads and headband, case, colour and battery. Prices change weekly, so check today's value: type "Sony WH-1000XM4" and the condition into FlipLens (fliplens.eu), which compares current eBay listings in the UK and five EU countries and shows the expected sale price and the most worth paying.
+
+**How much less is the XM4 worth than the XM5?**
+The XM4 sells below the XM5. The gap moves with new releases, so compare current listings of the same model.
+
+**Should I replace worn earpads before selling?**
+Often yes. Replacement pads are cheap and worn pads put buyers off more than their cost.
+
+
+## How much is a used Sony WH-1000XM5 worth?
+
+URL: https://fliplens.eu/resale-value/sony-wh-1000xm5
+
+The WH-1000XM5 kept its value well, but since the XM6 came out in 2025 used prices have moved. Check the current market before buying to resell.
+
+### Which one do you have?
+
+The XM5 does not fold, has a slimmer headband and the model name inside the band. It comes in a flat folding case. The XM4 folds and has a different case.
+
+### What decides the price
+
+- Condition: the soft finish shows marks; earpads wear.
+- Case: the original case is expected.
+- Battery and noise cancelling: both sides should work.
+- Authenticity: copies exist; buy from sellers who can show the box and receipt.
+
+### Check before you buy
+
+- Pair with the Sony app and test noise cancelling and the touch panel.
+- Look at the hinges and sliders.
+- Ask for the receipt or the box with the serial number.
+
+### Where it sells best
+
+Sells well on eBay and Vinted. Photos with the case and a clean headband help.
+
+### Today's price
+
+Prices for a used Sony WH-1000XM5 change every week, so this page gives no fixed numbers. FlipLens reads current eBay listings for the exact model and condition, removes bundles, broken items and other models, and shows a quick-sale, expected and high price, your profit after fees and the most to pay. Check your Sony WH-1000XM5 (/?q=Sony%20WH-1000XM5).
+More: Resale value of headphones (/guides/resale-value-headphones) · Sony WH-1000XM4 (/resale-value/sony-wh-1000xm4) · AirPods Pro 2 (/resale-value/airpods-pro-2)
+
+**How much is a used Sony WH-1000XM5 worth?**
+It depends on condition, case, battery and authenticity. Prices change weekly, so check today's value: type "Sony WH-1000XM5" and the condition into FlipLens (fliplens.eu), which compares current eBay listings in the UK and five EU countries and shows the expected sale price and the most worth paying.
+
+**Did the XM6 lower the price of the XM5?**
+Yes, new generations push used prices of the previous one down. The XM5 still sells steadily, so check the current price.
+
+**Are XM5 headphones without a case worth less?**
+Yes, buyers expect the case. Without it, price it lower.
+
+
+## How much is a used AirPods Pro 2 worth?
+
+URL: https://fliplens.eu/resale-value/airpods-pro-2
+
+AirPods Pro 2 resell well but are among the most faked products on second-hand marketplaces. Checking authenticity is the first step.
+
+### Which one do you have?
+
+There are two versions of the AirPods Pro 2: with a Lightning case (2022) and with a USB-C case (2023). The AirPods Pro 3 followed in 2025. Connected to an iPhone, Settings shows the exact model and serial number, which you can check on Apple's coverage site.
+
+### What decides the price
+
+- Authenticity: fakes are common. A genuine pair shows the correct serial in Settings and on Apple's coverage check.
+- Battery: battery wear lowers the price.
+- Case: USB-C or Lightning, scratches, the speaker and lanyard loop.
+- Completeness: both earbuds, the case and spare tips.
+
+### Check before you buy
+
+- Pair with an iPhone: check the model, serial and firmware in Settings.
+- Check the serial number on Apple's coverage website.
+- Make sure they are removed from the seller's Apple ID (Find My).
+- Test noise cancelling and transparency mode on both earbuds.
+
+### Where it sells best
+
+Tiny and cheap to ship, sells on eBay and Vinted. Buyers worry about fakes, so show the serial number check and the original box.
+
+### Today's price
+
+Prices for a used AirPods Pro 2 change every week, so this page gives no fixed numbers. FlipLens reads current eBay listings for the exact model and condition, removes bundles, broken items and other models, and shows a quick-sale, expected and high price, your profit after fees and the most to pay. Check your AirPods Pro 2 (/?q=Apple%20AirPods%20Pro%202).
+More: Resale value of headphones (/guides/resale-value-headphones) · Sony WH-1000XM4 (/resale-value/sony-wh-1000xm4) · Sony WH-1000XM5 (/resale-value/sony-wh-1000xm5)
+
+**How much is a used AirPods Pro 2 worth?**
+It depends on case type, battery, authenticity and Find My lock. Prices change weekly, so check today's value: type "Apple AirPods Pro 2" and the condition into FlipLens (fliplens.eu), which compares current eBay listings in the UK and five EU countries and shows the expected sale price and the most worth paying.
+
+**How can I tell if AirPods Pro 2 are fake?**
+Pair them with an iPhone and check the serial in Settings and on Apple's coverage site. Fakes often show the wrong model, a reused serial or no proper noise cancelling.
+
+**Can I sell a single AirPod or the case alone?**
+Yes, single earbuds and cases sell as replacements, but for much less than a full set.
+
+
+## How much is a used iPhone 13 worth?
+
+URL: https://fliplens.eu/resale-value/iphone-13
+
+The iPhone 13 is a popular used phone in Europe. Storage, battery health and the parts history make the biggest difference to what it sells for.
+
+### Which one do you have?
+
+Settings, General, About shows the model, storage and serial. Make sure to compare with the same model: iPhone 13, 13 mini, 13 Pro and 13 Pro Max are four phones with very different prices.
+
+### What decides the price
+
+- Model and storage: 128 GB is the most common, larger storage sells for more.
+- Battery health: shown in Settings, Battery. Low battery health lowers the price.
+- Replaced parts: Settings, General, About shows "Parts and service history". A non-genuine screen or battery lowers the price.
+- Condition: screen and frame scratches, cracked back glass.
+- Locks: an iPhone with Activation Lock or a carrier lock is worth much less.
+
+### Check before you buy
+
+- Find My iPhone must be off and the phone reset to factory settings.
+- Check battery health and parts history.
+- Test Face ID, cameras, speakers and charging.
+- Insert your SIM card to check it is not carrier locked.
+
+### Where it sells best
+
+Sells well on eBay and local marketplaces; buyers want photos of the battery health screen. Trade-in offers are faster but usually lower than selling yourself.
+
+### Today's price
+
+Prices for a used iPhone 13 change every week, so this page gives no fixed numbers. FlipLens reads current eBay listings for the exact model and condition, removes bundles, broken items and other models, and shows a quick-sale, expected and high price, your profit after fees and the most to pay. Check your iPhone 13 (/?q=Apple%20iPhone%2013).
+More: Selling a used phone in Europe (/guides/sell-used-phone-europe) · MacBook Air M1 (/resale-value/macbook-air-m1)
+
+**How much is a used iPhone 13 worth?**
+It depends on storage, battery health, replaced parts and locks. Prices change weekly, so check today's value: type "Apple iPhone 13" and the condition into FlipLens (fliplens.eu), which compares current eBay listings in the UK and five EU countries and shows the expected sale price and the most worth paying.
+
+**Does battery health affect the price of a used iPhone?**
+Yes. Buyers check it first. A low percentage lowers the price, and a replaced battery is fine if it is shown as genuine.
+
+**Can I sell an iPhone with Activation Lock?**
+Not as a working phone. Only the owner can remove it. Never buy one that is still locked.
+
+
+## How much is a used MacBook Air M1 worth?
+
+URL: https://fliplens.eu/resale-value/macbook-air-m1
+
+The MacBook Air M1 (2020) is still one of the most sought-after used laptops. In Europe one detail often gets overlooked: the keyboard layout.
+
+### Which one do you have?
+
+The Apple menu, About This Mac shows the chip, memory and serial. The M1 Air has no fan, two USB-C ports and a wedge shape. The M2 Air (2022) is flat, has MagSafe and sells for more.
+
+### What decides the price
+
+- Memory and storage: 8 GB and 256 GB is the base model; 16 GB or 512 GB sells for more.
+- Battery: the cycle count is shown in System Information, Power.
+- Keyboard layout: a German QWERTZ or French AZERTY keyboard limits buyers in other countries. Sell where the layout is local.
+- Condition: dents, screen coating wear, keyboard shine.
+- Charger: an original charger is expected.
+
+### Check before you buy
+
+- Find My Mac must be off and the Mac erased (no Activation Lock).
+- Check memory, storage and battery cycles.
+- Test every key, the trackpad, the camera and both ports.
+- Look for marks on the screen from the keyboard.
+
+### Where it sells best
+
+Sells well on eBay and local marketplaces. Sell in the country that matches the keyboard layout to reach the most buyers.
+
+### Today's price
+
+Prices for a used MacBook Air M1 change every week, so this page gives no fixed numbers. FlipLens reads current eBay listings for the exact model and condition, removes bundles, broken items and other models, and shows a quick-sale, expected and high price, your profit after fees and the most to pay. Check your MacBook Air M1 (/?q=Apple%20MacBook%20Air%20M1).
+More: Selling a used phone in Europe (/guides/sell-used-phone-europe) · iPhone 13 (/resale-value/iphone-13)
+
+**How much is a used MacBook Air M1 worth?**
+It depends on memory, storage, battery cycles, keyboard layout and locks. Prices change weekly, so check today's value: type "Apple MacBook Air M1" and the condition into FlipLens (fliplens.eu), which compares current eBay listings in the UK and five EU countries and shows the expected sale price and the most worth paying.
+
+**Is a MacBook Air M1 with 8 GB still worth buying to resell?**
+Yes, it is the most common version and still in demand. Compare only with the same memory and storage.
+
+**Does the keyboard layout really change the price?**
+Not the value itself, but the number of buyers. A QWERTZ keyboard sells best in Germany and Austria, AZERTY in France and Belgium.
+
+
+## How much is a used Fujifilm X100V worth?
+
+URL: https://fliplens.eu/resale-value/fujifilm-x100v
+
+The Fujifilm X100V became famous on social media and is one of the few cameras whose used price stayed high for years. That also makes it a target for scams.
+
+### Which one do you have?
+
+The X100V (2020) has a fixed 23 mm lens, a hybrid viewfinder and a tilting screen. It is often confused with the older X100F and the newer X100VI (2024). The model name is on the top plate.
+
+### What decides the price
+
+- Model: X100VI, X100V and X100F are three price levels.
+- Finish: silver and black.
+- Condition: lens glass, screen, scratches on the top plate.
+- Accessories: original box, battery, lens cap, adapter ring and filter.
+
+### Check before you buy
+
+- Take photos and check the lens for haze, scratches and fungus.
+- Test the viewfinder in both modes and the tilting screen.
+- Compare the serial on the camera and the box.
+- Buy only with buyer protection: very low prices are often scams.
+
+### Where it sells best
+
+Sells fast on eBay and camera marketplaces. Show sample photos and the serial number to build trust.
+
+### Today's price
+
+Prices for a used Fujifilm X100V change every week, so this page gives no fixed numbers. FlipLens reads current eBay listings for the exact model and condition, removes bundles, broken items and other models, and shows a quick-sale, expected and high price, your profit after fees and the most to pay. Check your Fujifilm X100V (/?q=Fujifilm%20X100V).
+More: Resale value of cameras and lenses (/guides/resale-value-cameras-lenses) · Sony A7 III (/resale-value/sony-a7-iii)
+
+**How much is a used Fujifilm X100V worth?**
+It depends on condition, finish, accessories and authenticity. Prices change weekly, so check today's value: type "Fujifilm X100V" and the condition into FlipLens (fliplens.eu), which compares current eBay listings in the UK and five EU countries and shows the expected sale price and the most worth paying.
+
+**Why is the X100V so expensive used?**
+Demand from social media and limited supply kept prices high. Prices have moved since the X100VI launch, so check the current market.
+
+**Does the X100VI lower the value of the X100V?**
+A new model usually lowers the price of the previous one, but demand for the X100V has stayed strong.
+
+
+## How much is a used Sony A7 III worth?
+
+URL: https://fliplens.eu/resale-value/sony-a7-iii
+
+The Sony A7 III is a classic first full-frame camera and sells steadily. Shutter count and sensor condition matter most.
+
+### Which one do you have?
+
+The A7 III (ILCE-7M3) is often listed next to the A7 II, A7 IV and A7R models. The model code is on the bottom. Body only and kits with a lens are different products: compare like with like.
+
+### What decides the price
+
+- Shutter count: a high count lowers the price.
+- Sensor and mount: scratches on the sensor or a worn mount.
+- Kit: body only versus with a lens; value the lens separately.
+- Accessories: batteries, charger, strap, box.
+
+### Check before you buy
+
+- Ask for the shutter count or read it from an image file with an online tool.
+- Look at the sensor with the lens off and take a photo of a white wall at a small aperture.
+- Test autofocus, stabilisation, card slots and screen.
+
+### Where it sells best
+
+Sells on eBay and camera marketplaces. Sell the body and lens separately if the lens is in demand on its own.
+
+### Today's price
+
+Prices for a used Sony A7 III change every week, so this page gives no fixed numbers. FlipLens reads current eBay listings for the exact model and condition, removes bundles, broken items and other models, and shows a quick-sale, expected and high price, your profit after fees and the most to pay. Check your Sony A7 III (/?q=Sony%20A7%20III).
+More: Resale value of cameras and lenses (/guides/resale-value-cameras-lenses) · Fujifilm X100V (/resale-value/fujifilm-x100v)
+
+**How much is a used Sony A7 III worth?**
+It depends on shutter count, sensor, kit and accessories. Prices change weekly, so check today's value: type "Sony A7 III" and the condition into FlipLens (fliplens.eu), which compares current eBay listings in the UK and five EU countries and shows the expected sale price and the most worth paying.
+
+**What shutter count is too high for a Sony A7 III?**
+There is no hard limit, but a high count lowers the price and buyers ask for it. Mention it in the listing.
+
+**Is it better to sell the body and lens separately?**
+Often yes. Kit lenses are cheap, but good lenses can sell for more on their own.
+
+
+## How much is a used Polo Ralph Lauren cable-knit sweater worth?
+
+URL: https://fliplens.eu/resale-value/polo-ralph-lauren-cable-knit-sweater
+
+Ralph Lauren cable knits are among the best-selling second-hand knitwear on Vinted and eBay. Material and condition matter more than anything else.
+
+### Which one do you have?
+
+The care label inside shows the material: cotton, wool, cashmere or blends. Cashmere and wool sell for more than cotton. The embroidered pony on the chest should be neat and evenly stitched.
+
+### What decides the price
+
+- Material: cashmere above wool, wool above cotton.
+- Size: common sizes sell fastest; check the label, not the seller's description.
+- Colour: classic colours such as navy, cream and green sell well.
+- Condition: pilling, holes and stretched cuffs lower the price.
+- Authenticity: fakes exist; look at the pony, the labels and the stitching.
+
+### Check before you buy
+
+- Read the care label for the material and size.
+- Look for moth holes against the light.
+- Check the cuffs and hem for stretching.
+- Compare the logo with a genuine one.
+
+### Where it sells best
+
+Sells best on Vinted, and on eBay for larger sizes. Photograph the labels and the knit close up.
+
+### Today's price
+
+Prices for a used Polo Ralph Lauren cable-knit sweater change every week, so this page gives no fixed numbers. FlipLens reads current eBay listings for the exact model and condition, removes bundles, broken items and other models, and shows a quick-sale, expected and high price, your profit after fees and the most to pay. Check your Polo Ralph Lauren cable-knit sweater (/?q=Polo%20Ralph%20Lauren%20cable-knit%20sweater).
+More: Resale value of branded clothes (/guides/resale-value-branded-clothes) · Ralph Lauren Polo Bear sweater (/resale-value/ralph-lauren-polo-bear-sweater) · Supreme Box Logo hoodie (/resale-value/supreme-box-logo-hoodie) · Levi's 501 jeans (/resale-value/levis-501) · The North Face Nuptse jacket (/resale-value/the-north-face-nuptse)
+
+**How much is a used Polo Ralph Lauren cable-knit sweater worth?**
+It depends on material, size, colour, condition and authenticity. Prices change weekly, so check today's value: type "Polo Ralph Lauren cable-knit sweater" and the condition into FlipLens (fliplens.eu), which compares current eBay listings in the UK and five EU countries and shows the expected sale price and the most worth paying.
+
+**Are Ralph Lauren cable knits worth reselling?**
+Usually yes, if bought cheaply in good condition. Wool and cashmere ones are the best finds.
+
+**Do Polo Bear sweaters sell for more?**
+Yes, Polo Bear knits are a separate, more sought-after market. See the Polo Bear page.
+
+
+## How much is a used Ralph Lauren Polo Bear sweater worth?
+
+URL: https://fliplens.eu/resale-value/ralph-lauren-polo-bear-sweater
+
+Polo Bear knits are collectible: older and rarer designs sell for far more than a standard Ralph Lauren jumper.
+
+### Which one do you have?
+
+The bear is knitted into the sweater (not printed) and comes in many outfits and themes. The label tells roughly how old it is: vintage pieces from the 1990s are especially sought after. Graphic hoodies and T-shirts with the bear are a cheaper, separate market.
+
+### What decides the price
+
+- Design: rare and vintage bear designs are worth much more than recent common ones.
+- Type: knitted sweaters above printed hoodies and T-shirts.
+- Size: adult sizes sell above kids' sizes.
+- Condition: holes, stains and pilling.
+
+### Check before you buy
+
+- Check the label and the knit quality: fakes exist.
+- Look for holes and stains, especially around the bear.
+- Search the exact bear design to see how common it is.
+
+### Where it sells best
+
+Sells well on Vinted and eBay. Name the bear design in the title, collectors search for it.
+
+### Today's price
+
+Prices for a used Ralph Lauren Polo Bear sweater change every week, so this page gives no fixed numbers. FlipLens reads current eBay listings for the exact model and condition, removes bundles, broken items and other models, and shows a quick-sale, expected and high price, your profit after fees and the most to pay. Check your Ralph Lauren Polo Bear sweater (/?q=Polo%20Ralph%20Lauren%20Polo%20Bear%20sweater).
+More: Resale value of branded clothes (/guides/resale-value-branded-clothes) · Polo Ralph Lauren cable-knit sweater (/resale-value/polo-ralph-lauren-cable-knit-sweater) · Supreme Box Logo hoodie (/resale-value/supreme-box-logo-hoodie) · Levi's 501 jeans (/resale-value/levis-501) · The North Face Nuptse jacket (/resale-value/the-north-face-nuptse)
+
+**How much is a used Ralph Lauren Polo Bear sweater worth?**
+It depends on design, age, size and condition. Prices change weekly, so check today's value: type "Polo Ralph Lauren Polo Bear sweater" and the condition into FlipLens (fliplens.eu), which compares current eBay listings in the UK and five EU countries and shows the expected sale price and the most worth paying.
+
+**Why are Polo Bear sweaters so expensive?**
+They are collectible: designs change, older ones are scarce, and fans search for specific bears.
+
+**Is a Polo Bear hoodie worth as much as a knitted sweater?**
+No, printed hoodies and T-shirts sell for less than knitted bear sweaters.
+
+
+## How much is a used Supreme Box Logo hoodie worth?
+
+URL: https://fliplens.eu/resale-value/supreme-box-logo-hoodie
+
+The Box Logo hoodie is the most valuable everyday Supreme item, and also the most faked. Most other Supreme clothing sells for much less.
+
+### Which one do you have?
+
+The season is printed on the neck or wash tag (for example FW and the year). The box logo is a felt patch with embroidered letters. Other Supreme hoodies with a printed or small logo are a different, cheaper market.
+
+### What decides the price
+
+- Authenticity: fakes are very common. Without good photos of the tags and stitching, the price drops.
+- Season and colour: some seasons and colours are far more sought after.
+- Size: M and L sell best.
+- Condition: a clean, unfaded logo and no cracks or pills.
+
+### Check before you buy
+
+- Compare the tags, the logo and the stitching with verified examples.
+- Check the season on the tag matches the colourway.
+- Use an authentication service for expensive pieces.
+
+### Where it sells best
+
+Sells on eBay and Vinted, and on resale platforms with authentication. Show the tags and logo close up.
+
+### Today's price
+
+Prices for a used Supreme Box Logo hoodie change every week, so this page gives no fixed numbers. FlipLens reads current eBay listings for the exact model and condition, removes bundles, broken items and other models, and shows a quick-sale, expected and high price, your profit after fees and the most to pay. Check your Supreme Box Logo hoodie (/?q=Supreme%20Box%20Logo%20hoodie).
+More: Resale value of branded clothes (/guides/resale-value-branded-clothes) · Polo Ralph Lauren cable-knit sweater (/resale-value/polo-ralph-lauren-cable-knit-sweater) · Ralph Lauren Polo Bear sweater (/resale-value/ralph-lauren-polo-bear-sweater) · Levi's 501 jeans (/resale-value/levis-501) · The North Face Nuptse jacket (/resale-value/the-north-face-nuptse)
+
+**How much is a used Supreme Box Logo hoodie worth?**
+It depends on season, colour, size, condition and authenticity. Prices change weekly, so check today's value: type "Supreme Box Logo hoodie" and the condition into FlipLens (fliplens.eu), which compares current eBay listings in the UK and five EU countries and shows the expected sale price and the most worth paying.
+
+**How can I tell if a Supreme Box Logo is fake?**
+Check the tags, the font, the logo patch and the stitching against verified photos from the same season. For expensive pieces, use an authentication service.
+
+**Is all Supreme clothing worth reselling?**
+No. Box Logo items and some collaborations keep their value; many other T-shirts and accessories sell for less than people expect.
+
+
+## How much is a used Levi's 501 jeans worth?
+
+URL: https://fliplens.eu/resale-value/levis-501
+
+Most used Levi's 501s are worth little, but some vintage pairs sell for a lot. The tags tell you which one you have.
+
+### Which one do you have?
+
+Look at the red tab, the care tag and the button. A capital "E" on the red tab ("Big E") marks pairs from before the early 1970s, which are collectible. Pairs made in the USA are generally more sought after than recent ones. The waist and length are on the leather or paper patch at the back.
+
+### What decides the price
+
+- Age and origin: vintage, Big E and Made in USA pairs above recent ones.
+- Size: common sizes sell faster; vintage sizes run smaller than labelled.
+- Fades and wear: natural fades are valued, but holes in the crotch lower the price.
+- Fit: 501 versus other cuts such as 505 or 550.
+
+### Check before you buy
+
+- Read the red tab, care tag, button and patch.
+- Measure the waist and length flat.
+- Check the crotch and pockets for holes.
+
+### Where it sells best
+
+Recent 501s sell on Vinted for small amounts. Vintage pairs sell on eBay and vintage marketplaces: put "vintage", the decade and the origin in the title.
+
+### Today's price
+
+Prices for a used Levi's 501 jeans change every week, so this page gives no fixed numbers. FlipLens reads current eBay listings for the exact model and condition, removes bundles, broken items and other models, and shows a quick-sale, expected and high price, your profit after fees and the most to pay. Check your Levi's 501 jeans (/?q=Levi's%20501%20jeans).
+More: Resale value of branded clothes (/guides/resale-value-branded-clothes) · Polo Ralph Lauren cable-knit sweater (/resale-value/polo-ralph-lauren-cable-knit-sweater) · Ralph Lauren Polo Bear sweater (/resale-value/ralph-lauren-polo-bear-sweater) · Supreme Box Logo hoodie (/resale-value/supreme-box-logo-hoodie) · The North Face Nuptse jacket (/resale-value/the-north-face-nuptse)
+
+**How much is a used Levi's 501 jeans worth?**
+It depends on age, origin, size and fades. Prices change weekly, so check today's value: type "Levi's 501 jeans" and the condition into FlipLens (fliplens.eu), which compares current eBay listings in the UK and five EU countries and shows the expected sale price and the most worth paying.
+
+**How do I know if my Levi's 501 are vintage?**
+Check the red tab (a capital E means early pairs), the care tag and the country of origin. Older pairs often have no long care tag at all.
+
+**Are modern Levi's 501 worth reselling?**
+Only when bought cheaply. They sell steadily but for modest amounts.
+
+
+## How much is a used The North Face Nuptse jacket worth?
+
+URL: https://fliplens.eu/resale-value/the-north-face-nuptse
+
+The North Face Nuptse puffer sells all winter, and prices rise when it gets cold. Fakes are common, so check before you buy.
+
+### Which one do you have?
+
+The 1996 Retro Nuptse is the classic version. The inside label shows the model and size; genuine jackets have a hologram or a QR code on recent labels, depending on age. Kids' versions and other puffers (for example Himalayan) are different products.
+
+### What decides the price
+
+- Model: 1996 Retro Nuptse and special editions above basic puffers.
+- Size and colour: black sells fastest; bright colours vary.
+- Down: lost loft, leaking feathers and flat spots lower the price.
+- Authenticity: check the labels, the logo embroidery and the zips.
+
+### Check before you buy
+
+- Check labels, zip brand and logo stitching against a genuine jacket.
+- Squeeze the baffles: they should spring back evenly.
+- Look for tears, stains and repairs.
+
+### Where it sells best
+
+Sells best from October to February on Vinted and eBay. Buy in summer, sell in winter.
+
+### Today's price
+
+Prices for a used The North Face Nuptse jacket change every week, so this page gives no fixed numbers. FlipLens reads current eBay listings for the exact model and condition, removes bundles, broken items and other models, and shows a quick-sale, expected and high price, your profit after fees and the most to pay. Check your The North Face Nuptse jacket (/?q=The%20North%20Face%20Nuptse%20jacket).
+More: Resale value of branded clothes (/guides/resale-value-branded-clothes) · Polo Ralph Lauren cable-knit sweater (/resale-value/polo-ralph-lauren-cable-knit-sweater) · Ralph Lauren Polo Bear sweater (/resale-value/ralph-lauren-polo-bear-sweater) · Supreme Box Logo hoodie (/resale-value/supreme-box-logo-hoodie) · Levi's 501 jeans (/resale-value/levis-501)
+
+**How much is a used The North Face Nuptse jacket worth?**
+It depends on model, size, colour, down condition and authenticity. Prices change weekly, so check today's value: type "The North Face Nuptse jacket" and the condition into FlipLens (fliplens.eu), which compares current eBay listings in the UK and five EU countries and shows the expected sale price and the most worth paying.
+
+**When is the best time to sell a Nuptse jacket?**
+In autumn and winter, when demand is highest. Buying out of season is cheaper.
+
+**How can I spot a fake Nuptse?**
+Compare the labels, the logo embroidery, the zips and the stitching with a genuine jacket. Fakes often have uneven logos and thin filling.
+
+
+## How much is a used Carhartt Detroit jacket worth?
+
+URL: https://fliplens.eu/resale-value/carhartt-detroit-jacket
+
+Vintage Carhartt workwear is a strong resale category. Worn and faded jackets can sell for more than clean new ones.
+
+### Which one do you have?
+
+Carhartt (the American workwear brand) and Carhartt WIP (its European streetwear line) are different labels. Vintage Detroit jackets have a blanket lining and a corduroy collar. The label style tells roughly how old the jacket is.
+
+### What decides the price
+
+- Line and age: vintage American Carhartt versus recent WIP pieces.
+- Wear: natural fading is valued, but large tears and stains are not.
+- Colour: brown (Carhartt Brown) and black are classics.
+- Size: work sizes run large.
+
+### Check before you buy
+
+- Read the label and the country of origin.
+- Check the lining, cuffs and collar.
+- Measure the pit-to-pit width.
+
+### Where it sells best
+
+Sells on Vinted, eBay and vintage marketplaces. Put "vintage" and the model in the title and show the label.
+
+### Today's price
+
+Prices for a used Carhartt Detroit jacket change every week, so this page gives no fixed numbers. FlipLens reads current eBay listings for the exact model and condition, removes bundles, broken items and other models, and shows a quick-sale, expected and high price, your profit after fees and the most to pay. Check your Carhartt Detroit jacket (/?q=Carhartt%20Detroit%20jacket).
+More: Resale value of branded clothes (/guides/resale-value-branded-clothes) · Polo Ralph Lauren cable-knit sweater (/resale-value/polo-ralph-lauren-cable-knit-sweater) · Ralph Lauren Polo Bear sweater (/resale-value/ralph-lauren-polo-bear-sweater) · Supreme Box Logo hoodie (/resale-value/supreme-box-logo-hoodie) · Levi's 501 jeans (/resale-value/levis-501)
+
+**How much is a used Carhartt Detroit jacket worth?**
+It depends on vintage or WIP, wear, size and colour. Prices change weekly, so check today's value: type "Carhartt Detroit jacket" and the condition into FlipLens (fliplens.eu), which compares current eBay listings in the UK and five EU countries and shows the expected sale price and the most worth paying.
+
+**Are worn Carhartt jackets worth anything?**
+Yes, faded and worn vintage Carhartt is in demand. Heavy damage still lowers the price.
+
+**Is Carhartt WIP worth as much as vintage Carhartt?**
+They are different markets: recent WIP clothing usually sells for less than sought-after vintage pieces.
+
+
+## How much is a used Barbour wax jacket worth?
+
+URL: https://fliplens.eu/resale-value/barbour-wax-jacket
+
+Barbour wax jackets are a steady seller in the UK and Europe. The model and the state of the wax make the difference.
+
+### Which one do you have?
+
+Classic models include the Bedale, Beaufort and Border. The model name and size are on the inside label. Older jackets made in England with the royal warrant badges are often sought after.
+
+### What decides the price
+
+- Model: classic models sell best.
+- Wax: a jacket that needs rewaxing sells for less; rewaxing is cheap.
+- Size: sizes run differently by model and age.
+- Condition: tears, worn cuffs, a broken zip or missing lining.
+
+### Check before you buy
+
+- Read the label for model, size and origin.
+- Check the zip, the poppers and the corduroy collar.
+- Smell it: old wax jackets can be musty.
+
+### Where it sells best
+
+Sells on eBay, Vinted and Barbour's own resale channels. Autumn is the best time to sell.
+
+### Today's price
+
+Prices for a used Barbour wax jacket change every week, so this page gives no fixed numbers. FlipLens reads current eBay listings for the exact model and condition, removes bundles, broken items and other models, and shows a quick-sale, expected and high price, your profit after fees and the most to pay. Check your Barbour wax jacket (/?q=Barbour%20wax%20jacket).
+More: Resale value of branded clothes (/guides/resale-value-branded-clothes) · Polo Ralph Lauren cable-knit sweater (/resale-value/polo-ralph-lauren-cable-knit-sweater) · Ralph Lauren Polo Bear sweater (/resale-value/ralph-lauren-polo-bear-sweater) · Supreme Box Logo hoodie (/resale-value/supreme-box-logo-hoodie) · Levi's 501 jeans (/resale-value/levis-501)
+
+**How much is a used Barbour wax jacket worth?**
+It depends on model, size, wax condition and origin. Prices change weekly, so check today's value: type "Barbour wax jacket" and the condition into FlipLens (fliplens.eu), which compares current eBay listings in the UK and five EU countries and shows the expected sale price and the most worth paying.
+
+**Should I rewax a Barbour jacket before selling?**
+Often yes. It is cheap and makes the jacket look and sell better.
+
+**Which Barbour jackets resell best?**
+Classic waxed models such as the Bedale, Beaufort and Border, in good condition and common sizes.
+
+
+## How much is a used Patagonia fleece worth?
+
+URL: https://fliplens.eu/resale-value/patagonia-fleece
+
+Patagonia fleeces are popular second-hand, and vintage ones made in the USA are especially sought after.
+
+### Which one do you have?
+
+Popular models are the Synchilla Snap-T and the Retro-X. The label shows the model and where it was made; older labels look different from recent ones.
+
+### What decides the price
+
+- Model: Snap-T and Retro-X above basic fleeces.
+- Age: vintage pieces and rare colours above recent ones.
+- Condition: pilling and worn cuffs lower the price.
+- Size: common sizes sell fastest.
+
+### Check before you buy
+
+- Read the label for model, origin and size.
+- Check for pilling, stains and broken snaps.
+
+### Where it sells best
+
+Sells on Vinted and eBay. Put the model and "vintage" if it applies in the title.
+
+### Today's price
+
+Prices for a used Patagonia fleece change every week, so this page gives no fixed numbers. FlipLens reads current eBay listings for the exact model and condition, removes bundles, broken items and other models, and shows a quick-sale, expected and high price, your profit after fees and the most to pay. Check your Patagonia fleece (/?q=Patagonia%20fleece).
+More: Resale value of branded clothes (/guides/resale-value-branded-clothes) · Polo Ralph Lauren cable-knit sweater (/resale-value/polo-ralph-lauren-cable-knit-sweater) · Ralph Lauren Polo Bear sweater (/resale-value/ralph-lauren-polo-bear-sweater) · Supreme Box Logo hoodie (/resale-value/supreme-box-logo-hoodie) · Levi's 501 jeans (/resale-value/levis-501)
+
+**How much is a used Patagonia fleece worth?**
+It depends on model, age, size and pilling. Prices change weekly, so check today's value: type "Patagonia fleece" and the condition into FlipLens (fliplens.eu), which compares current eBay listings in the UK and five EU countries and shows the expected sale price and the most worth paying.
+
+**Are vintage Patagonia fleeces worth more?**
+Yes, older pieces and rare colours sell for more than recent fleeces.
+
+**Does pilling lower the price?**
+Yes, but a light de-pilling before selling helps.
+
+
+## How much is a used Stone Island jacket worth?
+
+URL: https://fliplens.eu/resale-value/stone-island-jacket
+
+Stone Island resells well but is one of the most faked clothing brands. The badge and the authenticity code decide whether a buyer trusts your listing.
+
+### Which one do you have?
+
+Every piece has the compass badge on the left sleeve, attached with buttons. Recent pieces have an authenticity label with a code you can check online. Inside labels describe the material and the special treatment of each model.
+
+### What decides the price
+
+- Authenticity: fakes are very common; a verifiable code adds trust.
+- Model and material: special fabrics and treatments above basic overshirts and sweatshirts.
+- Badge: a missing badge lowers the price.
+- Size and condition.
+
+### Check before you buy
+
+- Verify the authenticity code online.
+- Check the badge, buttons and labels.
+- Look for wear on the cuffs and collar.
+
+### Where it sells best
+
+Sells on eBay and Vinted. Photograph the badge, labels and code clearly.
+
+### Today's price
+
+Prices for a used Stone Island jacket change every week, so this page gives no fixed numbers. FlipLens reads current eBay listings for the exact model and condition, removes bundles, broken items and other models, and shows a quick-sale, expected and high price, your profit after fees and the most to pay. Check your Stone Island jacket (/?q=Stone%20Island%20jacket).
+More: Resale value of branded clothes (/guides/resale-value-branded-clothes) · Polo Ralph Lauren cable-knit sweater (/resale-value/polo-ralph-lauren-cable-knit-sweater) · Ralph Lauren Polo Bear sweater (/resale-value/ralph-lauren-polo-bear-sweater) · Supreme Box Logo hoodie (/resale-value/supreme-box-logo-hoodie) · Levi's 501 jeans (/resale-value/levis-501)
+
+**How much is a used Stone Island jacket worth?**
+It depends on model, material, badge and authenticity. Prices change weekly, so check today's value: type "Stone Island jacket" and the condition into FlipLens (fliplens.eu), which compares current eBay listings in the UK and five EU countries and shows the expected sale price and the most worth paying.
+
+**How do I check if Stone Island is real?**
+Use the authenticity code on the label, and check the badge, buttons and labels against genuine pieces.
+
+**Is a Stone Island jacket without the badge worth less?**
+Yes, the badge is part of what buyers pay for.
+
+
+## How much is a used Nike Dunk Low worth?
+
+URL: https://fliplens.eu/resale-value/nike-dunk-low
+
+Nike Dunk Lows range from common colourways that sell near shop price to limited releases worth much more. The style code tells you which.
+
+### Which one do you have?
+
+The style code (for example DD1391-100) is on the size label inside the shoe and on the box. It identifies the exact colourway. Search the code, not just the name.
+
+### What decides the price
+
+- Colourway: limited releases far above general releases.
+- Size: common men's sizes sell fastest.
+- Condition: creasing, sole wear and yellowing.
+- Box and authenticity: the original box and a matching code.
+
+### Check before you buy
+
+- Match the style code on the shoe and the box.
+- Check the stitching, the swoosh and the insole for fakes.
+- Look at the soles and the heel for wear.
+
+### Where it sells best
+
+Sells on Vinted and eBay; limited pairs on authenticated resale platforms. Put the style code in the listing.
+
+### Today's price
+
+Prices for a used Nike Dunk Low change every week, so this page gives no fixed numbers. FlipLens reads current eBay listings for the exact model and condition, removes bundles, broken items and other models, and shows a quick-sale, expected and high price, your profit after fees and the most to pay. Check your Nike Dunk Low (/?q=Nike%20Dunk%20Low).
+More: Sneaker resale value (/guides/sneaker-resale-value) · Air Jordan 1 (/resale-value/air-jordan-1) · Dr. Martens 1460 boots (/resale-value/dr-martens-1460)
+
+**How much is a used Nike Dunk Low worth?**
+It depends on colourway, size, condition and authenticity. Prices change weekly, so check today's value: type "Nike Dunk Low" and the condition into FlipLens (fliplens.eu), which compares current eBay listings in the UK and five EU countries and shows the expected sale price and the most worth paying.
+
+**Are Nike Dunk Lows still worth reselling?**
+Limited colourways yes. Common ones such as general releases often sell close to or below shop price.
+
+**Where is the style code on Nike shoes?**
+On the size label inside the tongue or on the side wall, and on the box label.
+
+
+## How much is a used Air Jordan 1 worth?
+
+URL: https://fliplens.eu/resale-value/air-jordan-1
+
+Air Jordan 1 prices depend first on the cut: High, Mid or Low. A Mid that looks like a famous High sells for a fraction of it.
+
+### Which one do you have?
+
+The style code on the size label identifies the cut and colourway. Highs have more lace holes than Mids, and the Mid has a different collar. Search the code to compare.
+
+### What decides the price
+
+- Cut: Highs above Lows and Mids.
+- Colourway: limited releases and collaborations far above general releases.
+- Condition: creasing, sole wear, scuffs.
+- Authenticity: fakes are common.
+
+### Check before you buy
+
+- Match the style code on the shoe and box.
+- Check the stitching, the logo and the shape against verified pairs.
+- Look for heel and sole wear.
+
+### Where it sells best
+
+Sells on eBay and Vinted; valuable pairs on authenticated platforms.
+
+### Today's price
+
+Prices for a used Air Jordan 1 change every week, so this page gives no fixed numbers. FlipLens reads current eBay listings for the exact model and condition, removes bundles, broken items and other models, and shows a quick-sale, expected and high price, your profit after fees and the most to pay. Check your Air Jordan 1 (/?q=Nike%20Air%20Jordan%201).
+More: Sneaker resale value (/guides/sneaker-resale-value) · Nike Dunk Low (/resale-value/nike-dunk-low) · Dr. Martens 1460 boots (/resale-value/dr-martens-1460)
+
+**How much is a used Air Jordan 1 worth?**
+It depends on High, Mid or Low, colourway, size and condition. Prices change weekly, so check today's value: type "Nike Air Jordan 1" and the condition into FlipLens (fliplens.eu), which compares current eBay listings in the UK and five EU countries and shows the expected sale price and the most worth paying.
+
+**Why are Jordan 1 Mids cheaper than Highs?**
+They are a general-release line with less demand. The cut matters more than the colourway for most pairs.
+
+**How do I know if my Jordan 1s are worth a lot?**
+Search the style code. Limited releases and collaborations are worth far more than general releases.
+
+
+## How much is a used Dr. Martens 1460 boots worth?
+
+URL: https://fliplens.eu/resale-value/dr-martens-1460
+
+Dr. Martens 1460 boots are an evergreen seller. Boots made in England and special editions sell for more than standard pairs.
+
+### Which one do you have?
+
+The 1460 is the classic 8-eye boot. The size is inside the boot and on the sole. The "Made in England" line is made in the original factory; standard pairs are made elsewhere.
+
+### What decides the price
+
+- Line: Made in England and special editions above standard.
+- Wear: the soles and heels, creasing, scuffed toes.
+- Size: common sizes sell fastest.
+- Colour and leather: black smooth leather is the most common.
+
+### Check before you buy
+
+- Look at the soles: heavy heel wear lowers the price.
+- Check the stitching and the yellow welt.
+- Read the size and origin inside.
+
+### Where it sells best
+
+Sells on Vinted and eBay all year. Clean and polish before photographing.
+
+### Today's price
+
+Prices for a used Dr. Martens 1460 boots change every week, so this page gives no fixed numbers. FlipLens reads current eBay listings for the exact model and condition, removes bundles, broken items and other models, and shows a quick-sale, expected and high price, your profit after fees and the most to pay. Check your Dr. Martens 1460 boots (/?q=Dr.%20Martens%201460%20boots).
+More: Sneaker resale value (/guides/sneaker-resale-value) · Nike Dunk Low (/resale-value/nike-dunk-low) · Air Jordan 1 (/resale-value/air-jordan-1)
+
+**How much is a used Dr. Martens 1460 boots worth?**
+It depends on line, size, wear and origin. Prices change weekly, so check today's value: type "Dr. Martens 1460 boots" and the condition into FlipLens (fliplens.eu), which compares current eBay listings in the UK and five EU countries and shows the expected sale price and the most worth paying.
+
+**Are used Dr. Martens worth anything?**
+Yes, they sell steadily. Good condition and Made in England pairs sell best.
+
+**Does polishing make a difference?**
+Yes, clean polished boots look better in photos and sell faster.

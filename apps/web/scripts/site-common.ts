@@ -26,6 +26,8 @@ export interface Page {
   /** Call to action at the end; defaults to the price-check CTA. */
   cta?: string;
   parent?: { path: string; name: string };
+  /** Date of the last content change, when it differs from UPDATED. */
+  updated?: string;
 }
 
 /** Chrome of the static pages in one language. */

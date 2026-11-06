@@ -641,6 +641,20 @@ export function App() {
     go({ name: 'listing' });
   }, [account, go]);
 
+  // fliplens.eu/?q=Nintendo+Switch+OLED (resale-value pages) opens a check with that model filled in.
+  const queryHandled = useRef(false);
+  useEffect(() => {
+    if (queryHandled.current || (dbOn && !meLoaded)) return;
+    queryHandled.current = true;
+    const params = new URLSearchParams(window.location.search);
+    const q = params.get('q')?.trim().slice(0, 120);
+    if (!q) return;
+    params.delete('q');
+    window.history.replaceState(null, '', `${window.location.pathname}${params.size ? `?${params}` : ''}`);
+    if (showLanding) enterFromLanding();
+    startManual(splitQuery(q));
+  }, [dbOn, meLoaded]);
+
   const isGuest = dbOn && meLoaded && !account;
   /** Right under a guest's first result: what signing in gives, with the Google button at hand. */
   const saveCard = (

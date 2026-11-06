@@ -15,6 +15,7 @@ import { PLAN_FEATURES_BY_LANG } from '../src/i18n.js';
 import { EXAMPLE_PEOPLE, INVITE_BONUS_CHECKS, LANG_NAMES, LANGS, SITE, UPDATED, esc, exampleMinor, href, type Faq, type Lang, type LangPack, type Page, type UiStrings } from './site-common.js';
 import { IT } from './site-it.js';
 import { FR } from './site-fr.js';
+import { ITEM_PAGES, ITEMS_INDEX, ITEMS_PATH, ITEMS_UPDATED } from './site-items.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const PUBLIC = resolve(here, '../public');
@@ -767,6 +768,10 @@ PAGES.push({
     {
       h2: 'All guides',
       html: `<ul class="guide-list">${GUIDES.map((g) => `<li><a href="${g.path}">${esc(g.h1)}</a><br><span>${esc(g.description)}</span></li>`).join('')}</ul>`,
+    },
+    {
+      h2: 'Resale values of popular items',
+      html: `<p>How much is a used Nintendo Switch, PS5, AirPods, Ralph Lauren jumper or pair of Dunks worth? <a href="${ITEMS_PATH}">Resale values of popular items</a>: what decides the price of each and a live check.</p>`,
     },
   ],
 });
@@ -1645,7 +1650,11 @@ const UI: Record<'en' | 'de', UiStrings> = {
 
 /** Links to the same page in the other languages. */
 const otherLangs = (lang: Lang, path: string): string =>
-  LANGS.filter((l) => l !== lang).map((l) => `<a href="${href(l, path)}" hreflang="${l}" lang="${l}">${LANG_NAMES[l]}</a>`).join(' ');
+  LANGS.filter((l) => l !== lang).map((l) => `<a href="${href(l, langPath(path))}" hreflang="${l}" lang="${l}">${LANG_NAMES[l]}</a>`).join(' ');
+
+/** English-only pages (resale values) have no translation: their language links go to the start page. */
+const EN_ONLY = new Set([ITEMS_INDEX, ...ITEM_PAGES].map((p) => p.path));
+const langPath = (path: string): string => (EN_ONLY.has(path) ? '/' : path);
 
 function nav(lang: Lang, path: string): string {
   const u = PACKS[lang].ui;
@@ -1655,7 +1664,7 @@ function nav(lang: Lang, path: string): string {
 function footer(lang: Lang, path: string): string {
   const u = PACKS[lang].ui;
   const links = [...u.nav.map(([p, n]) => `<a href="${href(lang, p)}">${n}</a>`), `<a href="${href(lang, '/partner')}">${u.partner}</a>`, `<a href="${href(lang, '/best-resale-value-apps')}">${u.compare}</a>`, `<a href="${href(lang, '/about')}">${u.about}</a>`, `<a href="/privacy">${u.privacy}</a>`, `<a href="/terms">${u.terms}</a>`, `<a href="mailto:${LEGAL.supportEmail}">${LEGAL.supportEmail}</a>`];
-  const switcher = LANGS.map((l) => (l === lang ? LANG_NAMES[l] : `<a href="${href(l, path)}" hreflang="${l}" lang="${l}">${LANG_NAMES[l]}</a>`)).join(' | ');
+  const switcher = LANGS.map((l) => (l === lang ? LANG_NAMES[l] : `<a href="${href(l, langPath(path))}" hreflang="${l}" lang="${l}">${LANG_NAMES[l]}</a>`)).join(' | ');
   return `<footer><p>${links.join(' · ')}</p><p>${switcher}</p><p>© ${new Date().getFullYear()} ${esc(LEGAL.operator)}. ${u.disclaimer}</p></footer>`;
 }
 
@@ -1667,6 +1676,7 @@ function faqLd(faq: Faq[], lang: Lang) {
 
 /** hreflang alternates: every page exists in all languages, English is the default. */
 function alternates(path: string): string[] {
+  if (EN_ONLY.has(path)) return [];
   return [
     ...LANGS.map((l) => `<link rel="alternate" hreflang="${l}" href="${SITE}${href(l, path)}">`),
     `<link rel="alternate" hreflang="x-default" href="${SITE}${href('en', path)}">`,
@@ -1705,7 +1715,7 @@ function renderPage(p: Page, lang: Lang): string {
     ORG,
     { '@type': 'BreadcrumbList', itemListElement: crumbs.map((c, i) => ({ '@type': 'ListItem', position: i + 1, name: c.name, item: `${SITE}${href(lang, c.path)}` })) },
     p.kind === 'article'
-      ? { '@type': 'Article', headline: p.h1, description: p.description, inLanguage: lang, datePublished: UPDATED, dateModified: UPDATED, author: { '@id': `${SITE}/#org` }, publisher: { '@id': `${SITE}/#org` }, image: `${SITE}/og.png`, mainEntityOfPage: url }
+      ? { '@type': 'Article', headline: p.h1, description: p.description, inLanguage: lang, datePublished: p.updated ?? UPDATED, dateModified: p.updated ?? UPDATED, author: { '@id': `${SITE}/#org` }, publisher: { '@id': `${SITE}/#org` }, image: `${SITE}/og.png`, mainEntityOfPage: url }
       : { '@type': p.path === '/about' ? 'AboutPage' : 'WebPage', name: p.title, description: p.description, inLanguage: lang, url, isPartOf: { '@id': `${SITE}/#website` }, ...(p.path === '/about' && { about: { '@id': `${SITE}/#org` } }) },
     ...(p.faq ? [faqLd(p.faq, lang)] : []),
   ];
@@ -1731,7 +1741,7 @@ function renderPage(p: Page, lang: Lang): string {
       <article>
         <h1>${esc(p.h1)}</h1>
         <p class="lead">${esc(p.lead)}</p>
-        ${p.kind === 'article' ? `<p class="meta">${u.updated(UPDATED)}</p>` : ''}
+        ${p.kind === 'article' ? `<p class="meta">${u.updated(p.updated ?? UPDATED)}</p>` : ''}
         ${p.sections.map((s) => `<section><h2>${esc(s.h2)}</h2>${s.html}</section>`).join('\n        ')}
         ${faqHtml}
         ${p.cta ?? u.cta}
@@ -1853,7 +1863,7 @@ function replaceBetween(src: string, name: string, content: string): string {
 
 /** Base paths that exist in every language. */
 const BILINGUAL = ['/', ...PAGES.map((p) => p.path).sort()];
-const URLS = [...BILINGUAL.flatMap((p) => LANGS.map((l) => href(l, p))), '/privacy', '/terms'];
+const URLS = [...BILINGUAL.flatMap((p) => LANGS.map((l) => href(l, p))), ...EN_ONLY, '/privacy', '/terms'];
 
 function sitemap(): string {
   const alt = (p: string) =>
@@ -1861,6 +1871,7 @@ function sitemap(): string {
     `<xhtml:link rel="alternate" hreflang="x-default" href="${SITE}${href('en', p)}"/>`;
   const entries = [
     ...BILINGUAL.flatMap((p) => LANGS.map((l) => `  <url><loc>${SITE}${href(l, p)}</loc><lastmod>${UPDATED}</lastmod>${alt(p)}</url>`)),
+    ...[...EN_ONLY].map((u) => `  <url><loc>${SITE}${u}</loc><lastmod>${ITEMS_UPDATED}</lastmod></url>`),
     ...['/privacy', '/terms'].map((u) => `  <url><loc>${SITE}${u}</loc><lastmod>${UPDATED}</lastmod></url>`),
   ];
   return `<?xml version="1.0" encoding="UTF-8"?>
@@ -1917,6 +1928,10 @@ Key facts:
 ## Guides
 ${GUIDES.map((g) => `- [${g.h1}](${SITE}${g.path}): ${g.description}`).join('\n')}
 
+## Resale values of popular items
+- [${ITEMS_INDEX.h1}](${SITE}${ITEMS_PATH}): ${ITEMS_INDEX.description}
+${ITEM_PAGES.map((p) => `- [${p.h1}](${SITE}${p.path}): ${p.description}`).join('\n')}
+
 ## Deutsch
 - [FlipLens auf Deutsch](${SITE}/de): Start page and app in German
 ${PAGES_DE.map((p) => `- [${p.h1}](${SITE}${href('de', p.path)})`).join('\n')}
@@ -1941,7 +1956,7 @@ ${FR.pages.map((p) => `- [${p.h1}](${SITE}${href('fr', p.path)})`).join('\n')}
 function llmsFull(): string {
   return [
     `# FlipLens: full text\n\nSource: ${SITE}. Updated ${UPDATED}.\n`,
-    ...PAGES.map((p) =>
+    ...[...PAGES, ITEMS_INDEX, ...ITEM_PAGES].map((p) =>
       [
         `\n## ${p.h1}\n\nURL: ${SITE}${p.path}\n\n${p.lead}\n`,
         ...p.sections.map((s) => `\n### ${s.h2}\n\n${strip(s.html)}\n`),
@@ -1966,6 +1981,7 @@ for (const lang of LANGS) {
   for (const p of pack.pages) write(lang === 'en' ? `${p.path.slice(1)}.html` : `${lang}${p.path}.html`, renderPage(p, lang));
   if (lang !== 'en') write(`prerender-${lang}.html`, `${pack.home.prerender}\n`);
 }
+for (const p of [ITEMS_INDEX, ...ITEM_PAGES]) write(`${p.path.slice(1)}.html`, renderPage(p, 'en'));
 // Meta of the start pages /de, /it, /fr for the API (apps/api/src/web.ts).
 write('home-meta.json', `${JSON.stringify(Object.fromEntries(LANGS.filter((l) => l !== 'en').map((l) => [l, { title: PACKS[l].home.title, description: PACKS[l].home.description, locale: PACKS[l].ui.locale }])), null, 2)}\n`);
 write('sitemap.xml', sitemap());
@@ -1978,4 +1994,4 @@ index = replaceBetween(index, 'seo', homeHead());
 index = replaceBetween(index, 'prerender', homePrerender());
 writeFileSync(INDEX, index);
 
-console.log(`site: ${PAGES.length} + ${PAGES_DE.length} (de) pages, ${URLS.length} sitemap URLs, llms.txt, robots.txt, prerender-de.html, index.html updated`);
+console.log(`site: ${PAGES.length} + ${PAGES_DE.length} (de) pages, ${ITEM_PAGES.length + 1} resale-value pages, ${URLS.length} sitemap URLs, llms.txt, robots.txt, prerender-de.html, index.html updated`);
