@@ -239,3 +239,7 @@ Status: accepted 2026-11-03.
 - One trial per card: when a trialing subscription syncs, a SHA-256 hash of the card's Stripe fingerprint is claimed in `trial_cards` (no foreign key, kept after account deletion). If another account claimed it first, the trial is ended at once (`trial_end: now`) and the first month is charged. Checkout, the plans screen, the Terms and the pricing FAQ say so.
 - Stripe dashboard: trial reminder email 7 days before the end, failed-payment emails, the "trial over" statement descriptor, and the customer portal (cancel at period end, plan switching between Pro and Reseller).
 - Terms also corrected for ADR-036 (empty checks are not counted up to 10 a month); effective date 2026-11-03.
+
+## ADR-038: Storage size fallback
+Status: accepted 2026-11-06.
+- A guest picked "500 GB" for a PS5 Digital Edition (a PS4 size) and got "not enough data": 7 listings instead of 61. When a check with a storage size ends without a price, it is searched again without the size; if that gives a price, it is shown with a note ("Almost no listings for 500 GB, so this price covers all storage sizes") and the response carries `capacityDropped`. Otherwise the original "not enough data" stands. The extra eBay search only happens in that case. Live: PS5 Digital "500GB" now €545 from 62 listings; iPhone 13 128GB unchanged (108 listings, no fallback).

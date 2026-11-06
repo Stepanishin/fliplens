@@ -21,6 +21,7 @@ const T = tr({
     notEnough: 'Not enough market data',
     tooFew: (n: number) => `Only ${n} matching listings after filtering (5 needed). We don't guess.`,
     notCounted: "This check was not counted.",
+    capacityDropped: (c: string) => `Almost no listings for ${c}, so this price covers all storage sizes. Check the size on the device.`,
     uncertain: 'The product identification is too uncertain to value.',
     writeTitle: 'Selling it? Write the listing from your photo',
     listVinted: 'Write the Vinted listing',
@@ -68,6 +69,7 @@ const T = tr({
     notEnough: 'Nicht genug Marktdaten',
     tooFew: (n: number) => `Nur ${n} passende Angebote nach dem Filtern (5 nötig). Wir raten nicht.`,
     notCounted: "Dieser Check wurde nicht gezählt.",
+    capacityDropped: (c: string) => `Für ${c} gibt es kaum Angebote, daher gilt dieser Preis für alle Speichergrößen. Prüf die Größe am Gerät.`,
     uncertain: 'Das Produkt ist zu unsicher erkannt, um es zu bewerten.',
     writeTitle: 'Willst du es verkaufen? Schreib die Anzeige aus deinem Foto',
     listVinted: 'Vinted-Anzeige schreiben',
@@ -115,6 +117,7 @@ const T = tr({
     notEnough: 'Dati di mercato insufficienti',
     tooFew: (n: number) => `Solo ${n} annunci corrispondenti dopo il filtro (ne servono 5). Non tiriamo a indovinare.`,
     notCounted: "Questo controllo non è stato conteggiato.",
+    capacityDropped: (c: string) => `Quasi nessun annuncio per ${c}, quindi questo prezzo vale per tutte le capacità. Controlla la capacità sul dispositivo.`,
     uncertain: 'Il riconoscimento del prodotto è troppo incerto per una valutazione.',
     writeTitle: 'Vuoi venderlo? Scrivi l’annuncio dalla tua foto',
     listVinted: 'Scrivi l’annuncio Vinted',
@@ -162,6 +165,7 @@ const T = tr({
     notEnough: 'Pas assez de données de marché',
     tooFew: (n: number) => `Seulement ${n} annonces correspondantes après filtrage (5 nécessaires). On ne devine pas.`,
     notCounted: "Cette vérification n’a pas été comptée.",
+    capacityDropped: (c: string) => `Presque aucune annonce pour ${c}, ce prix couvre donc toutes les capacités. Vérifie la capacité sur l’appareil.`,
     uncertain: 'L’identification du produit est trop incertaine pour l’évaluer.',
     writeTitle: 'Tu veux le vendre ? Rédige l’annonce à partir de ta photo',
     listVinted: 'Rédiger l’annonce Vinted',
@@ -338,6 +342,8 @@ export function Result({ resp, query, country, onNewScan, onEdit, targetRoiPct, 
       {resp.sourceWarnings.map((w, i) => (
         <div key={i} className="banner warn small">{w.site ? `${w.site}: ` : ''}{w.message}</div>
       ))}
+
+      {resp.capacityDropped && <div className="banner warn small">{T.capacityDropped(resp.capacityDropped.replace(/(\d)(GB|TB)/i, '$1 $2'))}</div>}
 
       {showVerdict ? (
         <DecisionHero decision={decision.decision} profitMinor={p.profit.amountMinor} roiPct={p.roiPct} expectedMinor={e.expected.amountMinor} maxBuyMinor={maxBuy.amountMinor} />

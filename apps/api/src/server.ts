@@ -370,14 +370,15 @@ app.post('/api/valuation', async (req, reply) => {
     if (category === 'jewelry') return reply.code(422).send({ error: 'jewelry_unbranded', message: 'Unbranded gold and silver jewellery is priced by weight and purity. Ask a jeweller, or type the brand if it has one.' });
     return reply.code(422).send({ error: 'brand_required', message: 'Clothes, shoes and bags are priced by brand. Type the brand from the label.' });
   }
-  const product: NormalizedProduct = stripUndefined({ ...b.product, category, fashion: fashion && stripUndefined(fashion) });
+  let product: NormalizedProduct = stripUndefined({ ...b.product, category, fashion: fashion && stripUndefined(fashion) });
   const quota = await store.quota(req);
   if (quota && quota.remaining <= 0) {
     req.log.info({ event: 'quota_exceeded', plan: quota.plan }, 'quota exceeded');
     return reply.code(402).send({ error: 'quota_exceeded', message: `You used all ${quota.limit} checks of your ${quota.plan} plan this month.`, quota });
   }
 
-  const [search, rates] = await Promise.all([ebay.searchProduct(product, { requestId: req.id, ...(market.sites && { sites: market.sites }) }), fx.latest()]);
+  const searchOpts = { requestId: req.id, ...(market.sites && { sites: market.sites }) };
+  let [search, rates] = await Promise.all([ebay.searchProduct(product, searchOpts), fx.latest()]);
   for (const w of search.warnings) req.log.warn({ source: w.source, site: w.site, event: 'source_fetch_failed' }, w.message);
   // eBay down or our daily API limit used up: no data at all is an outage, not "not enough data".
   // Answer before anything is recorded, so the user does not lose a check.
@@ -392,7 +393,7 @@ app.post('/api/valuation', async (req, reply) => {
   const targetRoiPct = b.targetRoiPct ?? 40;
   // eBay prices include the buyer's shipping; where the buyer pays it separately (Vinted) or there is none (pickup),
   // the item itself fetches about that much less.
-  const shippingInPrice = typicalBuyerShipping(search.items, b.currency, rates, b.country);
+  let shippingInPrice = typicalBuyerShipping(search.items, b.currency, rates, b.country);
   const valueAt = (price: number, f = fees) =>
     valuate({
       product,
@@ -413,6 +414,23 @@ app.post('/api/valuation', async (req, reply) => {
   const priceProvided = b.purchasePrice !== undefined;
   let purchasePrice = b.purchasePrice ?? 0;
   let result = valueAt(purchasePrice);
+  // A storage size that hardly anyone lists (often a wrong pick, e.g. "500 GB" for a PS5): price all sizes instead of
+  // "not enough data", and say so. Only kept when it gives a price.
+  let capacityDropped: string | undefined;
+  if (result.status !== 'ok' && product.capacity) {
+    const narrow = { product, search, shippingInPrice };
+    const { capacity, ...wider } = product;
+    const s2 = await ebay.searchProduct(wider, searchOpts);
+    product = wider;
+    search = s2;
+    shippingInPrice = typicalBuyerShipping(search.items, b.currency, rates, b.country);
+    const r2 = valueAt(purchasePrice);
+    if (r2.status === 'ok') {
+      result = r2;
+      capacityDropped = capacity;
+      req.log.info({ event: 'capacity_dropped' }, 'too few listings for the storage size: priced all sizes');
+    } else ({ product, search, shippingInPrice } = narrow);
+  }
   if (!priceProvided && result.status === 'ok' && result.maxBuyPrice) {
     // No price given: show the deal at the most one should pay (whole euros, rounded down).
     purchasePrice = Math.max(0, Math.floor(result.maxBuyPrice.amountMinor / 100));
@@ -460,6 +478,7 @@ app.post('/api/valuation', async (req, reply) => {
     scanId,
     category,
     categoryDetected: !b.product.category,
+    ...(capacityDropped && { capacityDropped }),
     ...(product.fashion && { fashion: product.fashion }),
     ...(alt && { alt }),
     priceProvided,

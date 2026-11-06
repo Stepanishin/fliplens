@@ -62,6 +62,8 @@ export interface ValuationResponse {
   /** Category used for the search (auto-detected when the request had none). */
   category: CategorySlug;
   categoryDetected: boolean;
+  /** Too few listings for the chosen storage size: priced across all sizes (the size that was dropped). */
+  capacityDropped?: string;
   /** Clothes, shoes, bags: the type and department used (detected when the request had none). */
   fashion?: FashionAttributes;
   /** False when checked without a price: the result is valued at the max buy price. */
